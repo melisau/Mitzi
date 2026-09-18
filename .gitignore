@@ -27,3 +27,4 @@ ExportedObj/
 *.unitypackage
 sysinfo.txt
 crashlytics-build.properties
+.aider*

@@ -1,6 +1,8 @@
 using UnityEngine;
 using PawPath.Content;
 using PawPath.Data;
+using PawPath.Levels;
+
 
 namespace PawPath.Core
 {

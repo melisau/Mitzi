@@ -22,7 +22,8 @@ namespace PawPath.Hub
         float tick;
         bool petting;
         Collider2D col;
-
+        Vector3 lastPointerPosition;
+   
         public CatDefinition Cat => cat;
 
         void Awake()
@@ -38,40 +39,50 @@ namespace PawPath.Hub
             hearts = heartFx;
         }
 
-        void Update()
+            void Update()
+    {
+        if (GameFlow.Instance != null && !GameFlow.Instance.InHub)
         {
-            if (GameFlow.Instance != null && !GameFlow.Instance.InHub)
-            {
-                StopPetting();
-                return;
-            }
-
-            if (!PointerHeld())
-            {
-                StopPetting();
-                return;
-            }
-
-            Vector2 world = ScreenToWorld(PointerScreen());
-            bool over = col != null ? col.OverlapPoint(world) : Vector2.Distance(world, transform.position) <= petRadius;
-            if (!over)
-            {
-                StopPetting();
-                return;
-            }
-
-            if (!petting)
-                BeginPetting();
-
-            tick += Time.deltaTime;
-            if (tick >= loveTickInterval)
-            {
-                tick = 0f;
-                if (CozyEconomyManager.Instance != null)
-                    CozyEconomyManager.Instance.AddLove(lovePerTick, GameText.PettingLove(cat));
-                Vibrate();
-            }
+            StopPetting();
+            return;
         }
+
+        if (!PointerHeld())
+        {
+            StopPetting();
+            return;
+        }
+
+        Vector2 world = ScreenToWorld(PointerScreen());
+        bool over = col != null ? col.OverlapPoint(world) : Vector2.Distance(world, transform.position) <= petRadius;
+        
+        // --- YENİ KONTROL: Parmak kedi üzerinde hareket ediyor mu? ---
+        Vector3 currentPointerPos = PointerScreen();
+        float movementDistance = Vector3.Distance(currentPointerPos, lastPointerPosition);
+        lastPointerPosition = currentPointerPos; // Bir sonraki kare için pozisyonu güncelle
+
+        // Eğer oyuncu kedi üzerinde değilse VEYA elini yeterince oynatmıyorsa sevmeyi durdur
+        // (Ekran çözünürlüğüne göre 1 pikselden az hareket varsa sabit duruyor demektir)
+        if (!over || movementDistance < 1f)
+        {
+            StopPetting();
+            return;
+        }
+        // --------------------------------------------------------------
+
+        if (!petting)
+            BeginPetting();
+
+        tick += Time.deltaTime;
+        if (tick >= loveTickInterval)
+        {
+            tick = 0f;
+            if (CozyEconomyManager.Instance != null)
+                CozyEconomyManager.Instance.AddLove(lovePerTick, GameText.PettingLove(cat));
+            Vibrate();
+        }
+    }
+
 
         void BeginPetting()
         {
