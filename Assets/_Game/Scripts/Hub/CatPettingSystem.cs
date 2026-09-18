@@ -22,7 +22,6 @@ namespace PawPath.Hub
         float tick;
         bool petting;
         Collider2D col;
-        Vector3 lastPointerPosition;
    
         public CatDefinition Cat => cat;
 
@@ -39,50 +38,66 @@ namespace PawPath.Hub
             hearts = heartFx;
         }
 
-            void Update()
+        void Update()
+        {
+            // Eğer oyun Hub modunda değilse sevmeyi durdur
+            if (GameFlow.Instance != null && !GameFlow.Instance.InHub)
+            {
+                StopPetting();
+                return;
+            }
+              // --- YENİ KORUMA: Eğer fare bir butonun veya arayüzün üzerindeyse sevmeyi engelle ---
+    if (UnityEngine.EventSystems.EventSystem.current != null && 
+        UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
     {
-        if (GameFlow.Instance != null && !GameFlow.Instance.InHub)
-        {
-            StopPetting();
-            return;
-        }
-
-        if (!PointerHeld())
-        {
-            StopPetting();
-            return;
-        }
-
-        Vector2 world = ScreenToWorld(PointerScreen());
-        bool over = col != null ? col.OverlapPoint(world) : Vector2.Distance(world, transform.position) <= petRadius;
-        
-        // --- YENİ KONTROL: Parmak kedi üzerinde hareket ediyor mu? ---
-        Vector3 currentPointerPos = PointerScreen();
-        float movementDistance = Vector3.Distance(currentPointerPos, lastPointerPosition);
-        lastPointerPosition = currentPointerPos; // Bir sonraki kare için pozisyonu güncelle
-
-        // Eğer oyuncu kedi üzerinde değilse VEYA elini yeterince oynatmıyorsa sevmeyi durdur
-        // (Ekran çözünürlüğüne göre 1 pikselden az hareket varsa sabit duruyor demektir)
-        if (!over || movementDistance < 1f)
-        {
-            StopPetting();
-            return;
-        }
-        // --------------------------------------------------------------
-
-        if (!petting)
-            BeginPetting();
-
-        tick += Time.deltaTime;
-        if (tick >= loveTickInterval)
-        {
-            tick = 0f;
-            if (CozyEconomyManager.Instance != null)
-                CozyEconomyManager.Instance.AddLove(lovePerTick, GameText.PettingLove(cat));
-            Vibrate();
-        }
+        StopPetting();
+        return;
     }
+    // ---------------------------------------------------------------------------------
+  
+            
 
+            // Fareye veya ekrana basılmıyorsa sevmeyi durdur
+            if (!PointerHeld())
+            {
+                StopPetting();
+                return;
+            }
+
+            // Farenin oyun dünyasındaki koordinatını hesapla
+            Vector2 world = ScreenToWorld(PointerScreen());
+            
+            // Fare kedi alanının (Collider) üstünde mi kontrol et
+            bool over = col != null ? col.OverlapPoint(world) : Vector2.Distance(world, transform.position) <= petRadius;
+            
+            // Eğer faren kedi üzerindeyse sevmeyi başlat
+            if (over)
+            {
+                if (!petting)
+                    BeginPetting();
+
+                tick += Time.deltaTime;
+                if (tick >= loveTickInterval)
+                {
+                    tick = 0f;
+                    
+                    // TEST UYARISI: Kodun çalıştığını Unity alt panelinden görebilmek için:
+                    Debug.Log("🎯 Kediyi başarıyla okşuyorsunuz! Kalpler uçuşuyor olmalı.");
+                    
+                    if (CozyEconomyManager.Instance != null)
+                        CozyEconomyManager.Instance.AddLove(lovePerTick, GameText.PettingLove(cat));
+                    Vibrate();
+                }
+            }
+            else
+            {
+                // Fare kedi alanından çıkarsa efekti durdur
+                StopPetting();
+            }
+
+
+            
+        }
 
         void BeginPetting()
         {
