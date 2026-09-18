@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ba0a48be16eac847b8231e19fb2dadc, type: 3}
+  m_Name: Cat_
+  m_EditorClassIdentifier: 
+  id: mitzi
+  displayName: Mitzi
+  bio: 
+  encounterDialogue: 
+  personality: 0
+  unlockAfterLevel: 0
+  furTint: {r: 0.85, g: 0.62, b: 0.38, a: 1}
+  portrait: {fileID: 0}
+  idleSprite: {fileID: 0}
+  animator: {fileID: 0}
+  purrClip: {fileID: 0}
+  meowClip: {fileID: 0}
