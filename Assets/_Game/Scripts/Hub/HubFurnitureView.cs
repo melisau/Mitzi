@@ -32,6 +32,22 @@ namespace PawPath.Hub
             if (slots == null)
                 return;
 
+            // =================================================================
+            // YENİ TEMİZLEME KALKANI: Önce tüm slotlardaki resimleri zorla SİL!
+            // =================================================================
+            foreach (var slot in slots)
+            {
+                if (slot != null)
+                {
+                    var existingSr = slot.GetComponent<SpriteRenderer>();
+                    if (existingSr != null)
+                    {
+                        existingSr.sprite = null; // Eski resmi tamamen boşaltıyoruz
+                    }
+                }
+            }
+            // =================================================================
+
             int i = 0;
             foreach (var id in SaveService.Data.placedItemIds)
             {
@@ -40,14 +56,17 @@ namespace PawPath.Hub
                 var item = GameFlow.Instance.Catalog.GetItem(id);
                 if (item == null)
                     continue;
+                
                 var sr = slots[i].GetComponent<SpriteRenderer>();
                 if (sr == null)
                     sr = slots[i].gameObject.AddComponent<SpriteRenderer>();
+                
                 sr.sprite = item.placedSprite != null ? item.placedSprite : FallbackSprite.WhiteCircle();
-                sr.color = new Color(0.82f, 0.70f, 0.58f);
+                sr.color = Color.white; // Renk filtresini bozmamak için saf beyaz yaptık
                 sr.sortingOrder = 3;
                 i++;
             }
         }
+
     }
 }
