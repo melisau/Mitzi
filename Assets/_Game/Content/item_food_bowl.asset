@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5453fd3994f158f44848f3bb7b9c08e9, type: 3}
+  m_Name: item_food_bowl
+  m_EditorClassIdentifier: 
+  id: food_bowl
+  displayName: Wooden Food Bowl
+  description: "Kedinizin en sevdi\u011Fi mamalar i\xE7in el yap\u0131m\u0131, \u015F\u0131k
+    bir ah\u015Fap kap."
+  type: 0
+  lovePointCost: 20
+  icon: {fileID: 0}
+  placedSprite: {fileID: 21300000, guid: 4fd1dd2521e526547af5bf159b398619, type: 3}

@@ -36,6 +36,20 @@ namespace PawPath.UI
             for (int i = listRoot.childCount - 1; i >= 0; i--)
                 Destroy(listRoot.GetChild(i).gameObject);
 
+            // Izgara Düzenleyiciyi (Grid Layout) Liste Köküne Otomatik Kuruyoruz
+            var grid = listRoot.GetComponent<GridLayoutGroup>();
+            if (grid == null)
+            {
+                grid = listRoot.gameObject.AddComponent<GridLayoutGroup>();
+                grid.cellSize = new Vector2(180, 220); // Her bir ürün kutusunun boyutu (Tam senin görseldeki oran)
+                grid.spacing = new Vector2(30, 30);    // Kutular arası yan yana ve alt alta boşluklar
+                grid.startCorner = GridLayoutGroup.Corner.UpperLeft;
+                grid.startAxis = GridLayoutGroup.Axis.Horizontal;
+                grid.childAlignment = TextAnchor.UpperCenter;
+                grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+                grid.constraintCount = 3; // Yan yana TAM 3 TANE KUTU dizecek!
+            }
+
             foreach (var item in GameFlow.Instance.Catalog.shopItems)
             {
                 if (item == null)
@@ -51,11 +65,18 @@ namespace PawPath.UI
         {
             var texts = row.GetComponentsInChildren<Text>(true);
             if (texts.Length > 0)
-                texts[0].text = item.displayName;
+                texts[0].text = item.displayName; // Ürün Adı
             if (texts.Length > 1)
-                texts[1].text = item.description;
+                texts[1].text = item.description; // İsmin altındaki minik açıklama
             if (texts.Length > 2)
-                texts[2].text = $"{item.lovePointCost} {GameText.Love}";
+                texts[2].text = $"{item.lovePointCost} Puan"; // Fiyat yazısı butonun hemen üstünde kalacak
+
+            var iconImg = row.transform.Find("Icon")?.GetComponent<Image>();
+            if (iconImg != null && item.placedSprite != null)
+            {
+                iconImg.sprite = item.placedSprite;
+                iconImg.color = Color.white;
+            }
 
             var button = row.GetComponentInChildren<Button>();
             if (button == null)
@@ -63,17 +84,26 @@ namespace PawPath.UI
 
             bool owned = CozyEconomyManager.Instance != null && CozyEconomyManager.Instance.Owns(item.id);
             var label = button.GetComponentInChildren<Text>();
+            
+            // Kalabalık yazıları kaldırıp sadece AL / SAT yapıyoruz!
             if (owned)
             {
-                button.interactable = false;
+                button.interactable = true; // Satmaya izin vermek için butonu açık bıraktık
                 if (label != null)
-                    label.text = GameText.Owned;
+                    label.text = "SAT"; // Sahipse sadece SAT yazar
+                
+                button.onClick.RemoveAllListeners();
+                // Opsiyonel: Eğer projende TrySell kodu varsa buraya bağlanabilir, yoksa TryBuy mantığı durur
+                button.onClick.AddListener(() => {
+                    Debug.Log($"{item.displayName} Satılmak istendi!");
+                });
             }
             else
             {
                 button.interactable = true;
                 if (label != null)
-                    label.text = GameText.Buy;
+                    label.text = "AL"; // Satın alınmadıysa sadece AL yazar
+                
                 var captured = item;
                 button.onClick.RemoveAllListeners();
                 button.onClick.AddListener(() => CozyEconomyManager.Instance.TryBuy(captured));
@@ -82,17 +112,57 @@ namespace PawPath.UI
 
         static GameObject CreateRow(Transform parent)
         {
-            var go = new GameObject("Row", typeof(RectTransform));
+            // Gönderdiğin görseldeki gibi şık, morumsu/tatlı dikey bir ürün kutusu
+            var go = new GameObject("GridItem", typeof(RectTransform), typeof(Image));
             go.transform.SetParent(parent, false);
-            var title = CreateText(go.transform, "Title", 22);
-            title.rectTransform.anchoredPosition = new Vector2(0, 28);
-            var desc = CreateText(go.transform, "Desc", 16);
-            desc.rectTransform.anchoredPosition = new Vector2(0, 0);
-            var cost = CreateText(go.transform, "Cost", 16);
-            cost.rectTransform.anchoredPosition = new Vector2(0, -24);
-            var btnGo = new GameObject("Buy", typeof(RectTransform), typeof(Image), typeof(Button));
+            var rowRt = go.GetComponent<RectTransform>();
+            rowRt.sizeDelta = new Vector2(180, 220);
+
+            var itemBg = go.GetComponent<Image>();
+            itemBg.color = new Color(0.38f, 0.35f, 0.48f); // Görselindeki o şık koyu mor/mavi arka plan rengi
+
+            // 1. Ürünün Mini İkonu (Kutunun üst yarısında büyükçe duracak)
+            var iconGo = new GameObject("Icon", typeof(RectTransform), typeof(Image));
+            iconGo.transform.SetParent(go.transform, false);
+            var iconRt = iconGo.GetComponent<RectTransform>();
+            iconRt.anchoredPosition = new Vector2(0, 45);
+            iconRt.sizeDelta = new Vector2(75, 75);
+
+            // 2. Ürün Adı (Görselin hemen altında)
+            var title = CreateText(go.transform, "Title", 14);
+            title.fontStyle = FontStyle.Bold;
+            title.color = Color.white; // Mor üzerinde beyaz yazı şık durur
+            title.rectTransform.anchoredPosition = new Vector2(0, -5);
+            title.rectTransform.sizeDelta = new Vector2(160, 20);
+
+            // 3. Ürün Açıklaması (İsmin hemen altında, minicik ve hiç yer kaplamayan alan)
+            var desc = CreateText(go.transform, "Desc", 10);
+            desc.color = new Color(0.8f, 0.8f, 0.85f); // Hafif soft beyaz
+            desc.rectTransform.anchoredPosition = new Vector2(0, -22);
+            desc.rectTransform.sizeDelta = new Vector2(160, 16);
+
+            // 4. Maliyet Puanı (Butonun hemen üzerinde belirecek)
+            var cost = CreateText(go.transform, "Cost", 11);
+            cost.color = new Color(0.95f, 0.8f, 0.4f); // Altın sarısı puan rengi
+            cost.rectTransform.anchoredPosition = new Vector2(0, -42);
+            cost.rectTransform.sizeDelta = new Vector2(160, 16);
+
+            // 5. Basit Al/Sat Butonu (Kutunun en altında temiz bir dikdörtgen)
+            var btnGo = new GameObject("BuyButton", typeof(RectTransform), typeof(Image), typeof(Button));
             btnGo.transform.SetParent(go.transform, false);
-            CreateText(btnGo.transform, "Label", 18);
+            var btnRt = btnGo.GetComponent<RectTransform>();
+            btnRt.anchoredPosition = new Vector2(0, -75); 
+            btnRt.sizeDelta = new Vector2(140, 32); 
+            
+            var btnImg = btnGo.GetComponent<Image>();
+            btnImg.color = new Color(0.85f, 0.45f, 0.35f); // Şık kiremit/turuncu tonu
+
+            var label = CreateText(btnGo.transform, "Label", 12);
+            label.fontStyle = FontStyle.Bold;
+            label.color = Color.white; 
+            label.rectTransform.sizeDelta = new Vector2(140, 32);
+            label.rectTransform.anchoredPosition = Vector2.zero;
+
             return go;
         }
 
@@ -105,7 +175,6 @@ namespace PawPath.UI
             if (t.font == null)
                 t.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
             t.fontSize = size;
-            t.color = new Color(0.35f, 0.28f, 0.32f);
             t.alignment = TextAnchor.MiddleCenter;
             return t;
         }
