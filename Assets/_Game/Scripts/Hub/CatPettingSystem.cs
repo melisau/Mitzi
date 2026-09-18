@@ -5,6 +5,9 @@ using PawPath.Data;
 using PawPath.Economy;
 using PawPath.Localization;
 
+[SerializeField] GameObject loveTextObject; // Unity'den LoveText'i buraya bağlayacağız
+
+
 namespace PawPath.Hub
 {
     /// <summary>
@@ -95,6 +98,16 @@ namespace PawPath.Hub
                 StopPetting();
             }
 
+        // =====================================================================
+        // YENİ GİZLEME SİSTEMİ: Sadece sevilirken puanı gösterir
+        // =====================================================================
+        if (loveTextObject != null)
+        {
+            // Eğer oyuncu kediye dokunuyorsa (PointerHeld) yazıyı AÇ, dokunmuyorsa GİZLE!
+            bool isPetting = PointerHeld();
+            loveTextObject.SetActive(isPetting);
+        }
+        // =====================================================================
 
             
         }
