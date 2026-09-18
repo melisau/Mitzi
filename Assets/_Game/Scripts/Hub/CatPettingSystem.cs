@@ -5,9 +5,6 @@ using PawPath.Data;
 using PawPath.Economy;
 using PawPath.Localization;
 
-[SerializeField] GameObject loveTextObject; // Unity'den LoveText'i buraya bağlayacağız
-
-
 namespace PawPath.Hub
 {
     /// <summary>
@@ -15,6 +12,9 @@ namespace PawPath.Hub
     /// </summary>
     public class CatPettingSystem : MonoBehaviour
     {
+        // DOĞRU YER: Değişken artık sınıfın içinde, pırıl pırıl duruyor!
+        [SerializeField] GameObject loveTextObject; 
+
         [SerializeField] CatDefinition cat;
         [SerializeField] ParticleSystem hearts;
         [SerializeField] float petRadius = 1.15f;
@@ -49,16 +49,15 @@ namespace PawPath.Hub
                 StopPetting();
                 return;
             }
-              // --- YENİ KORUMA: Eğer fare bir butonun veya arayüzün üzerindeyse sevmeyi engelle ---
-    if (UnityEngine.EventSystems.EventSystem.current != null && 
-        UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
-    {
-        StopPetting();
-        return;
-    }
-    // ---------------------------------------------------------------------------------
-  
-            
+
+            // --- YENİ KORUMA: Eğer fare bir butonun veya arayüzün üzerindeyse sevmeyi engelle ---
+            if (UnityEngine.EventSystems.EventSystem.current != null && 
+                UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
+            {
+                StopPetting();
+                return;
+            }
+            // ---------------------------------------------------------------------------------
 
             // Fareye veya ekrana basılmıyorsa sevmeyi durdur
             if (!PointerHeld())
@@ -84,7 +83,6 @@ namespace PawPath.Hub
                 {
                     tick = 0f;
                     
-                    // TEST UYARISI: Kodun çalıştığını Unity alt panelinden görebilmek için:
                     Debug.Log("🎯 Kediyi başarıyla okşuyorsunuz! Kalpler uçuşuyor olmalı.");
                     
                     if (CozyEconomyManager.Instance != null)
@@ -94,22 +92,17 @@ namespace PawPath.Hub
             }
             else
             {
-                // Fare kedi alanından çıkarsa efekti durdur
                 StopPetting();
             }
 
-        // =====================================================================
-        // YENİ GİZLEME SİSTEMİ: Sadece sevilirken puanı gösterir
-        // =====================================================================
-        if (loveTextObject != null)
-        {
-            // Eğer oyuncu kediye dokunuyorsa (PointerHeld) yazıyı AÇ, dokunmuyorsa GİZLE!
-            bool isPetting = PointerHeld();
-            loveTextObject.SetActive(isPetting);
-        }
-        // =====================================================================
-
-            
+            // =====================================================================
+            // YENİ GİZLEME SİSTEMİ: Sadece sevilirken puanı gösterir
+            // =====================================================================
+            if (loveTextObject != null)
+            {
+                loveTextObject.SetActive(PointerHeld());
+            }
+            // =====================================================================
         }
 
         void BeginPetting()
