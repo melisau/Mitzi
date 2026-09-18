@@ -88,27 +88,52 @@ namespace PawPath.UI
             // Kalabalık yazıları kaldırıp sadece AL / SAT yapıyoruz!
             if (owned)
             {
-                button.interactable = true; // Satmaya izin vermek için butonu açık bıraktık
+                button.interactable = true; 
                 if (label != null)
-                    label.text = "SAT"; // Sahipse sadece SAT yazar
+                    label.text = "SAT"; 
                 
                 button.onClick.RemoveAllListeners();
-                // Opsiyonel: Eğer projende TrySell kodu varsa buraya bağlanabilir, yoksa TryBuy mantığı durur
                 button.onClick.AddListener(() => {
-                    Debug.Log($"{item.displayName} Satılmak istendi!");
+                    // =========================================================
+                    // GÜNCELLEME: Eğer projede TrySell varsa parayı iade eder 
+                    // ve eşyayı odadan (SaveData) ANINDA SİLER!
+                    // =========================================================
+                    if (CozyEconomyManager.Instance != null)
+                    {
+                        // Eşyayı kayıttan çıkartıyoruz (Evden kaldırma sinyali)
+                        SaveService.Data.placedItemIds.Remove(item.id);
+                        
+                        // Oyuncuya parasını geri veriyoruz (Örn: Fiyatın yarısı iade)
+                        int refund = Mathf.CeilToInt(item.lovePointCost * 0.5f);
+                        CozyEconomyManager.Instance.AddLovePoints(refund); 
+                        
+                        // Tüm odadaki mobilyaları ve dükkanı ANINDA YENİLİYORUZ!
+                        GameEvents.OnShopChanged?.Invoke(); 
+                    }
                 });
             }
             else
             {
                 button.interactable = true;
                 if (label != null)
-                    label.text = "AL"; // Satın alınmadıysa sadece AL yazar
+                    label.text = "AL"; 
                 
                 var captured = item;
                 button.onClick.RemoveAllListeners();
-                button.onClick.AddListener(() => CozyEconomyManager.Instance.TryBuy(captured));
+                button.onClick.AddListener(() => {
+                    if (CozyEconomyManager.Instance != null && CozyEconomyManager.Instance.TryBuy(captured))
+                    {
+                        // Satın alma başarılıysa eşyayı odanın kayıt listesine ANINDA ekle!
+                        if (!SaveService.Data.placedItemIds.Contains(captured.id))
+                        {
+                            SaveService.Data.placedItemIds.Add(captured.id);
+                        }
+                        // Odayı ve dükkan listesini tık diye ANINDA tazele!
+                        GameEvents.OnShopChanged?.Invoke();
+                    }
+                });
             }
-        }
+
 
         static GameObject CreateRow(Transform parent)
         {
