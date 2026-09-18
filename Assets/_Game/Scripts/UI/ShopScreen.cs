@@ -180,9 +180,12 @@ namespace PawPath.UI
             cost.rectTransform.anchoredPosition = new Vector2(0, -42);
             cost.rectTransform.sizeDelta = new Vector2(160, 16);
 
-            var btnGo = new GameObject("BuyButton", typeof(RectTransform), typeof(Image), typeof(Button));
-            btnGo.transform.SetParent(btnGo.transform.SetParent(go.transform, false) ? go.transform : go.transform, false);
-            var btnRt = btnGo.GetComponent<RectTransform>();
+          
+
+var btnGo = new GameObject("BuyButton", typeof(RectTransform), typeof(Image), typeof(Button));
+btnGo.transform.SetParent(go.transform, false);
+var btnRt = btnGo.GetComponent<RectTransform>();
+           
             btnRt.anchoredPosition = new Vector2(0, -75); 
             btnRt.sizeDelta = new Vector2(140, 32); 
             
