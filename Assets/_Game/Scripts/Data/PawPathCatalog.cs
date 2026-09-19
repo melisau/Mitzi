@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
+using PawPath.Content;
+using PawPath.Core;
 
 namespace PawPath.Data
 {

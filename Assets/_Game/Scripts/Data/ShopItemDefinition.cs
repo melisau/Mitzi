@@ -1,23 +1,25 @@
 using UnityEngine;
 
-namespace PawPath.Data
+namespace PawPath.Content
 {
-    public enum ShopItemType
+    public enum FurnitureSlotType
     {
-        Furniture,
-        Outfit,
-        Toy
+        Bowl,   // Mama Kabı
+        Bed,    // Kedi Yatağı
+        Rug,    // Kilim / Halı
+        Toy     // Oyuncak vs.
     }
 
-    [CreateAssetMenu(menuName = "Paw Path/Shop Item", fileName = "Item_")]
+    [CreateAssetMenu(fileName = "ShopItem", menuName = "Paw Path/Shop Item")]
     public class ShopItemDefinition : ScriptableObject
     {
         public string id;
         public string displayName;
-        [TextArea(2, 5)] public string description;
-        public ShopItemType type = ShopItemType.Furniture;
-        public int lovePointCost = 40;
-        public Sprite icon;
+        public string description;
+        public int lovePointCost;
         public Sprite placedSprite;
+
+        [Header("Slot Yapılandırması")]
+        public FurnitureSlotType slotType; // Eşyanın ait olduğu sabit slot türü
     }
 }

@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using PawPath.Audio;
+using PawPath.Cat; // CatNeedsSystem erişimi için eklendi
 using PawPath.Core;
 using PawPath.Data;
 using PawPath.Economy;
@@ -91,11 +92,29 @@ namespace PawPath.Hub
                 {
                     tick = 0f;
                     
-                    if (CozyEconomyManager.Instance != null)
+                    // =====================================================================
+                    // CAT NEEDS SYSTEM ENTEGRASYONU (GÜNLÜK LİMİT KONTROLÜ)
+                    // =====================================================================
+                    CatNeedsSystem needsSystem = GetComponent<CatNeedsSystem>();
+                    if (needsSystem == null)
                     {
-                        // Puan Ekle (GameEvents.LovePointsChanged otomatik tetiklenir)
+                        needsSystem = GetComponentInParent<CatNeedsSystem>();
+                    }
+
+                    if (needsSystem != null)
+                    {
+                        bool success = needsSystem.TryPetCat(lovePerTick);
+                        if (!success)
+                        {
+                            Debug.Log("Günlük okşama sınırına ulaşıldı!");
+                        }
+                    }
+                    else if (CozyEconomyManager.Instance != null)
+                    {
+                        // CatNeedsSystem bağlı değilse yedek olarak direkt ekler
                         CozyEconomyManager.Instance.AddLove(lovePerTick, GameText.PettingLove(cat));
                     }
+                    // =====================================================================
 
                     // Güncel Sevgi Puanı metnini yenile
                     UpdateLoveTextDisplay();

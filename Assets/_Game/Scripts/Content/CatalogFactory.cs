@@ -36,13 +36,13 @@ namespace PawPath.Content
 
             catalog.shopItems = new List<ShopItemDefinition>
             {
-                Item("tree", "Göğe Uzanan Tırmanma Ağacı", ShopItemType.Furniture, 80,
+                Item("tree", "Göğe Uzanan Tırmanma Ağacı", 80,
                     "Kat kat tahta, ip sarılı direkler ve en tepede bir bakış terası. Mitzi buradan bütün evi 'benim' diye ilan eder."),
-                Item("cushion", "Bulut Peluş Minder", ShopItemType.Furniture, 35,
+                Item("cushion", "Bulut Peluş Minder", 35,
                     "İçine gömüldün mü çıkılmaz. Pamuk'un resmî uyku ofisi. Üzerine bir kıl bırakması iltifat sayılır."),
-                Item("wand", "Tüy Olta", ShopItemType.Toy, 45,
+                Item("wand", "Tüy Olta", 45,
                     "Ucu tüy, sapı sabır. Tarçın için bu bir oyuncak değil, destandır. Sen savur, o uçsun."),
-                Item("sweater", "El Örgüsü Kedi Kazağı", ShopItemType.Outfit, 60,
+                Item("sweater", "El Örgüsü Kedi Kazağı", 60,
                     "Ilık yün, küçük pati delikleri. Moka giyince kış bile utançtan yumuşar. Çıkarmak isteyince mırıldanarak pazarlık eder.")
             };
 
@@ -75,12 +75,11 @@ namespace PawPath.Content
             return c;
         }
 
-        static ShopItemDefinition Item(string id, string name, ShopItemType type, int cost, string desc)
+        static ShopItemDefinition Item(string id, string name, int cost, string desc)
         {
             var i = ScriptableObject.CreateInstance<ShopItemDefinition>();
             i.id = id;
             i.displayName = name;
-            i.type = type;
             i.lovePointCost = cost;
             i.description = desc;
             return i;

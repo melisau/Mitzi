@@ -1,6 +1,7 @@
 using UnityEngine;
 using PawPath.Core;
 using PawPath.Data;
+using PawPath.Content; // <-- SHOPITEMDEFINITION VE ENUM İÇİN EKLENDİ
 
 namespace PawPath.Economy
 {
@@ -49,8 +50,7 @@ namespace PawPath.Economy
             SaveService.Data.lovePoints -= item.lovePointCost;
             SaveService.Data.ownedItemIds.Add(item.id);
             
-            if (!SaveService.Data.placedItemIds.Contains(item.id) && item.type != ShopItemType.Outfit)
-                SaveService.Data.placedItemIds.Add(item.id);
+            SaveService.Data.placedItemIds.Add(item.id);
                 
             SaveService.Persist();
             
