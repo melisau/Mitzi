@@ -1024,7 +1024,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
+  m_Color: {r: 0.7830189, g: 0.41876927, b: 0, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1033,16 +1033,16 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 14
+    m_FontSize: 20
     m_FontStyle: 0
     m_BestFit: 0
-    m_MinSize: 10
+    m_MinSize: 2
     m_MaxSize: 40
-    m_Alignment: 0
+    m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1
-    m_HorizontalOverflow: 0
-    m_VerticalOverflow: 0
+    m_HorizontalOverflow: 1
+    m_VerticalOverflow: 1
     m_LineSpacing: 1
   m_Text: New Text
 --- !u!222 &943333604
@@ -1067,10 +1067,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1411191647}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 1280, y: -720}
-  m_SizeDelta: {x: 160, y: 30}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 300, y: 150}
+  m_SizeDelta: {x: 300, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1108707188
 GameObject:
@@ -6061,6 +6061,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 261d67cd17ab4ac4c8c45311b4369b90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  loveTextObject: {fileID: 943333602}
+  loveText: {fileID: 943333603}
+  floatingTextPrefab: {fileID: 0}
   cat: {fileID: 11400000, guid: 8f567a557088c974b98cbbbdbae119b3, type: 2}
   hearts: {fileID: 1108707189}
   petRadius: 1.15
@@ -6282,7 +6285,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 0
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 100
   m_TargetDisplay: 0
 --- !u!1 &1435807736
 GameObject:
@@ -6339,6 +6342,7 @@ MonoBehaviour:
   listRoot: {fileID: 2002672013}
   rowPrefab: {fileID: 0}
   closeButton: {fileID: 855294316}
+  pointsText: {fileID: 0}
 --- !u!114 &1435807739
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6542,6 +6546,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 261d67cd17ab4ac4c8c45311b4369b90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  loveTextObject: {fileID: 0}
+  loveText: {fileID: 0}
+  floatingTextPrefab: {fileID: 0}
   cat: {fileID: 11400000, guid: 8f567a557088c974b98cbbbdbae119b3, type: 2}
   hearts: {fileID: 1108707189}
   petRadius: 1.15
