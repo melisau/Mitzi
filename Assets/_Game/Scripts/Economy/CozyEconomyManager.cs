@@ -4,9 +4,6 @@ using PawPath.Data;
 
 namespace PawPath.Economy
 {
-    /// <summary>
-    /// Sevgi Puanı kazancı, harcama ve mobilya/kıyafet sahipliği.
-    /// </summary>
     public class CozyEconomyManager : MonoBehaviour
     {
         public static CozyEconomyManager Instance { get; private set; }
@@ -20,7 +17,13 @@ namespace PawPath.Economy
 
         void Start()
         {
+            RefreshUI();
+        }
+
+        public void RefreshUI()
+        {
             GameEvents.LovePointsChanged(LovePoints);
+            GameEvents.ShopChanged();
         }
 
         public void AddLove(int amount, string reason = null)
@@ -45,11 +48,16 @@ namespace PawPath.Economy
 
             SaveService.Data.lovePoints -= item.lovePointCost;
             SaveService.Data.ownedItemIds.Add(item.id);
+            
             if (!SaveService.Data.placedItemIds.Contains(item.id) && item.type != ShopItemType.Outfit)
                 SaveService.Data.placedItemIds.Add(item.id);
+                
             SaveService.Persist();
+            
+            // Hem Puanı Hem de Shop/Hub durumunu yayınla
             GameEvents.LovePointsChanged(LovePoints);
             GameEvents.ShopChanged();
+            
             return true;
         }
 

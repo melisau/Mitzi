@@ -12,11 +12,12 @@ namespace PawPath.UI
         [SerializeField] Transform listRoot;
         [SerializeField] GameObject rowPrefab;
         [SerializeField] Button closeButton;
+        [SerializeField] Text pointsText; // Inspector'dan atanabilir Sevgi Puanı Text'i
 
         void OnEnable()
         {
             GameEvents.OnShopChanged += Rebuild;
-            GameEvents.OnLovePointsChanged += _ => Rebuild();
+            GameEvents.OnLovePointsChanged += OnLove;
             Rebuild();
         }
 
@@ -26,16 +27,37 @@ namespace PawPath.UI
             GameEvents.OnLovePointsChanged -= OnLove;
         }
 
-        void OnLove(int _) => Rebuild();
+        void OnLove(int points)
+        {
+            UpdatePointsDisplay(points);
+            Rebuild();
+        }
+
+        void UpdatePointsDisplay(int points)
+        {
+            if (pointsText != null)
+            {
+                pointsText.text = $"💖 Sevgi: {points}";
+            }
+        }
 
         public void Rebuild()
         {
             if (listRoot == null || GameFlow.Instance == null || GameFlow.Instance.Catalog == null)
                 return;
 
+            // 1. Mevcut Sevgi Puanını Güncelle
+            int currentPoints = CozyEconomyManager.Instance != null ? CozyEconomyManager.Instance.LovePoints : 0;
+            UpdatePointsDisplay(currentPoints);
+
+            // 2. Sağ Üst Kısımda Puan Rozeti Yoksa Otomatik Header Oluştur
+            EnsurePointsHeaderCreated(currentPoints);
+
+            // 3. Eski Grid İçeriğini Temizle
             for (int i = listRoot.childCount - 1; i >= 0; i--)
                 Destroy(listRoot.GetChild(i).gameObject);
 
+            // Grid Ayarları
             var grid = listRoot.GetComponent<GridLayoutGroup>();
             if (grid == null)
             {
@@ -49,6 +71,7 @@ namespace PawPath.UI
                 grid.constraintCount = 3; 
             }
 
+            // Dükkan Ürünlerini Listele
             foreach (var item in GameFlow.Instance.Catalog.shopItems)
             {
                 if (item == null)
@@ -58,6 +81,49 @@ namespace PawPath.UI
                     : CreateRow(listRoot);
                 WireRow(row, item);
             }
+        }
+
+        void EnsurePointsHeaderCreated(int points)
+        {
+            if (pointsText != null) return;
+
+            // Inspector'da Text atanmamışsa Sağ Üst Köşeye Şık Bir Puan Rozeti Ekler
+            var headerGo = transform.Find("PointsHeader")?.gameObject;
+            if (headerGo == null)
+            {
+                headerGo = new GameObject("PointsHeader", typeof(RectTransform));
+                headerGo.transform.SetParent(transform, false);
+                
+                var rt = headerGo.GetComponent<RectTransform>();
+                
+                // Sağ üst köşeye sabitleme (Anchor: Right-Top)
+                rt.anchorMin = new Vector2(1f, 1f);
+                rt.anchorMax = new Vector2(1f, 1f);
+                rt.pivot = new Vector2(1f, 1f);
+                
+                // Sağ üstten içeriye doğru boşluk
+                rt.anchoredPosition = new Vector2(-25, -20);
+                rt.sizeDelta = new Vector2(220, 40);
+
+                // Şeffaf koyu mor/pastel zemin
+                var bgImage = headerGo.AddComponent<Image>();
+                bgImage.color = new Color(0.25f, 0.22f, 0.35f, 0.85f);
+
+                var txt = CreateText(headerGo.transform, "PointsText", 15);
+                txt.fontStyle = FontStyle.Bold;
+                txt.color = new Color(1f, 0.6f, 0.75f); // Pembe renkte metin
+                
+                var txtRt = txt.rectTransform;
+                txtRt.anchorMin = Vector2.zero;
+                txtRt.anchorMax = Vector2.one;
+                txtRt.sizeDelta = Vector2.zero;
+                txtRt.anchoredPosition = Vector2.zero;
+                txt.alignment = TextAnchor.MiddleCenter;
+
+                pointsText = txt;
+            }
+
+            pointsText.text = $"💖 Sevgi: {points}";
         }
 
         void WireRow(GameObject row, ShopItemDefinition item)
@@ -81,69 +147,86 @@ namespace PawPath.UI
             if (button == null)
                 return;
 
-            // STOK KONTROLÜ: Eşya şu an odanın kayıt listesinde var mı?
-            bool owned = SaveService.Data != null && SaveService.Data.placedItemIds.Contains(item.id);
             var label = button.GetComponentInChildren<Text>();
-            
-            if (owned)
+
+            // KESİN SAHİPLİK VE STOK KONTROLÜ: Hem envanter hem de yerleştirilenler sorgulanır
+            bool isOwned = CozyEconomyManager.Instance != null && CozyEconomyManager.Instance.Owns(item.id);
+            bool isPlaced = SaveService.Data != null && SaveService.Data.placedItemIds.Contains(item.id);
+            bool hasStock = isOwned || isPlaced;
+
+            button.onClick.RemoveAllListeners();
+
+            if (hasStock)
             {
-                button.interactable = true; 
+                // --- SATMA MODU ---
                 if (label != null)
-                    label.text = "SAT"; // Sahipse sadece SAT yazar (Aynısından bir daha ALINAMAZ)
+                    label.text = "SAT";
                 
-                button.onClick.RemoveAllListeners();
+                button.interactable = true;
+
                 button.onClick.AddListener(() => {
+                    // Çift tıklamayı önlemek için anında kilitle
+                    button.interactable = false;
+
                     if (CozyEconomyManager.Instance != null && SaveService.Data != null)
                     {
-                        // 1. Eşyayı odanın kayıt listesinden tamamen çıkartıyoruz!
-                        SaveService.Data.placedItemIds.Remove(item.id);
-                        
-                        // 2. PARAYI İADE ETME: Oyuncuya parasının %50'sini (yarısını) geri veriyoruz
-                        int refund = Mathf.CeilToInt(item.lovePointCost * 0.5f);
-                        CozyEconomyManager.Instance.AddLove(refund, "Eşya Satışı"); 
-                        
-                        // 3. EVDEKİ MOBİLYA GÖRSELİNİ YOK ETME: Ev koduna anında yenilenme talimatı uçuruyoruz!
-                        // Sahnede açık olan HubFurnitureView bileşenini bulup zorla tetikliyoruz
-                        var furnitureView = FindFirstObjectByType<PawPath.Hub.HubFurnitureView>();
-                        if (furnitureView != null)
+                        if (CozyEconomyManager.Instance.Owns(item.id) || SaveService.Data.placedItemIds.Contains(item.id))
                         {
-                            // Evdeki eşyaların doğduğu slots alanını el ile tamamen sıfırlıyoruz!
-                            // Satılan eşyanın yerindeki SpriteRenderer'ı anında siliyoruz
-                            furnitureView.SendMessage("Refresh", SendMessageOptions.DontRequireReceiver);
-                        }
+                            SaveService.Data.placedItemIds.Remove(item.id);
+                            SaveService.Data.ownedItemIds.Remove(item.id);
+                            SaveService.Persist();
 
-                        // 4. Dükkan listesini kendi içinde tık diye anında yeniliyoruz!
-                        Rebuild(); 
+                            int refund = Mathf.CeilToInt(item.lovePointCost * 0.5f);
+                            CozyEconomyManager.Instance.AddLove(refund, "Eşya Satışı"); 
+                            
+                            var furnitureView = FindFirstObjectByType<PawPath.Hub.HubFurnitureView>();
+                            if (furnitureView != null)
+                            {
+                                furnitureView.SendMessage("Refresh", SendMessageOptions.DontRequireReceiver);
+                            }
+                        }
                     }
+
+                    Rebuild(); 
                 });
             }
             else
             {
-                button.interactable = true;
+                // --- ALMA MODU ---
+                bool canAfford = CozyEconomyManager.Instance != null && CozyEconomyManager.Instance.LovePoints >= item.lovePointCost;
+
                 if (label != null)
-                    label.text = "AL"; // Satın alınmadıysa AL yazar
-                
+                    label.text = "AL";
+
+                // Yetersiz bakiyede butonu pasife çek
+                button.interactable = canAfford;
+
                 var captured = item;
-                button.onClick.RemoveAllListeners();
                 button.onClick.AddListener(() => {
-                    if (CozyEconomyManager.Instance != null && CozyEconomyManager.Instance.TryBuy(captured))
+                    // Tıklandığı salise butonu kilitle (Spam koruması)
+                    button.interactable = false;
+
+                    if (CozyEconomyManager.Instance != null)
                     {
-                        if (SaveService.Data != null && !SaveService.Data.placedItemIds.Contains(captured.id))
+                        // STOK DUVARI: Ürün zaten envanterdeyse satın almayı engelle
+                        if (CozyEconomyManager.Instance.Owns(captured.id) || (SaveService.Data != null && SaveService.Data.placedItemIds.Contains(captured.id)))
                         {
-                            // Satın alma başarılıysa eşyayı odanın kayıt listesine ekle!
-                            SaveService.Data.placedItemIds.Add(captured.id);
+                            Rebuild();
+                            return;
                         }
 
-                        // Evdeki görselleri anında çizmesi için ev kodunu tetikle!
-                        var furnitureView = FindFirstObjectByType<PawPath.Hub.HubFurnitureView>();
-                        if (furnitureView != null)
+                        bool success = CozyEconomyManager.Instance.TryBuy(captured);
+                        if (success)
                         {
-                            furnitureView.SendMessage("Refresh", SendMessageOptions.DontRequireReceiver);
+                            var furnitureView = FindFirstObjectByType<PawPath.Hub.HubFurnitureView>();
+                            if (furnitureView != null)
+                            {
+                                furnitureView.SendMessage("Refresh", SendMessageOptions.DontRequireReceiver);
+                            }
                         }
-
-                        // Dükkanı tık diye anında yenile!
-                        Rebuild();
                     }
+
+                    Rebuild();
                 });
             }
         }
@@ -180,12 +263,10 @@ namespace PawPath.UI
             cost.rectTransform.anchoredPosition = new Vector2(0, -42);
             cost.rectTransform.sizeDelta = new Vector2(160, 16);
 
-          
-
-var btnGo = new GameObject("BuyButton", typeof(RectTransform), typeof(Image), typeof(Button));
-btnGo.transform.SetParent(go.transform, false);
-var btnRt = btnGo.GetComponent<RectTransform>();
-           
+            var btnGo = new GameObject("BuyButton", typeof(RectTransform), typeof(Image), typeof(Button));
+            btnGo.transform.SetParent(go.transform, false);
+            var btnRt = btnGo.GetComponent<RectTransform>();
+            
             btnRt.anchoredPosition = new Vector2(0, -75); 
             btnRt.sizeDelta = new Vector2(140, 32); 
             
