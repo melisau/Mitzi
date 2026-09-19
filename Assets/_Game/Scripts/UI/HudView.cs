@@ -46,19 +46,7 @@ namespace PawPath.UI
             GameEvents.OnLevelStarted += OnLevelStarted;
             GameEvents.OnHubEntered += OnHubEntered;
 
-            // Yola Çık Buton Tıklaması
-            if (playButton != null)
-            {
-                playButton.onClick.RemoveAllListeners();
-                playButton.onClick.AddListener(OnPlayButtonClicked);
-            }
-
-            // Dükkan Buton Tıklaması
-            if (shopButton != null)
-            {
-                shopButton.onClick.RemoveAllListeners();
-                shopButton.onClick.AddListener(OnShopButtonClicked);
-            }
+            WireButtons();
         }
 
         private void OnDisable()
@@ -145,6 +133,37 @@ namespace PawPath.UI
             selectedCatLabel = selected;
             playButton = play;
             shopButton = shop;
+
+            // RuntimeBootstrap, HudView bileşenini alt UI nesnelerinden önce oluşturur.
+            // Bu nedenle OnEnable sırasında butonlar henüz atanmış olmayabilir.
+            WireButtons();
+            RefreshInitialState();
+        }
+
+        private void WireButtons()
+        {
+            if (playButton != null)
+            {
+                playButton.onClick.RemoveListener(OnPlayButtonClicked);
+                playButton.onClick.AddListener(OnPlayButtonClicked);
+            }
+
+            if (shopButton != null)
+            {
+                shopButton.onClick.RemoveListener(OnShopButtonClicked);
+                shopButton.onClick.AddListener(OnShopButtonClicked);
+            }
+        }
+
+        private void RefreshInitialState()
+        {
+            RefreshLove(SaveService.Data.lovePoints);
+            RefreshLevel();
+
+            var catalog = GameFlow.Instance != null ? GameFlow.Instance.Catalog : null;
+            var selected = catalog != null ? catalog.GetCat(SaveService.Data.selectedCatId) : null;
+            if (selected != null)
+                RefreshCat(selected);
         }
     }
 }

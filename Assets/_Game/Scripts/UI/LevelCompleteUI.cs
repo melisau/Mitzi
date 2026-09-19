@@ -91,10 +91,8 @@ namespace PawPath.UI
         {
             if (panel != null) panel.SetActive(false);
 
-            // Sahneyi yeniden yükleyerek veya ana akışa dönerek Hub ekranını açar
-            UnityEngine.SceneManagement.SceneManager.LoadScene(
-                UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex
-            );
+            if (GameFlow.Instance != null)
+                GameFlow.Instance.EnterHub();
         }
     }
 }

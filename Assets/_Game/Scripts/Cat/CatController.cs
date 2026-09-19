@@ -18,10 +18,11 @@ namespace PawPath.Cat
         public static CatController Instance { get; private set; }
 
         [Header("Yürüyüş")]
-        [SerializeField] float moveSpeed = 3.1f;
+        [SerializeField] float moveSpeed = 1.8f;
         [SerializeField] float groundedProbe = 0.28f;
         [SerializeField] LayerMask groundMask = ~0;
         [SerializeField] float airGrace = 0.45f;
+        [SerializeField] float visualHeight = 1.1f;
 
         [Header("Kurtarma")]
         [SerializeField] float bubbleRise = 1.6f;
@@ -31,6 +32,7 @@ namespace PawPath.Cat
 
         Rigidbody2D body;
         SpriteRenderer sprite;
+        Animator animator;
         Vector3 spawnPosition;
         bool busy;
         float airTimer;
@@ -49,6 +51,7 @@ namespace PawPath.Cat
             body.interpolation = RigidbodyInterpolation2D.Interpolate;
             body.gravityScale = 2.4f;
             sprite = visual != null ? visual.GetComponent<SpriteRenderer>() : GetComponentInChildren<SpriteRenderer>();
+            animator = visual != null ? visual.GetComponent<Animator>() : GetComponentInChildren<Animator>();
             if (bubbleRenderer != null)
                 bubbleRenderer.enabled = false;
         }
@@ -61,7 +64,23 @@ namespace PawPath.Cat
                 if (cat.idleSprite != null)
                     sprite.sprite = cat.idleSprite;
                 sprite.color = cat.furTint;
+                FitVisualToHeight();
             }
+
+            if (animator != null)
+            {
+                animator.runtimeAnimatorController = cat != null ? cat.animator : null;
+                animator.enabled = animator.runtimeAnimatorController != null;
+            }
+        }
+
+        void FitVisualToHeight()
+        {
+            if (visual == null || sprite == null || sprite.sprite == null || sprite.sprite.bounds.size.y <= 0f)
+                return;
+
+            float scale = visualHeight / sprite.sprite.bounds.size.y;
+            visual.localScale = new Vector3(scale * facing, scale, 1f);
         }
 
         public void PlaceAtSpawn(Vector2 world)
@@ -90,10 +109,14 @@ namespace PawPath.Cat
             {
                 airTimer = 0f;
                 body.velocity = new Vector2(facing * moveSpeed, body.velocity.y);
+                if (animator != null)
+                    animator.speed = 1f;
             }
             else
             {
                 airTimer += Time.fixedDeltaTime;
+                if (animator != null)
+                    animator.speed = 0f;
             }
 
             if (visual != null)
@@ -177,6 +200,7 @@ namespace PawPath.Cat
             visual = vis;
             bubbleRenderer = bubble;
             sprite = vis != null ? vis.GetComponent<SpriteRenderer>() : sprite;
+            animator = vis != null ? vis.GetComponent<Animator>() : animator;
         }
     }
 }

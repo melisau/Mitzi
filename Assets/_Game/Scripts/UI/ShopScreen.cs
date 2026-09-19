@@ -336,8 +336,15 @@ namespace PawPath.UI
             if (closeButton != null)
             {
                 closeButton.onClick.RemoveAllListeners();
-                closeButton.onClick.AddListener(() => gameObject.SetActive(false));
+                closeButton.onClick.AddListener(ReturnToCatHouse);
             }
+        }
+
+        void ReturnToCatHouse()
+        {
+            gameObject.SetActive(false);
+            if (GameFlow.Instance != null)
+                GameFlow.Instance.EnterHub();
         }
     }
 }

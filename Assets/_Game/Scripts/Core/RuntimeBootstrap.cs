@@ -74,13 +74,15 @@ namespace PawPath.Core
 
             var sky = CreateQuad("Sky", levelRoot.transform, new Vector3(0f, 1.4f, 2f), new Vector3(18f, 8f, 1f), new Color(0.78f, 0.90f, 0.86f));
             sky.sortingOrder = -5;
-            var ground = CreateQuad("StartPlatform", levelRoot.transform, new Vector3(-6.2f, -1.7f, 0f), new Vector3(2.4f, 0.35f, 1f), new Color(0.76f, 0.62f, 0.48f));
+            var landscapeGround = CreateQuad("LandscapeGround", levelRoot.transform, new Vector3(0f, -3.35f, 1.5f), new Vector3(18f, 3.2f, 1f), new Color(0.72f, 0.84f, 0.62f));
+            landscapeGround.sortingOrder = -4;
+            var ground = CreateQuad("StartPlatform", levelRoot.transform, new Vector3(-5.2f, -1.7f, 0f), new Vector3(4.4f, 0.35f, 1f), new Color(0.76f, 0.62f, 0.48f));
             ground.sortingOrder = 1;
             var groundCol = ground.gameObject.AddComponent<BoxCollider2D>();
             groundCol.size = Vector2.one;
 
             var season = levelRoot.AddComponent<SeasonBackdrop>();
-            season.Bind(sky, ground, null);
+            season.Bind(sky, landscapeGround, null);
 
             var spawn = new GameObject("Spawn");
             spawn.transform.SetParent(levelRoot.transform);
@@ -89,7 +91,7 @@ namespace PawPath.Core
             var goal = new GameObject("Goal");
             goal.transform.SetParent(levelRoot.transform);
             goal.transform.position = new Vector3(6.25f, 0.2f, 0f);
-            var goalVis = CreateQuad("GoalPad", goal.transform, Vector3.zero, new Vector3(1.2f, 0.25f, 1f), new Color(0.95f, 0.72f, 0.78f));
+            var goalVis = CreateQuad("GoalPad", goal.transform, Vector3.zero, new Vector3(1.2f, 0.25f, 1f), new Color(0.96f, 0.88f, 0.64f));
             goalVis.sortingOrder = 2;
             var goalCol = goal.AddComponent<BoxCollider2D>();
             goalCol.isTrigger = true;
@@ -108,10 +110,11 @@ namespace PawPath.Core
             var vis = new GameObject("Visual");
             vis.transform.SetParent(catGo.transform);
             vis.transform.localPosition = Vector3.zero;
-            vis.transform.localScale = Vector3.one * 1.15f;
+            vis.transform.localScale = Vector3.one;
             var sr = vis.AddComponent<SpriteRenderer>();
             sr.sprite = FallbackSprite.WhiteCircle();
             sr.sortingOrder = 10;
+            vis.AddComponent<Animator>();
             var bubbleGo = new GameObject("Bubble");
             bubbleGo.transform.SetParent(catGo.transform);
             bubbleGo.transform.localScale = Vector3.one * 1.8f;
@@ -122,6 +125,11 @@ namespace PawPath.Core
             bubble.enabled = false;
             var controller = catGo.AddComponent<CatController>();
             controller.BindVisual(vis.transform, bubble);
+
+            var sideScroll = camGo.GetComponent<SideScrollCamera>();
+            if (sideScroll == null)
+                sideScroll = camGo.AddComponent<SideScrollCamera>();
+            sideScroll.Bind(catGo.transform, sky.transform, landscapeGround.transform);
 
             var canvasGo = CreateCanvas(root.transform);
             var hud = BuildHud(canvasGo.transform);
@@ -152,7 +160,7 @@ namespace PawPath.Core
             go.transform.position = pos;
             go.transform.localScale = scale;
             var sr = go.AddComponent<SpriteRenderer>();
-            sr.sprite = FallbackSprite.WhiteCircle();
+            sr.sprite = FallbackSprite.WhiteSquare();
             sr.color = color;
             sr.drawMode = SpriteDrawMode.Simple;
             return sr;

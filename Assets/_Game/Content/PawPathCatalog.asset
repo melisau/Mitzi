@@ -21,10 +21,10 @@ MonoBehaviour:
   personality: 0
   unlockAfterLevel: 0
   furTint: {r: 0.86, g: 0.62, b: 0.38, a: 1}
-  portrait: {fileID: 0}
-  idleSprite: {fileID: 0}
-  animator: {fileID: 0}
-  purrClip: {fileID: 0}
+  portrait: {fileID: 21300000, guid: 83f41818b273b204e83ad278ce0b267e, type: 3}
+  idleSprite: {fileID: 21300000, guid: 83f41818b273b204e83ad278ce0b267e, type: 3}
+  animator: {fileID: 9100000, guid: 06ebee0f895a2f046a9d821886f34574, type: 2}
+  purrClip: {fileID: 8300000, guid: e80123ad28420eb4aad2764e876419db, type: 3}
   meowClip: {fileID: 0}
 --- !u!114 &-8853985181083747102
 MonoBehaviour:
