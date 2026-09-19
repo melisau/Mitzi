@@ -1,7 +1,7 @@
 using UnityEngine;
 using PawPath.Core;
 using PawPath.Data;
-using PawPath.Content; // <-- SHOPITEMDEFINITION VE ENUM İÇİN EKLENDİ
+using PawPath.Content;
 
 namespace PawPath.Economy
 {
@@ -11,12 +11,12 @@ namespace PawPath.Economy
 
         public int LovePoints => SaveService.Data.lovePoints;
 
-        void Awake()
+        private void Awake()
         {
             Instance = this;
         }
 
-        void Start()
+        private void Start()
         {
             RefreshUI();
         }
@@ -31,9 +31,11 @@ namespace PawPath.Economy
         {
             if (amount <= 0)
                 return;
+
             SaveService.Data.lovePoints += amount;
             SaveService.Persist();
             GameEvents.LovePointsChanged(LovePoints);
+
             if (!string.IsNullOrEmpty(reason))
                 Debug.Log($"[PawPath] +{amount} Sevgi · {reason}");
         }
@@ -49,15 +51,17 @@ namespace PawPath.Economy
 
             SaveService.Data.lovePoints -= item.lovePointCost;
             SaveService.Data.ownedItemIds.Add(item.id);
-            
-            SaveService.Data.placedItemIds.Add(item.id);
-                
+
+            if (!SaveService.Data.placedItemIds.Contains(item.id))
+            {
+                SaveService.Data.placedItemIds.Add(item.id);
+            }
+
             SaveService.Persist();
-            
-            // Hem Puanı Hem de Shop/Hub durumunu yayınla
+
             GameEvents.LovePointsChanged(LovePoints);
             GameEvents.ShopChanged();
-            
+
             return true;
         }
 
