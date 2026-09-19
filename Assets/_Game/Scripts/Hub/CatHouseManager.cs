@@ -75,7 +75,9 @@ namespace PawPath.Hub
                 if (cat.idleSprite != null)
                     sr.sprite = cat.idleSprite;
                 sr.color = Color.white;
-                FitSpriteToHeight(sr, 1.1f);
+                // Ev sahnesinde kediler dekorların yanında kaybolmasın; bu ölçek
+                // yalnızca resident görsellerine uygulanır, bölüm kedisini etkilemez.
+                FitSpriteToHeight(sr, 1.45f);
                 var residentAnimator = sr.GetComponent<Animator>();
                 if (residentAnimator == null)
                     residentAnimator = sr.gameObject.AddComponent<Animator>();
@@ -83,13 +85,14 @@ namespace PawPath.Hub
                 residentAnimator.enabled = cat.animator != null;
             }
 
+            var residentCollider = go.GetComponent<CircleCollider2D>();
+            if (residentCollider != null)
+                residentCollider.radius = 0.72f;
+
             var pet = go.GetComponent<CatPettingSystem>();
             if (pet == null)
                 pet = go.AddComponent<CatPettingSystem>();
 
-            // Günlük okşama sınırı ve puan üretimi yalnızca evdeki kedilerde çalışır.
-            if (go.GetComponent<CatNeedsSystem>() == null)
-                go.AddComponent<CatNeedsSystem>();
             if (go.GetComponent<CatHomeBehaviour>() == null)
                 go.AddComponent<CatHomeBehaviour>();
 

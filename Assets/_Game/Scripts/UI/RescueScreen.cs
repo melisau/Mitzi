@@ -28,7 +28,7 @@ namespace PawPath.UI
             pending = cat;
             gameObject.SetActive(true);
             if (title != null)
-                title.text = GameText.EncounterTitle(cat);
+                title.text = $"Bölüm Tamamlandı!\n{GameText.EncounterTitle(cat)}";
             if (body != null)
                 body.text = cat != null ? cat.encounterDialogue : "";
             if (inviteButton != null)

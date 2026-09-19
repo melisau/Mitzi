@@ -194,6 +194,8 @@ namespace PawPath.Cat
 
             busy = true;
             GameEvents.CatFell();
+            if (CozyEconomyManager.Instance != null)
+                CozyEconomyManager.Instance.RemoveLove(10, "Yoldan düşme");
             body.velocity = Vector2.zero;
             body.simulated = false;
             if (bubbleRenderer != null)

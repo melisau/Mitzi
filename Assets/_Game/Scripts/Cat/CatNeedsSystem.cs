@@ -6,6 +6,8 @@ namespace PawPath.Cat
 {
     public class CatNeedsSystem : MonoBehaviour
     {
+        public static CatNeedsSystem Instance { get; private set; }
+
         [Header("Günlük Puan Limitleri")]
         public int maxDailyPettingPoints = 100;
         public int foodPoints = 15;
@@ -17,8 +19,19 @@ namespace PawPath.Cat
 
         private int currentDailyPettingPoints = 0;
 
+        const string FeedKey = "DailyCare.Feed";
+        const string WaterKey = "DailyCare.Water";
+        const string SleepKey = "DailyCare.Sleep";
+
+        public int DailyPettingPoints => currentDailyPettingPoints;
+        public bool CanFeedToday => !WasUsedToday(FeedKey);
+        public bool CanGiveWaterToday => !WasUsedToday(WaterKey);
+        public bool CanSleepToday => !WasUsedToday(SleepKey);
+
         private void Awake()
         {
+            if (Instance == null)
+                Instance = this;
             CheckDailyReset();
         }
 
@@ -60,22 +73,19 @@ namespace PawPath.Cat
             return true;
         }
 
-        public void FeedCat()
+        public bool FeedCat()
         {
-            if (CozyEconomyManager.Instance != null)
-                CozyEconomyManager.Instance.AddLove(foodPoints, "Mama Verme");
+            return TryDailyCare(FeedKey, foodPoints, "Mama Verme");
         }
 
-        public void GiveWater()
+        public bool GiveWater()
         {
-            if (CozyEconomyManager.Instance != null)
-                CozyEconomyManager.Instance.AddLove(waterPoints, "Su Verme");
+            return TryDailyCare(WaterKey, waterPoints, "Su Verme");
         }
 
-        public void PutToSleep()
+        public bool PutToSleep()
         {
-            if (CozyEconomyManager.Instance != null)
-                CozyEconomyManager.Instance.AddLove(sleepPoints, "Dinlendirme");
+            return TryDailyCare(SleepKey, sleepPoints, "Dinlendirme");
         }
 
         public bool CanStartLevel()
@@ -83,5 +93,21 @@ namespace PawPath.Cat
             if (CozyEconomyManager.Instance == null) return true;
             return CozyEconomyManager.Instance.LovePoints >= requiredEnergyToPlay;
         }
+
+        bool TryDailyCare(string key, int points, string reason)
+        {
+            CheckDailyReset();
+            if (WasUsedToday(key))
+                return false;
+
+            PlayerPrefs.SetString(key, Today());
+            PlayerPrefs.Save();
+            if (CozyEconomyManager.Instance != null)
+                CozyEconomyManager.Instance.AddLove(points, reason);
+            return true;
+        }
+
+        static bool WasUsedToday(string key) => PlayerPrefs.GetString(key, "") == Today();
+        static string Today() => DateTime.Now.ToString("yyyy-MM-dd");
     }
 }

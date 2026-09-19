@@ -4,6 +4,7 @@ using PawPath.Cat;
 using PawPath.Core;
 using PawPath.Data;
 using PawPath.Drawing;
+using PawPath.Economy;
 using PawPath.Season;
 
 namespace PawPath.Levels
@@ -18,6 +19,8 @@ namespace PawPath.Levels
         [SerializeField] Transform spawnMarker;
         [SerializeField] Transform goalMarker;
         [SerializeField] SeasonBackdrop seasonBackdrop;
+        [SerializeField] LevelCourseBuilder courseBuilder;
+        bool completionHandled;
 
         public LevelDefinition Current { get; private set; }
         public int DisplayLevel => SaveService.Data.highestCompletedLevel + 1;
@@ -29,7 +32,10 @@ namespace PawPath.Levels
 
         public void BeginCurrentLevel()
         {
+            completionHandled = false;
             Current = ResolveLevel(DisplayLevel);
+            if (courseBuilder != null)
+                courseBuilder.Build(Current.levelNumber);
             ApplyLayout(Current);
 
             var catId = SaveService.Data.selectedCatId;
@@ -40,7 +46,10 @@ namespace PawPath.Levels
             if (CatController.Instance != null)
             {
                 CatController.Instance.ApplyCat(cat);
-                CatController.Instance.PlaceAtSpawn(Current.spawnPoint);
+                Vector2 spawn = Current.spawnPoint;
+                if (courseBuilder != null)
+                    spawn.y = courseBuilder.CatSpawnY;
+                CatController.Instance.PlaceAtSpawn(spawn);
                 CatController.Instance.FlipTowards(Current.goalPoint);
             }
 
@@ -55,11 +64,19 @@ namespace PawPath.Levels
 
         public void CompleteLevel()
         {
+            if (completionHandled)
+                return;
+            completionHandled = true;
+
+            const int completionReward = 10;
+            int completedLevel = DisplayLevel;
             if (LineDraw.Instance != null)
                 LineDraw.Instance.CanDraw = false;
 
-            SaveService.Data.highestCompletedLevel = Mathf.Max(SaveService.Data.highestCompletedLevel, DisplayLevel);
+            SaveService.Data.highestCompletedLevel = Mathf.Max(SaveService.Data.highestCompletedLevel, completedLevel);
             SaveService.Persist();
+            if (CozyEconomyManager.Instance != null)
+                CozyEconomyManager.Instance.AddLove(completionReward, "Bölüm Tamamlama");
             GameEvents.LevelCompleted();
 
             if (CatUnlockService.TryUnlockAfterLevel(SaveService.Data.highestCompletedLevel, out var cat))
@@ -70,7 +87,7 @@ namespace PawPath.Levels
             }
 
             if (GameFlow.Instance != null)
-                GameFlow.Instance.EnterHub();
+                GameFlow.Instance.ShowLevelComplete(completedLevel, completionReward);
         }
 
         LevelDefinition ResolveLevel(int number)
@@ -101,9 +118,19 @@ namespace PawPath.Levels
         void ApplyLayout(LevelDefinition level)
         {
             if (spawnMarker != null)
-                spawnMarker.position = level.spawnPoint;
+            {
+                Vector2 spawn = level.spawnPoint;
+                if (courseBuilder != null)
+                    spawn.y = courseBuilder.CatSpawnY;
+                spawnMarker.position = spawn;
+            }
             if (goalMarker != null)
-                goalMarker.position = level.goalPoint;
+            {
+                Vector2 goal = level.goalPoint;
+                if (courseBuilder != null)
+                    goal.y = courseBuilder.GoalY;
+                goalMarker.position = goal;
+            }
             if (seasonBackdrop != null)
                 seasonBackdrop.Apply(level.season);
         }
@@ -114,5 +141,7 @@ namespace PawPath.Levels
             goalMarker = goal;
             seasonBackdrop = backdrop;
         }
+
+        public void BindCourse(LevelCourseBuilder builder) => courseBuilder = builder;
     }
 }

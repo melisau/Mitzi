@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using PawPath.Core;
+using PawPath.Cat;
 using PawPath.Data;
 using PawPath.Drawing;
 using PawPath.Economy;
@@ -21,6 +22,9 @@ namespace PawPath.UI
         [SerializeField] private Text selectedCatLabel;
         [SerializeField] private Button playButton;
         [SerializeField] private Button shopButton;
+        [SerializeField] private Button restartButton;
+        [SerializeField] private Button homeButton;
+        [SerializeField] private CatNeedsUI needsUI;
         [SerializeField] private GameObject brushToolbar;
         [SerializeField] private GameObject brushTutorial;
 
@@ -63,11 +67,13 @@ namespace PawPath.UI
         // TEK VE TEMİZ ONPLAYBUTTONCLICKED METODU
         private void OnPlayButtonClicked()
         {
-            Debug.Log(">>> Yola Çık butonuna basıldı! <<<");
+            if (needsUI != null && !needsUI.CheckEnergyAndStartLevel())
+                return;
+            if (needsUI == null && CatNeedsSystem.Instance != null && !CatNeedsSystem.Instance.CanStartLevel())
+                return;
 
             if (GameFlow.Instance != null)
             {
-                Debug.Log("GameFlow bulundu, bölüm başlatılıyor...");
                 GameFlow.Instance.StartNextLevel();
             }
             else
@@ -90,6 +96,11 @@ namespace PawPath.UI
                 shopButton.gameObject.SetActive(false);
             if (brushToolbar != null)
                 brushToolbar.SetActive(true);
+            if (restartButton != null)
+                restartButton.gameObject.SetActive(true);
+            if (homeButton != null)
+                homeButton.gameObject.SetActive(true);
+            ShowBrushTutorialOnce();
         }
 
         private void OnHubEntered()
@@ -100,7 +111,10 @@ namespace PawPath.UI
                 shopButton.gameObject.SetActive(true);
             if (brushToolbar != null)
                 brushToolbar.SetActive(false);
-            ShowBrushTutorialOnce();
+            if (restartButton != null)
+                restartButton.gameObject.SetActive(false);
+            if (homeButton != null)
+                homeButton.gameObject.SetActive(false);
             if (LevelManager.Instance != null)
                 RefreshLevel();
         }
@@ -133,7 +147,8 @@ namespace PawPath.UI
                 levelLabel.text = GameText.LevelLabel(LevelManager.Instance.DisplayLevel);
         }
 
-        public void Bind(Text love, Text level, Text ink, Text selected, Button play, Button shop, GameObject brushes, GameObject tutorial)
+        public void Bind(Text love, Text level, Text ink, Text selected, Button play, Button shop,
+            Button restart, Button home, CatNeedsUI careUI, GameObject brushes, GameObject tutorial)
         {
             loveLabel = love;
             levelLabel = level;
@@ -141,6 +156,9 @@ namespace PawPath.UI
             selectedCatLabel = selected;
             playButton = play;
             shopButton = shop;
+            restartButton = restart;
+            homeButton = home;
+            needsUI = careUI;
             brushToolbar = brushes;
             brushTutorial = tutorial;
 
@@ -163,6 +181,26 @@ namespace PawPath.UI
                 shopButton.onClick.RemoveListener(OnShopButtonClicked);
                 shopButton.onClick.AddListener(OnShopButtonClicked);
             }
+
+            if (restartButton != null)
+            {
+                restartButton.onClick.RemoveAllListeners();
+                restartButton.onClick.AddListener(() =>
+                {
+                    if (LevelManager.Instance != null)
+                        LevelManager.Instance.BeginCurrentLevel();
+                });
+            }
+
+            if (homeButton != null)
+            {
+                homeButton.onClick.RemoveAllListeners();
+                homeButton.onClick.AddListener(() =>
+                {
+                    if (GameFlow.Instance != null)
+                        GameFlow.Instance.EnterHub();
+                });
+            }
         }
 
         private void RefreshInitialState()
@@ -178,11 +216,11 @@ namespace PawPath.UI
 
         private void ShowBrushTutorialOnce()
         {
-            if (brushTutorial == null || PlayerPrefs.GetInt("PawPath.BrushTutorialSeen", 0) == 1)
+            if (brushTutorial == null || PlayerPrefs.GetInt("PawPath.BrushTutorialSeen.v2", 0) == 1)
                 return;
 
             brushTutorial.SetActive(true);
-            PlayerPrefs.SetInt("PawPath.BrushTutorialSeen", 1);
+            PlayerPrefs.SetInt("PawPath.BrushTutorialSeen.v2", 1);
             PlayerPrefs.Save();
             StartCoroutine(HideBrushTutorial());
         }

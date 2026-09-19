@@ -22,19 +22,24 @@ namespace PawPath.EditorTools
         static void EnsureWallpaper2References()
         {
             const string catalogPath = "Assets/_Game/Content/PawPathCatalog.asset";
-            const string wallpaperPath = "Assets/_Game/Art/home_wallpaper2.png";
+            const string wallpaperPath = "Assets/_Game/Art/home_wallpaper_cat_scale_v1.png";
+            const string gameplayPath = "Assets/_Game/Art/street_gameplay_summer_v1.png";
             var catalogAsset = AssetDatabase.LoadAssetAtPath<PawPathCatalog>(catalogPath);
             var wallpaper = AssetDatabase.LoadAssetAtPath<Sprite>(wallpaperPath);
-            if (catalogAsset == null || wallpaper == null)
+            var gameplay = AssetDatabase.LoadAssetAtPath<Sprite>(gameplayPath);
+            if (catalogAsset == null || wallpaper == null || gameplay == null)
                 return;
-            if (catalogAsset.homeBackground == wallpaper && catalogAsset.shopBackground == wallpaper)
+            if (catalogAsset.homeBackground == wallpaper &&
+                catalogAsset.shopBackground == wallpaper &&
+                catalogAsset.gameplayBackground == gameplay)
                 return;
 
             catalogAsset.homeBackground = wallpaper;
             catalogAsset.shopBackground = wallpaper;
+            catalogAsset.gameplayBackground = gameplay;
             EditorUtility.SetDirty(catalogAsset);
             AssetDatabase.SaveAssets();
-            Debug.Log("[PawPath] Ev ve mağaza arka planı home_wallpaper2 olarak güncellendi.");
+            Debug.Log("[PawPath] Ev, mağaza ve sokak arka planları güncellendi.");
         }
 
         static void ClearTextureSelectionBeforePlay(PlayModeStateChange state)

@@ -43,7 +43,7 @@ namespace PawPath.Season
         void Tint(Color skyColor, Color groundColor)
         {
             if (sky != null)
-                sky.color = skyColor;
+                sky.color = sky.sprite != null ? Color.white : skyColor;
             if (ground != null)
                 ground.color = groundColor;
         }
