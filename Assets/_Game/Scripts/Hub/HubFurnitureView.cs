@@ -5,7 +5,7 @@ using PawPath.Data;
 namespace PawPath.Hub
 {
     /// <summary>
-    /// Satın alınan mobilyayı evde basit sprite olarak gösterir.
+    /// Satın alınan mobilyayı evde SABİT slot pozisyonlarına göre gösterir.
     /// </summary>
     public class HubFurnitureView : MonoBehaviour
     {
@@ -25,16 +25,14 @@ namespace PawPath.Hub
 
         public void Bind(Transform[] furnitureSlots) => slots = furnitureSlots;
 
-        void Refresh()
+        public void Refresh()
         {
             if (GameFlow.Instance == null || GameFlow.Instance.Catalog == null)
                 return;
-            if (slots == null)
+            if (slots == null || slots.Length == 0)
                 return;
 
-            // =================================================================
-            // YENİ TEMİZLEME KALKANI: Önce tüm slotlardaki resimleri zorla SİL!
-            // =================================================================
+            // 1. Önce tüm slotlardaki görselleri temizle
             foreach (var slot in slots)
             {
                 if (slot != null)
@@ -42,31 +40,73 @@ namespace PawPath.Hub
                     var existingSr = slot.GetComponent<SpriteRenderer>();
                     if (existingSr != null)
                     {
-                        existingSr.sprite = null; // Eski resmi tamamen boşaltıyoruz
+                        existingSr.sprite = null;
                     }
                 }
             }
-            // =================================================================
 
-            int i = 0;
+            if (SaveService.Data == null || SaveService.Data.placedItemIds == null)
+                return;
+
+            // 2. Her ürünü KENDİ SABİT SLOTUNA eşleştirerek yerleştir
             foreach (var id in SaveService.Data.placedItemIds)
             {
-                if (i >= slots.Length)
-                    break;
                 var item = GameFlow.Instance.Catalog.GetItem(id);
                 if (item == null)
                     continue;
-                
-                var sr = slots[i].GetComponent<SpriteRenderer>();
-                if (sr == null)
-                    sr = slots[i].gameObject.AddComponent<SpriteRenderer>();
-                
-                sr.sprite = item.placedSprite != null ? item.placedSprite : FallbackSprite.WhiteCircle();
-                sr.color = Color.white; // Renk filtresini bozmamak için saf beyaz yaptık
-                sr.sortingOrder = 3;
-                i++;
+
+                // Ürün ID'sine karşılık gelen doğru slotu bul
+                Transform targetSlot = GetTargetSlotForItem(item.id);
+
+                if (targetSlot != null)
+                {
+                    var sr = targetSlot.GetComponent<SpriteRenderer>();
+                    if (sr == null)
+                        sr = targetSlot.gameObject.AddComponent<SpriteRenderer>();
+
+                    sr.sprite = item.placedSprite != null ? item.placedSprite : FallbackSprite.WhiteCircle();
+                    sr.color = Color.white;
+                    sr.sortingOrder = 3;
+                }
             }
         }
 
+        /// <summary>
+        /// Ürünün id'sine (veya türüne) göre sahnedeki doğru slot Transform'unu döndürür.
+        /// </summary>
+        private Transform GetTargetSlotForItem(string itemId)
+        {
+            if (slots == null) return null;
+
+            string searchKey = "";
+
+            // Ürün ID'sine göre aranacak slot anahtar kelimesi
+            if (itemId.Contains("bed"))
+                searchKey = "bed";
+            else if (itemId.Contains("rug"))
+                searchKey = "rug";
+            else if (itemId.Contains("bowl"))
+                searchKey = "bowl";
+
+            // 1. Önce isminde bu anahtar kelime geçen slotu ara (Örn: "Slot_bed", "Rug_Slot")
+            if (!string.IsNullOrEmpty(searchKey))
+            {
+                foreach (var slot in slots)
+                {
+                    if (slot != null && slot.name.ToLower().Contains(searchKey))
+                    {
+                        return slot;
+                    }
+                }
+            }
+
+            // 2. Eğer özel isim bulunamazsa veya eşleşmezse sabit index eşleşmesi yap
+            // slots[0] -> Bed, slots[1] -> Rug, slots[2] -> Bowl gibi
+            if (itemId.Contains("bed") && slots.Length > 0) return slots[0];
+            if (itemId.Contains("rug") && slots.Length > 1) return slots[1];
+            if (itemId.Contains("bowl") && slots.Length > 2) return slots[2];
+
+            return null;
+        }
     }
 }
