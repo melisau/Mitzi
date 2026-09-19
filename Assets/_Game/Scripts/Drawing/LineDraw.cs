@@ -37,6 +37,7 @@ namespace PawPath.Drawing
         public float InkLeft => inkLeft;
         public float InkMax { get; private set; } = 18f;
         public bool CanDraw { get; set; } = true;
+        public bool HasDrawnPath { get; private set; }
 
         void Awake()
         {
@@ -52,6 +53,7 @@ namespace PawPath.Drawing
             InkMax = budget;
             inkLeft = budget;
             CanDraw = true;
+            HasDrawnPath = false;
         }
 
         public void ClearStrokes()
@@ -145,6 +147,7 @@ namespace PawPath.Drawing
             Vector2 next = last + (world - last).normalized * spend;
             inkLeft -= spend;
             currentPoints.Add(next);
+            HasDrawnPath = true;
 
             currentLine.positionCount = currentPoints.Count;
             for (int i = 0; i < currentPoints.Count; i++)

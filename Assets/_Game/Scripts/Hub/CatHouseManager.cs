@@ -1,6 +1,7 @@
 using UnityEngine;
 using PawPath.Core;
 using PawPath.Data;
+using PawPath.Cat;
 
 namespace PawPath.Hub
 {
@@ -74,11 +75,16 @@ namespace PawPath.Hub
                 if (cat.idleSprite != null)
                     sr.sprite = cat.idleSprite;
                 sr.color = cat.furTint;
+                FitSpriteToHeight(sr, 1.1f);
             }
 
             var pet = go.GetComponent<CatPettingSystem>();
             if (pet == null)
                 pet = go.AddComponent<CatPettingSystem>();
+
+            // Günlük okşama sınırı ve puan üretimi yalnızca evdeki kedilerde çalışır.
+            if (go.GetComponent<CatNeedsSystem>() == null)
+                go.AddComponent<CatNeedsSystem>();
 
             ParticleSystem hearts = go.GetComponentInChildren<ParticleSystem>();
             if (hearts == null && heartPrefab != null)
@@ -113,6 +119,15 @@ namespace PawPath.Hub
             residentPrefab = prefab;
             heartPrefab = hearts;
         }
+
+        static void FitSpriteToHeight(SpriteRenderer renderer, float targetHeight)
+        {
+            if (renderer == null || renderer.sprite == null || renderer.sprite.bounds.size.y <= 0f)
+                return;
+
+            float scale = targetHeight / renderer.sprite.bounds.size.y;
+            renderer.transform.localScale = new Vector3(scale, scale, 1f);
+        }
     }
 
     public static class FallbackSprite
@@ -134,6 +149,20 @@ namespace PawPath.Hub
             tex.Apply();
             cached = Sprite.Create(tex, new Rect(0, 0, 32, 32), new Vector2(0.5f, 0.5f), 32f);
             return cached;
+        }
+
+        static Sprite square;
+
+        public static Sprite WhiteSquare()
+        {
+            if (square != null)
+                return square;
+
+            var tex = new Texture2D(1, 1, TextureFormat.RGBA32, false);
+            tex.SetPixel(0, 0, Color.white);
+            tex.Apply();
+            square = Sprite.Create(tex, new Rect(0, 0, 1, 1), new Vector2(0.5f, 0.5f), 1f);
+            return square;
         }
     }
 }
