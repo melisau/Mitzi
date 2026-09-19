@@ -74,8 +74,13 @@ namespace PawPath.Hub
             {
                 if (cat.idleSprite != null)
                     sr.sprite = cat.idleSprite;
-                sr.color = cat.furTint;
+                sr.color = Color.white;
                 FitSpriteToHeight(sr, 1.1f);
+                var residentAnimator = sr.GetComponent<Animator>();
+                if (residentAnimator == null)
+                    residentAnimator = sr.gameObject.AddComponent<Animator>();
+                residentAnimator.runtimeAnimatorController = cat.animator;
+                residentAnimator.enabled = cat.animator != null;
             }
 
             var pet = go.GetComponent<CatPettingSystem>();
@@ -85,6 +90,8 @@ namespace PawPath.Hub
             // Günlük okşama sınırı ve puan üretimi yalnızca evdeki kedilerde çalışır.
             if (go.GetComponent<CatNeedsSystem>() == null)
                 go.AddComponent<CatNeedsSystem>();
+            if (go.GetComponent<CatHomeBehaviour>() == null)
+                go.AddComponent<CatHomeBehaviour>();
 
             ParticleSystem hearts = go.GetComponentInChildren<ParticleSystem>();
             if (hearts == null && heartPrefab != null)

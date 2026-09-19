@@ -1,8 +1,9 @@
 using System.Collections;
 using UnityEngine;
-using PawPath.Audio;
 using PawPath.Core;
 using PawPath.Data;
+using PawPath.Drawing;
+using PawPath.Economy;
 using PawPath.Levels;
 
 namespace PawPath.Cat
@@ -18,15 +19,16 @@ namespace PawPath.Cat
         public static CatController Instance { get; private set; }
 
         [Header("Yürüyüş")]
-        [SerializeField] float moveSpeed = 1.8f;
+        [SerializeField] float moveSpeed = 2.8f;
+        [SerializeField] float iceSpeedMultiplier = 1.65f;
+        [SerializeField] float bounceForce = 7.2f;
+        [SerializeField] float walkAnimationSpeed = 1.35f;
         [SerializeField] float groundedProbe = 0.28f;
         [SerializeField] LayerMask groundMask = ~0;
         [SerializeField] float airGrace = 0.45f;
         [SerializeField] float visualHeight = 1.1f;
 
         [Header("Kurtarma")]
-        [SerializeField] float bubbleRise = 1.6f;
-        [SerializeField] float returnDuration = 1.35f;
         [SerializeField] SpriteRenderer bubbleRenderer;
         [SerializeField] Transform visual;
 
@@ -63,7 +65,8 @@ namespace PawPath.Cat
             {
                 if (cat.idleSprite != null)
                     sprite.sprite = cat.idleSprite;
-                sprite.color = cat.furTint;
+                // Sprite zaten kendi rengini içeriyor; furTint ile çarpmak görseli koyulaştırıyordu.
+                sprite.color = Color.white;
                 FitVisualToHeight();
             }
 
@@ -104,13 +107,14 @@ namespace PawPath.Cat
                 return;
             }
 
-            bool grounded = IsGrounded();
+            bool grounded = IsGrounded(out var surface);
             if (grounded)
             {
                 airTimer = 0f;
-                body.velocity = new Vector2(facing * moveSpeed, body.velocity.y);
+                float speed = surface == PathSurfaceType.Ice ? moveSpeed * iceSpeedMultiplier : moveSpeed;
+                body.velocity = new Vector2(facing * speed, body.velocity.y);
                 if (animator != null)
-                    animator.speed = 1f;
+                    animator.speed = walkAnimationSpeed;
             }
             else
             {
@@ -132,8 +136,9 @@ namespace PawPath.Cat
                 StartCoroutine(RescueRoutine());
         }
 
-        bool IsGrounded()
+        bool IsGrounded(out PathSurfaceType surface)
         {
+            surface = PathSurfaceType.Normal;
             var hits = Physics2D.CircleCastAll(transform.position, 0.12f, Vector2.down, groundedProbe, groundMask);
             for (int i = 0; i < hits.Length; i++)
             {
@@ -141,9 +146,40 @@ namespace PawPath.Cat
                     continue;
                 if (hits[i].collider.transform == transform || hits[i].collider.transform.IsChildOf(transform))
                     continue;
+                var path = hits[i].collider.GetComponent<PathSurface>();
+                if (path != null)
+                    surface = path.Type;
                 return true;
             }
             return false;
+        }
+
+        void OnCollisionEnter2D(Collision2D collision)
+        {
+            var path = collision.collider.GetComponent<PathSurface>();
+            if (path == null || busy)
+                return;
+
+            if (path.Type == PathSurfaceType.Bounce)
+            {
+                body.velocity = new Vector2(body.velocity.x, bounceForce);
+            }
+            else if (path.Type == PathSurfaceType.Hazard)
+            {
+                StartCoroutine(HazardRestartRoutine());
+            }
+        }
+
+        IEnumerator HazardRestartRoutine()
+        {
+            busy = true;
+            body.velocity = Vector2.zero;
+            if (CozyEconomyManager.Instance != null)
+                CozyEconomyManager.Instance.RemoveLove(10, "Kırmızı yola temas");
+            yield return new WaitForSeconds(0.35f);
+            busy = false;
+            if (LevelManager.Instance != null)
+                LevelManager.Instance.BeginCurrentLevel();
         }
 
         public void FlipTowards(Vector2 target)
@@ -161,33 +197,11 @@ namespace PawPath.Cat
             body.velocity = Vector2.zero;
             body.simulated = false;
             if (bubbleRenderer != null)
-                bubbleRenderer.enabled = true;
-            if (CozyAudioManager.Instance != null)
-                CozyAudioManager.Instance.PlayBubble();
+                bubbleRenderer.enabled = false;
 
-            float t = 0f;
-            Vector3 start = transform.position;
-            Vector3 hover = start + Vector3.up * bubbleRise;
-            while (t < 0.45f)
-            {
-                t += Time.deltaTime;
-                transform.position = Vector3.Lerp(start, hover, t / 0.45f);
-                yield return null;
-            }
-
-            t = 0f;
-            Vector3 from = transform.position;
-            while (t < returnDuration)
-            {
-                t += Time.deltaTime;
-                float k = Mathf.SmoothStep(0f, 1f, t / returnDuration);
-                transform.position = Vector3.Lerp(from, spawnPosition, k);
-                yield return null;
-            }
+            yield return new WaitForSeconds(0.2f);
 
             transform.position = spawnPosition;
-            if (bubbleRenderer != null)
-                bubbleRenderer.enabled = false;
             body.simulated = true;
             body.velocity = Vector2.zero;
             airTimer = 0f;

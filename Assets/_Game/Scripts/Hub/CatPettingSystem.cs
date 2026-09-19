@@ -30,6 +30,7 @@ namespace PawPath.Hub
         float tick;
         bool petting;
         Collider2D col;
+        TextMesh worldLoveText;
 
         public CatDefinition Cat => cat;
 
@@ -50,6 +51,7 @@ namespace PawPath.Hub
         {
             cat = definition;
             hearts = heartFx;
+            EnsureWorldLoveText();
         }
 
         void Update()
@@ -118,6 +120,7 @@ namespace PawPath.Hub
 
                     // Güncel Sevgi Puanı metnini yenile
                     UpdateLoveTextDisplay();
+                    UpdateWorldLoveText();
 
                     // Uçuşan +1 Efekti (Eğer prefab bağlandıysa)
                     SpawnFloatingText();
@@ -145,6 +148,9 @@ namespace PawPath.Hub
         {
             petting = true;
             tick = loveTickInterval;
+            var homeBehaviour = GetComponent<CatHomeBehaviour>();
+            if (homeBehaviour != null)
+                homeBehaviour.SetInteracting(true);
 
             if (hearts != null && !hearts.isPlaying)
                 hearts.Play();
@@ -153,6 +159,9 @@ namespace PawPath.Hub
                 CozyAudioManager.Instance.StartPurr(cat != null ? cat.purrClip : null);
 
             UpdateLoveTextDisplay();
+            UpdateWorldLoveText();
+            if (worldLoveText != null)
+                worldLoveText.gameObject.SetActive(true);
         }
 
         void StopPetting()
@@ -162,6 +171,9 @@ namespace PawPath.Hub
 
             petting = false;
             tick = 0f;
+            var homeBehaviour = GetComponent<CatHomeBehaviour>();
+            if (homeBehaviour != null)
+                homeBehaviour.SetInteracting(false);
 
             if (hearts != null && hearts.isPlaying)
                 hearts.Stop();
@@ -171,6 +183,8 @@ namespace PawPath.Hub
 
             if (loveTextObject != null)
                 loveTextObject.SetActive(false);
+            if (worldLoveText != null)
+                worldLoveText.gameObject.SetActive(false);
         }
 
         void UpdateLoveTextDisplay()
@@ -179,6 +193,36 @@ namespace PawPath.Hub
             {
                 loveText.text = $"💖 Sevgi: {CozyEconomyManager.Instance.LovePoints}";
             }
+        }
+
+        void EnsureWorldLoveText()
+        {
+            if (worldLoveText != null)
+                return;
+
+            var existing = transform.Find("LoveFeedback");
+            var go = existing != null ? existing.gameObject : new GameObject("LoveFeedback");
+            if (existing == null)
+                go.transform.SetParent(transform, false);
+            go.transform.localPosition = new Vector3(0f, 0.95f, -0.1f);
+            worldLoveText = go.GetComponent<TextMesh>();
+            if (worldLoveText == null)
+                worldLoveText = go.AddComponent<TextMesh>();
+            worldLoveText.anchor = TextAnchor.MiddleCenter;
+            worldLoveText.alignment = TextAlignment.Center;
+            worldLoveText.fontSize = 48;
+            worldLoveText.characterSize = 0.045f;
+            worldLoveText.color = new Color(0.80f, 0.18f, 0.38f);
+            var renderer = worldLoveText.GetComponent<MeshRenderer>();
+            if (renderer != null)
+                renderer.sortingOrder = 30;
+            go.SetActive(false);
+        }
+
+        void UpdateWorldLoveText()
+        {
+            if (worldLoveText != null && CozyEconomyManager.Instance != null)
+                worldLoveText.text = $"+1 Sevgi  |  {CozyEconomyManager.Instance.LovePoints}";
         }
 
         void SpawnFloatingText()

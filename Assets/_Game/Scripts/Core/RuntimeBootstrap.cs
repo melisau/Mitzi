@@ -58,6 +58,20 @@ namespace PawPath.Core
 
             var hubBg = CreateQuad("HubRoom", hub.transform, new Vector3(0f, 0.2f, 1f), new Vector3(14f, 8f, 1f), new Color(0.90f, 0.82f, 0.74f));
             hubBg.sortingOrder = -2;
+            if (catalog.homeBackground != null)
+            {
+                hubBg.sprite = catalog.homeBackground;
+                hubBg.color = Color.white;
+                FitSpriteToCamera(hubBg, cam);
+            }
+
+            var furnitureSlots = new Transform[4];
+            furnitureSlots[(int)FurnitureSlotType.Rug] = CreateFurnitureSlot("RugSlot", hub.transform, new Vector3(0f, -2.05f, 0f));
+            furnitureSlots[(int)FurnitureSlotType.Bed] = CreateFurnitureSlot("BedSlot", hub.transform, new Vector3(3.5f, -1.45f, 0f));
+            furnitureSlots[(int)FurnitureSlotType.Bowl] = CreateFurnitureSlot("BowlSlot", hub.transform, new Vector3(-3.4f, -1.65f, 0f));
+            furnitureSlots[(int)FurnitureSlotType.Wallpaper] = CreateFurnitureSlot("WallpaperSlot", hub.transform, new Vector3(0f, 0f, 0f));
+            var furnitureView = hub.AddComponent<HubFurnitureView>();
+            furnitureView.Bind(furnitureSlots);
 
             var spots = new Transform[6];
             for (int i = 0; i < spots.Length; i++)
@@ -115,16 +129,8 @@ namespace PawPath.Core
             sr.sprite = FallbackSprite.WhiteCircle();
             sr.sortingOrder = 10;
             vis.AddComponent<Animator>();
-            var bubbleGo = new GameObject("Bubble");
-            bubbleGo.transform.SetParent(catGo.transform);
-            bubbleGo.transform.localScale = Vector3.one * 1.8f;
-            var bubble = bubbleGo.AddComponent<SpriteRenderer>();
-            bubble.sprite = FallbackSprite.WhiteCircle();
-            bubble.color = new Color(1f, 0.75f, 0.86f, 0.55f);
-            bubble.sortingOrder = 9;
-            bubble.enabled = false;
             var controller = catGo.AddComponent<CatController>();
-            controller.BindVisual(vis.transform, bubble);
+            controller.BindVisual(vis.transform, null);
 
             var sideScroll = camGo.GetComponent<SideScrollCamera>();
             if (sideScroll == null)
@@ -134,7 +140,7 @@ namespace PawPath.Core
             var canvasGo = CreateCanvas(root.transform);
             var hud = BuildHud(canvasGo.transform);
             var rescue = BuildRescue(canvasGo.transform);
-            var shop = BuildShop(canvasGo.transform);
+            var shop = BuildShop(canvasGo.transform, catalog);
             shop.SetActive(false);
             rescue.SetActive(false);
 
@@ -195,8 +201,67 @@ namespace PawPath.Core
             var selected = Label(hud.transform, "Selected", GameText.PlayingAs + ": Mitzi", new Vector2(0.5f, 1f), new Vector2(0, -260));
             var play = Button(hud.transform, "PlayButton", GameText.Play, new Vector2(0.5f, 0f), new Vector2(0, 180), new Color(0.93f, 0.72f, 0.76f));
             var shop = Button(hud.transform, "ShopButton", GameText.Shop, new Vector2(0.5f, 0f), new Vector2(0, 90), new Color(0.78f, 0.84f, 0.72f));
-            hud.GetComponent<HudView>().Bind(love, level, ink, selected, play, shop);
+            var brushes = BuildBrushToolbar(hud.transform);
+            brushes.SetActive(false);
+            var tutorial = BuildBrushTutorial(hud.transform);
+            tutorial.SetActive(false);
+            hud.GetComponent<HudView>().Bind(love, level, ink, selected, play, shop, brushes, tutorial);
             return hud;
+        }
+
+        static GameObject BuildBrushToolbar(Transform parent)
+        {
+            var toolbar = new GameObject("BrushToolbar", typeof(RectTransform));
+            toolbar.transform.SetParent(parent, false);
+            var rt = toolbar.GetComponent<RectTransform>();
+            Stretch(rt);
+
+            AddBrushButton(toolbar.transform, "NormalBrush", "Yol", -220f, new Color(0.17f, 0.15f, 0.14f), PathSurfaceType.Normal);
+            AddBrushButton(toolbar.transform, "BounceBrush", "Zıpla", -110f, new Color(0.20f, 0.55f, 0.95f), PathSurfaceType.Bounce);
+            AddBrushButton(toolbar.transform, "HazardBrush", "!", 0f, new Color(0.88f, 0.20f, 0.20f), PathSurfaceType.Hazard);
+            AddBrushButton(toolbar.transform, "IceBrush", "Buz", 110f, new Color(0.95f, 0.98f, 1f), PathSurfaceType.Ice);
+            var eraser = Button(toolbar.transform, "Eraser", "Sil", new Vector2(0.5f, 0f), new Vector2(220f, 46f), new Color(0.72f, 0.68f, 0.65f));
+            eraser.GetComponent<RectTransform>().sizeDelta = new Vector2(92f, 58f);
+            eraser.onClick.AddListener(() =>
+            {
+                if (LineDraw.Instance != null)
+                    LineDraw.Instance.SetEraser();
+            });
+            return toolbar;
+        }
+
+        static void AddBrushButton(Transform parent, string name, string label, float x, Color color, PathSurfaceType type)
+        {
+            var button = Button(parent, name, label, new Vector2(0.5f, 0f), new Vector2(x, 46f), color);
+            button.GetComponent<RectTransform>().sizeDelta = new Vector2(92f, 58f);
+            var text = button.GetComponentInChildren<Text>();
+            if (text != null)
+            {
+                text.fontSize = 17;
+                text.color = type == PathSurfaceType.Normal ? Color.white : new Color(0.18f, 0.16f, 0.17f);
+            }
+            button.onClick.AddListener(() =>
+            {
+                if (LineDraw.Instance != null)
+                    LineDraw.Instance.SetBrushType(type);
+            });
+        }
+
+        static GameObject BuildBrushTutorial(Transform parent)
+        {
+            var panel = Panel("BrushTutorial", parent, Vector2.zero, Vector2.zero, new Color(0.12f, 0.10f, 0.11f, 0.82f));
+            var rt = panel.GetComponent<RectTransform>();
+            rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
+            rt.sizeDelta = new Vector2(760f, 430f);
+            rt.anchoredPosition = Vector2.zero;
+            var text = Label(panel.transform, "TutorialText",
+                "YOL KALEMLERİ\n\nSiyah: Normal yol\nMavi: Zıplatır\nKırmızı: Puan düşürür ve bölümü başlatır\nBeyaz: Kaygan ve hızlı yol\nSilgi: Çizdiğin yolu siler",
+                new Vector2(0.5f, 0.5f), Vector2.zero);
+            text.rectTransform.sizeDelta = new Vector2(680f, 370f);
+            text.fontSize = 27;
+            text.color = Color.white;
+            panel.GetComponent<Image>().raycastTarget = false;
+            return panel;
         }
 
         static GameObject BuildRescue(Transform canvas)
@@ -212,9 +277,19 @@ namespace PawPath.Core
             return panel;
         }
 
-        static GameObject BuildShop(Transform canvas)
+        static GameObject BuildShop(Transform canvas, PawPathCatalog catalog)
         {
             var panel = Panel("Shop", canvas, Vector2.zero, Vector2.zero, new Color(0.96f, 0.93f, 0.88f, 0.97f));
+            if (catalog != null && catalog.shopBackground != null)
+            {
+                var background = panel.GetComponent<Image>();
+                background.sprite = catalog.shopBackground;
+                background.color = Color.white;
+                background.preserveAspect = false;
+                var backgroundRect = panel.GetComponent<RectTransform>();
+                backgroundRect.offsetMin = new Vector2(-24f, -24f);
+                backgroundRect.offsetMax = new Vector2(24f, 24f);
+            }
             Label(panel.transform, "Title", GameText.Shop, new Vector2(0.5f, 0.92f), Vector2.zero).fontSize = 40;
             var list = new GameObject("List", typeof(RectTransform));
             list.transform.SetParent(panel.transform, false);
@@ -228,13 +303,41 @@ namespace PawPath.Core
             return panel;
         }
 
+        static void FitSpriteToCamera(SpriteRenderer renderer, Camera camera)
+        {
+            if (renderer == null || renderer.sprite == null || camera == null)
+                return;
+
+            Vector2 spriteSize = renderer.sprite.bounds.size;
+            if (spriteSize.x <= 0f || spriteSize.y <= 0f)
+                return;
+
+            float height = camera.orthographicSize * 2f;
+            float width = height * camera.aspect;
+            float coverScale = Mathf.Max(width / spriteSize.x, height / spriteSize.y) * 1.12f;
+            renderer.transform.localScale = new Vector3(coverScale, coverScale, 1f);
+            renderer.transform.position = new Vector3(camera.transform.position.x, camera.transform.position.y, 1f);
+        }
+
+        static Transform CreateFurnitureSlot(string name, Transform parent, Vector3 position)
+        {
+            var slot = new GameObject(name);
+            slot.transform.SetParent(parent);
+            slot.transform.position = position;
+            return slot.transform;
+        }
+
         static GameObject Panel(string name, Transform parent, Vector2 anchorMin, Vector2 anchorMax, Color color)
         {
             var go = new GameObject(name, typeof(RectTransform), typeof(Image));
             go.transform.SetParent(parent, false);
             var rt = go.GetComponent<RectTransform>();
             Stretch(rt);
-            go.GetComponent<Image>().color = color;
+            var image = go.GetComponent<Image>();
+            image.color = color;
+            // Tamamen şeffaf HUD panelleri yalnızca kapsayıcıdır. Raycast açık
+            // kalırsa bütün ekranı kapatıp dünyada yol çizilmesini engeller.
+            image.raycastTarget = color.a > 0.001f;
             return go;
         }
 
@@ -252,6 +355,7 @@ namespace PawPath.Core
             t.fontSize = 28;
             t.alignment = TextAnchor.MiddleCenter;
             t.color = new Color(0.35f, 0.28f, 0.32f);
+            t.raycastTarget = false;
             return t;
         }
 

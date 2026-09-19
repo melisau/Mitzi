@@ -40,6 +40,19 @@ namespace PawPath.Economy
                 Debug.Log($"[PawPath] +{amount} Sevgi · {reason}");
         }
 
+        public void RemoveLove(int amount, string reason = null)
+        {
+            if (amount <= 0)
+                return;
+
+            SaveService.Data.lovePoints = Mathf.Max(0, SaveService.Data.lovePoints - amount);
+            SaveService.Persist();
+            GameEvents.LovePointsChanged(LovePoints);
+
+            if (!string.IsNullOrEmpty(reason))
+                Debug.Log($"[PawPath] -{amount} Sevgi · {reason}");
+        }
+
         public bool TryBuy(ShopItemDefinition item)
         {
             if (item == null)

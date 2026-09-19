@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using PawPath.Core;
@@ -20,6 +21,8 @@ namespace PawPath.UI
         [SerializeField] private Text selectedCatLabel;
         [SerializeField] private Button playButton;
         [SerializeField] private Button shopButton;
+        [SerializeField] private GameObject brushToolbar;
+        [SerializeField] private GameObject brushTutorial;
 
         private void Awake()
         {
@@ -85,6 +88,8 @@ namespace PawPath.UI
                 playButton.gameObject.SetActive(false);
             if (shopButton != null)
                 shopButton.gameObject.SetActive(false);
+            if (brushToolbar != null)
+                brushToolbar.SetActive(true);
         }
 
         private void OnHubEntered()
@@ -93,6 +98,9 @@ namespace PawPath.UI
                 playButton.gameObject.SetActive(true);
             if (shopButton != null)
                 shopButton.gameObject.SetActive(true);
+            if (brushToolbar != null)
+                brushToolbar.SetActive(false);
+            ShowBrushTutorialOnce();
             if (LevelManager.Instance != null)
                 RefreshLevel();
         }
@@ -125,7 +133,7 @@ namespace PawPath.UI
                 levelLabel.text = GameText.LevelLabel(LevelManager.Instance.DisplayLevel);
         }
 
-        public void Bind(Text love, Text level, Text ink, Text selected, Button play, Button shop)
+        public void Bind(Text love, Text level, Text ink, Text selected, Button play, Button shop, GameObject brushes, GameObject tutorial)
         {
             loveLabel = love;
             levelLabel = level;
@@ -133,6 +141,8 @@ namespace PawPath.UI
             selectedCatLabel = selected;
             playButton = play;
             shopButton = shop;
+            brushToolbar = brushes;
+            brushTutorial = tutorial;
 
             // RuntimeBootstrap, HudView bileşenini alt UI nesnelerinden önce oluşturur.
             // Bu nedenle OnEnable sırasında butonlar henüz atanmış olmayabilir.
@@ -164,6 +174,24 @@ namespace PawPath.UI
             var selected = catalog != null ? catalog.GetCat(SaveService.Data.selectedCatId) : null;
             if (selected != null)
                 RefreshCat(selected);
+        }
+
+        private void ShowBrushTutorialOnce()
+        {
+            if (brushTutorial == null || PlayerPrefs.GetInt("PawPath.BrushTutorialSeen", 0) == 1)
+                return;
+
+            brushTutorial.SetActive(true);
+            PlayerPrefs.SetInt("PawPath.BrushTutorialSeen", 1);
+            PlayerPrefs.Save();
+            StartCoroutine(HideBrushTutorial());
+        }
+
+        private IEnumerator HideBrushTutorial()
+        {
+            yield return new WaitForSeconds(5f);
+            if (brushTutorial != null)
+                brushTutorial.SetActive(false);
         }
     }
 }
