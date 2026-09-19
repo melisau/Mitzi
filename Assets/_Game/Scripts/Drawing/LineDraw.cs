@@ -18,7 +18,7 @@ namespace PawPath.Drawing
         [Header("Fırça")]
         [SerializeField] float minPointDistance = 0.07f;
         [SerializeField] float lineWidth = 0.22f;
-        [SerializeField] Color lineColor = new Color(0.93f, 0.78f, 0.86f, 1f);
+        [SerializeField] Color lineColor = new Color(0.17f, 0.15f, 0.14f, 1f);
         [SerializeField] Material lineMaterial;
         [SerializeField] PhysicsMaterial2D pathPhysics;
         [SerializeField] int lineSortingOrder = 4;
@@ -33,6 +33,8 @@ namespace PawPath.Drawing
         EdgeCollider2D currentCollider;
         bool drawing;
         float inkLeft;
+        PathSurfaceType brushType = PathSurfaceType.Normal;
+        bool eraserMode;
 
         public float InkLeft => inkLeft;
         public float InkMax { get; private set; } = 18f;
@@ -74,6 +76,13 @@ namespace PawPath.Drawing
             if (IsPointerOverUi())
                 return;
 
+            if (eraserMode)
+            {
+                if (PointerHeld() || PointerDown())
+                    EraseAt(PointerWorld());
+                return;
+            }
+
             if (PointerDown())
                 BeginStroke(PointerWorld());
             else if (drawing && PointerHeld())
@@ -94,6 +103,7 @@ namespace PawPath.Drawing
             var go = new GameObject("PathStroke");
             go.layer = LayerMask.NameToLayer("Default");
             strokes.Add(go);
+            go.AddComponent<PathSurface>().Configure(brushType);
 
             currentLine = go.AddComponent<LineRenderer>();
             currentLine.positionCount = 1;
@@ -222,6 +232,37 @@ namespace PawPath.Drawing
             lineMaterial = material;
             lineColor = color;
             pathPhysics = physics;
+        }
+
+        public void SetBrushType(PathSurfaceType type)
+        {
+            eraserMode = false;
+            brushType = type;
+            lineColor = type switch
+            {
+                PathSurfaceType.Bounce => new Color(0.20f, 0.55f, 0.95f, 1f),
+                PathSurfaceType.Hazard => new Color(0.88f, 0.20f, 0.20f, 1f),
+                PathSurfaceType.Ice => new Color(0.95f, 0.98f, 1f, 1f),
+                _ => new Color(0.17f, 0.15f, 0.14f, 1f)
+            };
+        }
+
+        public void SetEraser()
+        {
+            EndStroke();
+            eraserMode = true;
+        }
+
+        void EraseAt(Vector2 world)
+        {
+            var hits = Physics2D.OverlapCircleAll(world, 0.32f);
+            foreach (var hit in hits)
+            {
+                if (hit == null || hit.GetComponent<PathSurface>() == null)
+                    continue;
+                strokes.Remove(hit.gameObject);
+                Destroy(hit.gameObject);
+            }
         }
     }
 }

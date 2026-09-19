@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: Wooden Food Bowl
   description: "Kedinizin en sevdi\u011Fi mamalar i\xE7in el yap\u0131m\u0131, \u015F\u0131k
     bir ah\u015Fap kap."
-  type: 0
+  slotType: 2
   lovePointCost: 20
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 4fd1dd2521e526547af5bf159b398619, type: 3}
   placedSprite: {fileID: 21300000, guid: 4fd1dd2521e526547af5bf159b398619, type: 3}

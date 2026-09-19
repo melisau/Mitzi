@@ -15,7 +15,7 @@ MonoBehaviour:
   id: item_cat_bed
   displayName: Cat bed
   description: "K\u0131vr\u0131labilece\u011Fi s\u0131cac\u0131k bir yatak."
-  type: 0
+  slotType: 1
   lovePointCost: 40
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: d14a94bb829268e469e88c9df4700d11, type: 3}
   placedSprite: {fileID: 21300000, guid: d14a94bb829268e469e88c9df4700d11, type: 3}

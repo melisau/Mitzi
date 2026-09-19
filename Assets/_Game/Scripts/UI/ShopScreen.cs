@@ -61,8 +61,8 @@ namespace PawPath.UI
             if (grid == null)
             {
                 grid = listRoot.gameObject.AddComponent<GridLayoutGroup>();
-                grid.cellSize = new Vector2(180, 220); 
-                grid.spacing = new Vector2(30, 20);    
+                grid.cellSize = new Vector2(260, 310);
+                grid.spacing = new Vector2(38, 28);
                 grid.startCorner = GridLayoutGroup.Corner.UpperLeft;
                 grid.startAxis = GridLayoutGroup.Axis.Horizontal;
                 grid.childAlignment = TextAnchor.UpperCenter;
@@ -265,7 +265,7 @@ namespace PawPath.UI
             var go = new GameObject("GridItem", typeof(RectTransform), typeof(Image));
             go.transform.SetParent(parent, false);
             var rowRt = go.GetComponent<RectTransform>();
-            rowRt.sizeDelta = new Vector2(180, 220);
+            rowRt.sizeDelta = new Vector2(260, 310);
 
             var itemBg = go.GetComponent<Image>();
             itemBg.color = new Color(0, 0, 0, 0f); 
@@ -273,36 +273,36 @@ namespace PawPath.UI
             var iconGo = new GameObject("Icon", typeof(RectTransform), typeof(Image));
             iconGo.transform.SetParent(go.transform, false);
             var iconRt = iconGo.GetComponent<RectTransform>();
-            iconRt.anchoredPosition = new Vector2(0, 50);
-            iconRt.sizeDelta = new Vector2(80, 80);
+            iconRt.anchoredPosition = new Vector2(0, 72);
+            iconRt.sizeDelta = new Vector2(150, 150);
 
             // 1. Ürün Adı
             var title = CreateText(go.transform, "Title", 14);
             title.fontStyle = FontStyle.Bold;
             title.color = new Color(0.2f, 0.15f, 0.1f); 
             title.rectTransform.anchoredPosition = new Vector2(0, -5);
-            title.rectTransform.sizeDelta = new Vector2(170, 22);
+            title.rectTransform.sizeDelta = new Vector2(245, 26);
 
             // 2. Açıklama Metni
             var desc = CreateText(go.transform, "Desc", 10);
             desc.color = new Color(0.35f, 0.3f, 0.25f); 
             desc.rectTransform.anchoredPosition = new Vector2(0, -24);
-            desc.rectTransform.sizeDelta = new Vector2(170, 20);
+            desc.rectTransform.sizeDelta = new Vector2(245, 42);
 
             // 3. Puan Metni
             var cost = CreateText(go.transform, "Cost", 12);
             cost.fontStyle = FontStyle.Bold;
             cost.color = new Color(0.65f, 0.25f, 0.15f); 
             cost.rectTransform.anchoredPosition = new Vector2(0, -44);
-            cost.rectTransform.sizeDelta = new Vector2(170, 20);
+            cost.rectTransform.sizeDelta = new Vector2(245, 24);
 
             // 4. KÜÇÜLTÜLMÜŞ BUTON
             var btnGo = new GameObject("BuyButton", typeof(RectTransform), typeof(Image), typeof(Button));
             btnGo.transform.SetParent(go.transform, false);
             var btnRt = btnGo.GetComponent<RectTransform>();
             
-            btnRt.anchoredPosition = new Vector2(0, -72); 
-            btnRt.sizeDelta = new Vector2(85, 28); 
+            btnRt.anchoredPosition = new Vector2(0, -92);
+            btnRt.sizeDelta = new Vector2(130, 38);
             
             var btnImg = btnGo.GetComponent<Image>();
             btnImg.color = new Color(0.75f, 0.4f, 0.35f); 
@@ -310,7 +310,7 @@ namespace PawPath.UI
             var label = CreateText(btnGo.transform, "Label", 11);
             label.fontStyle = FontStyle.Bold;
             label.color = Color.white; 
-            label.rectTransform.sizeDelta = new Vector2(85, 28);
+            label.rectTransform.sizeDelta = new Vector2(130, 38);
             label.rectTransform.anchoredPosition = Vector2.zero;
 
             return go;

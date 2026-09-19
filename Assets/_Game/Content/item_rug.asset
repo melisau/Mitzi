@@ -15,7 +15,7 @@ MonoBehaviour:
   id: item_rug
   displayName: Rug
   description: "Kedinizin yumu\u015Fac\u0131k kilimi."
-  type: 0
+  slotType: 0
   lovePointCost: 30
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 081a80532144689419f02fe86881ab61, type: 3}
   placedSprite: {fileID: 21300000, guid: 081a80532144689419f02fe86881ab61, type: 3}

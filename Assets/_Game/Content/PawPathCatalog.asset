@@ -511,10 +511,9 @@ MonoBehaviour:
   - {fileID: -8853985181083747102}
   - {fileID: 7084092341273692735}
   shopItems:
-  - {fileID: -5048133653491344081}
-  - {fileID: -6913534298414663899}
-  - {fileID: 5239382098774973219}
-  - {fileID: -4672768594276965940}
+  - {fileID: 11400000, guid: 5b70e6509f4491743bd7035f7538899e, type: 2}
+  - {fileID: 11400000, guid: 31d2370a9afe51743a579f9486c1236b, type: 2}
+  - {fileID: 11400000, guid: 9f8edd8da300d7945ad3d0fd0f2a268e, type: 2}
   levels:
   - {fileID: -8482091838414750122}
   - {fileID: 6013454598846174603}
@@ -546,6 +545,8 @@ MonoBehaviour:
   - {fileID: 6697319454437858831}
   - {fileID: -5525705555030679784}
   - {fileID: -1786143255828469152}
+  homeBackground: {fileID: 21300000, guid: 28ba73199a893de429478beedee4faa3, type: 3}
+  shopBackground: {fileID: 21300000, guid: 3fc8bac3a23488a4b91c73a04c0a25ce, type: 3}
 --- !u!114 &809415211630189811
 MonoBehaviour:
   m_ObjectHideFlags: 0

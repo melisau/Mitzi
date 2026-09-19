@@ -15,6 +15,9 @@ namespace PawPath.Data
         public List<CatDefinition> cats = new List<CatDefinition>();
         public List<ShopItemDefinition> shopItems = new List<ShopItemDefinition>();
         public List<LevelDefinition> levels = new List<LevelDefinition>();
+        [Header("Arka Planlar")]
+        public Sprite homeBackground;
+        public Sprite shopBackground;
 
         public CatDefinition GetCat(string id)
         {
