@@ -11,6 +11,46 @@ namespace PawPath.EditorTools
     {
         const string ContentDir = "Assets/_Game/Content";
         const string ScenePath = "Assets/Scenes/PawPath.unity";
+        [InitializeOnLoadMethod]
+        static void ProtectTextureInspectorWhenPlaying()
+        {
+            EditorApplication.playModeStateChanged -= ClearTextureSelectionBeforePlay;
+            EditorApplication.playModeStateChanged += ClearTextureSelectionBeforePlay;
+            EditorApplication.delayCall += EnsureWallpaper2References;
+        }
+
+        static void EnsureWallpaper2References()
+        {
+            const string catalogPath = "Assets/_Game/Content/PawPathCatalog.asset";
+            const string wallpaperPath = "Assets/_Game/Art/home_wallpaper2.png";
+            var catalogAsset = AssetDatabase.LoadAssetAtPath<PawPathCatalog>(catalogPath);
+            var wallpaper = AssetDatabase.LoadAssetAtPath<Sprite>(wallpaperPath);
+            if (catalogAsset == null || wallpaper == null)
+                return;
+            if (catalogAsset.homeBackground == wallpaper && catalogAsset.shopBackground == wallpaper)
+                return;
+
+            catalogAsset.homeBackground = wallpaper;
+            catalogAsset.shopBackground = wallpaper;
+            EditorUtility.SetDirty(catalogAsset);
+            AssetDatabase.SaveAssets();
+            Debug.Log("[PawPath] Ev ve mağaza arka planı home_wallpaper2 olarak güncellendi.");
+        }
+
+        static void ClearTextureSelectionBeforePlay(PlayModeStateChange state)
+        {
+            if (state != PlayModeStateChange.ExitingEditMode)
+                return;
+
+            foreach (var selected in Selection.objects)
+            {
+                if (selected is Texture2D)
+                {
+                    Selection.activeObject = null;
+                    break;
+                }
+            }
+        }
 
         [MenuItem("Paw Path/Build Starter Scene")]
         public static void BuildStarterScene()

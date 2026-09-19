@@ -19,10 +19,10 @@ namespace PawPath.Cat
         public static CatController Instance { get; private set; }
 
         [Header("Yürüyüş")]
-        [SerializeField] float moveSpeed = 2.8f;
+        [SerializeField] float moveSpeed = 2.2f;
         [SerializeField] float iceSpeedMultiplier = 1.65f;
         [SerializeField] float bounceForce = 7.2f;
-        [SerializeField] float walkAnimationSpeed = 1.35f;
+        [SerializeField] float walkAnimationSpeed = 1.75f;
         [SerializeField] float groundedProbe = 0.28f;
         [SerializeField] LayerMask groundMask = ~0;
         [SerializeField] float airGrace = 0.45f;

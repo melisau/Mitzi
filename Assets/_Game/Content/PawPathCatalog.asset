@@ -545,8 +545,8 @@ MonoBehaviour:
   - {fileID: 6697319454437858831}
   - {fileID: -5525705555030679784}
   - {fileID: -1786143255828469152}
-  homeBackground: {fileID: 21300000, guid: 28ba73199a893de429478beedee4faa3, type: 3}
-  shopBackground: {fileID: 21300000, guid: 3fc8bac3a23488a4b91c73a04c0a25ce, type: 3}
+  homeBackground: {fileID: 21300000, guid: 0540be3e6362cb049931d48ec317c00f, type: 3}
+  shopBackground: {fileID: 21300000, guid: 0540be3e6362cb049931d48ec317c00f, type: 3}
 --- !u!114 &809415211630189811
 MonoBehaviour:
   m_ObjectHideFlags: 0
