@@ -14,27 +14,54 @@ namespace PawPath.UI
     /// </summary>
     public class HudView : MonoBehaviour
     {
-        [SerializeField] Text loveLabel;
-        [SerializeField] Text levelLabel;
-        [SerializeField] Text inkLabel;
-        [SerializeField] Text selectedCatLabel;
-        [SerializeField] Button playButton;
-        [SerializeField] Button shopButton;
+        [SerializeField] private Text loveLabel;
+        [SerializeField] private Text levelLabel;
+        [SerializeField] private Text inkLabel;
+        [SerializeField] private Text selectedCatLabel;
+        [SerializeField] private Button playButton;
+        [SerializeField] private Button shopButton;
 
-        void OnEnable()
+        private void Awake()
+        {
+            // Inspector üzerinde boşsa alt objelerden butonları otomatik bul
+            if (playButton == null)
+            {
+                Transform playTransform = transform.Find("HUD/PlayButton") ?? transform.Find("PlayButton");
+                if (playTransform != null)
+                    playButton = playTransform.GetComponent<Button>();
+            }
+
+            if (shopButton == null)
+            {
+                Transform shopTransform = transform.Find("HUD/ShopButton") ?? transform.Find("ShopButton");
+                if (shopTransform != null)
+                    shopButton = shopTransform.GetComponent<Button>();
+            }
+        }
+
+        private void OnEnable()
         {
             GameEvents.OnLovePointsChanged += RefreshLove;
             GameEvents.OnPlayableCatChanged += RefreshCat;
             GameEvents.OnLevelStarted += OnLevelStarted;
             GameEvents.OnHubEntered += OnHubEntered;
+
+            // Yola Çık Buton Tıklaması
             if (playButton != null)
             {
                 playButton.onClick.RemoveAllListeners();
-                playButton.onClick.AddListener(() => GameFlow.Instance.StartNextLevel());
+                playButton.onClick.AddListener(OnPlayButtonClicked);
+            }
+
+            // Dükkan Buton Tıklaması
+            if (shopButton != null)
+            {
+                shopButton.onClick.RemoveAllListeners();
+                shopButton.onClick.AddListener(OnShopButtonClicked);
             }
         }
 
-        void OnDisable()
+        private void OnDisable()
         {
             GameEvents.OnLovePointsChanged -= RefreshLove;
             GameEvents.OnPlayableCatChanged -= RefreshCat;
@@ -42,7 +69,28 @@ namespace PawPath.UI
             GameEvents.OnHubEntered -= OnHubEntered;
         }
 
-        void OnLevelStarted()
+        // TEK VE TEMİZ ONPLAYBUTTONCLICKED METODU
+        private void OnPlayButtonClicked()
+        {
+            Debug.Log(">>> Yola Çık butonuna basıldı! <<<");
+
+            if (GameFlow.Instance != null)
+            {
+                Debug.Log("GameFlow bulundu, bölüm başlatılıyor...");
+                GameFlow.Instance.StartNextLevel();
+            }
+            else
+            {
+                Debug.LogError("HATA: GameFlow.Instance sahnede bulunamadı! RuntimeBootstrap nesnesinin aktif olduğundan emin olun.");
+            }
+        }
+
+        private void OnShopButtonClicked()
+        {
+            Debug.Log(">>> Dükkan butonuna basıldı! <<<");
+        }
+
+        private void OnLevelStarted()
         {
             RefreshLevel();
             if (playButton != null)
@@ -51,7 +99,7 @@ namespace PawPath.UI
                 shopButton.gameObject.SetActive(false);
         }
 
-        void OnHubEntered()
+        private void OnHubEntered()
         {
             if (playButton != null)
                 playButton.gameObject.SetActive(true);
@@ -61,28 +109,29 @@ namespace PawPath.UI
                 RefreshLevel();
         }
 
-        void Update()
+        private void Update()
         {
             if (inkLabel == null || LineDraw.Instance == null)
                 return;
             if (GameFlow.Instance != null && GameFlow.Instance.InHub)
                 return;
+
             inkLabel.text = $"{GameText.Ink}: {LineDraw.Instance.InkLeft:0.0}";
         }
 
-        void RefreshLove(int total)
+        private void RefreshLove(int total)
         {
             if (loveLabel != null)
                 loveLabel.text = $"{GameText.Love}: {total}";
         }
 
-        void RefreshCat(CatDefinition cat)
+        private void RefreshCat(CatDefinition cat)
         {
             if (selectedCatLabel != null && cat != null)
                 selectedCatLabel.text = $"{GameText.PlayingAs}: {cat.displayName}";
         }
 
-        void RefreshLevel()
+        private void RefreshLevel()
         {
             if (levelLabel != null && LevelManager.Instance != null)
                 levelLabel.text = GameText.LevelLabel(LevelManager.Instance.DisplayLevel);

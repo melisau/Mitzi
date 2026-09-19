@@ -4,5 +4,8 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/PawPath.unity
+    guid: 2b1ac22beabb18b4db86ea0b0c70b967
   m_configObjects: {}

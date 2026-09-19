@@ -1,5 +1,496 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-9097257023413215209
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ba0a48be16eac847b8231e19fb2dadc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: mitzi
+  displayName: Mitzi
+  bio: "Evin ilk patisi. G\xFCne\u015F lekelerini takip etmeyi ve senin \xE7izdi\u011Fin
+    k\xF6pr\xFClerde minik ad\u0131mlar atmay\u0131 sever."
+  encounterDialogue: "Mitzi zaten seninle. Pencerenin \xF6n\xFCnde kuyru\u011Funu
+    k\u0131v\u0131r\u0131p 'hadi yol \xE7iz' diyor."
+  personality: 0
+  unlockAfterLevel: 0
+  furTint: {r: 0.86, g: 0.62, b: 0.38, a: 1}
+  portrait: {fileID: 0}
+  idleSprite: {fileID: 0}
+  animator: {fileID: 0}
+  purrClip: {fileID: 0}
+  meowClip: {fileID: 0}
+--- !u!114 &-8853985181083747102
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ba0a48be16eac847b8231e19fb2dadc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: ada
+  displayName: Ada
+  bio: "\xC7i\xE7ek ta\xE7l\u0131, r\xFCzgar\u0131 seven. Y\xFCksek yerlerden bile
+    sakin bakar."
+  encounterDialogue: "Ada, \xE7itlerin \xFCst\xFCnde r\xFCzgarla dans ediyordu. Seni
+    g\xF6r\xFCnce a\u015Fa\u011F\u0131 atl\u0131yor ve aln\u0131n\u0131 dizine yasl\u0131yor.
+    'Ben de ailenin par\xE7as\u0131 olay\u0131m' diyor sessizce."
+  personality: 2
+  unlockAfterLevel: 20
+  furTint: {r: 0.72, g: 0.74, b: 0.78, a: 1}
+  portrait: {fileID: 0}
+  idleSprite: {fileID: 0}
+  animator: {fileID: 0}
+  purrClip: {fileID: 0}
+  meowClip: {fileID: 0}
+--- !u!114 &-8482091838414750122
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelNumber: 1
+  season: 0
+  spawnPoint: {x: -6.2, y: -1.15}
+  goalPoint: {x: 6.25, y: -0.050000012}
+  inkBudget: 17.2
+  fallY: -7.5
+--- !u!114 &-8067801577041964489
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelNumber: 4
+  season: 0
+  spawnPoint: {x: -6.2, y: -1.15}
+  goalPoint: {x: 6.25, y: 1}
+  inkBudget: 20.8
+  fallY: -7.5
+--- !u!114 &-7781508163399049578
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelNumber: 19
+  season: 0
+  spawnPoint: {x: -6.2, y: -1.15}
+  goalPoint: {x: 6.25, y: 1}
+  inkBudget: 17.2
+  fallY: -7.5
+--- !u!114 &-6913534298414663899
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5453fd3994f158f44848f3bb7b9c08e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: cushion
+  displayName: "Bulut Pelu\u015F Minder"
+  description: "\u0130\xE7ine g\xF6m\xFCld\xFCn m\xFC \xE7\u0131k\u0131lmaz. Pamuk'un
+    resm\xEE uyku ofisi. \xDCzerine bir k\u0131l b\u0131rakmas\u0131 iltifat say\u0131l\u0131r."
+  lovePointCost: 35
+  icon: {fileID: 0}
+  placedSprite: {fileID: 0}
+  slotType: 0
+--- !u!114 &-6643478054506200867
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelNumber: 12
+  season: 2
+  spawnPoint: {x: -6.2, y: -1.15}
+  goalPoint: {x: 6.25, y: 0.29999998}
+  inkBudget: 16
+  fallY: -7.5
+--- !u!114 &-6453923348384391248
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelNumber: 18
+  season: 0
+  spawnPoint: {x: -6.2, y: -1.15}
+  goalPoint: {x: 6.25, y: 0.65}
+  inkBudget: 16
+  fallY: -7.5
+--- !u!114 &-5619157559283200535
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelNumber: 6
+  season: 1
+  spawnPoint: {x: -6.2, y: -1.15}
+  goalPoint: {x: 6.25, y: -0.050000012}
+  inkBudget: 16
+  fallY: -7.5
+--- !u!114 &-5557121267762338592
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ba0a48be16eac847b8231e19fb2dadc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: komur
+  displayName: "K\xF6m\xFCr"
+  bio: "Gece kadar sessiz, kucak kadar s\u0131cak. \xC7i\xE7ek tac\u0131n\u0131 e\u011Fik
+    takar."
+  encounterDialogue: "K\xF6m\xFCr, sokak lambas\u0131n\u0131n g\xF6lgesinde tek ba\u015F\u0131na
+    oturuyor. Sen e\u011Filince bir ad\u0131m yakla\u015F\u0131yor; sanki evinin
+    kokusunu \xE7oktan tan\u0131yor."
+  personality: 3
+  unlockAfterLevel: 10
+  furTint: {r: 0.18, g: 0.16, b: 0.2, a: 1}
+  portrait: {fileID: 0}
+  idleSprite: {fileID: 0}
+  animator: {fileID: 0}
+  purrClip: {fileID: 0}
+  meowClip: {fileID: 0}
+--- !u!114 &-5525705555030679784
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelNumber: 29
+  season: 2
+  spawnPoint: {x: -6.2, y: -1.15}
+  goalPoint: {x: 6.25, y: 1}
+  inkBudget: 22
+  fallY: -7.5
+--- !u!114 &-5360457940912506715
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelNumber: 10
+  season: 1
+  spawnPoint: {x: -6.2, y: -1.15}
+  goalPoint: {x: 6.25, y: -0.4}
+  inkBudget: 20.8
+  fallY: -7.5
+--- !u!114 &-5048133653491344081
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5453fd3994f158f44848f3bb7b9c08e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: tree
+  displayName: "G\xF6\u011Fe Uzanan T\u0131rmanma A\u011Fac\u0131"
+  description: "Kat kat tahta, ip sar\u0131l\u0131 direkler ve en tepede bir bak\u0131\u015F
+    teras\u0131. Mitzi buradan b\xFCt\xFCn evi 'benim' diye ilan eder."
+  lovePointCost: 80
+  icon: {fileID: 0}
+  placedSprite: {fileID: 0}
+  slotType: 0
+--- !u!114 &-4715009435341770624
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelNumber: 22
+  season: 1
+  spawnPoint: {x: -6.2, y: -1.15}
+  goalPoint: {x: 6.25, y: 0.29999998}
+  inkBudget: 20.8
+  fallY: -7.5
+--- !u!114 &-4672768594276965940
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5453fd3994f158f44848f3bb7b9c08e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: sweater
+  displayName: "El \xD6rg\xFCs\xFC Kedi Kaza\u011F\u0131"
+  description: "Il\u0131k y\xFCn, k\xFC\xE7\xFCk pati delikleri. Moka giyince k\u0131\u015F
+    bile utan\xE7tan yumu\u015Far. \xC7\u0131karmak isteyince m\u0131r\u0131ldanarak
+    pazarl\u0131k eder."
+  lovePointCost: 60
+  icon: {fileID: 0}
+  placedSprite: {fileID: 0}
+  slotType: 0
+--- !u!114 &-4426814187468879861
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelNumber: 27
+  season: 2
+  spawnPoint: {x: -6.2, y: -1.15}
+  goalPoint: {x: 6.25, y: 0.29999998}
+  inkBudget: 19.6
+  fallY: -7.5
+--- !u!114 &-4307353449782549949
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelNumber: 11
+  season: 2
+  spawnPoint: {x: -6.2, y: -1.15}
+  goalPoint: {x: 6.25, y: -0.050000012}
+  inkBudget: 22
+  fallY: -7.5
+--- !u!114 &-4088506760151601280
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelNumber: 8
+  season: 1
+  spawnPoint: {x: -6.2, y: -1.15}
+  goalPoint: {x: 6.25, y: 0.65}
+  inkBudget: 18.4
+  fallY: -7.5
+--- !u!114 &-3911632010426811968
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelNumber: 26
+  season: 2
+  spawnPoint: {x: -6.2, y: -1.15}
+  goalPoint: {x: 6.25, y: -0.050000012}
+  inkBudget: 18.4
+  fallY: -7.5
+--- !u!114 &-2740861711815355824
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelNumber: 9
+  season: 1
+  spawnPoint: {x: -6.2, y: -1.15}
+  goalPoint: {x: 6.25, y: 1}
+  inkBudget: 19.6
+  fallY: -7.5
+--- !u!114 &-2063049178533981654
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelNumber: 16
+  season: 0
+  spawnPoint: {x: -6.2, y: -1.15}
+  goalPoint: {x: 6.25, y: -0.050000012}
+  inkBudget: 20.8
+  fallY: -7.5
+--- !u!114 &-1819879857243774363
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelNumber: 23
+  season: 1
+  spawnPoint: {x: -6.2, y: -1.15}
+  goalPoint: {x: 6.25, y: 0.65}
+  inkBudget: 22
+  fallY: -7.5
+--- !u!114 &-1786143255828469152
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelNumber: 30
+  season: 2
+  spawnPoint: {x: -6.2, y: -1.15}
+  goalPoint: {x: 6.25, y: -0.4}
+  inkBudget: 16
+  fallY: -7.5
+--- !u!114 &-1610005311995454322
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ba0a48be16eac847b8231e19fb2dadc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: pamuk
+  displayName: Pamuk
+  bio: "Bulut gibi, usul usul. En yumu\u015Fak mindere k\u0131vr\u0131l\u0131p m\u0131r\u0131ldan\u0131r."
+  encounterDialogue: "Park\u0131n bank\u0131n\u0131n alt\u0131nda titreyen bir yumak
+    buldun. Pamuk, burnunu parma\u011F\u0131na de\u011Fdirip 'beni de g\xF6t\xFCr\xFCr
+    m\xFCs\xFCn?' diye bak\u0131yor. Evde ona bir g\xFCne\u015F dilimi ay\u0131raca\u011F\u0131z."
+  personality: 1
+  unlockAfterLevel: 5
+  furTint: {r: 0.96, g: 0.95, b: 0.93, a: 1}
+  portrait: {fileID: 0}
+  idleSprite: {fileID: 0}
+  animator: {fileID: 0}
+  purrClip: {fileID: 0}
+  meowClip: {fileID: 0}
+--- !u!114 &-242122376908666679
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelNumber: 24
+  season: 1
+  spawnPoint: {x: -6.2, y: -1.15}
+  goalPoint: {x: 6.25, y: 1}
+  inkBudget: 16
+  fallY: -7.5
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12,9 +503,336 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c93c7559105dec64885065d0a280b735, type: 3}
   m_Name: PawPathCatalog
   m_EditorClassIdentifier: 
-  cats: []
+  cats:
+  - {fileID: -9097257023413215209}
+  - {fileID: -1610005311995454322}
+  - {fileID: -5557121267762338592}
+  - {fileID: 4286188871352469987}
+  - {fileID: -8853985181083747102}
+  - {fileID: 7084092341273692735}
   shopItems:
-  - {fileID: 11400000, guid: 5b70e6509f4491743bd7035f7538899e, type: 2}
-  - {fileID: 11400000, guid: 9f8edd8da300d7945ad3d0fd0f2a268e, type: 2}
-  - {fileID: 11400000, guid: 31d2370a9afe51743a579f9486c1236b, type: 2}
-  levels: []
+  - {fileID: -5048133653491344081}
+  - {fileID: -6913534298414663899}
+  - {fileID: 5239382098774973219}
+  - {fileID: -4672768594276965940}
+  levels:
+  - {fileID: -8482091838414750122}
+  - {fileID: 6013454598846174603}
+  - {fileID: 6544880724860218824}
+  - {fileID: -8067801577041964489}
+  - {fileID: 809415211630189811}
+  - {fileID: -5619157559283200535}
+  - {fileID: 7962687299715179581}
+  - {fileID: -4088506760151601280}
+  - {fileID: -2740861711815355824}
+  - {fileID: -5360457940912506715}
+  - {fileID: -4307353449782549949}
+  - {fileID: -6643478054506200867}
+  - {fileID: 9039703361423145584}
+  - {fileID: 1817470422442163820}
+  - {fileID: 2372156783989666172}
+  - {fileID: -2063049178533981654}
+  - {fileID: 3435145415592124970}
+  - {fileID: -6453923348384391248}
+  - {fileID: -7781508163399049578}
+  - {fileID: 1904401907757716231}
+  - {fileID: 1943687989216050302}
+  - {fileID: -4715009435341770624}
+  - {fileID: -1819879857243774363}
+  - {fileID: -242122376908666679}
+  - {fileID: 6072187793490374621}
+  - {fileID: -3911632010426811968}
+  - {fileID: -4426814187468879861}
+  - {fileID: 6697319454437858831}
+  - {fileID: -5525705555030679784}
+  - {fileID: -1786143255828469152}
+--- !u!114 &809415211630189811
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelNumber: 5
+  season: 0
+  spawnPoint: {x: -6.2, y: -1.15}
+  goalPoint: {x: 6.25, y: -0.4}
+  inkBudget: 22
+  fallY: -7.5
+--- !u!114 &1817470422442163820
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelNumber: 14
+  season: 2
+  spawnPoint: {x: -6.2, y: -1.15}
+  goalPoint: {x: 6.25, y: 1}
+  inkBudget: 18.4
+  fallY: -7.5
+--- !u!114 &1904401907757716231
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelNumber: 20
+  season: 0
+  spawnPoint: {x: -6.2, y: -1.15}
+  goalPoint: {x: 6.25, y: -0.4}
+  inkBudget: 18.4
+  fallY: -7.5
+--- !u!114 &1943687989216050302
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelNumber: 21
+  season: 1
+  spawnPoint: {x: -6.2, y: -1.15}
+  goalPoint: {x: 6.25, y: -0.050000012}
+  inkBudget: 19.6
+  fallY: -7.5
+--- !u!114 &2372156783989666172
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelNumber: 15
+  season: 2
+  spawnPoint: {x: -6.2, y: -1.15}
+  goalPoint: {x: 6.25, y: -0.4}
+  inkBudget: 19.6
+  fallY: -7.5
+--- !u!114 &3435145415592124970
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelNumber: 17
+  season: 0
+  spawnPoint: {x: -6.2, y: -1.15}
+  goalPoint: {x: 6.25, y: 0.29999998}
+  inkBudget: 22
+  fallY: -7.5
+--- !u!114 &4286188871352469987
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ba0a48be16eac847b8231e19fb2dadc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: tarcin
+  displayName: "Tar\xE7\u0131n"
+  bio: "\xDC\xE7 renkli, \xFC\xE7 kat merakl\u0131. T\xFCy oltay\u0131 g\xF6r\xFCnce
+    d\xFCnya durur."
+  encounterDialogue: "Tar\xE7\u0131n, d\xFC\u015Fen yapraklar\u0131n aras\u0131nda
+    z\u0131playa z\u0131playa sana geliyor. 'Bu yol biraz e\u011Flenceliydi,' der
+    gibi m\u0131r\u0131ldan\u0131yor. Kap\u0131y\u0131 a\xE7\u0131k b\u0131rak\u0131yoruz."
+  personality: 4
+  unlockAfterLevel: 15
+  furTint: {r: 0.9, g: 0.55, b: 0.32, a: 1}
+  portrait: {fileID: 0}
+  idleSprite: {fileID: 0}
+  animator: {fileID: 0}
+  purrClip: {fileID: 0}
+  meowClip: {fileID: 0}
+--- !u!114 &5239382098774973219
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5453fd3994f158f44848f3bb7b9c08e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: wand
+  displayName: "T\xFCy Olta"
+  description: "Ucu t\xFCy, sap\u0131 sab\u0131r. Tar\xE7\u0131n i\xE7in bu bir oyuncak
+    de\u011Fil, destand\u0131r. Sen savur, o u\xE7sun."
+  lovePointCost: 45
+  icon: {fileID: 0}
+  placedSprite: {fileID: 0}
+  slotType: 0
+--- !u!114 &6013454598846174603
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelNumber: 2
+  season: 0
+  spawnPoint: {x: -6.2, y: -1.15}
+  goalPoint: {x: 6.25, y: 0.29999998}
+  inkBudget: 18.4
+  fallY: -7.5
+--- !u!114 &6072187793490374621
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelNumber: 25
+  season: 1
+  spawnPoint: {x: -6.2, y: -1.15}
+  goalPoint: {x: 6.25, y: -0.4}
+  inkBudget: 17.2
+  fallY: -7.5
+--- !u!114 &6544880724860218824
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelNumber: 3
+  season: 0
+  spawnPoint: {x: -6.2, y: -1.15}
+  goalPoint: {x: 6.25, y: 0.65}
+  inkBudget: 19.6
+  fallY: -7.5
+--- !u!114 &6697319454437858831
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelNumber: 28
+  season: 2
+  spawnPoint: {x: -6.2, y: -1.15}
+  goalPoint: {x: 6.25, y: 0.65}
+  inkBudget: 20.8
+  fallY: -7.5
+--- !u!114 &7084092341273692735
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ba0a48be16eac847b8231e19fb2dadc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: moka
+  displayName: Moka
+  bio: "\xD6rg\xFC atk\u0131l\u0131, kahve kokulu. \u015E\xF6mineye en yak\u0131n
+    yast\u0131\u011F\u0131 bilir."
+  encounterDialogue: "Moka, k\u0131\u015F penceresinin \xF6n\xFCnde atk\u0131s\u0131
+    kaym\u0131\u015F halde seni bekliyor. Bir ok\u015Famada ipli\u011Fi d\xFCzelir,
+    ikinci ok\u015Famada evinin yolunu \xF6\u011Frenir."
+  personality: 1
+  unlockAfterLevel: 25
+  furTint: {r: 0.45, g: 0.32, b: 0.24, a: 1}
+  portrait: {fileID: 0}
+  idleSprite: {fileID: 0}
+  animator: {fileID: 0}
+  purrClip: {fileID: 0}
+  meowClip: {fileID: 0}
+--- !u!114 &7962687299715179581
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelNumber: 7
+  season: 1
+  spawnPoint: {x: -6.2, y: -1.15}
+  goalPoint: {x: 6.25, y: 0.29999998}
+  inkBudget: 17.2
+  fallY: -7.5
+--- !u!114 &9039703361423145584
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelNumber: 13
+  season: 2
+  spawnPoint: {x: -6.2, y: -1.15}
+  goalPoint: {x: 6.25, y: 0.65}
+  inkBudget: 17.2
+  fallY: -7.5
