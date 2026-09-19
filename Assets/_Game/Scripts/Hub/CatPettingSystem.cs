@@ -102,11 +102,14 @@ namespace PawPath.Hub
                     {
                         needsSystem = GetComponentInParent<CatNeedsSystem>();
                     }
+                    if (needsSystem == null)
+                        needsSystem = CatNeedsSystem.Instance;
 
+                    bool awarded = true;
                     if (needsSystem != null)
                     {
-                        bool success = needsSystem.TryPetCat(lovePerTick);
-                        if (!success)
+                        awarded = needsSystem.TryPetCat(lovePerTick);
+                        if (!awarded)
                         {
                             Debug.Log("Günlük okşama sınırına ulaşıldı!");
                         }
@@ -120,12 +123,16 @@ namespace PawPath.Hub
 
                     // Güncel Sevgi Puanı metnini yenile
                     UpdateLoveTextDisplay();
-                    UpdateWorldLoveText();
-
-                    // Uçuşan +1 Efekti (Eğer prefab bağlandıysa)
-                    SpawnFloatingText();
-
-                    Vibrate();
+                    if (awarded)
+                    {
+                        UpdateWorldLoveText();
+                        SpawnFloatingText();
+                        Vibrate();
+                    }
+                    else if (worldLoveText != null)
+                    {
+                        worldLoveText.text = "Günlük okşama sınırı doldu";
+                    }
                 }
             }
             else

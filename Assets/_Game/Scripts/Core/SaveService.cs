@@ -49,6 +49,14 @@ namespace PawPath.Core
                 cache = JsonUtility.FromJson<SaveData>(PlayerPrefs.GetString(Key)) ?? new SaveData();
                 if (cache.unlockedCatIds == null || cache.unlockedCatIds.Count == 0)
                     cache.unlockedCatIds = new List<string> { "mitzi" };
+                if (cache.ownedItemIds == null)
+                    cache.ownedItemIds = new List<string>();
+                if (cache.placedItemIds == null)
+                    cache.placedItemIds = new List<string>();
+                if (string.IsNullOrWhiteSpace(cache.selectedCatId) || !cache.unlockedCatIds.Contains(cache.selectedCatId))
+                    cache.selectedCatId = "mitzi";
+                cache.lovePoints = Mathf.Max(0, cache.lovePoints);
+                cache.highestCompletedLevel = Mathf.Max(0, cache.highestCompletedLevel);
             }
             catch (Exception e)
             {

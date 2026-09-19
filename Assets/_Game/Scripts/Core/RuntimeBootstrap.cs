@@ -27,6 +27,14 @@ namespace PawPath.Core
         {
             if (FindObjectOfType<GameFlow>() != null)
                 return;
+
+            // Starter sahnenin eski sürümlerinden kalmış statik HUD, runtime'da
+            // yeniden kurulan arayüzün üzerinde isimsiz "Button"lar gösteriyordu.
+            foreach (var staleHud in FindObjectsOfType<HudView>(true))
+            {
+                if (staleHud != null)
+                    staleHud.gameObject.SetActive(false);
+            }
             Build(catalog != null ? catalog : CatalogFactory.CreateRuntime());
         }
 
@@ -50,6 +58,7 @@ namespace PawPath.Core
             var flow = root.AddComponent<GameFlow>();
             root.AddComponent<CozyEconomyManager>();
             root.AddComponent<CozyAudioManager>();
+            var needs = root.AddComponent<CatNeedsSystem>();
             var levels = root.AddComponent<LevelManager>();
 
             var hub = new GameObject("Hub");
@@ -90,10 +99,14 @@ namespace PawPath.Core
             sky.sortingOrder = -5;
             var landscapeGround = CreateQuad("LandscapeGround", levelRoot.transform, new Vector3(0f, -3.35f, 1.5f), new Vector3(18f, 3.2f, 1f), new Color(0.72f, 0.84f, 0.62f));
             landscapeGround.sortingOrder = -4;
-            var ground = CreateQuad("StartPlatform", levelRoot.transform, new Vector3(-5.2f, -1.7f, 0f), new Vector3(4.4f, 0.35f, 1f), new Color(0.76f, 0.62f, 0.48f));
-            ground.sortingOrder = 1;
-            var groundCol = ground.gameObject.AddComponent<BoxCollider2D>();
-            groundCol.size = Vector2.one;
+            if (catalog.gameplayBackground != null)
+            {
+                sky.sprite = catalog.gameplayBackground;
+                sky.color = Color.white;
+                FitSpriteToCamera(sky, cam);
+                landscapeGround.enabled = false;
+            }
+            var course = levelRoot.AddComponent<LevelCourseBuilder>();
 
             var season = levelRoot.AddComponent<SeasonBackdrop>();
             season.Bind(sky, landscapeGround, null);
@@ -113,6 +126,7 @@ namespace PawPath.Core
             goal.AddComponent<GoalTrigger>();
 
             levels.Bind(spawn.transform, goal.transform, season);
+            levels.BindCourse(course);
 
             var catGo = new GameObject("PlayableCat");
             catGo.transform.SetParent(levelRoot.transform);
@@ -138,11 +152,14 @@ namespace PawPath.Core
             sideScroll.Bind(catGo.transform, sky.transform, landscapeGround.transform);
 
             var canvasGo = CreateCanvas(root.transform);
-            var hud = BuildHud(canvasGo.transform);
+            var care = BuildCareUi(canvasGo.transform, needs);
+            var hud = BuildHud(canvasGo.transform, care);
             var rescue = BuildRescue(canvasGo.transform);
+            var levelComplete = BuildLevelComplete(canvasGo.transform);
             var shop = BuildShop(canvasGo.transform, catalog);
             shop.SetActive(false);
             rescue.SetActive(false);
+            levelComplete.SetActive(false);
 
             var hudView = hud.GetComponent<HudView>();
             var shopBtn = FindButton(hud.transform, "ShopButton");
@@ -153,7 +170,7 @@ namespace PawPath.Core
             }
 
             flow.BindCatalog(catalog);
-            flow.BindRoots(hub, levelRoot, hud, rescue);
+            flow.BindRoots(hub, levelRoot, hud, rescue, levelComplete);
             hub.SetActive(true);
             levelRoot.SetActive(false);
             return flow;
@@ -191,7 +208,7 @@ namespace PawPath.Core
             return go;
         }
 
-        static GameObject BuildHud(Transform canvas)
+        static GameObject BuildHud(Transform canvas, CatNeedsUI careUi)
         {
             var hud = Panel("HUD", canvas, new Vector2(0, 0), new Vector2(0, 0), new Color(1, 1, 1, 0));
             hud.AddComponent<HudView>();
@@ -201,12 +218,41 @@ namespace PawPath.Core
             var selected = Label(hud.transform, "Selected", GameText.PlayingAs + ": Mitzi", new Vector2(0.5f, 1f), new Vector2(0, -260));
             var play = Button(hud.transform, "PlayButton", GameText.Play, new Vector2(0.5f, 0f), new Vector2(0, 180), new Color(0.93f, 0.72f, 0.76f));
             var shop = Button(hud.transform, "ShopButton", GameText.Shop, new Vector2(0.5f, 0f), new Vector2(0, 90), new Color(0.78f, 0.84f, 0.72f));
+            var restart = Button(hud.transform, "RestartButton", "Yeniden", new Vector2(1f, 1f), new Vector2(-125f, -55f), new Color(0.93f, 0.72f, 0.76f));
+            restart.GetComponent<RectTransform>().sizeDelta = new Vector2(190f, 58f);
+            var home = Button(hud.transform, "LevelHomeButton", "Eve Dön", new Vector2(0f, 1f), new Vector2(125f, -55f), new Color(0.78f, 0.84f, 0.72f));
+            home.GetComponent<RectTransform>().sizeDelta = new Vector2(190f, 58f);
+            restart.gameObject.SetActive(false);
+            home.gameObject.SetActive(false);
             var brushes = BuildBrushToolbar(hud.transform);
             brushes.SetActive(false);
             var tutorial = BuildBrushTutorial(hud.transform);
             tutorial.SetActive(false);
-            hud.GetComponent<HudView>().Bind(love, level, ink, selected, play, shop, brushes, tutorial);
+            hud.GetComponent<HudView>().Bind(love, level, ink, selected, play, shop, restart, home, careUi, brushes, tutorial);
             return hud;
+        }
+
+        static CatNeedsUI BuildCareUi(Transform canvas, CatNeedsSystem needs)
+        {
+            var panel = Panel("CarePanel", canvas, Vector2.zero, Vector2.one, new Color(1f, 1f, 1f, 0f));
+            panel.AddComponent<CanvasGroup>();
+
+            var feed = Button(panel.transform, "FeedButton", $"Mama +{needs.foodPoints}", new Vector2(0.16f, 0f), new Vector2(0f, 205f), new Color(0.88f, 0.72f, 0.55f));
+            var water = Button(panel.transform, "WaterButton", $"Su +{needs.waterPoints}", new Vector2(0.16f, 0f), new Vector2(0f, 130f), new Color(0.62f, 0.80f, 0.91f));
+            var sleep = Button(panel.transform, "SleepButton", $"Uyu +{needs.sleepPoints}", new Vector2(0.16f, 0f), new Vector2(0f, 55f), new Color(0.75f, 0.69f, 0.86f));
+            foreach (var button in new[] { feed, water, sleep })
+                button.GetComponent<RectTransform>().sizeDelta = new Vector2(260f, 58f);
+
+            var daily = Label(panel.transform, "DailyPetting", "Günlük Okşama", new Vector2(0.84f, 0f), new Vector2(0f, 125f));
+            daily.fontSize = 20;
+            daily.rectTransform.sizeDelta = new Vector2(330f, 48f);
+            var warning = Label(panel.transform, "EnergyStatus", "", new Vector2(0.84f, 0f), new Vector2(0f, 65f));
+            warning.fontSize = 19;
+            warning.rectTransform.sizeDelta = new Vector2(360f, 70f);
+
+            var ui = panel.AddComponent<CatNeedsUI>();
+            ui.Bind(needs, feed, water, sleep, daily, warning);
+            return ui;
         }
 
         static GameObject BuildBrushToolbar(Transform parent)
@@ -255,7 +301,7 @@ namespace PawPath.Core
             rt.sizeDelta = new Vector2(760f, 430f);
             rt.anchoredPosition = Vector2.zero;
             var text = Label(panel.transform, "TutorialText",
-                "YOL KALEMLERİ\n\nSiyah: Normal yol\nMavi: Zıplatır\nKırmızı: Puan düşürür ve bölümü başlatır\nBeyaz: Kaygan ve hızlı yol\nSilgi: Çizdiğin yolu siler",
+                "YOLU TAMAMLAMA\n\nKedi hazır zeminde kendi yürür.\nYalnızca çukurlara köprü, tümseklere rampa çiz.\n\nSiyah: Normal yol   Mavi: Zıplatır\nKırmızı: Tehlike   Beyaz: Kaygan yol\nSilgi: Çizdiğin yolu siler",
                 new Vector2(0.5f, 0.5f), Vector2.zero);
             text.rectTransform.sizeDelta = new Vector2(680f, 370f);
             text.fontSize = 27;
@@ -274,6 +320,30 @@ namespace PawPath.Core
             var invite = Button(panel.transform, "Invite", GameText.InviteHome, new Vector2(0.5f, 0.22f), Vector2.zero, new Color(0.93f, 0.72f, 0.76f));
             var screen = panel.AddComponent<RescueScreen>();
             screen.Bind(title, body, invite);
+            return panel;
+        }
+
+        static GameObject BuildLevelComplete(Transform canvas)
+        {
+            var panel = Panel("LevelComplete", canvas, Vector2.zero, Vector2.one, new Color(0.98f, 0.93f, 0.84f, 0.98f));
+            var success = Label(panel.transform, "Success", "BAŞARDIN!", new Vector2(0.5f, 0.70f), Vector2.zero);
+            success.fontSize = 54;
+            success.fontStyle = FontStyle.Bold;
+            success.color = new Color(0.54f, 0.30f, 0.22f);
+
+            var title = Label(panel.transform, "CompletedLevel", "Bölüm Tamamlandı!", new Vector2(0.5f, 0.58f), Vector2.zero);
+            title.fontSize = 36;
+            var reward = Label(panel.transform, "Reward", "+10 Sevgi", new Vector2(0.5f, 0.48f), Vector2.zero);
+            reward.fontSize = 30;
+            reward.color = new Color(0.78f, 0.20f, 0.38f);
+
+            var next = Button(panel.transform, "NextLevel", "Sıradaki Bölüm", new Vector2(0.5f, 0.32f), Vector2.zero, new Color(0.93f, 0.72f, 0.76f));
+            next.GetComponent<RectTransform>().sizeDelta = new Vector2(440f, 78f);
+            var home = Button(panel.transform, "CompletionHome", "Kedi Evine Dön", new Vector2(0.5f, 0.22f), Vector2.zero, new Color(0.78f, 0.84f, 0.72f));
+            home.GetComponent<RectTransform>().sizeDelta = new Vector2(440f, 78f);
+
+            var screen = panel.AddComponent<LevelCompleteUI>();
+            screen.Bind(title, reward, next, home);
             return panel;
         }
 

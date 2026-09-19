@@ -18,6 +18,7 @@ namespace PawPath.Data
         [Header("Arka Planlar")]
         public Sprite homeBackground;
         public Sprite shopBackground;
+        public Sprite gameplayBackground;
 
         public CatDefinition GetCat(string id)
         {

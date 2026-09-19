@@ -1,6 +1,8 @@
 using UnityEngine;
 using PawPath.Content;
+using PawPath.Cat;
 using PawPath.Data;
+using PawPath.Drawing;
 using PawPath.Levels;
 
 
@@ -18,6 +20,7 @@ namespace PawPath.Core
         [SerializeField] GameObject levelRoot;
         [SerializeField] GameObject hudRoot;
         [SerializeField] GameObject rescueRoot;
+        [SerializeField] GameObject levelCompleteRoot;
 
         public PawPathCatalog Catalog => catalog;
         public bool InHub { get; private set; } = true;
@@ -44,42 +47,63 @@ namespace PawPath.Core
         public void EnterHub()
         {
             InHub = true;
-            SetRoots(hub: true, level: false, hud: true, rescue: false);
+            if (LineDraw.Instance != null)
+            {
+                LineDraw.Instance.CanDraw = false;
+                LineDraw.Instance.ClearStrokes();
+            }
+            SetRoots(hub: true, level: false, hud: true, rescue: false, complete: false);
             GameEvents.HubEntered();
         }
 
         public void StartNextLevel()
         {
+            // Başlatma hangi düğmeden gelirse gelsin enerji kuralı atlanamaz.
+            if (CatNeedsSystem.Instance != null && !CatNeedsSystem.Instance.CanStartLevel())
+            {
+                EnterHub();
+                return;
+            }
             InHub = false;
-            SetRoots(hub: false, level: true, hud: true, rescue: false);
+            SetRoots(hub: false, level: true, hud: true, rescue: false, complete: false);
             if (LevelManager.Instance != null)
                 LevelManager.Instance.BeginCurrentLevel();
         }
 
         public void ShowRescue(CatDefinition cat)
         {
-            SetRoots(hub: false, level: false, hud: false, rescue: true);
+            SetRoots(hub: false, level: false, hud: false, rescue: true, complete: false);
             var screen = rescueRoot != null ? rescueRoot.GetComponent<UI.RescueScreen>() : null;
             if (screen != null)
                 screen.Present(cat);
         }
 
+        public void ShowLevelComplete(int completedLevel, int reward)
+        {
+            SetRoots(hub: false, level: false, hud: false, rescue: false, complete: true);
+            var screen = levelCompleteRoot != null ? levelCompleteRoot.GetComponent<UI.LevelCompleteUI>() : null;
+            if (screen != null)
+                screen.Present(completedLevel, reward);
+        }
+
         public void BindCatalog(PawPathCatalog value) => catalog = value;
 
-        public void BindRoots(GameObject hub, GameObject level, GameObject hud, GameObject rescue)
+        public void BindRoots(GameObject hub, GameObject level, GameObject hud, GameObject rescue, GameObject complete)
         {
             hubRoot = hub;
             levelRoot = level;
             hudRoot = hud;
             rescueRoot = rescue;
+            levelCompleteRoot = complete;
         }
 
-        void SetRoots(bool hub, bool level, bool hud, bool rescue)
+        void SetRoots(bool hub, bool level, bool hud, bool rescue, bool complete)
         {
             if (hubRoot) hubRoot.SetActive(hub);
             if (levelRoot) levelRoot.SetActive(level);
             if (hudRoot) hudRoot.SetActive(hud);
             if (rescueRoot) rescueRoot.SetActive(rescue);
+            if (levelCompleteRoot) levelCompleteRoot.SetActive(complete);
         }
     }
 }
