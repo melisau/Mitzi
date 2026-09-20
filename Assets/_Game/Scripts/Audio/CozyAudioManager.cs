@@ -9,7 +9,12 @@ namespace PawPath.Audio
     /// </summary>
     public class CozyAudioManager : MonoBehaviour
     {
+        const string MusicMutedKey = "PawPath.Audio.MusicMuted";
+        const string EffectsMutedKey = "PawPath.Audio.EffectsMuted";
         public static CozyAudioManager Instance { get; private set; }
+
+        public bool MusicMuted { get; private set; }
+        public bool EffectsMuted { get; private set; }
 
         [SerializeField] AudioSource music;
         [SerializeField] AudioSource ambience;
@@ -47,6 +52,9 @@ namespace PawPath.Audio
             ambience = Ensure(ambience, "Ambience", 0.35f, true);
             purr = Ensure(purr, "Purr", 0.55f, true);
             sfx = Ensure(sfx, "Sfx", 0.8f, false);
+            MusicMuted = PlayerPrefs.GetInt(MusicMutedKey, 0) == 1;
+            EffectsMuted = PlayerPrefs.GetInt(EffectsMutedKey, 0) == 1;
+            ApplyMuteState();
             if (musicLoop != null)
             {
                 music.clip = musicLoop;
@@ -125,6 +133,30 @@ namespace PawPath.Audio
                 return;
             }
             PlayOne(meowVariants[Random.Range(0, meowVariants.Length)]);
+        }
+
+        public void ToggleMusic()
+        {
+            MusicMuted = !MusicMuted;
+            PlayerPrefs.SetInt(MusicMutedKey, MusicMuted ? 1 : 0);
+            PlayerPrefs.Save();
+            ApplyMuteState();
+        }
+
+        public void ToggleEffects()
+        {
+            EffectsMuted = !EffectsMuted;
+            PlayerPrefs.SetInt(EffectsMutedKey, EffectsMuted ? 1 : 0);
+            PlayerPrefs.Save();
+            ApplyMuteState();
+        }
+
+        void ApplyMuteState()
+        {
+            if (music != null) music.mute = MusicMuted;
+            if (ambience != null) ambience.mute = MusicMuted;
+            if (sfx != null) sfx.mute = EffectsMuted;
+            if (purr != null) purr.mute = EffectsMuted;
         }
 
         public void PlayHomeMusic() => SwitchMusic(homeMusic);

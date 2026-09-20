@@ -17,6 +17,7 @@ namespace PawPath.Hub
         bool wasSleeping;
         Vector3 awakeScale;
         Vector3 awakePosition;
+        const float FrameDuration = 0.18f;
 
         public void Bind(CatDefinition cat, SpriteRenderer renderer, CatHomeBehaviour homeBehaviour)
         {
@@ -52,44 +53,25 @@ namespace PawPath.Hub
                 else
                 {
                     if (animator != null) animator.enabled = false;
-                    spriteRenderer.sprite = awakeSprite;
-                    var crouched = awakeScale;
-                    crouched.x *= 1.08f;
-                    crouched.y *= 0.72f;
-                    spriteRenderer.transform.localScale = crouched;
-                    spriteRenderer.transform.localPosition = awakePosition + Vector3.down * 0.18f;
+                    ApplyFrame(frames[frames.Length - 1]);
                 }
             }
 
             transitionTime += Time.deltaTime;
             if (sleeping)
             {
-                // İlk 0.7 saniyede ayakta poz gerçek zamanlı olarak çömelip alçalır.
-                if (transitionTime < 0.70f)
-                {
-                    float t = Mathf.SmoothStep(0f, 1f, transitionTime / 0.70f);
-                    var crouched = awakeScale;
-                    crouched.x *= Mathf.Lerp(1f, 1.08f, t);
-                    crouched.y *= Mathf.Lerp(1f, 0.72f, t);
-                    spriteRenderer.transform.localScale = crouched;
-                    spriteRenderer.transform.localPosition = Vector3.Lerp(awakePosition,
-                        awakePosition + Vector3.down * 0.18f, t);
-                }
-                else if (transitionTime < 1.18f)
-                    ApplyFrame(frames[0]);
-                else
-                    ApplyFrame(frames[frames.Length - 1]);
+                int index = Mathf.Min(frames.Length - 1,
+                    Mathf.FloorToInt(transitionTime / FrameDuration));
+                ApplyFrame(frames[index]);
             }
             else
             {
-                float t = Mathf.Clamp01(transitionTime / 0.52f);
-                spriteRenderer.transform.localScale = Vector3.Lerp(spriteRenderer.transform.localScale, awakeScale, t);
-                spriteRenderer.transform.localPosition = Vector3.Lerp(spriteRenderer.transform.localPosition, awakePosition, t);
-                if (t >= 1f)
-                {
-                    spriteRenderer.sprite = awakeSprite;
+                int step = Mathf.FloorToInt(transitionTime / FrameDuration);
+                int index = frames.Length - 1 - step;
+                if (index >= 0)
+                    ApplyFrame(frames[index]);
+                else
                     RestoreAwake();
-                }
             }
         }
 
