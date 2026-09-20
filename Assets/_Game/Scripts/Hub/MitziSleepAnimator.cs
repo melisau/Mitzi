@@ -15,6 +15,8 @@ namespace PawPath.Hub
         float baselineBottom;
         float transitionTime;
         bool wasSleeping;
+        bool initialized;
+        bool transitioning;
         Vector3 awakeScale;
         Vector3 awakePosition;
         const float FrameDuration = 0.18f;
@@ -28,7 +30,13 @@ namespace PawPath.Hub
             frames = cat != null ? cat.sleepFrames : null;
             if (spriteRenderer != null && awakeSprite != null)
             {
-                awakeScale = spriteRenderer.transform.localScale;
+                // Animator ilk etkinleştiğinde prefab ölçeğini 1'e çekebilir. Evdeki
+                // bütün kedilerle aynı kesin yüksekliği sprite ölçüsünden yeniden kur.
+                float normalizedScale = 2.20f / awakeSprite.bounds.size.y;
+                float direction = Mathf.Sign(spriteRenderer.transform.localScale.x);
+                if (Mathf.Approximately(direction, 0f)) direction = 1f;
+                awakeScale = new Vector3(direction * normalizedScale, normalizedScale, 1f);
+                spriteRenderer.transform.localScale = awakeScale;
                 awakePosition = spriteRenderer.transform.localPosition;
                 targetWidth = awakeSprite.bounds.size.x * Mathf.Abs(awakeScale.x);
                 baselineBottom = spriteRenderer.transform.localPosition.y +
@@ -41,10 +49,26 @@ namespace PawPath.Hub
             if (spriteRenderer == null || behaviour == null || frames == null || frames.Length == 0)
                 return;
             bool sleeping = behaviour.CurrentActivity == ResidentActivity.Sleeping;
+            if (!initialized)
+            {
+                initialized = true;
+                wasSleeping = sleeping;
+                transitionTime = 0f;
+                transitioning = sleeping;
+                if (sleeping)
+                {
+                    if (animator != null) animator.enabled = false;
+                    spriteRenderer.sprite = awakeSprite;
+                }
+                else
+                    RestoreAwake();
+                return;
+            }
             if (sleeping != wasSleeping)
             {
                 wasSleeping = sleeping;
                 transitionTime = 0f;
+                transitioning = true;
                 if (sleeping)
                 {
                     if (animator != null) animator.enabled = false;
@@ -66,12 +90,20 @@ namespace PawPath.Hub
             }
             else
             {
+                if (!transitioning)
+                {
+                    RestoreAwake();
+                    return;
+                }
                 int step = Mathf.FloorToInt(transitionTime / FrameDuration);
                 int index = frames.Length - 1 - step;
                 if (index >= 0)
                     ApplyFrame(frames[index]);
                 else
+                {
                     RestoreAwake();
+                    transitioning = false;
+                }
             }
         }
 
