@@ -21,7 +21,9 @@ namespace PawPath.Hub
     {
         [SerializeField] float walkSpeed = 0.65f;
         [SerializeField] Vector2 roomX = new Vector2(-5.4f, 5.4f);
-        [SerializeField] Vector2 roomY = new Vector2(-1.80f, -0.45f);
+        // Kediler zeminde derinlik hissi verecek kadar hareket eder; üst sınır
+        // yükselirse süpürgelik/duvar üzerine çıkmış gibi görünürler.
+        [SerializeField] Vector2 roomY = new Vector2(-1.82f, -1.12f);
 
         public ResidentActivity CurrentActivity { get; private set; }
 
@@ -34,6 +36,8 @@ namespace PawPath.Hub
         Transform visual;
         Animator animator;
         ResidentActivity animatedActivity = (ResidentActivity)(-1);
+        Vector2 lastProgressPosition;
+        float stuckTimer;
 
         static readonly int WalkState = Animator.StringToHash("Walk");
         static readonly int SitState = Animator.StringToHash("Sit");
@@ -57,6 +61,20 @@ namespace PawPath.Hub
                 var target = new Vector3(targetPosition.x, targetPosition.y, transform.position.z);
                 float speed = interacting ? walkSpeed * 0.72f : walkSpeed;
                 transform.position = Vector3.MoveTowards(transform.position, target, speed * Time.deltaTime);
+                if (Vector2.Distance(transform.position, lastProgressPosition) >= 0.025f)
+                {
+                    lastProgressPosition = transform.position;
+                    stuckTimer = 0f;
+                }
+                else
+                {
+                    stuckTimer += Time.deltaTime;
+                    if (stuckTimer >= 0.85f)
+                    {
+                        RecoverFromBlockedArea();
+                        return;
+                    }
+                }
                 Face(targetPosition.x);
                 UpdateDepthOrder();
                 if (Vector2.Distance(transform.position, targetPosition) < 0.05f)
@@ -125,6 +143,7 @@ namespace PawPath.Hub
             arrivalActivity = whenArrived;
             CurrentActivity = ResidentActivity.Walking;
             stateTimer = 20f;
+            ResetProgressWatch();
             PlanPathToFinal();
         }
 
@@ -134,6 +153,7 @@ namespace PawPath.Hub
             finalPosition = new Vector2(Random.Range(roomX.x, roomX.y), Random.Range(roomY.x, roomY.y));
             arrivalActivity = ResidentActivity.Standing;
             stateTimer = 12f;
+            ResetProgressWatch();
             PlanPathToFinal();
         }
 
@@ -149,7 +169,7 @@ namespace PawPath.Hub
                 if (furniture == null || !furniture.BlocksCats)
                     continue;
 
-                Bounds bounds = hit.collider.bounds;
+                Bounds bounds = furniture.CatObstacleBounds;
                 const float clearance = 0.32f;
                 float above = Mathf.Clamp(bounds.max.y + clearance, roomY.x, roomY.y);
                 float below = Mathf.Clamp(bounds.min.y - clearance, roomY.x, roomY.y);
@@ -166,6 +186,53 @@ namespace PawPath.Hub
 
             targetPosition = finalPosition;
             navigatingDetour = false;
+        }
+
+        void ResetProgressWatch()
+        {
+            lastProgressPosition = transform.position;
+            stuckTimer = 0f;
+        }
+
+        void RecoverFromBlockedArea()
+        {
+            // Yakındaki dört yönü ve çaprazları tara; eşya tabanına denk gelmeyen
+            // ilk noktaya çık. Hiçbiri uygun değilse yeni serbest hedef seç.
+            Vector2 origin = transform.position;
+            for (int ring = 1; ring <= 3; ring++)
+            {
+                float radius = 0.48f * ring;
+                for (int i = 0; i < 8; i++)
+                {
+                    float angle = i * Mathf.PI * 0.25f;
+                    Vector2 candidate = origin + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * radius;
+                    candidate.x = Mathf.Clamp(candidate.x, roomX.x, roomX.y);
+                    candidate.y = Mathf.Clamp(candidate.y, roomY.x, roomY.y);
+                    if (IsFreeForCat(candidate))
+                    {
+                        targetPosition = candidate;
+                        finalPosition = candidate;
+                        navigatingDetour = false;
+                        ResetProgressWatch();
+                        return;
+                    }
+                }
+            }
+
+            BeginWalk();
+        }
+
+        bool IsFreeForCat(Vector2 point)
+        {
+            var hits = Physics2D.OverlapCircleAll(point, 0.26f);
+            foreach (var hit in hits)
+            {
+                var furniture = hit.GetComponent<DraggableFurniture>();
+                if (furniture != null && furniture.BlocksCats &&
+                    furniture.CatObstacleBounds.Contains(point))
+                    return false;
+            }
+            return true;
         }
 
         void BeginRest()

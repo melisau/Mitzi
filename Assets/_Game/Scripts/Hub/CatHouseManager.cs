@@ -83,6 +83,9 @@ namespace PawPath.Hub
             Vector3 pos = transform.position + new Vector3(-2.4f + slot * 1.6f, -0.8f, 0f);
             if (loungingSpots != null && loungingSpots.Length > 0)
                 pos = loungingSpots[slot % loungingSpots.Length].position;
+            // Eski dinlenme noktalarının bazıları süpürgelik/duvar seviyesindeydi.
+            // İlk kareden itibaren bütün kedileri gerçek zemin bandında tut.
+            pos.y = Mathf.Clamp(pos.y, -1.82f, -1.12f);
 
             GameObject go;
             if (residentPrefab != null)

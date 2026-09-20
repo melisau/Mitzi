@@ -24,6 +24,24 @@ namespace PawPath.Hub
             slotType == FurnitureSlotType.Bed ||
             slotType == FurnitureSlotType.Tree;
 
+        public Bounds CatObstacleBounds
+        {
+            get
+            {
+                if (sprite == null || sprite.sprite == null)
+                    return hitbox != null ? hitbox.bounds : new Bounds(transform.position, Vector3.zero);
+
+                Bounds visual = sprite.bounds;
+                // Kediler eşyanın tüm dikey görselini değil, yalnızca zemine değen
+                // tabanını dolaşır. Böylece yatak/tuvalet görünmez bir duvara dönüşmez.
+                float footprintHeight = Mathf.Clamp(visual.size.y * 0.22f, 0.24f, 0.58f);
+                float footprintWidth = visual.size.x * (slotType == FurnitureSlotType.Tree ? 0.55f : 0.76f);
+                Vector3 center = new Vector3(visual.center.x,
+                    visual.min.y + footprintHeight * 0.5f, visual.center.z);
+                return new Bounds(center, new Vector3(footprintWidth, footprintHeight, 0.1f));
+            }
+        }
+
         public void Configure(FurnitureSlotType type, SpriteRenderer renderer)
         {
             slotType = type;
