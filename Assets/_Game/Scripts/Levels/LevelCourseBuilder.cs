@@ -1,5 +1,6 @@
 using UnityEngine;
 using PawPath.Hub;
+using PawPath.Gameplay;
 
 namespace PawPath.Levels
 {
@@ -23,19 +24,21 @@ namespace PawPath.Levels
         Sprite alternateMoundSprite;
         Sprite roadSprite;
         Sprite roadUnderfillSprite;
+        Sprite[] birdFrames;
 
         public float CatSpawnY => RoadCenterY + RoadHeight * 0.5f + 0.40f * GameplayScale;
         public float GoalY => CatSpawnY + 0.15f;
         public float GoalX => 19.35f;
 
         public void BindVisuals(Sprite gap, Sprite mound, Sprite road, Sprite alternateMound = null,
-            Sprite underfill = null)
+            Sprite underfill = null, Sprite[] birds = null)
         {
             gapSprite = CreateCityTrashContainer(gap);
             moundSprite = mound;
             roadSprite = CreateCitySidewalkSurface(road);
             alternateMoundSprite = alternateMound;
             roadUnderfillSprite = underfill;
+            birdFrames = birds;
         }
 
         static Sprite CreateCitySidewalkSurface(Sprite source)
@@ -76,6 +79,7 @@ namespace PawPath.Levels
             BuildPattern(pattern, 0f);
             BuildPattern((pattern + 2) % 5, SecondSectionOffset);
             Road(21.55f, 2.9f);
+            BuildModeChallenge(levelNumber);
         }
 
         void BuildPattern(int pattern, float offsetX)
@@ -289,6 +293,113 @@ namespace PawPath.Levels
                 DecorationTopAligned("GapVisual", gapSprite, centerX,
                     roadTop, (width + 1.95f) * GameplayScale, -2, 5.8f);
             }
+        }
+
+        void BuildModeChallenge(int levelNumber)
+        {
+            if (birdFrames == null || birdFrames.Length == 0 || birdFrames[0] == null)
+                return;
+
+            // Hareketli engeller başlangıç ekranında görünmez. Her bölümde kuşların
+            // sayısı, ilk konumu, uçuş yüksekliği ve hızı deterministik olarak değişir.
+            // Böylece yeniden denemede düzen korunur fakat her bölüm aynı hissettirmez.
+            var random = new System.Random(levelNumber * 7919 + 173);
+            int birdCount = 2 + (levelNumber % 3 == 0 ? 1 : 0);
+            float roadTop = RoadCenterY + RoadHeight * 0.5f;
+            for (int i = 0; i < birdCount; i++)
+            {
+                float zoneCenter = 7.0f + i * 5.2f + NextRange(random, -0.7f, 0.7f);
+                float spawnX = zoneCenter + NextRange(random, 1.0f, 3.2f);
+                float height = roadTop + NextRange(random, 1.25f, 2.85f);
+                float speed = NextRange(random, 0.72f, 1.48f);
+                float width = NextRange(random, 1.00f, 1.38f);
+                CreateFlyingBird(i + 1, new Vector2(spawnX, height), zoneCenter - 3.1f,
+                    zoneCenter + 3.1f, speed, width, NextRange(random, 0f, 6.28f));
+            }
+        }
+
+        static float NextRange(System.Random random, float min, float max)
+        {
+            return min + (float)random.NextDouble() * (max - min);
+        }
+
+        void CreateFlyingBird(int index, Vector2 position, float leftBound, float rightBound,
+            float speed, float targetWidth, float phase)
+        {
+            Sprite firstFrame = birdFrames[0];
+            var go = new GameObject($"FlyingBird_{index}");
+            go.transform.SetParent(generatedRoot, false);
+            go.transform.position = position;
+
+            var renderer = go.AddComponent<SpriteRenderer>();
+            renderer.sprite = firstFrame;
+            renderer.sortingOrder = 8;
+            float scale = firstFrame.bounds.size.x > 0f ? targetWidth / firstFrame.bounds.size.x : 1f;
+            go.transform.localScale = new Vector3(scale, scale, 1f);
+
+            var collider = go.AddComponent<BoxCollider2D>();
+            collider.size = new Vector2(firstFrame.bounds.size.x * 0.62f,
+                firstFrame.bounds.size.y * 0.58f);
+            var body = go.AddComponent<Rigidbody2D>();
+            body.bodyType = RigidbodyType2D.Kinematic;
+            body.interpolation = RigidbodyInterpolation2D.Interpolate;
+            go.AddComponent<FlyingBirdObstacle>().Configure(renderer, birdFrames, speed,
+                leftBound, rightBound, phase);
+        }
+
+        void CreateMovingPuzzlePlatform(float centerX, float gapWidth)
+        {
+            float roadTop = RoadCenterY + RoadHeight * 0.5f;
+            float platformWidth = Mathf.Clamp(gapWidth * 0.48f, 0.58f, 0.9f);
+            Decoration("PlatformMovementGuide", FallbackSprite.WhiteSquare(),
+                new Vector2(centerX, roadTop - 0.32f), 0.055f, 2, 0.92f);
+            generatedRoot.GetChild(generatedRoot.childCount - 1).GetComponent<SpriteRenderer>().color =
+                new Color(1f, 1f, 1f, 0.28f);
+            var go = new GameObject("MovingPuzzlePlatform");
+            go.transform.SetParent(generatedRoot, false);
+            var renderer = go.AddComponent<SpriteRenderer>();
+            renderer.sprite = FallbackSprite.WhiteSquare();
+            renderer.color = new Color(0.72f, 0.52f, 0.30f, 1f);
+            renderer.sortingOrder = 4;
+            go.transform.localScale = new Vector3(platformWidth, 0.18f, 1f);
+            var collider = go.AddComponent<BoxCollider2D>();
+            collider.size = Vector2.one;
+            var mover = go.AddComponent<MovingPuzzlePlatform>();
+            mover.Configure(new Vector2(centerX, roadTop - 0.72f),
+                new Vector2(centerX, roadTop + 0.08f), 1.25f);
+        }
+
+        void CreateSimpleHazard(string objectName, Sprite visualSprite, Vector2 bottomPosition,
+            Vector2 visualSize, Color color, MovingHazardMotion motion, float travel, float speed)
+        {
+            var go = new GameObject(objectName);
+            go.transform.SetParent(generatedRoot, false);
+            go.transform.position = bottomPosition;
+            var renderer = go.AddComponent<SpriteRenderer>();
+            renderer.sprite = visualSprite != null ? visualSprite : FallbackSprite.WhiteSquare();
+            renderer.color = color;
+            renderer.sortingOrder = 6;
+
+            if (visualSprite != null && visualSprite.bounds.size.x > 0f && visualSprite.bounds.size.y > 0f)
+            {
+                float scale = visualSize.x / visualSprite.bounds.size.x;
+                go.transform.localScale = new Vector3(scale, scale, 1f);
+                go.transform.position = new Vector2(bottomPosition.x,
+                    bottomPosition.y - visualSprite.bounds.min.y * scale);
+            }
+            else
+            {
+                go.transform.localScale = new Vector3(visualSize.x, visualSize.y, 1f);
+                go.transform.position = bottomPosition + Vector2.up * visualSize.y * 0.5f;
+            }
+
+            var collider = go.AddComponent<BoxCollider2D>();
+            collider.size = visualSprite != null ? visualSprite.bounds.size * 0.82f : Vector2.one;
+            var body = go.AddComponent<Rigidbody2D>();
+            body.bodyType = RigidbodyType2D.Kinematic;
+            body.interpolation = RigidbodyInterpolation2D.Interpolate;
+            var hazard = go.AddComponent<MovingLevelHazard>();
+            hazard.Configure(motion, travel, speed, objectName.GetHashCode() * 0.001f);
         }
 
         void Decoration(string objectName, Sprite sprite, Vector2 position, float targetWidth,

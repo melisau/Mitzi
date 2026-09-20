@@ -52,6 +52,8 @@ namespace PawPath.Data
         public AudioClip shopSellSfx;
         [Header("Başarı Ekranı")]
         public Sprite[] completionFaces;
+        public Sprite failureBackground;
+        public Sprite[] birdFrames;
 
         public CatDefinition GetCat(string id)
         {

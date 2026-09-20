@@ -115,8 +115,16 @@ namespace PawPath.Hub
             if (pet == null)
                 pet = go.AddComponent<CatPettingSystem>();
 
-            if (go.GetComponent<CatHomeBehaviour>() == null)
-                go.AddComponent<CatHomeBehaviour>();
+            var homeBehaviour = go.GetComponent<CatHomeBehaviour>();
+            if (homeBehaviour == null)
+                homeBehaviour = go.AddComponent<CatHomeBehaviour>();
+            if (cat.id == "mitzi" && sr != null && cat.sleepFrames != null && cat.sleepFrames.Length > 0)
+            {
+                var sleepAnimator = go.GetComponent<MitziSleepAnimator>();
+                if (sleepAnimator == null)
+                    sleepAnimator = go.AddComponent<MitziSleepAnimator>();
+                sleepAnimator.Bind(cat, sr, homeBehaviour);
+            }
 
             ParticleSystem hearts = go.GetComponentInChildren<ParticleSystem>();
             if (hearts == null && heartPrefab != null)

@@ -184,10 +184,12 @@ namespace PawPath.Core
             var hud = BuildHud(canvasGo.transform, care);
             var rescue = BuildRescue(canvasGo.transform);
             var levelComplete = BuildLevelComplete(canvasGo.transform, catalog);
+            var levelFailure = BuildLevelFailure(canvasGo.transform, catalog);
             var shop = BuildShop(canvasGo.transform, catalog);
             shop.SetActive(false);
             rescue.SetActive(false);
             levelComplete.SetActive(false);
+            levelFailure.SetActive(false);
 
             var hudView = hud.GetComponent<HudView>();
             var shopBtn = FindButton(hud.transform, "ShopButton");
@@ -198,7 +200,7 @@ namespace PawPath.Core
             }
 
             flow.BindCatalog(catalog);
-            flow.BindRoots(hub, levelRoot, hud, rescue, levelComplete);
+            flow.BindRoots(hub, levelRoot, hud, rescue, levelComplete, levelFailure);
             hub.SetActive(true);
             levelRoot.SetActive(false);
             return flow;
@@ -552,6 +554,50 @@ namespace PawPath.Core
 
             var screen = panel.AddComponent<LevelCompleteUI>();
             screen.Bind(title, reward, next, home, faceImage, catalog != null ? catalog.completionFaces : null);
+            return panel;
+        }
+
+        static GameObject BuildLevelFailure(Transform canvas, PawPathCatalog catalog)
+        {
+            var panel = Panel("LevelFailure", canvas, Vector2.zero, Vector2.one, Color.black);
+            if (catalog != null && catalog.failureBackground != null)
+            {
+                var backgroundGo = new GameObject("FailureBackground", typeof(RectTransform),
+                    typeof(Image), typeof(AspectRatioFitter));
+                backgroundGo.transform.SetParent(panel.transform, false);
+                var backgroundRt = backgroundGo.GetComponent<RectTransform>();
+                backgroundRt.anchorMin = backgroundRt.anchorMax = new Vector2(0.5f, 0.5f);
+                backgroundRt.anchoredPosition = Vector2.zero;
+                var background = backgroundGo.GetComponent<Image>();
+                background.sprite = catalog.failureBackground;
+                background.color = Color.white;
+                background.raycastTarget = false;
+                var fitter = backgroundGo.GetComponent<AspectRatioFitter>();
+                fitter.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
+                fitter.aspectRatio = catalog.failureBackground.rect.width / catalog.failureBackground.rect.height;
+            }
+
+            var shade = Panel("FailureShade", panel.transform, Vector2.zero, Vector2.one,
+                new Color(0.08f, 0.01f, 0.01f, 0.34f));
+            var content = SafeContent(shade.transform);
+            var heading = Label(content, "FailureTitle", "BAŞARISIZ!", new Vector2(0.5f, 0.82f), Vector2.zero);
+            heading.fontSize = 58;
+            heading.fontStyle = FontStyle.Bold;
+            heading.color = new Color(1f, 0.84f, 0.72f);
+            var reason = Label(content, "FailureReason", "Kedi yolun dışına düştü.",
+                new Vector2(0.5f, 0.70f), Vector2.zero);
+            reason.fontSize = 31;
+            reason.color = Color.white;
+            reason.rectTransform.sizeDelta = new Vector2(900f, 100f);
+
+            var retry = Button(content, "FailureRetry", "Yeniden Dene", new Vector2(0.5f, 0.20f),
+                Vector2.zero, new Color(0.72f, 0.48f, 0.34f));
+            var home = Button(content, "FailureHome", "Kedi Evine Dön", new Vector2(0.5f, 0.10f),
+                Vector2.zero, new Color(0.70f, 0.62f, 0.52f));
+            StyleWarmGameButton(retry, new Vector2(420f, 76f), 26);
+            StyleWarmGameButton(home, new Vector2(420f, 76f), 26);
+            var screen = panel.AddComponent<LevelFailureUI>();
+            screen.Bind(reason, retry, home);
             return panel;
         }
 
