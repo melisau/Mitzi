@@ -347,61 +347,6 @@ namespace PawPath.Levels
                 leftBound, rightBound, phase);
         }
 
-        void CreateMovingPuzzlePlatform(float centerX, float gapWidth)
-        {
-            float roadTop = RoadCenterY + RoadHeight * 0.5f;
-            float platformWidth = Mathf.Clamp(gapWidth * 0.48f, 0.58f, 0.9f);
-            Decoration("PlatformMovementGuide", FallbackSprite.WhiteSquare(),
-                new Vector2(centerX, roadTop - 0.32f), 0.055f, 2, 0.92f);
-            generatedRoot.GetChild(generatedRoot.childCount - 1).GetComponent<SpriteRenderer>().color =
-                new Color(1f, 1f, 1f, 0.28f);
-            var go = new GameObject("MovingPuzzlePlatform");
-            go.transform.SetParent(generatedRoot, false);
-            var renderer = go.AddComponent<SpriteRenderer>();
-            renderer.sprite = FallbackSprite.WhiteSquare();
-            renderer.color = new Color(0.72f, 0.52f, 0.30f, 1f);
-            renderer.sortingOrder = 4;
-            go.transform.localScale = new Vector3(platformWidth, 0.18f, 1f);
-            var collider = go.AddComponent<BoxCollider2D>();
-            collider.size = Vector2.one;
-            var mover = go.AddComponent<MovingPuzzlePlatform>();
-            mover.Configure(new Vector2(centerX, roadTop - 0.72f),
-                new Vector2(centerX, roadTop + 0.08f), 1.25f);
-        }
-
-        void CreateSimpleHazard(string objectName, Sprite visualSprite, Vector2 bottomPosition,
-            Vector2 visualSize, Color color, MovingHazardMotion motion, float travel, float speed)
-        {
-            var go = new GameObject(objectName);
-            go.transform.SetParent(generatedRoot, false);
-            go.transform.position = bottomPosition;
-            var renderer = go.AddComponent<SpriteRenderer>();
-            renderer.sprite = visualSprite != null ? visualSprite : FallbackSprite.WhiteSquare();
-            renderer.color = color;
-            renderer.sortingOrder = 6;
-
-            if (visualSprite != null && visualSprite.bounds.size.x > 0f && visualSprite.bounds.size.y > 0f)
-            {
-                float scale = visualSize.x / visualSprite.bounds.size.x;
-                go.transform.localScale = new Vector3(scale, scale, 1f);
-                go.transform.position = new Vector2(bottomPosition.x,
-                    bottomPosition.y - visualSprite.bounds.min.y * scale);
-            }
-            else
-            {
-                go.transform.localScale = new Vector3(visualSize.x, visualSize.y, 1f);
-                go.transform.position = bottomPosition + Vector2.up * visualSize.y * 0.5f;
-            }
-
-            var collider = go.AddComponent<BoxCollider2D>();
-            collider.size = visualSprite != null ? visualSprite.bounds.size * 0.82f : Vector2.one;
-            var body = go.AddComponent<Rigidbody2D>();
-            body.bodyType = RigidbodyType2D.Kinematic;
-            body.interpolation = RigidbodyInterpolation2D.Interpolate;
-            var hazard = go.AddComponent<MovingLevelHazard>();
-            hazard.Configure(motion, travel, speed, objectName.GetHashCode() * 0.001f);
-        }
-
         void Decoration(string objectName, Sprite sprite, Vector2 position, float targetWidth,
             int sortingOrder, float targetCanvasHeight = 0f)
         {
