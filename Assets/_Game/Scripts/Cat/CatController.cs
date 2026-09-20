@@ -6,6 +6,7 @@ using PawPath.Drawing;
 using PawPath.Economy;
 using PawPath.Levels;
 using PawPath.Gameplay;
+using PawPath.Audio;
 
 namespace PawPath.Cat
 {
@@ -45,6 +46,7 @@ namespace PawPath.Cat
         bool keyboardJumpQueued;
         int jumpsRemaining = 2;
         bool jumpAnimationPlaying;
+        float stepTimer;
 
         static readonly int WalkState = Animator.StringToHash("Walk");
         static readonly int JumpState = Animator.StringToHash("Jump");
@@ -83,6 +85,8 @@ namespace PawPath.Cat
                 animator.runtimeAnimatorController = cat != null ? cat.animator : null;
                 animator.enabled = animator.runtimeAnimatorController != null;
             }
+            if (cat != null)
+                CozyAudioManager.Instance?.PlayRandomMeow();
         }
 
         void FitVisualToHeight()
@@ -166,6 +170,7 @@ namespace PawPath.Cat
                 s.x = Mathf.Abs(s.x) * facing;
                 visual.localScale = s;
             }
+            UpdateFootsteps(grounded, body.velocity.x);
 
             var level = LevelManager.Instance != null ? LevelManager.Instance.Current : null;
             float fallY = level != null ? level.fallY : -7.5f;
@@ -221,11 +226,26 @@ namespace PawPath.Cat
                 scale.x = Mathf.Abs(scale.x) * facing;
                 visual.localScale = scale;
             }
+            UpdateFootsteps(grounded, body.velocity.x);
 
             var level = LevelManager.Instance != null ? LevelManager.Instance.Current : null;
             float fallY = level != null ? level.fallY : -7.5f;
             if (transform.position.y < fallY)
                 StartCoroutine(RescueRoutine());
+        }
+
+        void UpdateFootsteps(bool grounded, float horizontalSpeed)
+        {
+            if (!grounded || Mathf.Abs(horizontalSpeed) < 0.15f)
+            {
+                stepTimer = 0f;
+                return;
+            }
+            stepTimer -= Time.fixedDeltaTime;
+            if (stepTimer > 0f)
+                return;
+            stepTimer = 0.34f;
+            CozyAudioManager.Instance?.PlayStep();
         }
 
         void UpdateJumpAnimation(bool grounded)
@@ -284,6 +304,7 @@ namespace PawPath.Cat
         IEnumerator HazardRestartRoutine()
         {
             busy = true;
+            CozyAudioManager.Instance?.PlayHurt();
             body.velocity = Vector2.zero;
             if (CozyEconomyManager.Instance != null)
                 CozyEconomyManager.Instance.RemoveLove(10, "Kırmızı yola temas");
@@ -305,6 +326,7 @@ namespace PawPath.Cat
 
             busy = true;
             GameEvents.CatFell();
+            CozyAudioManager.Instance?.PlayFall();
             if (CozyEconomyManager.Instance != null)
                 CozyEconomyManager.Instance.RemoveLove(10, "Yoldan düşme");
             body.velocity = Vector2.zero;
@@ -319,6 +341,7 @@ namespace PawPath.Cat
             body.velocity = Vector2.zero;
             airTimer = 0f;
             busy = false;
+            CozyAudioManager.Instance?.PlayRescue();
             GameEvents.CatRescued();
         }
 

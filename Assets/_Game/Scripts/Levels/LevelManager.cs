@@ -76,6 +76,8 @@ namespace PawPath.Levels
             int selectedTheme = ThemeSelectionUI.GetSelectedTheme(levelNumber);
             bool forestTheme = selectedTheme == 1;
             bool cityTheme = selectedTheme == 2;
+            if (CozyAudioManager.Instance != null)
+                CozyAudioManager.Instance.PlayThemeMusic(selectedTheme);
             if (courseBuilder != null)
             {
                 courseBuilder.BindVisuals(
@@ -113,6 +115,8 @@ namespace PawPath.Levels
             SaveService.Persist();
             if (CozyEconomyManager.Instance != null)
                 CozyEconomyManager.Instance.AddLove(completionReward, "Bölüm Tamamlama");
+            if (CozyAudioManager.Instance != null)
+                CozyAudioManager.Instance.PlayConfirm();
             GameEvents.LevelCompleted();
 
             if (!SaveService.DeveloperMitziOnly &&

@@ -5,6 +5,7 @@ using PawPath.Core;
 using PawPath.Data;
 using PawPath.Economy;
 using PawPath.Content; // ShopItemDefinition ve türler için eklendi
+using PawPath.Audio;
 
 namespace PawPath.UI
 {
@@ -233,6 +234,7 @@ namespace PawPath.UI
 
                             int refund = Mathf.CeilToInt(item.lovePointCost * 0.5f);
                             CozyEconomyManager.Instance.AddLove(refund, "Eşya Satışı"); 
+                            CozyAudioManager.Instance?.PlayShopSell();
                             
                             var furnitureView = FindFirstObjectByType<PawPath.Hub.HubFurnitureView>();
                             if (furnitureView != null)
@@ -281,6 +283,7 @@ namespace PawPath.UI
                         bool success = CozyEconomyManager.Instance.TryBuy(captured);
                         if (success)
                         {
+                            CozyAudioManager.Instance?.PlayShopBuy();
                             var furnitureView = FindFirstObjectByType<PawPath.Hub.HubFurnitureView>();
                             if (furnitureView != null)
                             {
@@ -333,6 +336,7 @@ namespace PawPath.UI
             // 4. KÜÇÜLTÜLMÜŞ BUTON
             var btnGo = new GameObject("BuyButton", typeof(RectTransform), typeof(Image), typeof(Button));
             btnGo.transform.SetParent(go.transform, false);
+            btnGo.AddComponent<UiButtonSound>();
             var btnRt = btnGo.GetComponent<RectTransform>();
             
             btnRt.anchoredPosition = new Vector2(0, -148);
