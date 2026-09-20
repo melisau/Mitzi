@@ -16,6 +16,7 @@ namespace PawPath.Hub
 
         string KeyX => $"PawPath.Furniture.{slotType}.X";
         string KeyY => $"PawPath.Furniture.{slotType}.Y";
+        string KeyFlip => $"PawPath.Furniture.{slotType}.Flip";
 
         public void Configure(FurnitureSlotType type, SpriteRenderer renderer)
         {
@@ -32,6 +33,12 @@ namespace PawPath.Hub
 
             if (movable && PlayerPrefs.HasKey(KeyX))
                 transform.position = new Vector3(PlayerPrefs.GetFloat(KeyX), PlayerPrefs.GetFloat(KeyY), transform.position.z);
+            if (movable && sprite != null)
+            {
+                var scale = sprite.transform.localScale;
+                scale.x = Mathf.Abs(scale.x) * (PlayerPrefs.GetInt(KeyFlip, 0) == 1 ? -1f : 1f);
+                sprite.transform.localScale = scale;
+            }
         }
 
         public void DisableInteraction()
@@ -45,12 +52,14 @@ namespace PawPath.Hub
 
         void Update()
         {
-            if (hitbox == null || !hitbox.enabled || GameFlow.Instance == null || !GameFlow.Instance.InHub)
+            if (hitbox == null || !hitbox.enabled || !HomeEditMode.Active ||
+                GameFlow.Instance == null || !GameFlow.Instance.InHub)
                 return;
 
             Vector2 world = PointerWorld();
             if (PointerDown() && !PointerOverUi() && hitbox.OverlapPoint(world))
             {
+                HomeEditMode.Select(this);
                 dragging = true;
                 grabOffset = (Vector2)transform.position - world;
             }
@@ -72,6 +81,17 @@ namespace PawPath.Hub
                 PlayerPrefs.SetFloat(KeyY, transform.position.y);
                 PlayerPrefs.Save();
             }
+        }
+
+        public void FlipHorizontal()
+        {
+            if (sprite == null)
+                return;
+            var scale = sprite.transform.localScale;
+            scale.x *= -1f;
+            sprite.transform.localScale = scale;
+            PlayerPrefs.SetInt(KeyFlip, scale.x < 0f ? 1 : 0);
+            PlayerPrefs.Save();
         }
 
         void GetHorizontalBounds(out float minX, out float maxX)

@@ -103,8 +103,8 @@ namespace PawPath.Hub
                 return;
             float targetHeight = type switch
             {
-                PawPath.Content.FurnitureSlotType.Rug => 2.55f,
-                PawPath.Content.FurnitureSlotType.Bed => 2.85f,
+                PawPath.Content.FurnitureSlotType.Rug => 3.35f,
+                PawPath.Content.FurnitureSlotType.Bed => 3.30f,
                 PawPath.Content.FurnitureSlotType.Bowl => 0.76f,
                 PawPath.Content.FurnitureSlotType.Water => 1.52f,
                 PawPath.Content.FurnitureSlotType.Sand => 4.10f,

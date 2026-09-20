@@ -33,6 +33,7 @@ namespace PawPath.Data
         public Sprite cityPlatformSprite;
         public Sprite cityCarSprite;
         public Sprite cityVanSprite;
+        public Sprite cityRoadSprite;
         public Sprite finishPortalSprite;
         [Header("Başarı Ekranı")]
         public Sprite[] completionFaces;
