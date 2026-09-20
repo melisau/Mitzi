@@ -11,7 +11,8 @@ namespace PawPath.Content
         Poster,
         Water,
         Sand,
-        Tree
+        Tree,
+        Toy
     }
 
     [CreateAssetMenu(fileName = "ShopItem", menuName = "PawPath/Shop Item")]

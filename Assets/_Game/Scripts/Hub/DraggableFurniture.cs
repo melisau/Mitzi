@@ -159,6 +159,7 @@ namespace PawPath.Hub
                     break;
                 case FurnitureSlotType.Bowl:
                 case FurnitureSlotType.Water:
+                case FurnitureSlotType.Toy:
                     minY = -2.65f;
                     maxY = -1.25f;
                     break;

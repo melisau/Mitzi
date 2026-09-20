@@ -9,7 +9,7 @@ using PawPath.Data;
 public static class ShopFurnitureBuilder
 {
     const string CatalogPath = "Assets/_Game/Content/PawPathCatalog.asset";
-    const string SessionKey = "PawPath.ShopFurnitureBuilder.png.v2";
+    const string SessionKey = "PawPath.ShopFurnitureBuilder.png.v3";
 
     struct ItemData
     {
@@ -39,7 +39,9 @@ public static class ShopFurnitureBuilder
         new ItemData("cat_sand", "Kedi Kumu", "Kediler için temiz ve rahat kum alanı.", 35,
             FurnitureSlotType.Sand, "Assets/cat_sand.png"),
         new ItemData("cat_tree", "Kedi Ağacı", "Tırmanmak, dinlenmek ve evi seyretmek için.", 80,
-            FurnitureSlotType.Tree, "Assets/cat_tree.png")
+            FurnitureSlotType.Tree, "Assets/cat_tree.png"),
+        new ItemData("cat_toy_mouse", "Oyuncak Fare", "Mitzi'nin peşinden koşup patileriyle oynayabileceği yumuşak fare.", 30,
+            FurnitureSlotType.Toy, "Assets/cat_toy_mouse.png")
     };
 
     static ShopFurnitureBuilder()
@@ -90,7 +92,7 @@ public static class ShopFurnitureBuilder
         EditorUtility.SetDirty(catalog);
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
-        Debug.Log("Poster, su kabı, kedi kumu ve kedi ağacı dükkana eklendi.");
+        Debug.Log("Poster, su kabı, kedi kumu, kedi ağacı ve oyuncak fare dükkana eklendi.");
     }
 
     static void PrepareSprite(string path)

@@ -78,7 +78,7 @@ namespace PawPath.Core
                 FitSpriteToCamera(hubBg, cam);
             }
 
-            var furnitureSlots = new Transform[8];
+            var furnitureSlots = new Transform[9];
             furnitureSlots[(int)FurnitureSlotType.Rug] = CreateFurnitureSlot("RugSlot", hub.transform, new Vector3(0f, -2.05f, 0f));
             furnitureSlots[(int)FurnitureSlotType.Bed] = CreateFurnitureSlot("BedSlot", hub.transform, new Vector3(3.5f, -1.45f, 0f));
             furnitureSlots[(int)FurnitureSlotType.Bowl] = CreateFurnitureSlot("BowlSlot", hub.transform, new Vector3(-3.4f, -1.65f, 0f));
@@ -87,6 +87,7 @@ namespace PawPath.Core
             furnitureSlots[(int)FurnitureSlotType.Water] = CreateFurnitureSlot("WaterSlot", hub.transform, new Vector3(-1.8f, -1.65f, 0f));
             furnitureSlots[(int)FurnitureSlotType.Sand] = CreateFurnitureSlot("SandSlot", hub.transform, new Vector3(1.2f, -1.72f, 0f));
             furnitureSlots[(int)FurnitureSlotType.Tree] = CreateFurnitureSlot("TreeSlot", hub.transform, new Vector3(4.1f, -1.25f, 0f));
+            furnitureSlots[(int)FurnitureSlotType.Toy] = CreateFurnitureSlot("ToySlot", hub.transform, new Vector3(0.2f, -1.82f, 0f));
             var furnitureView = hub.AddComponent<HubFurnitureView>();
             furnitureView.Bind(furnitureSlots);
 

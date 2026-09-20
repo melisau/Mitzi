@@ -110,6 +110,7 @@ namespace PawPath.Hub
                 PawPath.Content.FurnitureSlotType.Sand => 4.10f,
                 PawPath.Content.FurnitureSlotType.Poster => 3.10f,
                 PawPath.Content.FurnitureSlotType.Tree => 5.0f,
+                PawPath.Content.FurnitureSlotType.Toy => 1.05f,
                 _ => 5f
             };
             float scale = targetHeight / renderer.sprite.bounds.size.y;
