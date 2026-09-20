@@ -94,11 +94,11 @@ namespace PawPath.Core
             var spotPositions = new[]
             {
                 new Vector3(-4.25f, -1.55f, 0f),
-                new Vector3(-2.10f, -0.95f, 0f),
+                new Vector3(-2.10f, -1.25f, 0f),
                 new Vector3(0.25f, -1.70f, 0f),
-                new Vector3(2.25f, -0.85f, 0f),
+                new Vector3(2.25f, -1.20f, 0f),
                 new Vector3(4.15f, -1.45f, 0f),
-                new Vector3(1.05f, -0.55f, 0f)
+                new Vector3(1.05f, -1.30f, 0f)
             };
             for (int i = 0; i < spots.Length; i++)
             {

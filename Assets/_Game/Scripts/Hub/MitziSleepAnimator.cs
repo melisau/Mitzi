@@ -125,7 +125,14 @@ namespace PawPath.Hub
         void RestoreAwake()
         {
             spriteRenderer.sprite = awakeSprite;
-            spriteRenderer.transform.localScale = awakeScale;
+            // CatHomeBehaviour.Face yürüyüş yönüne göre X işaretini değiştirir.
+            // Uyanık kareyi yenilerken bu işareti ilk yöne sıfırlamak Mitzi'nin
+            // geri geri yürümesine neden oluyordu; yalnızca boyutu geri yükle.
+            float direction = Mathf.Sign(spriteRenderer.transform.localScale.x);
+            if (Mathf.Approximately(direction, 0f))
+                direction = Mathf.Sign(awakeScale.x);
+            spriteRenderer.transform.localScale = new Vector3(
+                direction * Mathf.Abs(awakeScale.x), awakeScale.y, awakeScale.z);
             spriteRenderer.transform.localPosition = awakePosition;
             if (animator != null)
                 animator.enabled = animator.runtimeAnimatorController != null;
