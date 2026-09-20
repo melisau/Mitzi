@@ -5,6 +5,7 @@ using PawPath.Data;
 using PawPath.Drawing;
 using PawPath.Economy;
 using PawPath.Levels;
+using PawPath.Gameplay;
 
 namespace PawPath.Cat
 {
@@ -26,7 +27,7 @@ namespace PawPath.Cat
         [SerializeField] float groundedProbe = 0.28f;
         [SerializeField] LayerMask groundMask = ~0;
         [SerializeField] float airGrace = 0.45f;
-        [SerializeField] float visualHeight = 1.1f;
+        [SerializeField] float visualHeight = 1.38f;
 
         [Header("Kurtarma")]
         [SerializeField] SpriteRenderer bubbleRenderer;
@@ -40,6 +41,9 @@ namespace PawPath.Cat
         float airTimer;
         CatDefinition definition;
         int facing = 1;
+        bool crouching;
+        bool keyboardJumpQueued;
+        int jumpsRemaining = 2;
 
         public bool IsBusy => busy;
         public CatDefinition Definition => definition;
@@ -83,11 +87,29 @@ namespace PawPath.Cat
                 return;
 
             float scale = visualHeight / sprite.sprite.bounds.size.y;
-            visual.localScale = new Vector3(scale * facing, scale, 1f);
+            visual.localScale = new Vector3(scale * facing, scale * (crouching ? 0.58f : 1f), 1f);
+            visual.localPosition = new Vector3(0f, crouching ? -visualHeight * 0.21f : 0f, 0f);
+        }
+
+        void Update()
+        {
+            if (!GameplayMode.IsDrawing &&
+                (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow)))
+                keyboardJumpQueued = true;
         }
 
         public void PlaceAtSpawn(Vector2 world)
         {
+            crouching = false;
+            keyboardJumpQueued = false;
+            jumpsRemaining = 2;
+            FitVisualToHeight();
+            var circle = GetComponent<CircleCollider2D>();
+            if (circle != null)
+            {
+                circle.radius = 0.28f;
+                circle.offset = Vector2.zero;
+            }
             spawnPosition = world;
             transform.position = world;
             body.velocity = Vector2.zero;
@@ -108,6 +130,11 @@ namespace PawPath.Cat
             }
 
             bool grounded = IsGrounded(out var surface);
+            if (!GameplayMode.IsDrawing)
+            {
+                UpdateDirectControl(grounded, surface);
+                return;
+            }
             if (grounded)
             {
                 airTimer = 0f;
@@ -133,6 +160,59 @@ namespace PawPath.Cat
             var level = LevelManager.Instance != null ? LevelManager.Instance.Current : null;
             float fallY = level != null ? level.fallY : -7.5f;
             if (transform.position.y < fallY || airTimer > airGrace + 1.8f)
+                StartCoroutine(RescueRoutine());
+        }
+
+        void UpdateDirectControl(bool grounded, PathSurfaceType surface)
+        {
+            if (grounded && body.velocity.y <= 0.15f)
+                jumpsRemaining = 2;
+
+            float keyboardHorizontal = 0f;
+            if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) keyboardHorizontal -= 1f;
+            if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) keyboardHorizontal += 1f;
+            float horizontal = Mathf.Clamp(MobileControlState.Horizontal + keyboardHorizontal, -1f, 1f);
+            float speed = surface == PathSurfaceType.Ice ? moveSpeed * iceSpeedMultiplier : moveSpeed;
+            body.velocity = new Vector2(horizontal * speed, body.velocity.y);
+
+            if (Mathf.Abs(horizontal) > 0.01f)
+                facing = horizontal > 0f ? 1 : -1;
+            bool jumpRequested = MobileControlState.ConsumeJump() || keyboardJumpQueued;
+            keyboardJumpQueued = false;
+            if (jumpRequested && jumpsRemaining > 0)
+            {
+                bool secondJump = jumpsRemaining == 1;
+                float jumpPower = bounceForce * (secondJump ? 1.22f : 1.02f);
+                body.velocity = new Vector2(body.velocity.x, jumpPower);
+                jumpsRemaining--;
+            }
+
+            bool shouldCrouch = MobileControlState.CrouchHeld || Input.GetKey(KeyCode.S) ||
+                Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
+            if (shouldCrouch != crouching)
+            {
+                crouching = shouldCrouch;
+                FitVisualToHeight();
+                var circle = GetComponent<CircleCollider2D>();
+                if (circle != null)
+                {
+                    circle.radius = crouching ? 0.21f : 0.28f;
+                    circle.offset = crouching ? new Vector2(0f, -0.08f) : Vector2.zero;
+                }
+            }
+
+            if (animator != null)
+                animator.speed = Mathf.Abs(horizontal) > 0.01f ? walkAnimationSpeed : 0f;
+            if (visual != null)
+            {
+                var scale = visual.localScale;
+                scale.x = Mathf.Abs(scale.x) * facing;
+                visual.localScale = scale;
+            }
+
+            var level = LevelManager.Instance != null ? LevelManager.Instance.Current : null;
+            float fallY = level != null ? level.fallY : -7.5f;
+            if (transform.position.y < fallY)
                 StartCoroutine(RescueRoutine());
         }
 

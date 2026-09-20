@@ -6,7 +6,15 @@ namespace PawPath.Hub
 {
     public class HubFurnitureView : MonoBehaviour
     {
+        public static HubFurnitureView Instance { get; private set; }
         [SerializeField] private Transform[] slots;
+
+        void Awake() => Instance = this;
+
+        public Vector3 BowlPosition => slots != null && slots.Length > (int)PawPath.Content.FurnitureSlotType.Bowl &&
+            slots[(int)PawPath.Content.FurnitureSlotType.Bowl] != null
+            ? slots[(int)PawPath.Content.FurnitureSlotType.Bowl].position
+            : new Vector3(-3.4f, -1.65f, 0f);
 
         private void OnEnable()
         {
@@ -39,6 +47,9 @@ namespace PawPath.Hub
                     {
                         existingSr.sprite = null;
                     }
+                    var drag = slot.GetComponent<DraggableFurniture>();
+                    if (drag != null)
+                        drag.DisableInteraction();
                 }
             }
 
@@ -65,6 +76,10 @@ namespace PawPath.Hub
                     sr.color = Color.white;
                     sr.sortingOrder = item.slotType == PawPath.Content.FurnitureSlotType.Rug ? 2 : 4;
                     FitItem(sr, item.slotType);
+                    var drag = targetSlot.GetComponent<DraggableFurniture>();
+                    if (drag == null)
+                        drag = targetSlot.gameObject.AddComponent<DraggableFurniture>();
+                    drag.Configure(item.slotType, sr);
                 }
             }
         }

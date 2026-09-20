@@ -34,6 +34,9 @@ namespace PawPath.Levels
         {
             completionHandled = false;
             Current = ResolveLevel(DisplayLevel);
+            var cameraFollow = Camera.main != null ? Camera.main.GetComponent<SideScrollCamera>() : null;
+            if (cameraFollow != null)
+                cameraFollow.ResetView();
             ApplyLevelTheme(Current.levelNumber);
             if (courseBuilder != null)
                 courseBuilder.Build(Current.levelNumber);
@@ -153,7 +156,10 @@ namespace PawPath.Levels
             {
                 Vector2 goal = level.goalPoint;
                 if (courseBuilder != null)
+                {
+                    goal.x = courseBuilder.GoalX;
                     goal.y = courseBuilder.GoalY;
+                }
                 goalMarker.position = goal;
             }
             if (seasonBackdrop != null)

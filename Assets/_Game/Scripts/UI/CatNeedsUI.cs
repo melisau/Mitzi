@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using PawPath.Cat;
 using PawPath.Core;
 using PawPath.Economy;
+using PawPath.Hub;
 
 namespace PawPath.UI
 {
@@ -80,7 +81,9 @@ namespace PawPath.UI
         {
             if (catNeedsSystem != null)
             {
-                catNeedsSystem.FeedCat();
+                bool fed = catNeedsSystem.FeedCat();
+                if (fed && CatHouseInteraction.Instance != null)
+                    CatHouseInteraction.Instance.SendSelectedToBowl();
                 UpdateUI();
             }
         }

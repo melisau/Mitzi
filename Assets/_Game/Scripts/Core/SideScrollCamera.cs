@@ -10,9 +10,9 @@ namespace PawPath.Core
     {
         [SerializeField] Transform target;
         [SerializeField] Transform[] backdropLayers;
-        [SerializeField] float followOffset = 2.5f;
+        [SerializeField] float followOffset = 1.35f;
         [SerializeField] float minX;
-        [SerializeField] float maxX = 12f;
+        [SerializeField] float maxX = 13.2f;
         [SerializeField] float smoothTime = 0.22f;
 
         float startY;
@@ -48,6 +48,12 @@ namespace PawPath.Core
         {
             target = followTarget;
             backdropLayers = backgrounds;
+        }
+
+        public void ResetView()
+        {
+            velocityX = 0f;
+            transform.position = new Vector3(minX, startY, transform.position.z);
         }
     }
 }

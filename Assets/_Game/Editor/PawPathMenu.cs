@@ -31,6 +31,7 @@ namespace PawPath.EditorTools
             const string forestGapPath = "Assets/_Game/Art/forest_road_gap_v1.png";
             const string forestMoundPath = "Assets/_Game/Art/forest_mound_v1.png";
             const string forestRoadPath = "Assets/_Game/Art/forest_ground_platform_v1.png";
+            const string finishPortalPath = "Assets/_Game/Art/finish_portal_glow_v1.png";
             var catalogAsset = AssetDatabase.LoadAssetAtPath<PawPathCatalog>(catalogPath);
             var wallpaper = AssetDatabase.LoadAssetAtPath<Sprite>(wallpaperPath);
             var gameplay = AssetDatabase.LoadAssetAtPath<Sprite>(gameplayPath);
@@ -41,8 +42,9 @@ namespace PawPath.EditorTools
             var forestGap = AssetDatabase.LoadAssetAtPath<Sprite>(forestGapPath);
             var forestMound = AssetDatabase.LoadAssetAtPath<Sprite>(forestMoundPath);
             var forestRoad = AssetDatabase.LoadAssetAtPath<Sprite>(forestRoadPath);
+            var finishPortal = AssetDatabase.LoadAssetAtPath<Sprite>(finishPortalPath);
             if (catalogAsset == null || wallpaper == null || gameplay == null || gap == null || mound == null || road == null ||
-                forestBackground == null || forestGap == null || forestMound == null || forestRoad == null)
+                forestBackground == null || forestGap == null || forestMound == null || forestRoad == null || finishPortal == null)
                 return;
             if (catalogAsset.homeBackground == wallpaper &&
                 catalogAsset.shopBackground == wallpaper &&
@@ -50,7 +52,7 @@ namespace PawPath.EditorTools
                 catalogAsset.roadGapSprite == gap && catalogAsset.moundSprite == mound &&
                 catalogAsset.roadPlatformSprite == road && catalogAsset.forestBackground == forestBackground &&
                 catalogAsset.forestGapSprite == forestGap && catalogAsset.forestMoundSprite == forestMound &&
-                catalogAsset.forestPlatformSprite == forestRoad)
+                catalogAsset.forestPlatformSprite == forestRoad && catalogAsset.finishPortalSprite == finishPortal)
                 return;
 
             catalogAsset.homeBackground = wallpaper;
@@ -63,6 +65,7 @@ namespace PawPath.EditorTools
             catalogAsset.forestGapSprite = forestGap;
             catalogAsset.forestMoundSprite = forestMound;
             catalogAsset.forestPlatformSprite = forestRoad;
+            catalogAsset.finishPortalSprite = finishPortal;
             EditorUtility.SetDirty(catalogAsset);
             AssetDatabase.SaveAssets();
             Debug.Log("[PawPath] Ev, mağaza, sokak ve orman tema görselleri güncellendi.");

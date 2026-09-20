@@ -8,6 +8,7 @@ using PawPath.Drawing;
 using PawPath.Economy;
 using PawPath.Levels;
 using PawPath.Localization;
+using PawPath.Gameplay;
 
 namespace PawPath.UI
 {
@@ -22,11 +23,13 @@ namespace PawPath.UI
         [SerializeField] private Text selectedCatLabel;
         [SerializeField] private Button playButton;
         [SerializeField] private Button shopButton;
+        [SerializeField] private Button directPlayButton;
         [SerializeField] private Button restartButton;
         [SerializeField] private Button homeButton;
         [SerializeField] private CatNeedsUI needsUI;
         [SerializeField] private GameObject brushToolbar;
         [SerializeField] private GameObject brushTutorial;
+        [SerializeField] private GameObject mobileControls;
 
         private void Awake()
         {
@@ -67,11 +70,22 @@ namespace PawPath.UI
         // TEK VE TEMİZ ONPLAYBUTTONCLICKED METODU
         private void OnPlayButtonClicked()
         {
+            StartWithMode(GameplayPlayMode.Drawing);
+        }
+
+        private void OnDirectPlayButtonClicked()
+        {
+            StartWithMode(GameplayPlayMode.DirectControl);
+        }
+
+        private void StartWithMode(GameplayPlayMode mode)
+        {
             if (needsUI != null && !needsUI.CheckEnergyAndStartLevel())
                 return;
             if (needsUI == null && CatNeedsSystem.Instance != null && !CatNeedsSystem.Instance.CanStartLevel())
                 return;
 
+            GameplayMode.Select(mode);
             if (GameFlow.Instance != null)
             {
                 GameFlow.Instance.StartNextLevel();
@@ -94,13 +108,20 @@ namespace PawPath.UI
                 playButton.gameObject.SetActive(false);
             if (shopButton != null)
                 shopButton.gameObject.SetActive(false);
+            if (directPlayButton != null)
+                directPlayButton.gameObject.SetActive(false);
             if (brushToolbar != null)
-                brushToolbar.SetActive(true);
+                brushToolbar.SetActive(GameplayMode.IsDrawing);
+            if (mobileControls != null)
+                mobileControls.SetActive(!GameplayMode.IsDrawing);
+            if (inkLabel != null)
+                inkLabel.gameObject.SetActive(GameplayMode.IsDrawing);
             if (restartButton != null)
                 restartButton.gameObject.SetActive(true);
             if (homeButton != null)
                 homeButton.gameObject.SetActive(true);
-            ShowBrushTutorialOnce();
+            if (GameplayMode.IsDrawing)
+                ShowBrushTutorialOnce();
         }
 
         private void OnHubEntered()
@@ -109,12 +130,18 @@ namespace PawPath.UI
                 playButton.gameObject.SetActive(true);
             if (shopButton != null)
                 shopButton.gameObject.SetActive(true);
+            if (directPlayButton != null)
+                directPlayButton.gameObject.SetActive(true);
             if (brushToolbar != null)
                 brushToolbar.SetActive(false);
             if (restartButton != null)
                 restartButton.gameObject.SetActive(false);
             if (homeButton != null)
                 homeButton.gameObject.SetActive(false);
+            if (mobileControls != null)
+                mobileControls.SetActive(false);
+            if (inkLabel != null)
+                inkLabel.gameObject.SetActive(true);
             if (LevelManager.Instance != null)
                 RefreshLevel();
         }
@@ -148,7 +175,8 @@ namespace PawPath.UI
         }
 
         public void Bind(Text love, Text level, Text ink, Text selected, Button play, Button shop,
-            Button restart, Button home, CatNeedsUI careUI, GameObject brushes, GameObject tutorial)
+            Button directPlay, Button restart, Button home, CatNeedsUI careUI, GameObject brushes,
+            GameObject tutorial, GameObject controls)
         {
             loveLabel = love;
             levelLabel = level;
@@ -156,11 +184,13 @@ namespace PawPath.UI
             selectedCatLabel = selected;
             playButton = play;
             shopButton = shop;
+            directPlayButton = directPlay;
             restartButton = restart;
             homeButton = home;
             needsUI = careUI;
             brushToolbar = brushes;
             brushTutorial = tutorial;
+            mobileControls = controls;
 
             // RuntimeBootstrap, HudView bileşenini alt UI nesnelerinden önce oluşturur.
             // Bu nedenle OnEnable sırasında butonlar henüz atanmış olmayabilir.
@@ -180,6 +210,12 @@ namespace PawPath.UI
             {
                 shopButton.onClick.RemoveListener(OnShopButtonClicked);
                 shopButton.onClick.AddListener(OnShopButtonClicked);
+            }
+
+            if (directPlayButton != null)
+            {
+                directPlayButton.onClick.RemoveListener(OnDirectPlayButtonClicked);
+                directPlayButton.onClick.AddListener(OnDirectPlayButtonClicked);
             }
 
             if (restartButton != null)
