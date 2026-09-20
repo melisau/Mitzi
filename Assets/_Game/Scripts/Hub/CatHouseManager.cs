@@ -99,7 +99,7 @@ namespace PawPath.Hub
                 sr.color = Color.white;
                 // Ev sahnesinde kediler dekorların yanında kaybolmasın; bu ölçek
                 // yalnızca resident görsellerine uygulanır, bölüm kedisini etkilemez.
-                FitSpriteToHeight(sr, 1.45f);
+                FitSpriteToHeight(sr, 2.20f);
                 var residentAnimator = sr.GetComponent<Animator>();
                 if (residentAnimator == null)
                     residentAnimator = sr.gameObject.AddComponent<Animator>();
@@ -109,7 +109,7 @@ namespace PawPath.Hub
 
             var residentCollider = go.GetComponent<CircleCollider2D>();
             if (residentCollider != null)
-                residentCollider.radius = 0.72f;
+                residentCollider.radius = 0.95f;
 
             var pet = go.GetComponent<CatPettingSystem>();
             if (pet == null)

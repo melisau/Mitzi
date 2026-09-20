@@ -104,12 +104,12 @@ namespace PawPath.Hub
             float targetHeight = type switch
             {
                 PawPath.Content.FurnitureSlotType.Rug => 2.55f,
-                PawPath.Content.FurnitureSlotType.Bed => 2.1f,
+                PawPath.Content.FurnitureSlotType.Bed => 2.85f,
                 PawPath.Content.FurnitureSlotType.Bowl => 0.76f,
                 PawPath.Content.FurnitureSlotType.Water => 1.52f,
                 PawPath.Content.FurnitureSlotType.Sand => 4.10f,
-                PawPath.Content.FurnitureSlotType.Poster => 2.35f,
-                PawPath.Content.FurnitureSlotType.Tree => 3.5f,
+                PawPath.Content.FurnitureSlotType.Poster => 3.10f,
+                PawPath.Content.FurnitureSlotType.Tree => 5.0f,
                 _ => 5f
             };
             float scale = targetHeight / renderer.sprite.bounds.size.y;
