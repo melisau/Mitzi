@@ -1,3 +1,3 @@
 [Licensing::Module] Trying to connect to existing licensing client channel...
 [Licensing::IpcConnector] Error: Connection attempt to the License Client on channel: "LicenseClient-melisa uyar" failed because Connection Refused; code: "0x8000000a"
-[Licensing::Module] Successfully launched the LicensingClient (PId: 42408)
+[Licensing::Module] Successfully launched the LicensingClient (PId: 48556)
