@@ -566,6 +566,24 @@ MonoBehaviour:
   cityVanSprite: {fileID: 21300000, guid: 0672477962867034db0e485a388b10d3, type: 3}
   cityRoadSprite: {fileID: 21300000, guid: 3fab94d783fc4fffbde9db6ed7978d42, type: 3}
   finishPortalSprite: {fileID: 21300000, guid: 71fa809c24e6479cb4125806e44f450a, type: 3}
+  homeMusic: {fileID: 8300000, guid: 729affca41972b544a5f17d900f5189c, type: 3}
+  streetMusic: {fileID: 8300000, guid: af2f9362614ec2742b6a82ce24c4263e, type: 3}
+  forestMusic: {fileID: 8300000, guid: 03e5dfaa32aa94748801f51750b2bc29, type: 3}
+  cityMusic: {fileID: 8300000, guid: 9b2f8840c5cc9a4438f238730192e00f, type: 3}
+  catStepSfx: {fileID: 8300000, guid: 83b85f0ad60dd2f4c8320a5fd9a33b33, type: 3}
+  catMeowSfx:
+  - {fileID: 8300000, guid: c4250ceaf7f340340b55b128c25e7fec, type: 3}
+  - {fileID: 8300000, guid: 8ee6684b2920ee2469bb9f8be53d7649, type: 3}
+  - {fileID: 8300000, guid: 9bf4cac68b6988a45ab201a795cfbdb2, type: 3}
+  - {fileID: 8300000, guid: e9ff62dc6bb098b42b15319ce6fc843f, type: 3}
+  catHurtSfx: {fileID: 8300000, guid: 005d4dc4014fcce44879f74980c0868c, type: 3}
+  catFallSfx: {fileID: 8300000, guid: 994dd4b7993f1c94ea98588dd953385e, type: 3}
+  catRescueSfx: {fileID: 8300000, guid: 7960c054af7e78a46a3e429fe544aa5b, type: 3}
+  errorSfx: {fileID: 8300000, guid: f6ee55a4551b01e459a1ce2de610bff8, type: 3}
+  uiClickSfx: {fileID: 8300000, guid: 610ab0430f0e0cc41ac9df914fd2e509, type: 3}
+  uiConfirmSfx: {fileID: 8300000, guid: 3c439a066a9eafb44b8fc94859b57f69, type: 3}
+  shopBuySfx: {fileID: 8300000, guid: 3a6bbf23fae4b4b46a2dffb5f3972946, type: 3}
+  shopSellSfx: {fileID: 8300000, guid: d5cc0a87779a4f34c844720c195acf5d, type: 3}
   completionFaces:
   - {fileID: 21300000, guid: 79d36b25a3e14f0f8f354bec59b7de9e, type: 3}
   - {fileID: 21300000, guid: e1c801ce2e3e413ca4d9a42f2620a84d, type: 3}

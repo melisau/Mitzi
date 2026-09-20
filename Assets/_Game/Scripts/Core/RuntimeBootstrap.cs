@@ -59,7 +59,8 @@ namespace PawPath.Core
             var root = new GameObject("PawPath");
             var flow = root.AddComponent<GameFlow>();
             root.AddComponent<CozyEconomyManager>();
-            root.AddComponent<CozyAudioManager>();
+            var audio = root.AddComponent<CozyAudioManager>();
+            audio.BindLibrary(catalog);
             var needs = root.AddComponent<CatNeedsSystem>();
             var levels = root.AddComponent<LevelManager>();
 
@@ -666,6 +667,7 @@ namespace PawPath.Core
         {
             var go = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(Button));
             go.transform.SetParent(parent, false);
+            go.AddComponent<UiButtonSound>();
             var rt = go.GetComponent<RectTransform>();
             rt.anchorMin = rt.anchorMax = anchor;
             rt.anchoredPosition = offset;

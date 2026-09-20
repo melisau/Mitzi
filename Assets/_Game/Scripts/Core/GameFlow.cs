@@ -4,6 +4,7 @@ using PawPath.Cat;
 using PawPath.Data;
 using PawPath.Drawing;
 using PawPath.Levels;
+using PawPath.Audio;
 
 
 namespace PawPath.Core
@@ -56,6 +57,8 @@ namespace PawPath.Core
                 LineDraw.Instance.ClearStrokes();
             }
             SetRoots(hub: true, level: false, hud: true, rescue: false, complete: false);
+            if (CozyAudioManager.Instance != null)
+                CozyAudioManager.Instance.PlayHomeMusic();
             GameEvents.HubEntered();
         }
 

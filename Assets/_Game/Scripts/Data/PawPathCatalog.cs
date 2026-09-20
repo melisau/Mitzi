@@ -35,6 +35,21 @@ namespace PawPath.Data
         public Sprite cityVanSprite;
         public Sprite cityRoadSprite;
         public Sprite finishPortalSprite;
+        [Header("Sesler")]
+        public AudioClip homeMusic;
+        public AudioClip streetMusic;
+        public AudioClip forestMusic;
+        public AudioClip cityMusic;
+        public AudioClip catStepSfx;
+        public AudioClip[] catMeowSfx;
+        public AudioClip catHurtSfx;
+        public AudioClip catFallSfx;
+        public AudioClip catRescueSfx;
+        public AudioClip errorSfx;
+        public AudioClip uiClickSfx;
+        public AudioClip uiConfirmSfx;
+        public AudioClip shopBuySfx;
+        public AudioClip shopSellSfx;
         [Header("Başarı Ekranı")]
         public Sprite[] completionFaces;
 

@@ -4,6 +4,7 @@ using PawPath.Cat;
 using PawPath.Core;
 using PawPath.Economy;
 using PawPath.Hub;
+using PawPath.Audio;
 
 namespace PawPath.UI
 {
@@ -84,6 +85,7 @@ namespace PawPath.UI
                 if (HubFurnitureView.Instance == null || !HubFurnitureView.Instance.HasPlacedBowl)
                 {
                     ShowCareMessage("Önce dükkândan mama kabı satın al. Puan için kediyi sev veya bölüm geç.");
+                    CozyAudioManager.Instance?.PlayError();
                     return;
                 }
                 bool fed = catNeedsSystem.FeedCat();
@@ -100,6 +102,7 @@ namespace PawPath.UI
                 if (HubFurnitureView.Instance == null || !HubFurnitureView.Instance.HasPlacedWater)
                 {
                     ShowCareMessage("Önce dükkândan su kabı satın al. Puan için kediyi sev veya bölüm geç.");
+                    CozyAudioManager.Instance?.PlayError();
                     return;
                 }
                 bool drank = catNeedsSystem.GiveWater();
@@ -130,6 +133,7 @@ namespace PawPath.UI
                     energyWarningText.gameObject.SetActive(true);
                     energyWarningText.text = $"Yola çıkmak için en az {catNeedsSystem.requiredEnergyToPlay} Sevgi Puanı gerekli!";
                 }
+                CozyAudioManager.Instance?.PlayError();
                 return false;
             }
 

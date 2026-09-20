@@ -179,7 +179,7 @@ namespace PawPath.Levels
             float obstacleWidth = width * 1.62f * widthVariant * GameplayScale;
             float obstacleHeight = height * 1.62f * heightVariant * GameplayScale;
             float visualWidth = obstacleWidth * 1.95f;
-            float visualOverlap = (cityVehicle ? 0.03f : obstacleSprite != null && obstacleSprite.name.Contains("forest") ? 0.52f : 0.95f) *
+            float visualOverlap = (cityVehicle ? 0.27f : obstacleSprite != null && obstacleSprite.name.Contains("forest") ? 0.52f : 0.95f) *
                 heightVariant * GameplayScale;
             float colliderHeight = obstacleHeight;
             if (obstacleSprite != null && obstacleSprite.bounds.size.x > 0f)
@@ -345,6 +345,10 @@ namespace PawPath.Levels
         {
             if (roadUnderfillSprite != null)
                 return;
+            // Sokak ve orman platform PNG'lerinin üst kısmında şeffaf pay bulunuyor.
+            // Dolguyu collider yüzeyine kadar çıkarmak bu payın arkasından görünerek
+            // kaldırımın üstüne taşmış gibi duruyordu; dolgu yalnızca alt kesitte kalır.
+            topY -= 0.28f;
             const float bottomY = -5.35f;
             float height = topY - bottomY;
             var go = new GameObject("RoadUnderfill");
