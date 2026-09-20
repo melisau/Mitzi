@@ -92,7 +92,9 @@ namespace PawPath.UI
         {
             if (catNeedsSystem != null)
             {
-                catNeedsSystem.GiveWater();
+                bool drank = catNeedsSystem.GiveWater();
+                if (drank && CatHouseInteraction.Instance != null)
+                    CatHouseInteraction.Instance.SendSelectedToWater();
                 UpdateUI();
             }
         }
@@ -162,10 +164,15 @@ namespace PawPath.UI
         {
             if (button == null)
                 return;
-            button.interactable = available;
+
+            button.gameObject.SetActive(available);
+            if (!available)
+                return;
+
+            button.interactable = true;
             var label = button.GetComponentInChildren<Text>();
             if (label != null)
-                label.text = available ? availableText : "Bugün yapıldı";
+                label.text = availableText;
         }
 
         void OnLoveChanged(int _) => UpdateUI();

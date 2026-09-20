@@ -31,6 +31,14 @@ namespace PawPath.Hub
             selected.WalkTo(bowl, ResidentActivity.Eating);
         }
 
+        public void SendSelectedToWater()
+        {
+            EnsureSelectedResident();
+            if (selected == null || HubFurnitureView.Instance == null || !HubFurnitureView.Instance.HasPlacedWater)
+                return;
+            selected.WalkTo(HubFurnitureView.Instance.WaterPosition, ResidentActivity.Drinking);
+        }
+
         void Update()
         {
             if (GameFlow.Instance == null || !GameFlow.Instance.InHub || !PointerUp())

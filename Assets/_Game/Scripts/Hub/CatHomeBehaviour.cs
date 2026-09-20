@@ -9,7 +9,8 @@ namespace PawPath.Hub
         Standing,
         Sitting,
         Sleeping,
-        Eating
+        Eating,
+        Drinking
     }
 
     /// <summary>
@@ -30,6 +31,10 @@ namespace PawPath.Hub
         ResidentActivity arrivalActivity = ResidentActivity.Standing;
         Transform visual;
         Animator animator;
+        ResidentActivity animatedActivity = (ResidentActivity)(-1);
+
+        static readonly int WalkState = Animator.StringToHash("Walk");
+        static readonly int SitState = Animator.StringToHash("Sit");
 
         void Awake()
         {
@@ -44,10 +49,9 @@ namespace PawPath.Hub
                 return;
 
             stateTimer -= Time.deltaTime;
+            UpdateAnimation();
             if (CurrentActivity == ResidentActivity.Walking)
             {
-                if (animator != null)
-                    animator.speed = 0.85f;
                 var target = new Vector3(targetPosition.x, targetPosition.y, transform.position.z);
                 float speed = interacting ? walkSpeed * 0.72f : walkSpeed;
                 transform.position = Vector3.MoveTowards(transform.position, target, speed * Time.deltaTime);
@@ -55,9 +59,9 @@ namespace PawPath.Hub
                 UpdateDepthOrder();
                 if (Vector2.Distance(transform.position, targetPosition) < 0.05f)
                 {
-                    if (arrivalActivity == ResidentActivity.Eating)
+                    if (arrivalActivity == ResidentActivity.Eating || arrivalActivity == ResidentActivity.Drinking)
                     {
-                        CurrentActivity = ResidentActivity.Eating;
+                        CurrentActivity = arrivalActivity;
                         stateTimer = 3.2f;
                         arrivalActivity = ResidentActivity.Standing;
                     }
@@ -69,8 +73,29 @@ namespace PawPath.Hub
             {
                 BeginWalk();
             }
-            else if (animator != null)
+        }
+
+        void UpdateAnimation()
+        {
+            if (animator == null || animatedActivity == CurrentActivity)
+                return;
+
+            animatedActivity = CurrentActivity;
+            if (CurrentActivity == ResidentActivity.Walking)
             {
+                if (animator.HasState(0, WalkState))
+                    animator.Play(WalkState, 0, 0f);
+                animator.speed = 0.85f;
+            }
+            else if (CurrentActivity == ResidentActivity.Sitting && animator.HasState(0, SitState))
+            {
+                animator.Play(SitState, 0, 0f);
+                animator.speed = 1f;
+            }
+            else
+            {
+                if (animator.HasState(0, WalkState))
+                    animator.Play(WalkState, 0, 0f);
                 animator.speed = 0f;
             }
         }

@@ -44,6 +44,10 @@ namespace PawPath.Cat
         bool crouching;
         bool keyboardJumpQueued;
         int jumpsRemaining = 2;
+        bool jumpAnimationPlaying;
+
+        static readonly int WalkState = Animator.StringToHash("Walk");
+        static readonly int JumpState = Animator.StringToHash("Jump");
 
         public bool IsBusy => busy;
         public CatDefinition Definition => definition;
@@ -130,6 +134,7 @@ namespace PawPath.Cat
             }
 
             bool grounded = IsGrounded(out var surface);
+            UpdateJumpAnimation(grounded);
             if (!GameplayMode.IsDrawing)
             {
                 UpdateDirectControl(grounded, surface);
@@ -146,8 +151,13 @@ namespace PawPath.Cat
             else
             {
                 airTimer += Time.fixedDeltaTime;
+                // Tümsek tepesindeki kısa collider ayrımlarında grounded bir fizik
+                // karesi boyunca false dönebilir. Yatay hızı korumazsak kedi tam
+                // tepede asılı kalıyordu; havadayken de ileri momentumunu sürdürüyor.
+                float airSpeed = surface == PathSurfaceType.Ice ? moveSpeed * iceSpeedMultiplier : moveSpeed;
+                body.velocity = new Vector2(facing * airSpeed, body.velocity.y);
                 if (animator != null)
-                    animator.speed = 0f;
+                    animator.speed = jumpAnimationPlaying ? 1f : 0f;
             }
 
             if (visual != null)
@@ -202,7 +212,9 @@ namespace PawPath.Cat
             }
 
             if (animator != null)
-                animator.speed = Mathf.Abs(horizontal) > 0.01f ? walkAnimationSpeed : 0f;
+                animator.speed = !grounded && jumpAnimationPlaying
+                    ? 1f
+                    : Mathf.Abs(horizontal) > 0.01f ? walkAnimationSpeed : 0f;
             if (visual != null)
             {
                 var scale = visual.localScale;
@@ -214,6 +226,25 @@ namespace PawPath.Cat
             float fallY = level != null ? level.fallY : -7.5f;
             if (transform.position.y < fallY)
                 StartCoroutine(RescueRoutine());
+        }
+
+        void UpdateJumpAnimation(bool grounded)
+        {
+            if (animator == null)
+                return;
+
+            if (!grounded && !jumpAnimationPlaying && animator.HasState(0, JumpState))
+            {
+                jumpAnimationPlaying = true;
+                animator.Play(JumpState, 0, 0f);
+                animator.speed = 1f;
+            }
+            else if (grounded && jumpAnimationPlaying)
+            {
+                jumpAnimationPlaying = false;
+                if (animator.HasState(0, WalkState))
+                    animator.Play(WalkState, 0, 0f);
+            }
         }
 
         bool IsGrounded(out PathSurfaceType surface)

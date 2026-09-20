@@ -7,7 +7,11 @@ namespace PawPath.Content
         Rug,
         Bed,
         Bowl,
-        Wallpaper
+        Wallpaper,
+        Poster,
+        Water,
+        Sand,
+        Tree
     }
 
     [CreateAssetMenu(fileName = "ShopItem", menuName = "PawPath/Shop Item")]

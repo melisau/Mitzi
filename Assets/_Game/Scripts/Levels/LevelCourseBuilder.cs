@@ -126,33 +126,53 @@ namespace PawPath.Levels
 
         void Obstacle(float centerX, float width, float height)
         {
-            float obstacleWidth = width * 1.62f;
-            float obstacleHeight = height * 1.62f;
+            bool isTallVariant = Random.value >= 0.5f;
+            // Uzun varyant eskiden 2 kat yüksek ve normal varyantla aynı genişlikteydi.
+            // Bu, yamacı gereğinden dikleştiriyor ve çift zıplamayla bile geçilemeyen
+            // bir collider tepesi oluşturuyordu. Biraz alçaltıp tabanını genişletiyoruz.
+            float heightVariant = isTallVariant ? 1.55f : 1f;
+            float widthVariant = isTallVariant ? 1.15f : 1f;
+            float obstacleWidth = width * 1.62f * widthVariant;
+            float obstacleHeight = height * 1.62f * heightVariant;
             float visualWidth = obstacleWidth * 1.95f;
+            float visualOverlap = (moundSprite != null && moundSprite.name.Contains("forest") ? 0.52f : 0.95f) * heightVariant;
             float colliderHeight = obstacleHeight;
             if (moundSprite != null && moundSprite.bounds.size.x > 0f)
             {
-                float visibleRatioHeight = visualWidth * moundSprite.bounds.size.y / moundSprite.bounds.size.x;
+                // Görsel genişlikten ölçeklendiği için, hedef yükseklik oranını korumak
+                // adına genişlik artışını dikey ölçekten çıkarıyoruz.
+                float spriteHeightScale = heightVariant / widthVariant;
+                float visibleRatioHeight = visualWidth * moundSprite.bounds.size.y / moundSprite.bounds.size.x * spriteHeightScale;
                 colliderHeight = Mathf.Min(obstacleHeight, visibleRatioHeight * 0.82f);
             }
             float roadTop = RoadCenterY + RoadHeight * 0.5f;
+            // Alfa boşluğu yalnızca görsel yerleşimine aittir. Fizik şeklinin
+            // tabanı her zaman gerçek kaldırım yüzeyinde kalmalıdır.
             float centerY = roadTop + colliderHeight * 0.5f;
             var go = new GameObject("Hump");
             go.transform.SetParent(generatedRoot, false);
             go.transform.position = new Vector2(centerX, centerY);
             var collider = go.AddComponent<PolygonCollider2D>();
+            // Kedi eğimde ve özellikle tepe birleşiminde sürtünmeye takılmasın.
+            collider.sharedMaterial = new PhysicsMaterial2D("HumpNoFriction")
+            {
+                friction = 0f,
+                bounciness = 0f
+            };
             float halfW = obstacleWidth * 0.5f;
             float halfH = colliderHeight * 0.5f;
             // Dikdörtgen collider kediyi görselin boş köşelerinde havada tutuyordu.
-            // Bu çokgen tümseğin eğimli siluetini yaklaşık olarak takip eder.
+            // Tepeyi tek keskin nokta yerine kısa bir düzlük yapıyoruz. CircleCollider
+            // aksi halde iki eğimin birleştiği noktaya sıkışıp ilerleyemiyordu.
             collider.points = new[]
             {
                 new Vector2(-halfW, -halfH),
-                new Vector2(-halfW * 0.82f, -halfH * 0.58f),
-                new Vector2(-halfW * 0.42f, halfH * 0.30f),
-                new Vector2(0f, halfH),
-                new Vector2(halfW * 0.42f, halfH * 0.30f),
-                new Vector2(halfW * 0.82f, -halfH * 0.58f),
+                new Vector2(-halfW * 0.86f, -halfH * 0.62f),
+                new Vector2(-halfW * 0.52f, halfH * 0.12f),
+                new Vector2(-halfW * 0.18f, halfH * 0.76f),
+                new Vector2(halfW * 0.18f, halfH * 0.76f),
+                new Vector2(halfW * 0.52f, halfH * 0.12f),
+                new Vector2(halfW * 0.86f, -halfH * 0.62f),
                 new Vector2(halfW, -halfH)
             };
 
@@ -161,9 +181,8 @@ namespace PawPath.Levels
                 // Üretilen orman tümseği PNG'sinin altında geniş şeffaf tuval payı var.
                 // Görünen yosun/toprak tabanını yolun içine oturtmak için yalnızca bu
                 // görsele daha fazla bindirme uygula.
-                float visualOverlap = moundSprite.name.Contains("forest") ? 0.52f : 0.04f;
                 DecorationBottomAligned("HumpVisual", moundSprite, centerX, roadTop - visualOverlap,
-                    visualWidth, 2);
+                    visualWidth, 2, heightVariant / widthVariant);
             }
             else
             {
@@ -206,7 +225,7 @@ namespace PawPath.Levels
         }
 
         void DecorationBottomAligned(string objectName, Sprite sprite, float centerX,
-            float bottomY, float targetWidth, int sortingOrder)
+            float bottomY, float targetWidth, int sortingOrder, float heightScale = 1f)
         {
             if (sprite == null || sprite.bounds.size.x <= 0f)
                 return;
@@ -214,8 +233,10 @@ namespace PawPath.Levels
             float scale = targetWidth / sprite.bounds.size.x;
             // Sprite pivot'i ve şeffaf kenarları değişse bile görünen bounds'in altını
             // yol yüzeyine birkaç piksel gömerek aradaki boşluğu tamamen kapatır.
-            float centerY = bottomY - sprite.bounds.min.y * scale;
-            Decoration(objectName, sprite, new Vector2(centerX, centerY), targetWidth, sortingOrder);
+            float scaleY = scale * heightScale;
+            float centerY = bottomY - sprite.bounds.min.y * scaleY;
+            Decoration(objectName, sprite, new Vector2(centerX, centerY), targetWidth, sortingOrder,
+                sprite.bounds.size.y * scaleY);
         }
 
         void CreateSolid(string objectName, Vector2 position, Vector2 size, Color color, int sortingOrder)

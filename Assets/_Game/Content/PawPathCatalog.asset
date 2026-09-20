@@ -469,8 +469,8 @@ MonoBehaviour:
   unlockAfterLevel: 5
   furTint: {r: 0.96, g: 0.95, b: 0.93, a: 1}
   portrait: {fileID: 21300000, guid: a135913f9b3049918e2c246bb0cc51a1, type: 3}
-  idleSprite: {fileID: 21300000, guid: a135913f9b3049918e2c246bb0cc51a1, type: 3}
-  animator: {fileID: 0}
+  idleSprite: {fileID: 21300000, guid: e5f13763bf30a744ba5ce2422cc193f4, type: 3}
+  animator: {fileID: 9100000, guid: ae7c324b2a71d3d469aaf32fd9688dd3, type: 2}
   purrClip: {fileID: 0}
   meowClip: {fileID: 0}
 --- !u!114 &-242122376908666679
@@ -556,6 +556,11 @@ MonoBehaviour:
   forestMoundSprite: {fileID: 21300000, guid: 26d8dc4080fa4e79a802713d475a5f22, type: 3}
   forestPlatformSprite: {fileID: 21300000, guid: ef23408c89004cfc962bdb8726e1b12f, type: 3}
   finishPortalSprite: {fileID: 21300000, guid: 71fa809c24e6479cb4125806e44f450a, type: 3}
+  completionFaces:
+  - {fileID: 21300000, guid: 79d36b25a3e14f0f8f354bec59b7de9e, type: 3}
+  - {fileID: 21300000, guid: e1c801ce2e3e413ca4d9a42f2620a84d, type: 3}
+  - {fileID: 21300000, guid: 441e20930a67429184da7f6571b720c0, type: 3}
+  - {fileID: 21300000, guid: f19386a9111d450d97b824d27c676248, type: 3}
 --- !u!114 &809415211630189811
 MonoBehaviour:
   m_ObjectHideFlags: 0

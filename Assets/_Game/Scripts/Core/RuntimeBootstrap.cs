@@ -77,11 +77,15 @@ namespace PawPath.Core
                 FitSpriteToCamera(hubBg, cam);
             }
 
-            var furnitureSlots = new Transform[4];
+            var furnitureSlots = new Transform[8];
             furnitureSlots[(int)FurnitureSlotType.Rug] = CreateFurnitureSlot("RugSlot", hub.transform, new Vector3(0f, -2.05f, 0f));
             furnitureSlots[(int)FurnitureSlotType.Bed] = CreateFurnitureSlot("BedSlot", hub.transform, new Vector3(3.5f, -1.45f, 0f));
             furnitureSlots[(int)FurnitureSlotType.Bowl] = CreateFurnitureSlot("BowlSlot", hub.transform, new Vector3(-3.4f, -1.65f, 0f));
             furnitureSlots[(int)FurnitureSlotType.Wallpaper] = CreateFurnitureSlot("WallpaperSlot", hub.transform, new Vector3(0f, 0f, 0f));
+            furnitureSlots[(int)FurnitureSlotType.Poster] = CreateFurnitureSlot("PosterSlot", hub.transform, new Vector3(2.2f, 0.65f, 0f));
+            furnitureSlots[(int)FurnitureSlotType.Water] = CreateFurnitureSlot("WaterSlot", hub.transform, new Vector3(-1.8f, -1.65f, 0f));
+            furnitureSlots[(int)FurnitureSlotType.Sand] = CreateFurnitureSlot("SandSlot", hub.transform, new Vector3(1.2f, -1.72f, 0f));
+            furnitureSlots[(int)FurnitureSlotType.Tree] = CreateFurnitureSlot("TreeSlot", hub.transform, new Vector3(4.1f, -1.25f, 0f));
             var furnitureView = hub.AddComponent<HubFurnitureView>();
             furnitureView.Bind(furnitureSlots);
 
@@ -149,6 +153,13 @@ namespace PawPath.Core
             rb.freezeRotation = true;
             var circle = catGo.AddComponent<CircleCollider2D>();
             circle.radius = 0.28f;
+            // Eğimli tümseklerde collider sürtünmesi kedinin yatay hareketini
+            // sıfırlamasın; yürüyüş kontrolü hızı zaten CatController'da belirliyor.
+            circle.sharedMaterial = new PhysicsMaterial2D("CatMovementNoFriction")
+            {
+                friction = 0f,
+                bounciness = 0f
+            };
             var vis = new GameObject("Visual");
             vis.transform.SetParent(catGo.transform);
             vis.transform.localPosition = Vector3.zero;
@@ -171,7 +182,7 @@ namespace PawPath.Core
             var care = BuildCareUi(canvasGo.transform, needs);
             var hud = BuildHud(canvasGo.transform, care);
             var rescue = BuildRescue(canvasGo.transform);
-            var levelComplete = BuildLevelComplete(canvasGo.transform);
+            var levelComplete = BuildLevelComplete(canvasGo.transform, catalog);
             var shop = BuildShop(canvasGo.transform, catalog);
             shop.SetActive(false);
             rescue.SetActive(false);
@@ -418,28 +429,38 @@ namespace PawPath.Core
             return panel;
         }
 
-        static GameObject BuildLevelComplete(Transform canvas)
+        static GameObject BuildLevelComplete(Transform canvas, PawPathCatalog catalog)
         {
             var panel = Panel("LevelComplete", canvas, Vector2.zero, Vector2.one, new Color(0.98f, 0.93f, 0.84f, 0.98f));
             var content = SafeContent(panel.transform);
-            var success = Label(content, "Success", "BAŞARDIN!", new Vector2(0.5f, 0.70f), Vector2.zero);
+            var success = Label(content, "Success", "BAŞARDIN!", new Vector2(0.5f, 0.82f), Vector2.zero);
             success.fontSize = 54;
             success.fontStyle = FontStyle.Bold;
             success.color = new Color(0.54f, 0.30f, 0.22f);
 
-            var title = Label(content, "CompletedLevel", "Bölüm Tamamlandı!", new Vector2(0.5f, 0.58f), Vector2.zero);
+            var title = Label(content, "CompletedLevel", "Bölüm Tamamlandı!", new Vector2(0.5f, 0.72f), Vector2.zero);
             title.fontSize = 36;
-            var reward = Label(content, "Reward", "+10 Sevgi", new Vector2(0.5f, 0.48f), Vector2.zero);
+            var faceGo = new GameObject("MitziCelebration", typeof(RectTransform), typeof(Image));
+            faceGo.transform.SetParent(content, false);
+            var faceRt = faceGo.GetComponent<RectTransform>();
+            faceRt.anchorMin = faceRt.anchorMax = new Vector2(0.5f, 0.51f);
+            faceRt.sizeDelta = new Vector2(380f, 310f);
+            faceRt.anchoredPosition = Vector2.zero;
+            var faceImage = faceGo.GetComponent<Image>();
+            faceImage.preserveAspect = true;
+            faceImage.raycastTarget = false;
+
+            var reward = Label(content, "Reward", "+10 Sevgi", new Vector2(0.5f, 0.31f), Vector2.zero);
             reward.fontSize = 30;
             reward.color = new Color(0.78f, 0.20f, 0.38f);
 
-            var next = Button(content, "NextLevel", "Sıradaki Bölüm", new Vector2(0.5f, 0.32f), Vector2.zero, new Color(0.93f, 0.72f, 0.76f));
+            var next = Button(content, "NextLevel", "Sıradaki Bölüm", new Vector2(0.5f, 0.19f), Vector2.zero, new Color(0.93f, 0.72f, 0.76f));
             next.GetComponent<RectTransform>().sizeDelta = new Vector2(440f, 78f);
-            var home = Button(content, "CompletionHome", "Kedi Evine Dön", new Vector2(0.5f, 0.22f), Vector2.zero, new Color(0.78f, 0.84f, 0.72f));
+            var home = Button(content, "CompletionHome", "Kedi Evine Dön", new Vector2(0.5f, 0.09f), Vector2.zero, new Color(0.78f, 0.84f, 0.72f));
             home.GetComponent<RectTransform>().sizeDelta = new Vector2(440f, 78f);
 
             var screen = panel.AddComponent<LevelCompleteUI>();
-            screen.Bind(title, reward, next, home);
+            screen.Bind(title, reward, next, home, faceImage, catalog != null ? catalog.completionFaces : null);
             return panel;
         }
 
@@ -458,12 +479,29 @@ namespace PawPath.Core
             }
             var content = SafeContent(panel.transform);
             Label(content, "Title", GameText.Shop, new Vector2(0.5f, 0.92f), Vector2.zero).fontSize = 40;
+            var viewport = new GameObject("ShopViewport", typeof(RectTransform), typeof(Image), typeof(Mask), typeof(ScrollRect));
+            viewport.transform.SetParent(content, false);
+            var viewportRt = viewport.GetComponent<RectTransform>();
+            Stretch(viewportRt);
+            viewportRt.offsetMin = new Vector2(60, 160);
+            viewportRt.offsetMax = new Vector2(-60, -160);
+            viewport.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.01f);
+            viewport.GetComponent<Mask>().showMaskGraphic = false;
+
             var list = new GameObject("List", typeof(RectTransform));
-            list.transform.SetParent(content, false);
+            list.transform.SetParent(viewport.transform, false);
             var rt = list.GetComponent<RectTransform>();
-            Stretch(rt);
-            rt.offsetMin = new Vector2(60, 160);
-            rt.offsetMax = new Vector2(-60, -160);
+            rt.anchorMin = new Vector2(0f, 1f);
+            rt.anchorMax = new Vector2(1f, 1f);
+            rt.pivot = new Vector2(0.5f, 1f);
+            rt.anchoredPosition = Vector2.zero;
+            rt.sizeDelta = Vector2.zero;
+            var scroll = viewport.GetComponent<ScrollRect>();
+            scroll.content = rt;
+            scroll.viewport = viewportRt;
+            scroll.horizontal = false;
+            scroll.vertical = true;
+            scroll.movementType = ScrollRect.MovementType.Clamped;
             var close = Button(content, "Close", GameText.House, new Vector2(0.5f, 0.08f), Vector2.zero, new Color(0.85f, 0.78f, 0.90f));
             var shop = panel.AddComponent<ShopScreen>();
             shop.Bind(list.transform, close);
