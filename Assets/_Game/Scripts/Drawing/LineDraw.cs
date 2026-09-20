@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using PawPath.Audio;
 using PawPath.Core;
+using PawPath.Gameplay;
 
 namespace PawPath.Drawing
 {
@@ -30,6 +31,8 @@ namespace PawPath.Drawing
         readonly List<GameObject> strokes = new List<GameObject>();
         readonly List<Vector2> currentPoints = new List<Vector2>();
         LineRenderer currentLine;
+        LineRenderer currentShadow;
+        LineRenderer currentHighlight;
         EdgeCollider2D currentCollider;
         bool drawing;
         float inkLeft;
@@ -54,7 +57,7 @@ namespace PawPath.Drawing
             ClearStrokes();
             InkMax = budget;
             inkLeft = budget;
-            CanDraw = true;
+            CanDraw = GameplayMode.IsDrawing;
             HasDrawnPath = false;
         }
 
@@ -71,7 +74,7 @@ namespace PawPath.Drawing
 
         void Update()
         {
-            if (!CanDraw || GameFlow.Instance != null && GameFlow.Instance.InHub)
+            if (!GameplayMode.IsDrawing || !CanDraw || GameFlow.Instance != null && GameFlow.Instance.InHub)
                 return;
             if (IsPointerOverUi())
                 return;
@@ -127,6 +130,12 @@ namespace PawPath.Drawing
             }
             currentLine.startColor = lineColor;
             currentLine.endColor = lineColor;
+            ApplyTaper(currentLine, lineWidth);
+
+            currentShadow = CreateVisualLayer(go.transform, "StrokeShadow", lineWidth * 1.34f,
+                new Color(0.05f, 0.04f, 0.04f, 0.38f), lineSortingOrder - 1);
+            currentHighlight = CreateVisualLayer(go.transform, "StrokeHighlight", lineWidth * 0.30f,
+                new Color(1f, 1f, 1f, 0.30f), lineSortingOrder + 1);
 
             currentCollider = go.AddComponent<EdgeCollider2D>();
             currentCollider.edgeRadius = lineWidth * 0.45f;
@@ -159,18 +168,21 @@ namespace PawPath.Drawing
             currentPoints.Add(next);
             HasDrawnPath = true;
 
-            currentLine.positionCount = currentPoints.Count;
-            for (int i = 0; i < currentPoints.Count; i++)
-                currentLine.SetPosition(i, currentPoints[i]);
+            var smooth = SmoothPoints(currentPoints);
+            SetLinePoints(currentShadow, smooth);
+            SetLinePoints(currentLine, smooth);
+            SetLinePoints(currentHighlight, smooth);
 
             if (currentPoints.Count >= 2)
-                currentCollider.points = currentPoints.ToArray();
+                currentCollider.points = smooth.ToArray();
         }
 
         void EndStroke()
         {
             drawing = false;
             currentLine = null;
+            currentShadow = null;
+            currentHighlight = null;
             currentCollider = null;
             currentPoints.Clear();
         }
@@ -232,6 +244,59 @@ namespace PawPath.Drawing
             lineMaterial = material;
             lineColor = color;
             pathPhysics = physics;
+        }
+
+        LineRenderer CreateVisualLayer(Transform parent, string name, float width, Color color, int sorting)
+        {
+            var layer = new GameObject(name).AddComponent<LineRenderer>();
+            layer.transform.SetParent(parent, false);
+            layer.useWorldSpace = true;
+            layer.positionCount = 1;
+            layer.SetPosition(0, currentPoints[0]);
+            layer.numCapVertices = 8;
+            layer.numCornerVertices = 8;
+            layer.textureMode = LineTextureMode.Tile;
+            layer.alignment = LineAlignment.TransformZ;
+            layer.sortingOrder = sorting;
+            layer.material = new Material(Shader.Find("Sprites/Default"));
+            layer.startColor = layer.endColor = color;
+            ApplyTaper(layer, width);
+            return layer;
+        }
+
+        static void ApplyTaper(LineRenderer line, float width)
+        {
+            line.widthMultiplier = width;
+            line.widthCurve = new AnimationCurve(
+                new Keyframe(0f, 0.58f), new Keyframe(0.08f, 1f),
+                new Keyframe(0.92f, 1f), new Keyframe(1f, 0.58f));
+        }
+
+        static void SetLinePoints(LineRenderer line, List<Vector2> points)
+        {
+            if (line == null)
+                return;
+            line.positionCount = points.Count;
+            for (int i = 0; i < points.Count; i++)
+                line.SetPosition(i, points[i]);
+        }
+
+        static List<Vector2> SmoothPoints(List<Vector2> source)
+        {
+            if (source.Count < 3)
+                return new List<Vector2>(source);
+
+            var result = new List<Vector2>(source.Count * 2);
+            result.Add(source[0]);
+            for (int i = 0; i < source.Count - 1; i++)
+            {
+                Vector2 a = source[i];
+                Vector2 b = source[i + 1];
+                result.Add(Vector2.Lerp(a, b, 0.25f));
+                result.Add(Vector2.Lerp(a, b, 0.75f));
+            }
+            result.Add(source[source.Count - 1]);
+            return result;
         }
 
         public void SetBrushType(PathSurfaceType type)

@@ -555,6 +555,7 @@ MonoBehaviour:
   forestGapSprite: {fileID: 21300000, guid: 72f430151bc44e62b5ae3a3a9aba9487, type: 3}
   forestMoundSprite: {fileID: 21300000, guid: 26d8dc4080fa4e79a802713d475a5f22, type: 3}
   forestPlatformSprite: {fileID: 21300000, guid: ef23408c89004cfc962bdb8726e1b12f, type: 3}
+  finishPortalSprite: {fileID: 21300000, guid: 71fa809c24e6479cb4125806e44f450a, type: 3}
 --- !u!114 &809415211630189811
 MonoBehaviour:
   m_ObjectHideFlags: 0

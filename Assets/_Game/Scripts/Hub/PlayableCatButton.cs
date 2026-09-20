@@ -14,6 +14,7 @@ namespace PawPath.Hub
         bool down;
 
         public void Bind(CatDefinition definition) => cat = definition;
+        public CatDefinition Cat => cat;
 
         void Update()
         {
@@ -43,6 +44,9 @@ namespace PawPath.Hub
             SaveService.Data.selectedCatId = cat.id;
             SaveService.Persist();
             GameEvents.PlayableCatChanged(cat);
+            var homeBehaviour = GetComponent<CatHomeBehaviour>();
+            if (homeBehaviour != null && CatHouseInteraction.Instance != null)
+                CatHouseInteraction.Instance.Select(homeBehaviour);
         }
 
         bool HitThis()

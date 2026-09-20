@@ -27,6 +27,7 @@ namespace PawPath.Data
         public Sprite forestGapSprite;
         public Sprite forestMoundSprite;
         public Sprite forestPlatformSprite;
+        public Sprite finishPortalSprite;
 
         public CatDefinition GetCat(string id)
         {

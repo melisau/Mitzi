@@ -10,7 +10,8 @@ namespace PawPath.Levels
     public class LevelCourseBuilder : MonoBehaviour
     {
         const float RoadCenterY = -1.85f;
-        const float RoadHeight = 0.70f;
+        const float RoadHeight = 0.96f;
+        const float SecondSectionOffset = 13.0f;
         static readonly Color RoadColor = new Color(0.72f, 0.54f, 0.38f, 1f);
         static readonly Color ObstacleColor = new Color(0.61f, 0.42f, 0.29f, 1f);
 
@@ -19,8 +20,9 @@ namespace PawPath.Levels
         Sprite moundSprite;
         Sprite roadSprite;
 
-        public float CatSpawnY => RoadCenterY + RoadHeight * 0.5f + 0.32f;
+        public float CatSpawnY => RoadCenterY + RoadHeight * 0.5f + 0.40f;
         public float GoalY => CatSpawnY + 0.15f;
+        public float GoalX => 19.35f;
 
         public void BindVisuals(Sprite gap, Sprite mound, Sprite road)
         {
@@ -36,46 +38,56 @@ namespace PawPath.Levels
             generatedRoot.SetParent(transform, false);
 
             int pattern = Mathf.Abs(levelNumber - 1) % 5;
+            // Kameranın ilk ve son ekranında kaldırımın kadraj dışında da devam
+            // etmesini sağlar; yalnızca tasarlanmış çukurlar açık kalır.
+            Road(-8.25f, 2.2f);
+            BuildPattern(pattern, 0f);
+            BuildPattern((pattern + 2) % 5, SecondSectionOffset);
+            Road(21.55f, 2.9f);
+        }
+
+        void BuildPattern(int pattern, float offsetX)
+        {
             switch (pattern)
             {
                 case 0:
                     // İlk bölüm: tek, kolay bir çukur.
-                    Road(-5.15f, 4.7f);
-                    Road(2.95f, 9.1f);
-                    Gap(-2.2f, 1.2f);
+                    Road(-5.15f + offsetX, 4.7f);
+                    Road(2.95f + offsetX, 9.1f);
+                    Gap(-2.2f + offsetX, 1.35f);
                     break;
                 case 1:
                     // İki kısa çukur.
-                    Road(-5.45f, 4.1f);
-                    Road(-0.15f, 4.1f);
-                    Road(5.25f, 4.5f);
-                    Gap(-2.8f, 1.2f);
-                    Gap(2.45f, 1.1f);
+                    Road(-5.45f + offsetX, 4.1f);
+                    Road(-0.15f + offsetX, 4.1f);
+                    Road(5.25f + offsetX, 4.5f);
+                    Gap(-2.8f + offsetX, 1.35f);
+                    Gap(2.45f + offsetX, 1.25f);
                     break;
                 case 2:
                     // Bir çukur ve üzerinden çizilecek yüksek bir tümsek.
-                    Road(-5.25f, 4.5f);
-                    Road(2.8f, 9.4f);
-                    Gap(-2.45f, 1.1f);
-                    Obstacle(2.0f, 0.9f, 0.9f);
+                    Road(-5.25f + offsetX, 4.5f);
+                    Road(2.8f + offsetX, 9.4f);
+                    Gap(-2.45f + offsetX, 1.25f);
+                    Obstacle(2.0f + offsetX, 1.08f, 1.05f);
                     break;
                 case 3:
                     // Tümsekten sonra ikinci bir kopuk yol.
-                    Road(-5.45f, 4.1f);
-                    Road(-0.25f, 4.1f);
-                    Road(5.25f, 4.5f);
-                    Gap(-2.8f, 1.2f);
-                    Gap(2.45f, 1.1f);
-                    Obstacle(-0.7f, 0.85f, 0.8f);
+                    Road(-5.45f + offsetX, 4.1f);
+                    Road(-0.25f + offsetX, 4.1f);
+                    Road(5.25f + offsetX, 4.5f);
+                    Gap(-2.8f + offsetX, 1.35f);
+                    Gap(2.45f + offsetX, 1.25f);
+                    Obstacle(-0.7f + offsetX, 1.05f, 0.95f);
                     break;
                 default:
                     // Sezon sonu: iki çukur ve daha geniş bir tümsek.
-                    Road(-5.55f, 3.9f);
-                    Road(-0.35f, 4.1f);
-                    Road(5.25f, 4.5f);
-                    Gap(-2.95f, 1.1f);
-                    Gap(2.5f, 1.0f);
-                    Obstacle(0.15f, 1.15f, 1.0f);
+                    Road(-5.55f + offsetX, 3.9f);
+                    Road(-0.35f + offsetX, 4.1f);
+                    Road(5.25f + offsetX, 4.5f);
+                    Gap(-2.95f + offsetX, 1.25f);
+                    Gap(2.5f + offsetX, 1.18f);
+                    Obstacle(0.15f + offsetX, 1.32f, 1.18f);
                     break;
             }
         }
@@ -108,21 +120,41 @@ namespace PawPath.Levels
                 // Görsel dosyasının üstünde/altında şeffaf pay var. X ve Y'yi
                 // ayrı ölçekleyerek taş kesitini kalın, yürüme yüzeyini düz tutuyoruz.
                 Decoration("RoadVisual", roadSprite, new Vector2(x, RoadCenterY - 0.02f),
-                    tileWidth + 0.12f, 1, 2.85f);
+                    tileWidth + 0.12f, 1, 3.35f);
             }
         }
 
         void Obstacle(float centerX, float width, float height)
         {
-            float obstacleWidth = width * 1.45f;
-            float obstacleHeight = height * 1.45f;
+            float obstacleWidth = width * 1.62f;
+            float obstacleHeight = height * 1.62f;
+            float visualWidth = obstacleWidth * 1.95f;
+            float colliderHeight = obstacleHeight;
+            if (moundSprite != null && moundSprite.bounds.size.x > 0f)
+            {
+                float visibleRatioHeight = visualWidth * moundSprite.bounds.size.y / moundSprite.bounds.size.x;
+                colliderHeight = Mathf.Min(obstacleHeight, visibleRatioHeight * 0.82f);
+            }
             float roadTop = RoadCenterY + RoadHeight * 0.5f;
-            float centerY = roadTop + obstacleHeight * 0.5f;
+            float centerY = roadTop + colliderHeight * 0.5f;
             var go = new GameObject("Hump");
             go.transform.SetParent(generatedRoot, false);
             go.transform.position = new Vector2(centerX, centerY);
-            var collider = go.AddComponent<BoxCollider2D>();
-            collider.size = new Vector2(obstacleWidth, obstacleHeight);
+            var collider = go.AddComponent<PolygonCollider2D>();
+            float halfW = obstacleWidth * 0.5f;
+            float halfH = colliderHeight * 0.5f;
+            // Dikdörtgen collider kediyi görselin boş köşelerinde havada tutuyordu.
+            // Bu çokgen tümseğin eğimli siluetini yaklaşık olarak takip eder.
+            collider.points = new[]
+            {
+                new Vector2(-halfW, -halfH),
+                new Vector2(-halfW * 0.82f, -halfH * 0.58f),
+                new Vector2(-halfW * 0.42f, halfH * 0.30f),
+                new Vector2(0f, halfH),
+                new Vector2(halfW * 0.42f, halfH * 0.30f),
+                new Vector2(halfW * 0.82f, -halfH * 0.58f),
+                new Vector2(halfW, -halfH)
+            };
 
             if (moundSprite != null)
             {
@@ -131,7 +163,7 @@ namespace PawPath.Levels
                 // görsele daha fazla bindirme uygula.
                 float visualOverlap = moundSprite.name.Contains("forest") ? 0.52f : 0.04f;
                 DecorationBottomAligned("HumpVisual", moundSprite, centerX, roadTop - visualOverlap,
-                    obstacleWidth * 1.82f, 2);
+                    visualWidth, 2);
             }
             else
             {
@@ -139,8 +171,8 @@ namespace PawPath.Levels
                 renderer.sprite = FallbackSprite.WhiteSquare();
                 renderer.color = ObstacleColor;
                 renderer.sortingOrder = 2;
-                go.transform.localScale = new Vector3(obstacleWidth, obstacleHeight, 1f);
-                collider.size = Vector2.one;
+                renderer.drawMode = SpriteDrawMode.Sliced;
+                renderer.size = new Vector2(obstacleWidth, obstacleHeight);
             }
         }
 
@@ -150,7 +182,7 @@ namespace PawPath.Levels
                 // Üst kırık kenarlar yol hizasında kalır; yalnızca aşağıdaki
                 // toprak kesiti büyütülerek çukur daha derin görünür.
                 Decoration("GapVisual", gapSprite, new Vector2(centerX, RoadCenterY - 0.28f),
-                    width + 1.55f, 0, 2.10f);
+                    width + 1.85f, 0, 2.55f);
         }
 
         void Decoration(string objectName, Sprite sprite, Vector2 position, float targetWidth,

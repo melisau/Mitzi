@@ -47,6 +47,9 @@ namespace PawPath.Core
         public void EnterHub()
         {
             InHub = true;
+            var cameraFollow = Camera.main != null ? Camera.main.GetComponent<SideScrollCamera>() : null;
+            if (cameraFollow != null)
+                cameraFollow.ResetView();
             if (LineDraw.Instance != null)
             {
                 LineDraw.Instance.CanDraw = false;

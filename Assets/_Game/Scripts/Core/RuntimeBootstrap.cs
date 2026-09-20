@@ -12,6 +12,7 @@ using PawPath.Levels;
 using PawPath.Localization;
 using PawPath.Season;
 using PawPath.UI;
+using PawPath.Gameplay;
 
 namespace PawPath.Core
 {
@@ -45,7 +46,8 @@ namespace PawPath.Core
             if (cam == null)
                 cam = camGo.AddComponent<Camera>();
             cam.orthographic = true;
-            cam.orthographicSize = 5f;
+            // Mobil yatay ekranda kedi ve engeller daha rahat okunabilsin.
+            cam.orthographicSize = 4.45f;
             cam.backgroundColor = new Color(0.93f, 0.88f, 0.84f);
             camGo.tag = "MainCamera";
             camGo.transform.position = new Vector3(0f, 0f, -10f);
@@ -64,6 +66,7 @@ namespace PawPath.Core
             var hub = new GameObject("Hub");
             hub.transform.SetParent(root.transform);
             var house = hub.AddComponent<CatHouseManager>();
+            hub.AddComponent<CatHouseInteraction>();
 
             var hubBg = CreateQuad("HubRoom", hub.transform, new Vector3(0f, 0.2f, 1f), new Vector3(14f, 8f, 1f), new Color(0.90f, 0.82f, 0.74f));
             hubBg.sortingOrder = -2;
@@ -134,6 +137,7 @@ namespace PawPath.Core
             goalCol.isTrigger = true;
             goalCol.size = new Vector2(1.3f, 1.6f);
             goal.AddComponent<GoalTrigger>();
+            BuildFinishGate(goal.transform, catalog.finishPortalSprite);
 
             levels.Bind(spawn.transform, goal.transform, season);
             levels.BindCourse(course);
@@ -188,6 +192,26 @@ namespace PawPath.Core
             return flow;
         }
 
+        static void BuildFinishGate(Transform goal, Sprite portalSprite)
+        {
+            var portal = new GameObject("FinishPortal");
+            portal.transform.SetParent(goal, false);
+            portal.transform.localPosition = new Vector3(0f, 0.72f, 0f);
+            var renderer = portal.AddComponent<SpriteRenderer>();
+            renderer.sprite = portalSprite != null ? portalSprite : FallbackSprite.WhiteCircle();
+            renderer.color = portalSprite != null ? Color.white : new Color(1f, 0.82f, 0.32f, 0.75f);
+            renderer.sortingOrder = 8;
+            if (renderer.sprite != null && renderer.sprite.bounds.size.y > 0f)
+            {
+                float scale = 3.45f / renderer.sprite.bounds.size.y;
+                portal.transform.localScale = new Vector3(scale, scale, 1f);
+                // Goal merkezi kedi yüksekliğindedir; portalın sprite alt sınırını
+                // kaldırım yüzeyine biraz gömerek havada kalmasını önle.
+                float localY = -0.66f - renderer.sprite.bounds.min.y * scale;
+                portal.transform.localPosition = new Vector3(0f, localY, 0f);
+            }
+        }
+
         static SpriteRenderer CreateQuad(string name, Transform parent, Vector3 pos, Vector3 scale, Color color)
         {
             var go = new GameObject(name);
@@ -225,12 +249,17 @@ namespace PawPath.Core
             var hud = Panel("HUD", canvas, new Vector2(0, 0), new Vector2(0, 0), new Color(1, 1, 1, 0));
             hud.AddComponent<HudView>();
             var content = SafeContent(hud.transform);
-            var love = Label(content, "Love", GameText.Love + ": 0", new Vector2(0.5f, 1f), new Vector2(0, -80));
+            var love = Label(content, "Love", GameText.Love + ": 0", new Vector2(1f, 1f), new Vector2(-350f, -55f));
             var level = Label(content, "Level", GameText.LevelLabel(1), new Vector2(0.5f, 1f), new Vector2(0, -140));
-            var ink = Label(content, "Ink", "", new Vector2(0.5f, 1f), new Vector2(0, -200));
+            var ink = Label(content, "Ink", "", new Vector2(1f, 1f), new Vector2(-585f, -55f));
+            love.fontSize = 21;
+            ink.fontSize = 21;
+            love.rectTransform.sizeDelta = new Vector2(220f, 52f);
+            ink.rectTransform.sizeDelta = new Vector2(220f, 52f);
             var selected = Label(content, "Selected", GameText.PlayingAs + ": Mitzi", new Vector2(0.5f, 1f), new Vector2(0, -260));
-            var play = Button(content, "PlayButton", GameText.Play, new Vector2(0.5f, 0f), new Vector2(0, 180), new Color(0.93f, 0.72f, 0.76f));
-            var shop = Button(content, "ShopButton", GameText.Shop, new Vector2(0.5f, 0f), new Vector2(0, 90), new Color(0.78f, 0.84f, 0.72f));
+            var play = Button(content, "PlayButton", "Çizerek Oyna", new Vector2(0.5f, 0f), new Vector2(0, 225), new Color(0.93f, 0.72f, 0.76f));
+            var directPlay = Button(content, "DirectPlayButton", "Tuşlarla Oyna", new Vector2(0.5f, 0f), new Vector2(0, 145), new Color(0.72f, 0.82f, 0.94f));
+            var shop = Button(content, "ShopButton", GameText.Shop, new Vector2(0.5f, 0f), new Vector2(0, 65), new Color(0.78f, 0.84f, 0.72f));
             var restart = Button(content, "RestartButton", "Yeniden", new Vector2(1f, 1f), new Vector2(-125f, -55f), new Color(0.93f, 0.72f, 0.76f));
             restart.GetComponent<RectTransform>().sizeDelta = new Vector2(190f, 58f);
             var home = Button(content, "LevelHomeButton", "Eve Dön", new Vector2(0f, 1f), new Vector2(125f, -55f), new Color(0.78f, 0.84f, 0.72f));
@@ -241,8 +270,37 @@ namespace PawPath.Core
             brushes.SetActive(false);
             var tutorial = BuildBrushTutorial(content);
             tutorial.SetActive(false);
-            hud.GetComponent<HudView>().Bind(love, level, ink, selected, play, shop, restart, home, careUi, brushes, tutorial);
+            var controls = BuildMobileControls(content);
+            controls.SetActive(false);
+            hud.GetComponent<HudView>().Bind(love, level, ink, selected, play, shop, directPlay,
+                restart, home, careUi, brushes, tutorial, controls);
             return hud;
+        }
+
+        static GameObject BuildMobileControls(Transform parent)
+        {
+            var controls = new GameObject("MobileControls", typeof(RectTransform));
+            controls.transform.SetParent(parent, false);
+            Stretch(controls.GetComponent<RectTransform>());
+            AddControlButton(controls.transform, "Left", "◀", new Vector2(0f, 0f), new Vector2(100f, 105f), MobileAction.Left);
+            AddControlButton(controls.transform, "Right", "▶", new Vector2(0f, 0f), new Vector2(245f, 105f), MobileAction.Right);
+            AddControlButton(controls.transform, "Jump", "ZIPLA", new Vector2(1f, 0f), new Vector2(-250f, 105f), MobileAction.Jump);
+            AddControlButton(controls.transform, "Crouch", "EĞİL", new Vector2(1f, 0f), new Vector2(-105f, 105f), MobileAction.Crouch);
+            return controls;
+        }
+
+        static void AddControlButton(Transform parent, string name, string label, Vector2 anchor,
+            Vector2 position, MobileAction action)
+        {
+            var button = Button(parent, name, label, anchor, position, new Color(0.18f, 0.20f, 0.25f, 0.82f));
+            button.GetComponent<RectTransform>().sizeDelta = new Vector2(125f, 92f);
+            button.gameObject.AddComponent<MobileControlButton>().Configure(action);
+            var text = button.GetComponentInChildren<Text>();
+            if (text != null)
+            {
+                text.fontSize = 22;
+                text.color = Color.white;
+            }
         }
 
         static CatNeedsUI BuildCareUi(Transform canvas, CatNeedsSystem needs)
