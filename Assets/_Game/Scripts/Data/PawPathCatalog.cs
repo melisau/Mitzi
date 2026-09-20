@@ -28,6 +28,8 @@ namespace PawPath.Data
         public Sprite forestMoundSprite;
         public Sprite forestPlatformSprite;
         public Sprite finishPortalSprite;
+        [Header("Başarı Ekranı")]
+        public Sprite[] completionFaces;
 
         public CatDefinition GetCat(string id)
         {

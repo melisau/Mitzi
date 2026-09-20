@@ -70,11 +70,20 @@ namespace PawPath.UI
             grid.cellSize = new Vector2(280, 360);
             grid.spacing = new Vector2(28, 24);
 
+            var fitter = listRoot.GetComponent<ContentSizeFitter>();
+            if (fitter == null)
+                fitter = listRoot.gameObject.AddComponent<ContentSizeFitter>();
+            fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
             // ListRoot'u biraz aşağı kaydırarak tepeyle çakışmayı önleyelim
             var listRt = listRoot.GetComponent<RectTransform>();
             if (listRt != null)
             {
-                listRt.anchoredPosition = new Vector2(0, -30);
+                listRt.anchorMin = new Vector2(0f, 1f);
+                listRt.anchorMax = new Vector2(1f, 1f);
+                listRt.pivot = new Vector2(0.5f, 1f);
+                listRt.anchoredPosition = Vector2.zero;
             }
 
             // Dükkan Ürünlerini Listele

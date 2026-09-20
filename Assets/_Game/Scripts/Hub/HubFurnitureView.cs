@@ -16,6 +16,14 @@ namespace PawPath.Hub
             ? slots[(int)PawPath.Content.FurnitureSlotType.Bowl].position
             : new Vector3(-3.4f, -1.65f, 0f);
 
+        public Vector3 WaterPosition => slots != null && slots.Length > (int)PawPath.Content.FurnitureSlotType.Water &&
+            slots[(int)PawPath.Content.FurnitureSlotType.Water] != null
+            ? slots[(int)PawPath.Content.FurnitureSlotType.Water].position
+            : new Vector3(-1.8f, -1.65f, 0f);
+
+        public bool HasPlacedWater => SaveService.Data != null &&
+            SaveService.Data.placedItemIds != null && SaveService.Data.placedItemIds.Contains("cat_water");
+
         private void OnEnable()
         {
             GameEvents.OnShopChanged += Refresh;
@@ -74,7 +82,9 @@ namespace PawPath.Hub
 
                     sr.sprite = item.placedSprite != null ? item.placedSprite : FallbackSprite.WhiteCircle();
                     sr.color = Color.white;
-                    sr.sortingOrder = item.slotType == PawPath.Content.FurnitureSlotType.Rug ? 2 : 4;
+                    sr.sortingOrder = item.slotType == PawPath.Content.FurnitureSlotType.Rug ||
+                        item.slotType == PawPath.Content.FurnitureSlotType.Sand ? 2 :
+                        item.slotType == PawPath.Content.FurnitureSlotType.Poster ? 3 : 4;
                     FitItem(sr, item.slotType);
                     var drag = targetSlot.GetComponent<DraggableFurniture>();
                     if (drag == null)
@@ -93,6 +103,10 @@ namespace PawPath.Hub
                 PawPath.Content.FurnitureSlotType.Rug => 1.45f,
                 PawPath.Content.FurnitureSlotType.Bed => 2.1f,
                 PawPath.Content.FurnitureSlotType.Bowl => 1.0f,
+                PawPath.Content.FurnitureSlotType.Water => 1.0f,
+                PawPath.Content.FurnitureSlotType.Sand => 1.15f,
+                PawPath.Content.FurnitureSlotType.Poster => 1.9f,
+                PawPath.Content.FurnitureSlotType.Tree => 3.5f,
                 _ => 5f
             };
             float scale = targetHeight / renderer.sprite.bounds.size.y;

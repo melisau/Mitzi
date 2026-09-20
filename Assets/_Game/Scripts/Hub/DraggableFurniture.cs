@@ -58,8 +58,7 @@ namespace PawPath.Hub
             if (dragging && PointerHeld())
             {
                 Vector2 next = world + grabOffset;
-                float minY = slotType == FurnitureSlotType.Rug ? -2.35f : -2.05f;
-                float maxY = slotType == FurnitureSlotType.Rug ? -1.55f : -0.75f;
+                GetVerticalBounds(out float minY, out float maxY);
                 next.x = Mathf.Clamp(next.x, -5.1f, 5.1f);
                 next.y = Mathf.Clamp(next.y, minY, maxY);
                 transform.position = new Vector3(next.x, next.y, transform.position.z);
@@ -71,6 +70,37 @@ namespace PawPath.Hub
                 PlayerPrefs.SetFloat(KeyX, transform.position.x);
                 PlayerPrefs.SetFloat(KeyY, transform.position.y);
                 PlayerPrefs.Save();
+            }
+        }
+
+        void GetVerticalBounds(out float minY, out float maxY)
+        {
+            switch (slotType)
+            {
+                case FurnitureSlotType.Poster:
+                    // Poster yalnızca duvarın üst bölümüne asılabilir.
+                    minY = 0.05f;
+                    maxY = 1.55f;
+                    break;
+                case FurnitureSlotType.Rug:
+                case FurnitureSlotType.Sand:
+                    minY = -2.35f;
+                    maxY = -1.55f;
+                    break;
+                case FurnitureSlotType.Bowl:
+                case FurnitureSlotType.Water:
+                    minY = -2.10f;
+                    maxY = -1.25f;
+                    break;
+                case FurnitureSlotType.Bed:
+                case FurnitureSlotType.Tree:
+                    minY = -2.05f;
+                    maxY = -0.85f;
+                    break;
+                default:
+                    minY = -2.05f;
+                    maxY = -0.75f;
+                    break;
             }
         }
 
