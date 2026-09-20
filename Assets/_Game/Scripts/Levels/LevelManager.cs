@@ -34,6 +34,7 @@ namespace PawPath.Levels
         {
             completionHandled = false;
             Current = ResolveLevel(DisplayLevel);
+            ApplyLevelTheme(Current.levelNumber);
             if (courseBuilder != null)
                 courseBuilder.Build(Current.levelNumber);
             ApplyLayout(Current);
@@ -60,6 +61,30 @@ namespace PawPath.Levels
                 CozyAudioManager.Instance.PlaySeason(Current.season);
 
             GameEvents.LevelStarted();
+        }
+
+        void ApplyLevelTheme(int levelNumber)
+        {
+            var catalog = GameFlow.Instance != null ? GameFlow.Instance.Catalog : null;
+            if (catalog == null)
+                return;
+
+            bool forestTheme = ((Mathf.Max(1, levelNumber) - 1) / 5) % 2 == 1;
+            if (courseBuilder != null)
+            {
+                courseBuilder.BindVisuals(
+                    forestTheme && catalog.forestGapSprite != null ? catalog.forestGapSprite : catalog.roadGapSprite,
+                    forestTheme && catalog.forestMoundSprite != null ? catalog.forestMoundSprite : catalog.moundSprite,
+                    forestTheme && catalog.forestPlatformSprite != null ? catalog.forestPlatformSprite : catalog.roadPlatformSprite);
+            }
+
+            if (seasonBackdrop != null)
+            {
+                var background = forestTheme && catalog.forestBackground != null
+                    ? catalog.forestBackground
+                    : catalog.gameplayBackground;
+                seasonBackdrop.SetBackground(background);
+            }
         }
 
         public void CompleteLevel()
