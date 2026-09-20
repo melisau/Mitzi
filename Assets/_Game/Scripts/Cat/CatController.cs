@@ -50,6 +50,7 @@ namespace PawPath.Cat
 
         static readonly int WalkState = Animator.StringToHash("Walk");
         static readonly int JumpState = Animator.StringToHash("Jump");
+        static readonly int CrouchState = Animator.StringToHash("Crouch");
 
         public bool IsBusy => busy;
         public CatDefinition Definition => definition;
@@ -95,8 +96,10 @@ namespace PawPath.Cat
                 return;
 
             float scale = visualHeight / sprite.sprite.bounds.size.y;
-            visual.localScale = new Vector3(scale * facing, scale * (crouching ? 0.58f : 1f), 1f);
-            visual.localPosition = new Vector3(0f, crouching ? -visualHeight * 0.21f : 0f, 0f);
+            // Eğilme için ayrı bir poz kullanılıyor; görseli dikey sıkıştırmak
+            // kediyi ezilmiş gösterdiği için tüm pozlar orantılı ölçeklenir.
+            visual.localScale = new Vector3(scale * facing, scale, 1f);
+            visual.localPosition = new Vector3(0f, crouching ? -0.08f : 0f, 0f);
         }
 
         void Update()
@@ -208,6 +211,20 @@ namespace PawPath.Cat
             if (shouldCrouch != crouching)
             {
                 crouching = shouldCrouch;
+                if (animator != null)
+                {
+                    if (crouching && grounded && animator.HasState(0, CrouchState))
+                    {
+                        animator.Play(CrouchState, 0, 0f);
+                        animator.speed = 0f;
+                        animator.Update(0f);
+                    }
+                    else if (!jumpAnimationPlaying && animator.HasState(0, WalkState))
+                    {
+                        animator.Play(WalkState, 0, 0f);
+                        animator.Update(0f);
+                    }
+                }
                 FitVisualToHeight();
                 var circle = GetComponent<CircleCollider2D>();
                 if (circle != null)
@@ -218,9 +235,11 @@ namespace PawPath.Cat
             }
 
             if (animator != null)
-                animator.speed = !grounded && jumpAnimationPlaying
-                    ? 1f
-                    : Mathf.Abs(horizontal) > 0.01f ? walkAnimationSpeed : 0f;
+                animator.speed = crouching && grounded
+                    ? 0f
+                    : !grounded && jumpAnimationPlaying
+                        ? 1f
+                        : Mathf.Abs(horizontal) > 0.01f ? walkAnimationSpeed : 0f;
             if (visual != null)
             {
                 var scale = visual.localScale;
