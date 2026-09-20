@@ -286,6 +286,34 @@ namespace PawPath.Core
             StyleWarmGameButton(flipFurniture, new Vector2(64f, 52f), 26);
             flipFurniture.gameObject.SetActive(false);
 
+            var musicMute = Button(content, "MusicMuteButton", "♫", new Vector2(0f, 1f),
+                new Vector2(52f, -44f), new Color(0.68f, 0.57f, 0.44f, 0.94f));
+            var effectsMute = Button(content, "EffectsMuteButton", "SFX", new Vector2(0f, 1f),
+                new Vector2(122f, -44f), new Color(0.68f, 0.57f, 0.44f, 0.94f));
+            StyleWarmGameButton(musicMute, new Vector2(58f, 50f), 23);
+            StyleWarmGameButton(effectsMute, new Vector2(70f, 50f), 15);
+            void RefreshAudioButtons()
+            {
+                var audio = CozyAudioManager.Instance;
+                var musicLabel = musicMute.GetComponentInChildren<Text>();
+                var effectsLabel = effectsMute.GetComponentInChildren<Text>();
+                if (musicLabel != null)
+                    musicLabel.text = audio != null && audio.MusicMuted ? "♫×" : "♫";
+                if (effectsLabel != null)
+                    effectsLabel.text = audio != null && audio.EffectsMuted ? "SFX×" : "SFX";
+            }
+            musicMute.onClick.AddListener(() =>
+            {
+                CozyAudioManager.Instance?.ToggleMusic();
+                RefreshAudioButtons();
+            });
+            effectsMute.onClick.AddListener(() =>
+            {
+                CozyAudioManager.Instance?.ToggleEffects();
+                RefreshAudioButtons();
+            });
+            RefreshAudioButtons();
+
             var modeMenu = new GameObject("PlayModeMenu", typeof(RectTransform));
             modeMenu.transform.SetParent(content, false);
             Stretch(modeMenu.GetComponent<RectTransform>());

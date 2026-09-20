@@ -144,7 +144,9 @@ namespace PawPath.Hub
             foreach (var hit in hits)
             {
                 var furniture = hit.collider != null ? hit.collider.GetComponent<DraggableFurniture>() : null;
-                if (furniture == null)
+                // Halı zeminin bir parçasıdır; kedi üzerinden yürüyebilir. Kase,
+                // su kabı, tuvalet, yatak ve tırmalama ağacı ise dolaşılır.
+                if (furniture == null || !furniture.BlocksCats)
                     continue;
 
                 Bounds bounds = hit.collider.bounds;

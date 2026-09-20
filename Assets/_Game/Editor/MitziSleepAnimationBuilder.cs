@@ -13,10 +13,18 @@ public static class MitziSleepAnimationBuilder
     [MenuItem("PawPath/İçerik/Mitzi Uyku Animasyonunu Uygula")]
     public static void Apply()
     {
-        var frames = new Sprite[2];
+        string[] names =
+        {
+            "mitzi_sleep_01.png",
+            "mitzi_sleep_02.png",
+            "mitzi_sleep_03.png",
+            "mitzi_sleep_05.png",
+            "mitzi_sleep_06.png"
+        };
+        var frames = new Sprite[names.Length];
         for (int i = 0; i < frames.Length; i++)
         {
-            string path = $"{Folder}/mitzi_sleep_{i + 5:00}.png";
+            string path = $"{Folder}/{names[i]}";
             AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceSynchronousImport);
             var importer = AssetImporter.GetAtPath(path) as TextureImporter;
             if (importer != null)
