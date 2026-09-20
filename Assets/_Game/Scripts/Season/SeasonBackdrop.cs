@@ -48,6 +48,17 @@ namespace PawPath.Season
                 ground.color = groundColor;
         }
 
+        public void SetBackground(Sprite sprite)
+        {
+            if (sky == null || sprite == null)
+                return;
+            sky.sprite = sprite;
+            sky.color = Color.white;
+            var parallax = sky.GetComponent<PawPath.Core.ParallaxBackground>();
+            if (parallax != null)
+                parallax.SetSprite(sprite);
+        }
+
         public void Bind(SpriteRenderer skyRend, SpriteRenderer groundRend, ParticleSystem fx)
         {
             sky = skyRend;

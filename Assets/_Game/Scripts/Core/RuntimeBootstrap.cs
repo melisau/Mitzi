@@ -83,11 +83,20 @@ namespace PawPath.Core
             furnitureView.Bind(furnitureSlots);
 
             var spots = new Transform[6];
+            var spotPositions = new[]
+            {
+                new Vector3(-4.25f, -1.55f, 0f),
+                new Vector3(-2.10f, -0.95f, 0f),
+                new Vector3(0.25f, -1.70f, 0f),
+                new Vector3(2.25f, -0.85f, 0f),
+                new Vector3(4.15f, -1.45f, 0f),
+                new Vector3(1.05f, -0.55f, 0f)
+            };
             for (int i = 0; i < spots.Length; i++)
             {
                 var s = new GameObject($"Spot_{i}");
                 s.transform.SetParent(hub.transform);
-                s.transform.position = new Vector3(-3.5f + i * 1.4f, -1.1f, 0f);
+                s.transform.position = spotPositions[i];
                 spots[i] = s.transform;
             }
             house.Bind(spots, null, null);
@@ -105,8 +114,11 @@ namespace PawPath.Core
                 sky.color = Color.white;
                 FitSpriteToCamera(sky, cam);
                 landscapeGround.enabled = false;
+                var parallax = sky.gameObject.AddComponent<ParallaxBackground>();
+                parallax.Bind(cam, sky, 0.32f);
             }
             var course = levelRoot.AddComponent<LevelCourseBuilder>();
+            course.BindVisuals(catalog.roadGapSprite, catalog.moundSprite, catalog.roadPlatformSprite);
 
             var season = levelRoot.AddComponent<SeasonBackdrop>();
             season.Bind(sky, landscapeGround, null);
@@ -118,8 +130,6 @@ namespace PawPath.Core
             var goal = new GameObject("Goal");
             goal.transform.SetParent(levelRoot.transform);
             goal.transform.position = new Vector3(6.25f, 0.2f, 0f);
-            var goalVis = CreateQuad("GoalPad", goal.transform, Vector3.zero, new Vector3(1.2f, 0.25f, 1f), new Color(0.96f, 0.88f, 0.64f));
-            goalVis.sortingOrder = 2;
             var goalCol = goal.AddComponent<BoxCollider2D>();
             goalCol.isTrigger = true;
             goalCol.size = new Vector2(1.3f, 1.6f);
@@ -149,7 +159,9 @@ namespace PawPath.Core
             var sideScroll = camGo.GetComponent<SideScrollCamera>();
             if (sideScroll == null)
                 sideScroll = camGo.AddComponent<SideScrollCamera>();
-            sideScroll.Bind(catGo.transform, sky.transform, landscapeGround.transform);
+            // Sokak artık kendi ParallaxBackground bileşeniyle daha yavaş kayar.
+            // Kameraya birebir bağlamak görseli ekranda sabit tutuyordu.
+            sideScroll.Bind(catGo.transform);
 
             var canvasGo = CreateCanvas(root.transform);
             var care = BuildCareUi(canvasGo.transform, needs);
@@ -197,7 +209,7 @@ namespace PawPath.Core
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             var scaler = go.GetComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1080, 1920);
+            scaler.referenceResolution = new Vector2(1920, 1080);
             scaler.matchWidthOrHeight = 0.5f;
             if (Object.FindObjectOfType<EventSystem>() == null)
             {
@@ -212,21 +224,22 @@ namespace PawPath.Core
         {
             var hud = Panel("HUD", canvas, new Vector2(0, 0), new Vector2(0, 0), new Color(1, 1, 1, 0));
             hud.AddComponent<HudView>();
-            var love = Label(hud.transform, "Love", GameText.Love + ": 0", new Vector2(0.5f, 1f), new Vector2(0, -80));
-            var level = Label(hud.transform, "Level", GameText.LevelLabel(1), new Vector2(0.5f, 1f), new Vector2(0, -140));
-            var ink = Label(hud.transform, "Ink", "", new Vector2(0.5f, 1f), new Vector2(0, -200));
-            var selected = Label(hud.transform, "Selected", GameText.PlayingAs + ": Mitzi", new Vector2(0.5f, 1f), new Vector2(0, -260));
-            var play = Button(hud.transform, "PlayButton", GameText.Play, new Vector2(0.5f, 0f), new Vector2(0, 180), new Color(0.93f, 0.72f, 0.76f));
-            var shop = Button(hud.transform, "ShopButton", GameText.Shop, new Vector2(0.5f, 0f), new Vector2(0, 90), new Color(0.78f, 0.84f, 0.72f));
-            var restart = Button(hud.transform, "RestartButton", "Yeniden", new Vector2(1f, 1f), new Vector2(-125f, -55f), new Color(0.93f, 0.72f, 0.76f));
+            var content = SafeContent(hud.transform);
+            var love = Label(content, "Love", GameText.Love + ": 0", new Vector2(0.5f, 1f), new Vector2(0, -80));
+            var level = Label(content, "Level", GameText.LevelLabel(1), new Vector2(0.5f, 1f), new Vector2(0, -140));
+            var ink = Label(content, "Ink", "", new Vector2(0.5f, 1f), new Vector2(0, -200));
+            var selected = Label(content, "Selected", GameText.PlayingAs + ": Mitzi", new Vector2(0.5f, 1f), new Vector2(0, -260));
+            var play = Button(content, "PlayButton", GameText.Play, new Vector2(0.5f, 0f), new Vector2(0, 180), new Color(0.93f, 0.72f, 0.76f));
+            var shop = Button(content, "ShopButton", GameText.Shop, new Vector2(0.5f, 0f), new Vector2(0, 90), new Color(0.78f, 0.84f, 0.72f));
+            var restart = Button(content, "RestartButton", "Yeniden", new Vector2(1f, 1f), new Vector2(-125f, -55f), new Color(0.93f, 0.72f, 0.76f));
             restart.GetComponent<RectTransform>().sizeDelta = new Vector2(190f, 58f);
-            var home = Button(hud.transform, "LevelHomeButton", "Eve Dön", new Vector2(0f, 1f), new Vector2(125f, -55f), new Color(0.78f, 0.84f, 0.72f));
+            var home = Button(content, "LevelHomeButton", "Eve Dön", new Vector2(0f, 1f), new Vector2(125f, -55f), new Color(0.78f, 0.84f, 0.72f));
             home.GetComponent<RectTransform>().sizeDelta = new Vector2(190f, 58f);
             restart.gameObject.SetActive(false);
             home.gameObject.SetActive(false);
-            var brushes = BuildBrushToolbar(hud.transform);
+            var brushes = BuildBrushToolbar(content);
             brushes.SetActive(false);
-            var tutorial = BuildBrushTutorial(hud.transform);
+            var tutorial = BuildBrushTutorial(content);
             tutorial.SetActive(false);
             hud.GetComponent<HudView>().Bind(love, level, ink, selected, play, shop, restart, home, careUi, brushes, tutorial);
             return hud;
@@ -236,17 +249,18 @@ namespace PawPath.Core
         {
             var panel = Panel("CarePanel", canvas, Vector2.zero, Vector2.one, new Color(1f, 1f, 1f, 0f));
             panel.AddComponent<CanvasGroup>();
+            var content = SafeContent(panel.transform);
 
-            var feed = Button(panel.transform, "FeedButton", $"Mama +{needs.foodPoints}", new Vector2(0.16f, 0f), new Vector2(0f, 205f), new Color(0.88f, 0.72f, 0.55f));
-            var water = Button(panel.transform, "WaterButton", $"Su +{needs.waterPoints}", new Vector2(0.16f, 0f), new Vector2(0f, 130f), new Color(0.62f, 0.80f, 0.91f));
-            var sleep = Button(panel.transform, "SleepButton", $"Uyu +{needs.sleepPoints}", new Vector2(0.16f, 0f), new Vector2(0f, 55f), new Color(0.75f, 0.69f, 0.86f));
+            var feed = Button(content, "FeedButton", $"Mama +{needs.foodPoints}", new Vector2(0.16f, 0f), new Vector2(0f, 205f), new Color(0.88f, 0.72f, 0.55f));
+            var water = Button(content, "WaterButton", $"Su +{needs.waterPoints}", new Vector2(0.16f, 0f), new Vector2(0f, 130f), new Color(0.62f, 0.80f, 0.91f));
+            var sleep = Button(content, "SleepButton", $"Uyu +{needs.sleepPoints}", new Vector2(0.16f, 0f), new Vector2(0f, 55f), new Color(0.75f, 0.69f, 0.86f));
             foreach (var button in new[] { feed, water, sleep })
                 button.GetComponent<RectTransform>().sizeDelta = new Vector2(260f, 58f);
 
-            var daily = Label(panel.transform, "DailyPetting", "Günlük Okşama", new Vector2(0.84f, 0f), new Vector2(0f, 125f));
+            var daily = Label(content, "DailyPetting", "Günlük Okşama", new Vector2(0.84f, 0f), new Vector2(0f, 125f));
             daily.fontSize = 20;
             daily.rectTransform.sizeDelta = new Vector2(330f, 48f);
-            var warning = Label(panel.transform, "EnergyStatus", "", new Vector2(0.84f, 0f), new Vector2(0f, 65f));
+            var warning = Label(content, "EnergyStatus", "", new Vector2(0.84f, 0f), new Vector2(0f, 65f));
             warning.fontSize = 19;
             warning.rectTransform.sizeDelta = new Vector2(360f, 70f);
 
@@ -313,11 +327,12 @@ namespace PawPath.Core
         static GameObject BuildRescue(Transform canvas)
         {
             var panel = Panel("Rescue", canvas, Vector2.zero, Vector2.zero, new Color(0.98f, 0.94f, 0.90f, 0.96f));
-            var title = Label(panel.transform, "Title", "", new Vector2(0.5f, 0.62f), Vector2.zero);
+            var content = SafeContent(panel.transform);
+            var title = Label(content, "Title", "", new Vector2(0.5f, 0.62f), Vector2.zero);
             title.fontSize = 42;
-            var body = Label(panel.transform, "Body", "", new Vector2(0.5f, 0.48f), Vector2.zero);
+            var body = Label(content, "Body", "", new Vector2(0.5f, 0.48f), Vector2.zero);
             body.rectTransform.sizeDelta = new Vector2(780, 320);
-            var invite = Button(panel.transform, "Invite", GameText.InviteHome, new Vector2(0.5f, 0.22f), Vector2.zero, new Color(0.93f, 0.72f, 0.76f));
+            var invite = Button(content, "Invite", GameText.InviteHome, new Vector2(0.5f, 0.22f), Vector2.zero, new Color(0.93f, 0.72f, 0.76f));
             var screen = panel.AddComponent<RescueScreen>();
             screen.Bind(title, body, invite);
             return panel;
@@ -326,20 +341,21 @@ namespace PawPath.Core
         static GameObject BuildLevelComplete(Transform canvas)
         {
             var panel = Panel("LevelComplete", canvas, Vector2.zero, Vector2.one, new Color(0.98f, 0.93f, 0.84f, 0.98f));
-            var success = Label(panel.transform, "Success", "BAŞARDIN!", new Vector2(0.5f, 0.70f), Vector2.zero);
+            var content = SafeContent(panel.transform);
+            var success = Label(content, "Success", "BAŞARDIN!", new Vector2(0.5f, 0.70f), Vector2.zero);
             success.fontSize = 54;
             success.fontStyle = FontStyle.Bold;
             success.color = new Color(0.54f, 0.30f, 0.22f);
 
-            var title = Label(panel.transform, "CompletedLevel", "Bölüm Tamamlandı!", new Vector2(0.5f, 0.58f), Vector2.zero);
+            var title = Label(content, "CompletedLevel", "Bölüm Tamamlandı!", new Vector2(0.5f, 0.58f), Vector2.zero);
             title.fontSize = 36;
-            var reward = Label(panel.transform, "Reward", "+10 Sevgi", new Vector2(0.5f, 0.48f), Vector2.zero);
+            var reward = Label(content, "Reward", "+10 Sevgi", new Vector2(0.5f, 0.48f), Vector2.zero);
             reward.fontSize = 30;
             reward.color = new Color(0.78f, 0.20f, 0.38f);
 
-            var next = Button(panel.transform, "NextLevel", "Sıradaki Bölüm", new Vector2(0.5f, 0.32f), Vector2.zero, new Color(0.93f, 0.72f, 0.76f));
+            var next = Button(content, "NextLevel", "Sıradaki Bölüm", new Vector2(0.5f, 0.32f), Vector2.zero, new Color(0.93f, 0.72f, 0.76f));
             next.GetComponent<RectTransform>().sizeDelta = new Vector2(440f, 78f);
-            var home = Button(panel.transform, "CompletionHome", "Kedi Evine Dön", new Vector2(0.5f, 0.22f), Vector2.zero, new Color(0.78f, 0.84f, 0.72f));
+            var home = Button(content, "CompletionHome", "Kedi Evine Dön", new Vector2(0.5f, 0.22f), Vector2.zero, new Color(0.78f, 0.84f, 0.72f));
             home.GetComponent<RectTransform>().sizeDelta = new Vector2(440f, 78f);
 
             var screen = panel.AddComponent<LevelCompleteUI>();
@@ -360,14 +376,15 @@ namespace PawPath.Core
                 backgroundRect.offsetMin = new Vector2(-24f, -24f);
                 backgroundRect.offsetMax = new Vector2(24f, 24f);
             }
-            Label(panel.transform, "Title", GameText.Shop, new Vector2(0.5f, 0.92f), Vector2.zero).fontSize = 40;
+            var content = SafeContent(panel.transform);
+            Label(content, "Title", GameText.Shop, new Vector2(0.5f, 0.92f), Vector2.zero).fontSize = 40;
             var list = new GameObject("List", typeof(RectTransform));
-            list.transform.SetParent(panel.transform, false);
+            list.transform.SetParent(content, false);
             var rt = list.GetComponent<RectTransform>();
             Stretch(rt);
             rt.offsetMin = new Vector2(60, 160);
             rt.offsetMax = new Vector2(-60, -160);
-            var close = Button(panel.transform, "Close", GameText.House, new Vector2(0.5f, 0.08f), Vector2.zero, new Color(0.85f, 0.78f, 0.90f));
+            var close = Button(content, "Close", GameText.House, new Vector2(0.5f, 0.08f), Vector2.zero, new Color(0.85f, 0.78f, 0.90f));
             var shop = panel.AddComponent<ShopScreen>();
             shop.Bind(list.transform, close);
             return panel;
@@ -409,6 +426,14 @@ namespace PawPath.Core
             // kalırsa bütün ekranı kapatıp dünyada yol çizilmesini engeller.
             image.raycastTarget = color.a > 0.001f;
             return go;
+        }
+
+        static Transform SafeContent(Transform parent)
+        {
+            var go = new GameObject("SafeArea", typeof(RectTransform), typeof(SafeAreaFitter));
+            go.transform.SetParent(parent, false);
+            Stretch(go.GetComponent<RectTransform>());
+            return go.transform;
         }
 
         static Text Label(Transform parent, string name, string text, Vector2 anchor, Vector2 offset)
@@ -453,8 +478,16 @@ namespace PawPath.Core
 
         static Button FindButton(Transform root, string name)
         {
-            var t = root.Find(name);
-            return t != null ? t.GetComponent<Button>() : null;
+            if (root == null)
+                return null;
+
+            var buttons = root.GetComponentsInChildren<Button>(true);
+            foreach (var button in buttons)
+            {
+                if (button != null && button.name == name)
+                    return button;
+            }
+            return null;
         }
 
         static Font UiFont()

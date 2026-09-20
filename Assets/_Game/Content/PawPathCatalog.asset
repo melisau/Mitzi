@@ -48,8 +48,8 @@ MonoBehaviour:
   personality: 2
   unlockAfterLevel: 20
   furTint: {r: 0.72, g: 0.74, b: 0.78, a: 1}
-  portrait: {fileID: 0}
-  idleSprite: {fileID: 0}
+  portrait: {fileID: 21300000, guid: d468c46ce2b1403796e4fa680c23f164, type: 3}
+  idleSprite: {fileID: 21300000, guid: d468c46ce2b1403796e4fa680c23f164, type: 3}
   animator: {fileID: 0}
   purrClip: {fileID: 0}
   meowClip: {fileID: 0}
@@ -203,8 +203,8 @@ MonoBehaviour:
   personality: 3
   unlockAfterLevel: 10
   furTint: {r: 0.18, g: 0.16, b: 0.2, a: 1}
-  portrait: {fileID: 0}
-  idleSprite: {fileID: 0}
+  portrait: {fileID: 21300000, guid: b246a24ac0914fd58c1d1466d4a9bd82, type: 3}
+  idleSprite: {fileID: 21300000, guid: b246a24ac0914fd58c1d1466d4a9bd82, type: 3}
   animator: {fileID: 0}
   purrClip: {fileID: 0}
   meowClip: {fileID: 0}
@@ -468,8 +468,8 @@ MonoBehaviour:
   personality: 1
   unlockAfterLevel: 5
   furTint: {r: 0.96, g: 0.95, b: 0.93, a: 1}
-  portrait: {fileID: 0}
-  idleSprite: {fileID: 0}
+  portrait: {fileID: 21300000, guid: a135913f9b3049918e2c246bb0cc51a1, type: 3}
+  idleSprite: {fileID: 21300000, guid: a135913f9b3049918e2c246bb0cc51a1, type: 3}
   animator: {fileID: 0}
   purrClip: {fileID: 0}
   meowClip: {fileID: 0}
@@ -548,6 +548,13 @@ MonoBehaviour:
   homeBackground: {fileID: 21300000, guid: 9ac47e6b703f4c3ca1b2d671df0544a1, type: 3}
   shopBackground: {fileID: 21300000, guid: 9ac47e6b703f4c3ca1b2d671df0544a1, type: 3}
   gameplayBackground: {fileID: 21300000, guid: 7bd18f9a60dd4a45b021337f56a892c2, type: 3}
+  forestBackground: {fileID: 21300000, guid: 8d3bc06f27d649339e2b9b3335e43fb1, type: 3}
+  roadGapSprite: {fileID: 21300000, guid: da31e904fc314d3793e74df30b144825, type: 3}
+  moundSprite: {fileID: 21300000, guid: 52f5ff84ace44c738132ddd16b43b8a0, type: 3}
+  roadPlatformSprite: {fileID: 21300000, guid: f68ae68004ef4d858591d899cad884d6, type: 3}
+  forestGapSprite: {fileID: 21300000, guid: 72f430151bc44e62b5ae3a3a9aba9487, type: 3}
+  forestMoundSprite: {fileID: 21300000, guid: 26d8dc4080fa4e79a802713d475a5f22, type: 3}
+  forestPlatformSprite: {fileID: 21300000, guid: ef23408c89004cfc962bdb8726e1b12f, type: 3}
 --- !u!114 &809415211630189811
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -678,8 +685,8 @@ MonoBehaviour:
   personality: 4
   unlockAfterLevel: 15
   furTint: {r: 0.9, g: 0.55, b: 0.32, a: 1}
-  portrait: {fileID: 0}
-  idleSprite: {fileID: 0}
+  portrait: {fileID: 21300000, guid: c357b35bd1a3422f9fd5c72d39be71e3, type: 3}
+  idleSprite: {fileID: 21300000, guid: c357b35bd1a3422f9fd5c72d39be71e3, type: 3}
   animator: {fileID: 0}
   purrClip: {fileID: 0}
   meowClip: {fileID: 0}
@@ -797,8 +804,8 @@ MonoBehaviour:
   personality: 1
   unlockAfterLevel: 25
   furTint: {r: 0.45, g: 0.32, b: 0.24, a: 1}
-  portrait: {fileID: 0}
-  idleSprite: {fileID: 0}
+  portrait: {fileID: 21300000, guid: e579d57df3c24495a7f0dc791d340275, type: 3}
+  idleSprite: {fileID: 21300000, guid: e579d57df3c24495a7f0dc791d340275, type: 3}
   animator: {fileID: 0}
   purrClip: {fileID: 0}
   meowClip: {fileID: 0}

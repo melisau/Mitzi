@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using PawPath.Core;
 using PawPath.Data;
@@ -46,14 +47,33 @@ namespace PawPath.Hub
                     Destroy(child.gameObject);
             }
 
+            var shuffledSpots = BuildShuffledSpotOrder();
             int slot = 0;
             foreach (var cat in GameFlow.Instance.Catalog.cats)
             {
                 if (cat == null || !SaveService.HasCat(cat.id))
                     continue;
-                SpawnResident(cat, slot);
+                int spotIndex = shuffledSpots.Count > 0
+                    ? shuffledSpots[slot % shuffledSpots.Count]
+                    : slot;
+                SpawnResident(cat, spotIndex);
                 slot++;
             }
+        }
+
+        List<int> BuildShuffledSpotOrder()
+        {
+            int count = loungingSpots != null ? loungingSpots.Length : 0;
+            var order = new List<int>(count);
+            for (int i = 0; i < count; i++)
+                order.Add(i);
+
+            for (int i = order.Count - 1; i > 0; i--)
+            {
+                int swapIndex = Random.Range(0, i + 1);
+                (order[i], order[swapIndex]) = (order[swapIndex], order[i]);
+            }
+            return order;
         }
 
         void SpawnResident(CatDefinition cat, int slot)

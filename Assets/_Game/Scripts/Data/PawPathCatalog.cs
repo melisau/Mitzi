@@ -19,6 +19,14 @@ namespace PawPath.Data
         public Sprite homeBackground;
         public Sprite shopBackground;
         public Sprite gameplayBackground;
+        public Sprite forestBackground;
+        [Header("Bölüm Engelleri")]
+        public Sprite roadGapSprite;
+        public Sprite moundSprite;
+        public Sprite roadPlatformSprite;
+        public Sprite forestGapSprite;
+        public Sprite forestMoundSprite;
+        public Sprite forestPlatformSprite;
 
         public CatDefinition GetCat(string id)
         {
