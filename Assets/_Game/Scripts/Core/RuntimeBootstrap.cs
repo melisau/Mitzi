@@ -207,7 +207,7 @@ namespace PawPath.Core
                 portal.transform.localScale = new Vector3(scale, scale, 1f);
                 // Goal merkezi kedi yüksekliğindedir; portalın sprite alt sınırını
                 // kaldırım yüzeyine biraz gömerek havada kalmasını önle.
-                float localY = -0.66f - renderer.sprite.bounds.min.y * scale;
+                float localY = -0.76f - renderer.sprite.bounds.min.y * scale;
                 portal.transform.localPosition = new Vector3(0f, localY, 0f);
             }
         }
@@ -260,6 +260,16 @@ namespace PawPath.Core
             var play = Button(content, "PlayButton", "Çizerek Oyna", new Vector2(0.5f, 0f), new Vector2(0, 225), new Color(0.93f, 0.72f, 0.76f));
             var directPlay = Button(content, "DirectPlayButton", "Tuşlarla Oyna", new Vector2(0.5f, 0f), new Vector2(0, 145), new Color(0.72f, 0.82f, 0.94f));
             var shop = Button(content, "ShopButton", GameText.Shop, new Vector2(0.5f, 0f), new Vector2(0, 65), new Color(0.78f, 0.84f, 0.72f));
+            var themeSelector = BuildThemeSelector(content);
+            var developerLove = Button(content, "DeveloperLove", "+100", new Vector2(0f, 0.5f), new Vector2(54f, 0f), new Color(0.55f, 0.45f, 0.70f, 0.82f));
+            developerLove.GetComponent<RectTransform>().sizeDelta = new Vector2(92f, 50f);
+            developerLove.GetComponentInChildren<Text>().fontSize = 18;
+            developerLove.onClick.AddListener(() =>
+            {
+                if (CozyEconomyManager.Instance != null)
+                    CozyEconomyManager.Instance.AddLove(100, "Geliştirici testi");
+            });
+            developerLove.gameObject.SetActive(Debug.isDebugBuild || Application.isEditor);
             var restart = Button(content, "RestartButton", "Yeniden", new Vector2(1f, 1f), new Vector2(-125f, -55f), new Color(0.93f, 0.72f, 0.76f));
             restart.GetComponent<RectTransform>().sizeDelta = new Vector2(190f, 58f);
             var home = Button(content, "LevelHomeButton", "Eve Dön", new Vector2(0f, 1f), new Vector2(125f, -55f), new Color(0.78f, 0.84f, 0.72f));
@@ -275,6 +285,18 @@ namespace PawPath.Core
             hud.GetComponent<HudView>().Bind(love, level, ink, selected, play, shop, directPlay,
                 restart, home, careUi, brushes, tutorial, controls);
             return hud;
+        }
+
+        static GameObject BuildThemeSelector(Transform parent)
+        {
+            var panel = new GameObject("ThemeSelector", typeof(RectTransform));
+            panel.transform.SetParent(parent, false);
+            Stretch(panel.GetComponent<RectTransform>());
+            var street = Button(panel.transform, "StreetTheme", "Sokak", new Vector2(0f, 1f), new Vector2(125f, -105f), new Color(0.83f, 0.68f, 0.52f));
+            var forest = Button(panel.transform, "ForestTheme", "Orman", new Vector2(0f, 1f), new Vector2(125f, -170f), new Color(0.52f, 0.70f, 0.55f));
+            street.GetComponent<RectTransform>().sizeDelta = forest.GetComponent<RectTransform>().sizeDelta = new Vector2(205f, 52f);
+            panel.AddComponent<ThemeSelectionUI>().Bind(street, forest);
+            return panel;
         }
 
         static GameObject BuildMobileControls(Transform parent)

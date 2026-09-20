@@ -6,6 +6,7 @@ using PawPath.Data;
 using PawPath.Drawing;
 using PawPath.Economy;
 using PawPath.Season;
+using PawPath.UI;
 
 namespace PawPath.Levels
 {
@@ -72,7 +73,7 @@ namespace PawPath.Levels
             if (catalog == null)
                 return;
 
-            bool forestTheme = ((Mathf.Max(1, levelNumber) - 1) / 5) % 2 == 1;
+            bool forestTheme = ThemeSelectionUI.GetSelectedTheme(levelNumber) == 1;
             if (courseBuilder != null)
             {
                 courseBuilder.BindVisuals(

@@ -3,7 +3,7 @@ using UnityEngine;
 namespace PawPath.Core
 {
     /// <summary>
-    /// Tek bir arka plan sprite'ını üç yatay karo hâline getirir ve kameradan
+    /// Tek bir arka plan sprite'ını beş yatay karo hâline getirir ve kameradan
     /// daha yavaş taşıyarak ilerleme/parallax hissi verir.
     /// </summary>
     public class ParallaxBackground : MonoBehaviour
@@ -41,8 +41,10 @@ namespace PawPath.Core
                 return;
 
             float localWidth = centerRenderer.sprite.bounds.size.x;
-            CreateTile("StreetTile_Left", -localWidth);
-            CreateTile("StreetTile_Right", localWidth);
+            CreateTile("BackdropTile_-2", -2f * localWidth, false);
+            CreateTile("BackdropTile_-1", -localWidth, true);
+            CreateTile("BackdropTile_1", localWidth, true);
+            CreateTile("BackdropTile_2", 2f * localWidth, false);
         }
 
         public void SetSprite(Sprite sprite)
@@ -58,17 +60,22 @@ namespace PawPath.Core
                 if (renderer == null)
                     continue;
                 renderer.sprite = sprite;
-                child.localPosition = new Vector3(child.name.Contains("Left") ? -localWidth : localWidth, 0f, 0f);
+                string suffix = child.name.Replace("BackdropTile_", "");
+                if (!int.TryParse(suffix, out int tileIndex))
+                    continue;
+                child.localPosition = new Vector3(tileIndex * localWidth, 0f, 0f);
+                renderer.flipX = Mathf.Abs(tileIndex) % 2 == 1;
             }
         }
 
-        void CreateTile(string tileName, float localX)
+        void CreateTile(string tileName, float localX, bool mirror)
         {
             var tile = new GameObject(tileName);
             tile.transform.SetParent(transform, false);
             tile.transform.localPosition = new Vector3(localX, 0f, 0f);
             var renderer = tile.AddComponent<SpriteRenderer>();
             renderer.sprite = centerRenderer.sprite;
+            renderer.flipX = mirror;
             renderer.color = centerRenderer.color;
             renderer.sortingLayerID = centerRenderer.sortingLayerID;
             renderer.sortingOrder = centerRenderer.sortingOrder;

@@ -1,5 +1,6 @@
 using PawPath.Core;
 using PawPath.Data;
+using PawPath.Economy;
 
 namespace PawPath.Levels
 {
@@ -30,6 +31,8 @@ namespace PawPath.Levels
                     continue;
 
                 SaveService.UnlockCat(cat.id);
+                if (CozyEconomyManager.Instance != null)
+                    CozyEconomyManager.Instance.AddLove(40, "Yeni kedi keşfi");
                 unlocked = cat;
                 GameEvents.CatUnlocked(cat);
                 return true;
