@@ -30,8 +30,21 @@ namespace PawPath.Levels
         {
             gapSprite = gap;
             moundSprite = mound;
-            roadSprite = road;
+            roadSprite = CreateCitySidewalkSurface(road);
             alternateMoundSprite = alternateMound;
+        }
+
+        static Sprite CreateCitySidewalkSurface(Sprite source)
+        {
+            if (source == null || !source.name.Contains("city_sidewalk"))
+                return source;
+            Rect rect = source.rect;
+            // Kaynağın yalnızca üstteki kaldırım/tuğla şeridini kullan; borulu
+            // yeraltı kısmı düz dolgu tarafından tamamen gizlenecek.
+            var surfaceRect = new Rect(rect.x, rect.y + rect.height * 0.78f, rect.width, rect.height * 0.22f);
+            var sprite = Sprite.Create(source.texture, surfaceRect, new Vector2(0.5f, 0.5f), source.pixelsPerUnit);
+            sprite.name = "city_sidewalk_surface";
+            return sprite;
         }
 
         public void Build(int levelNumber)
@@ -124,8 +137,13 @@ namespace PawPath.Levels
                 float x = left + tileWidth * (i + 0.5f);
                 // Üst çim/yürüme yüzeyi eski doğru konumunda kalır. Ekranın altına
                 // uzanan kalınlık ayrı bir dolgu görseliyle sağlanır.
-                Decoration("RoadVisual", roadSprite, new Vector2(x, RoadCenterY - 0.02f),
-                    tileWidth + 0.18f, 1, 3.35f * GameplayScale);
+                bool citySurface = roadSprite != null && roadSprite.name.Contains("city_sidewalk_surface");
+                float visualHeight = citySurface ? 0.82f : 3.35f * GameplayScale;
+                float visualCenterY = citySurface
+                    ? roadTop - visualHeight * 0.5f + 0.03f
+                    : RoadCenterY - 0.02f;
+                Decoration("RoadVisual", roadSprite, new Vector2(x, visualCenterY),
+                    tileWidth + 0.18f, 1, visualHeight);
             }
         }
 
@@ -283,9 +301,10 @@ namespace PawPath.Levels
             var renderer = go.AddComponent<SpriteRenderer>();
             renderer.sprite = FallbackSprite.WhiteSquare();
             bool forest = roadSprite != null && roadSprite.name.ToLowerInvariant().Contains("forest");
-            renderer.color = forest
-                ? new Color(0.115f, 0.095f, 0.065f, 1f)
-                : new Color(0.34f, 0.20f, 0.12f, 1f);
+            bool city = roadSprite != null && roadSprite.name.Contains("city_sidewalk");
+            renderer.color = city
+                ? new Color(0.16f, 0.145f, 0.135f, 1f)
+                : forest ? new Color(0.115f, 0.095f, 0.065f, 1f) : new Color(0.34f, 0.20f, 0.12f, 1f);
             renderer.sortingOrder = -1;
         }
 
