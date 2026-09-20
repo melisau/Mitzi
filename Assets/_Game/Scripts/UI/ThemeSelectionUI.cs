@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using PawPath.Core;
+using System;
 
 namespace PawPath.UI
 {
@@ -10,6 +11,8 @@ namespace PawPath.UI
         const string ThemeKey = "PawPath.SelectedTheme";
         [SerializeField] Button streetButton;
         [SerializeField] Button forestButton;
+        Action<int> onThemeChosen;
+        bool requestedVisible;
 
         void OnEnable()
         {
@@ -33,19 +36,26 @@ namespace PawPath.UI
             Refresh();
         }
 
+        public void SetSelectionCallback(Action<int> callback) => onThemeChosen = callback;
+
+        public void Show()
+        {
+            requestedVisible = true;
+            Refresh();
+        }
+
         void Select(int theme)
         {
-            if (theme == 1 && SaveService.Data.highestCompletedLevel < 5)
-                return;
             PlayerPrefs.SetInt(ThemeKey, theme);
             PlayerPrefs.Save();
             Refresh();
+            onThemeChosen?.Invoke(theme);
         }
 
         void Refresh()
         {
             bool inHub = GameFlow.Instance == null || GameFlow.Instance.InHub;
-            SetVisible(inHub);
+            SetVisible(inHub && requestedVisible);
             if (!inHub)
                 return;
 
@@ -54,13 +64,16 @@ namespace PawPath.UI
                 SetLabel(streetButton, selected == 0 ? "✓ Sokak" : "Sokak");
             if (forestButton != null)
             {
-                bool unlocked = SaveService.Data.highestCompletedLevel >= 5;
-                forestButton.interactable = unlocked;
-                SetLabel(forestButton, !unlocked ? "Orman (5. bölüm)" : selected == 1 ? "✓ Orman" : "Orman");
+                forestButton.interactable = true;
+                SetLabel(forestButton, selected == 1 ? "✓ Orman" : "Orman");
             }
         }
 
-        void Hide() => SetVisible(false);
+        public void Hide()
+        {
+            requestedVisible = false;
+            SetVisible(false);
+        }
 
         void SetVisible(bool visible)
         {
@@ -84,7 +97,7 @@ namespace PawPath.UI
             if (PlayerPrefs.HasKey(ThemeKey))
             {
                 int chosen = PlayerPrefs.GetInt(ThemeKey, 0);
-                return chosen == 1 && SaveService.Data.highestCompletedLevel >= 5 ? 1 : 0;
+                return chosen == 1 ? 1 : 0;
             }
             return ((Mathf.Max(1, levelNumber) - 1) / 5) % 2;
         }

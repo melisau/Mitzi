@@ -9,7 +9,7 @@ using PawPath.Data;
 public static class ShopFurnitureBuilder
 {
     const string CatalogPath = "Assets/_Game/Content/PawPathCatalog.asset";
-    const string SessionKey = "PawPath.ShopFurnitureBuilder.v1";
+    const string SessionKey = "PawPath.ShopFurnitureBuilder.png.v2";
 
     struct ItemData
     {
@@ -33,13 +33,13 @@ public static class ShopFurnitureBuilder
     static readonly ItemData[] Items =
     {
         new ItemData("cat_poster", "Kedi Posteri", "Duvara asılan neşeli kedi posteri.", 30,
-            FurnitureSlotType.Poster, "Assets/cat_poster.jpg"),
+            FurnitureSlotType.Poster, "Assets/cat_poster.png"),
         new ItemData("cat_water", "Su Kabı", "Kedilerin su içmek için kullanacağı su kabı.", 25,
-            FurnitureSlotType.Water, "Assets/cat_water.jpg"),
+            FurnitureSlotType.Water, "Assets/cat_water.png"),
         new ItemData("cat_sand", "Kedi Kumu", "Kediler için temiz ve rahat kum alanı.", 35,
-            FurnitureSlotType.Sand, "Assets/cat_sand.jpg"),
+            FurnitureSlotType.Sand, "Assets/cat_sand.png"),
         new ItemData("cat_tree", "Kedi Ağacı", "Tırmanmak, dinlenmek ve evi seyretmek için.", 80,
-            FurnitureSlotType.Tree, "Assets/cat_tree.jpg")
+            FurnitureSlotType.Tree, "Assets/cat_tree.png")
     };
 
     static ShopFurnitureBuilder()
@@ -102,6 +102,7 @@ public static class ShopFurnitureBuilder
             importer.spriteImportMode != SpriteImportMode.Single || importer.mipmapEnabled;
         importer.textureType = TextureImporterType.Sprite;
         importer.spriteImportMode = SpriteImportMode.Single;
+        importer.alphaIsTransparency = true;
         importer.mipmapEnabled = false;
         importer.filterMode = FilterMode.Bilinear;
         if (changed)

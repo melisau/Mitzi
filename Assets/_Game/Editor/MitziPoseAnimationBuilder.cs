@@ -83,9 +83,15 @@ namespace PawPath.EditorTools
                 importer.spriteImportMode = SpriteImportMode.Single;
                 importer.alphaIsTransparency = true;
                 importer.mipmapEnabled = false;
-                importer.spriteAlignment = (int)SpriteAlignment.Center;
-                importer.spritePivot = new Vector2(0.5f, 0.5f);
                 importer.spritePixelsPerUnit = texture.height / 11.5f;
+
+                // Unity 2022.3 hizalama/pivot değerlerini doğrudan
+                // TextureImporter üzerinden değil importer ayarlarıyla yazar.
+                var textureSettings = new TextureImporterSettings();
+                importer.ReadTextureSettings(textureSettings);
+                textureSettings.spriteAlignment = (int)SpriteAlignment.Center;
+                textureSettings.spritePivot = new Vector2(0.5f, 0.5f);
+                importer.SetTextureSettings(textureSettings);
                 importer.SaveAndReimport();
                 frames[index] = AssetDatabase.LoadAssetAtPath<Sprite>(path);
             }

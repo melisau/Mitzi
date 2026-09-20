@@ -108,7 +108,8 @@ namespace PawPath.Levels
                 CozyEconomyManager.Instance.AddLove(completionReward, "Bölüm Tamamlama");
             GameEvents.LevelCompleted();
 
-            if (CatUnlockService.TryUnlockAfterLevel(SaveService.Data.highestCompletedLevel, out var cat))
+            if (!SaveService.DeveloperMitziOnly &&
+                CatUnlockService.TryUnlockAfterLevel(SaveService.Data.highestCompletedLevel, out var cat))
             {
                 if (GameFlow.Instance != null)
                     GameFlow.Instance.ShowRescue(cat);

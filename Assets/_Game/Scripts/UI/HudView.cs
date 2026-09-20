@@ -30,6 +30,11 @@ namespace PawPath.UI
         [SerializeField] private GameObject brushToolbar;
         [SerializeField] private GameObject brushTutorial;
         [SerializeField] private GameObject mobileControls;
+        [SerializeField] private GameObject playModeMenu;
+        [SerializeField] private Button drawingPlayButton;
+        [SerializeField] private ThemeSelectionUI themeSelection;
+        GameplayPlayMode pendingMode;
+        Coroutine selectedNameRoutine;
 
         private void Awake()
         {
@@ -70,22 +75,40 @@ namespace PawPath.UI
         // TEK VE TEMİZ ONPLAYBUTTONCLICKED METODU
         private void OnPlayButtonClicked()
         {
-            StartWithMode(GameplayPlayMode.Drawing);
+            if (playModeMenu != null)
+                playModeMenu.SetActive(!playModeMenu.activeSelf);
+            if (themeSelection != null)
+                themeSelection.Hide();
         }
+
+        private void OnDrawingPlayButtonClicked() => ChooseMode(GameplayPlayMode.Drawing);
 
         private void OnDirectPlayButtonClicked()
         {
-            StartWithMode(GameplayPlayMode.DirectControl);
+            ChooseMode(GameplayPlayMode.DirectControl);
         }
 
-        private void StartWithMode(GameplayPlayMode mode)
+        private void ChooseMode(GameplayPlayMode mode)
         {
             if (needsUI != null && !needsUI.CheckEnergyAndStartLevel())
                 return;
             if (needsUI == null && CatNeedsSystem.Instance != null && !CatNeedsSystem.Instance.CanStartLevel())
                 return;
 
-            GameplayMode.Select(mode);
+            pendingMode = mode;
+            if (playModeMenu != null)
+                playModeMenu.SetActive(false);
+            if (themeSelection != null)
+            {
+                themeSelection.Show();
+                return;
+            }
+            StartSelectedMode();
+        }
+
+        private void StartSelectedMode()
+        {
+            GameplayMode.Select(pendingMode);
             if (GameFlow.Instance != null)
             {
                 GameFlow.Instance.StartNextLevel();
@@ -104,12 +127,15 @@ namespace PawPath.UI
         private void OnLevelStarted()
         {
             RefreshLevel();
+            HideSelectedCatName();
             if (playButton != null)
                 playButton.gameObject.SetActive(false);
             if (shopButton != null)
                 shopButton.gameObject.SetActive(false);
-            if (directPlayButton != null)
-                directPlayButton.gameObject.SetActive(false);
+            if (playModeMenu != null)
+                playModeMenu.SetActive(false);
+            if (themeSelection != null)
+                themeSelection.Hide();
             if (brushToolbar != null)
                 brushToolbar.SetActive(GameplayMode.IsDrawing);
             if (mobileControls != null)
@@ -126,12 +152,22 @@ namespace PawPath.UI
 
         private void OnHubEntered()
         {
+            HideSelectedCatName();
             if (playButton != null)
                 playButton.gameObject.SetActive(true);
             if (shopButton != null)
                 shopButton.gameObject.SetActive(true);
+            // Bölüm başlarken bu alt buton kapatılıyor. Eve dönüldüğünde menü
+            // yeniden açılmadan önce tekrar etkinleştirilmezse yalnızca çizim
+            // seçeneği görünüyordu.
             if (directPlayButton != null)
                 directPlayButton.gameObject.SetActive(true);
+            if (drawingPlayButton != null)
+                drawingPlayButton.gameObject.SetActive(true);
+            if (playModeMenu != null)
+                playModeMenu.SetActive(false);
+            if (themeSelection != null)
+                themeSelection.Hide();
             if (brushToolbar != null)
                 brushToolbar.SetActive(false);
             if (restartButton != null)
@@ -164,8 +200,35 @@ namespace PawPath.UI
 
         private void RefreshCat(CatDefinition cat)
         {
-            if (selectedCatLabel != null && cat != null)
-                selectedCatLabel.text = $"{GameText.PlayingAs}: {cat.displayName}";
+            if (selectedCatLabel == null || cat == null)
+                return;
+            if (GameFlow.Instance != null && !GameFlow.Instance.InHub)
+            {
+                HideSelectedCatName();
+                return;
+            }
+            if (selectedNameRoutine != null)
+                StopCoroutine(selectedNameRoutine);
+            selectedCatLabel.text = cat.displayName;
+            selectedCatLabel.gameObject.SetActive(true);
+            selectedNameRoutine = StartCoroutine(HideSelectedCatNameAfterDelay());
+        }
+
+        IEnumerator HideSelectedCatNameAfterDelay()
+        {
+            yield return new WaitForSeconds(3f);
+            HideSelectedCatName();
+        }
+
+        void HideSelectedCatName()
+        {
+            if (selectedNameRoutine != null)
+            {
+                StopCoroutine(selectedNameRoutine);
+                selectedNameRoutine = null;
+            }
+            if (selectedCatLabel != null)
+                selectedCatLabel.gameObject.SetActive(false);
         }
 
         private void RefreshLevel()
@@ -176,7 +239,8 @@ namespace PawPath.UI
 
         public void Bind(Text love, Text level, Text ink, Text selected, Button play, Button shop,
             Button directPlay, Button restart, Button home, CatNeedsUI careUI, GameObject brushes,
-            GameObject tutorial, GameObject controls)
+            GameObject tutorial, GameObject controls, GameObject modeMenu,
+            Button drawingPlay, ThemeSelectionUI themeSelector)
         {
             loveLabel = love;
             levelLabel = level;
@@ -191,6 +255,11 @@ namespace PawPath.UI
             brushToolbar = brushes;
             brushTutorial = tutorial;
             mobileControls = controls;
+            playModeMenu = modeMenu;
+            drawingPlayButton = drawingPlay;
+            themeSelection = themeSelector;
+            if (themeSelection != null)
+                themeSelection.SetSelectionCallback(_ => StartSelectedMode());
 
             // RuntimeBootstrap, HudView bileşenini alt UI nesnelerinden önce oluşturur.
             // Bu nedenle OnEnable sırasında butonlar henüz atanmış olmayabilir.
@@ -216,6 +285,12 @@ namespace PawPath.UI
             {
                 directPlayButton.onClick.RemoveListener(OnDirectPlayButtonClicked);
                 directPlayButton.onClick.AddListener(OnDirectPlayButtonClicked);
+            }
+
+            if (drawingPlayButton != null)
+            {
+                drawingPlayButton.onClick.RemoveListener(OnDrawingPlayButtonClicked);
+                drawingPlayButton.onClick.AddListener(OnDrawingPlayButtonClicked);
             }
 
             if (restartButton != null)
@@ -244,10 +319,7 @@ namespace PawPath.UI
             RefreshLove(SaveService.Data.lovePoints);
             RefreshLevel();
 
-            var catalog = GameFlow.Instance != null ? GameFlow.Instance.Catalog : null;
-            var selected = catalog != null ? catalog.GetCat(SaveService.Data.selectedCatId) : null;
-            if (selected != null)
-                RefreshCat(selected);
+            HideSelectedCatName();
         }
 
         private void ShowBrushTutorialOnce()

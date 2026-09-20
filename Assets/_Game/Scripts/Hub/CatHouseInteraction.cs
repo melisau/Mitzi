@@ -28,7 +28,7 @@ namespace PawPath.Hub
             Vector3 bowl = HubFurnitureView.Instance != null
                 ? HubFurnitureView.Instance.BowlPosition
                 : new Vector3(-3.4f, -1.65f, 0f);
-            selected.WalkTo(bowl, ResidentActivity.Eating);
+            selected.WalkTo(ApproachFromSide(bowl), ResidentActivity.Eating);
         }
 
         public void SendSelectedToWater()
@@ -36,7 +36,13 @@ namespace PawPath.Hub
             EnsureSelectedResident();
             if (selected == null || HubFurnitureView.Instance == null || !HubFurnitureView.Instance.HasPlacedWater)
                 return;
-            selected.WalkTo(HubFurnitureView.Instance.WaterPosition, ResidentActivity.Drinking);
+            selected.WalkTo(ApproachFromSide(HubFurnitureView.Instance.WaterPosition), ResidentActivity.Drinking);
+        }
+
+        Vector2 ApproachFromSide(Vector3 itemPosition)
+        {
+            float direction = selected.transform.position.x < itemPosition.x ? -1f : 1f;
+            return new Vector2(itemPosition.x + direction * 0.72f, itemPosition.y);
         }
 
         void Update()

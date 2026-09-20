@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using PawPath.Core;
@@ -49,6 +50,10 @@ namespace PawPath.UI
             int currentPoints = CozyEconomyManager.Instance != null ? CozyEconomyManager.Instance.LovePoints : 0;
             UpdatePointsDisplay(currentPoints);
 
+            var scrollRect = listRoot.GetComponentInParent<ScrollRect>();
+            bool restoreScroll = scrollRect != null && listRoot.childCount > 0;
+            float previousScroll = scrollRect != null ? scrollRect.verticalNormalizedPosition : 1f;
+
             // 1. Sağ Üst Kısma Küçük, Şeffaf/Soft Zeminli Sevgi Rozeti Oluştur
             EnsurePointsHeaderCreated(currentPoints);
 
@@ -95,6 +100,20 @@ namespace PawPath.UI
                     ? Instantiate(rowPrefab, listRoot)
                     : CreateRow(listRoot);
                 WireRow(row, item);
+            }
+
+            if (restoreScroll)
+                StartCoroutine(RestoreScrollPosition(scrollRect, previousScroll));
+        }
+
+        static IEnumerator RestoreScrollPosition(ScrollRect scrollRect, float normalizedPosition)
+        {
+            yield return null;
+            Canvas.ForceUpdateCanvases();
+            if (scrollRect != null)
+            {
+                scrollRect.verticalNormalizedPosition = normalizedPosition;
+                scrollRect.StopMovement();
             }
         }
 
@@ -176,8 +195,7 @@ namespace PawPath.UI
                 return;
 
             var label = button.GetComponentInChildren<Text>();
-            if (label != null)
-                label.fontSize = 18;
+            StyleWoodButton(button, label);
 
             bool isOwned = CozyEconomyManager.Instance != null && CozyEconomyManager.Instance.Owns(item.id);
             bool isPlaced = SaveService.Data != null && SaveService.Data.placedItemIds.Contains(item.id);
@@ -197,7 +215,7 @@ namespace PawPath.UI
                 var btnImg = button.GetComponent<Image>();
                 if (btnImg != null)
                 {
-                    btnImg.color = new Color(0.75f, 0.4f, 0.35f); 
+                    btnImg.color = Color.white;
                 }
 
                 button.interactable = true;
@@ -241,7 +259,9 @@ namespace PawPath.UI
                 var btnImg = button.GetComponent<Image>();
                 if (btnImg != null)
                 {
-                    btnImg.color = canAfford ? new Color(0.35f, 0.6f, 0.4f) : new Color(0.6f, 0.6f, 0.6f, 0.5f);
+                    btnImg.color = canAfford
+                        ? Color.white
+                        : new Color(0.62f, 0.60f, 0.56f, 0.72f);
                 }
 
                 button.interactable = canAfford;
@@ -349,8 +369,74 @@ namespace PawPath.UI
             closeButton = close;
             if (closeButton != null)
             {
+                StyleHomeButton(closeButton);
                 closeButton.onClick.RemoveAllListeners();
                 closeButton.onClick.AddListener(ReturnToCatHouse);
+            }
+        }
+
+        static void StyleWoodButton(Button button, Text label)
+        {
+            var rt = button.GetComponent<RectTransform>();
+            rt.sizeDelta = new Vector2(182f, 54f);
+
+            var image = button.GetComponent<Image>();
+            if (image != null)
+            {
+                image.sprite = RusticUiSpriteFactory.WoodButton();
+                image.type = Image.Type.Sliced;
+                image.color = Color.white;
+            }
+
+            if (button.GetComponent<Outline>() == null)
+            {
+                var goldBorder = button.gameObject.AddComponent<Outline>();
+                goldBorder.effectColor = new Color(0.88f, 0.69f, 0.30f, 0.95f);
+                goldBorder.effectDistance = new Vector2(3f, -3f);
+                var softShadow = button.gameObject.AddComponent<Shadow>();
+                softShadow.effectColor = new Color(0.10f, 0.06f, 0.03f, 0.55f);
+                softShadow.effectDistance = new Vector2(0f, -4f);
+            }
+
+            if (label != null)
+            {
+                label.fontSize = 20;
+                label.fontStyle = FontStyle.Bold;
+                label.color = new Color(1f, 0.96f, 0.86f);
+                label.rectTransform.sizeDelta = new Vector2(176f, 50f);
+            }
+
+            var colors = button.colors;
+            colors.normalColor = Color.white;
+            colors.highlightedColor = new Color(1.12f, 1.06f, 0.92f);
+            colors.pressedColor = new Color(0.82f, 0.72f, 0.60f);
+            colors.disabledColor = new Color(0.58f, 0.55f, 0.50f, 0.72f);
+            button.colors = colors;
+        }
+
+        static void StyleHomeButton(Button button)
+        {
+            var rt = button.GetComponent<RectTransform>();
+            rt.sizeDelta = new Vector2(440f, 72f);
+            var image = button.GetComponent<Image>();
+            if (image != null)
+            {
+                image.sprite = RusticUiSpriteFactory.ParchmentPanel();
+                image.type = Image.Type.Sliced;
+                image.color = new Color(0.94f, 0.88f, 1f, 0.95f);
+            }
+            if (button.GetComponent<Outline>() == null)
+            {
+                var border = button.gameObject.AddComponent<Outline>();
+                border.effectColor = new Color(0.35f, 0.24f, 0.19f, 0.72f);
+                border.effectDistance = new Vector2(4f, -4f);
+            }
+            var label = button.GetComponentInChildren<Text>();
+            if (label != null)
+            {
+                label.text = "Kedi Evi";
+                label.fontSize = 27;
+                label.color = new Color(0.28f, 0.20f, 0.20f);
             }
         }
 

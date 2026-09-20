@@ -53,6 +53,8 @@ namespace PawPath.Hub
             {
                 if (cat == null || !SaveService.HasCat(cat.id))
                     continue;
+                if (SaveService.DeveloperMitziOnly && cat.id != "mitzi")
+                    continue;
                 int spotIndex = shuffledSpots.Count > 0
                     ? shuffledSpots[slot % shuffledSpots.Count]
                     : slot;

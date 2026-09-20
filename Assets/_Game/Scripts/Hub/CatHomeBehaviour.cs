@@ -26,8 +26,10 @@ namespace PawPath.Hub
         public ResidentActivity CurrentActivity { get; private set; }
 
         Vector2 targetPosition;
+        Vector2 finalPosition;
         float stateTimer;
         bool interacting;
+        bool navigatingDetour;
         ResidentActivity arrivalActivity = ResidentActivity.Standing;
         Transform visual;
         Animator animator;
@@ -59,6 +61,12 @@ namespace PawPath.Hub
                 UpdateDepthOrder();
                 if (Vector2.Distance(transform.position, targetPosition) < 0.05f)
                 {
+                    if (navigatingDetour)
+                    {
+                        navigatingDetour = false;
+                        PlanPathToFinal();
+                        return;
+                    }
                     if (arrivalActivity == ResidentActivity.Eating || arrivalActivity == ResidentActivity.Drinking)
                     {
                         CurrentActivity = arrivalActivity;
@@ -111,20 +119,51 @@ namespace PawPath.Hub
 
         public void WalkTo(Vector2 worldPoint, ResidentActivity whenArrived = ResidentActivity.Standing)
         {
-            targetPosition = new Vector2(
+            finalPosition = new Vector2(
                 Mathf.Clamp(worldPoint.x, roomX.x, roomX.y),
                 Mathf.Clamp(worldPoint.y, roomY.x, roomY.y));
             arrivalActivity = whenArrived;
             CurrentActivity = ResidentActivity.Walking;
             stateTimer = 20f;
+            PlanPathToFinal();
         }
 
         void BeginWalk()
         {
             CurrentActivity = ResidentActivity.Walking;
-            targetPosition = new Vector2(Random.Range(roomX.x, roomX.y), Random.Range(roomY.x, roomY.y));
+            finalPosition = new Vector2(Random.Range(roomX.x, roomX.y), Random.Range(roomY.x, roomY.y));
             arrivalActivity = ResidentActivity.Standing;
             stateTimer = 12f;
+            PlanPathToFinal();
+        }
+
+        void PlanPathToFinal()
+        {
+            Vector2 start = transform.position;
+            var hits = Physics2D.LinecastAll(start, finalPosition);
+            foreach (var hit in hits)
+            {
+                var furniture = hit.collider != null ? hit.collider.GetComponent<DraggableFurniture>() : null;
+                if (furniture == null)
+                    continue;
+
+                Bounds bounds = hit.collider.bounds;
+                const float clearance = 0.32f;
+                float above = Mathf.Clamp(bounds.max.y + clearance, roomY.x, roomY.y);
+                float below = Mathf.Clamp(bounds.min.y - clearance, roomY.x, roomY.y);
+                float detourY = Mathf.Abs(above - start.y) <= Mathf.Abs(below - start.y) ? above : below;
+                float detourX = start.x <= bounds.center.x
+                    ? bounds.min.x - clearance
+                    : bounds.max.x + clearance;
+                targetPosition = new Vector2(
+                    Mathf.Clamp(detourX, roomX.x, roomX.y),
+                    detourY);
+                navigatingDetour = true;
+                return;
+            }
+
+            targetPosition = finalPosition;
+            navigatingDetour = false;
         }
 
         void BeginRest()

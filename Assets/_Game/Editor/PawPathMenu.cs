@@ -16,13 +16,13 @@ namespace PawPath.EditorTools
         {
             EditorApplication.playModeStateChanged -= ClearTextureSelectionBeforePlay;
             EditorApplication.playModeStateChanged += ClearTextureSelectionBeforePlay;
-            EditorApplication.delayCall += EnsureWallpaper2References;
+            EditorApplication.delayCall += EnsureCurrentArtReferences;
         }
 
-        static void EnsureWallpaper2References()
+        static void EnsureCurrentArtReferences()
         {
             const string catalogPath = "Assets/_Game/Content/PawPathCatalog.asset";
-            const string wallpaperPath = "Assets/_Game/Art/home_wallpaper_cat_scale_v1.png";
+            const string wallpaperPath = "Assets/_Game/Art/home_background_gemini.jpg";
             const string gameplayPath = "Assets/_Game/Art/street_gameplay_summer_v1.png";
             const string gapPath = "Assets/_Game/Art/obstacle_road_gap_v1.png";
             const string moundPath = "Assets/_Game/Art/obstacle_stone_mound_v1.png";
