@@ -11,6 +11,7 @@ namespace PawPath.Core
     public static class SaveService
     {
         const string Key = "PawPath.Save.v1";
+        const string MitziOnlyKey = "PawPath.Developer.MitziOnly";
 
         [Serializable]
         public class SaveData
@@ -74,6 +75,32 @@ namespace PawPath.Core
         }
 
         public static bool HasCat(string id) => Data.unlockedCatIds.Contains(id);
+
+        public static bool DeveloperMitziOnly => PlayerPrefs.GetInt(MitziOnlyKey, 0) == 1;
+
+        public static void SetDeveloperMitziOnly(bool enabled)
+        {
+            PlayerPrefs.SetInt(MitziOnlyKey, enabled ? 1 : 0);
+            if (enabled)
+            {
+                Data.selectedCatId = "mitzi";
+                Persist();
+            }
+            PlayerPrefs.Save();
+        }
+
+        public static void ResetProgressForTesting()
+        {
+            cache = new SaveData();
+            Persist();
+            foreach (string dailyKey in new[]
+            {
+                "DailyCare.Feed", "DailyCare.Water", "DailyCare.Sleep",
+                "LastNeedsResetDate", "DailyPettingPoints", "PawPath.SelectedTheme"
+            })
+                PlayerPrefs.DeleteKey(dailyKey);
+            PlayerPrefs.Save();
+        }
 
         public static void UnlockCat(string id)
         {

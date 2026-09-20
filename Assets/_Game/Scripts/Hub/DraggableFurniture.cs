@@ -59,7 +59,8 @@ namespace PawPath.Hub
             {
                 Vector2 next = world + grabOffset;
                 GetVerticalBounds(out float minY, out float maxY);
-                next.x = Mathf.Clamp(next.x, -5.1f, 5.1f);
+                GetHorizontalBounds(out float minX, out float maxX);
+                next.x = Mathf.Clamp(next.x, minX, maxX);
                 next.y = Mathf.Clamp(next.y, minY, maxY);
                 transform.position = new Vector3(next.x, next.y, transform.position.z);
             }
@@ -73,13 +74,38 @@ namespace PawPath.Hub
             }
         }
 
+        void GetHorizontalBounds(out float minX, out float maxX)
+        {
+            var cam = Camera.main;
+            if (cam == null)
+            {
+                minX = -7.5f;
+                maxX = 7.5f;
+                return;
+            }
+
+            float depth = Mathf.Abs(transform.position.z - cam.transform.position.z);
+            float screenLeft = cam.ViewportToWorldPoint(new Vector3(0f, 0.5f, depth)).x;
+            float screenRight = cam.ViewportToWorldPoint(new Vector3(1f, 0.5f, depth)).x;
+            float halfWidth = sprite != null && sprite.sprite != null
+                ? sprite.sprite.bounds.extents.x * Mathf.Abs(transform.localScale.x)
+                : 0f;
+            const float edgePadding = 0.12f;
+            minX = screenLeft + halfWidth + edgePadding;
+            maxX = screenRight - halfWidth - edgePadding;
+
+            // Çok geniş bir eşya dar ekrana sığmıyorsa merkezde tutulur.
+            if (minX > maxX)
+                minX = maxX = (screenLeft + screenRight) * 0.5f;
+        }
+
         void GetVerticalBounds(out float minY, out float maxY)
         {
             switch (slotType)
             {
                 case FurnitureSlotType.Poster:
                     // Poster yalnızca duvarın üst bölümüne asılabilir.
-                    minY = 0.05f;
+                    minY = 0.65f;
                     maxY = 1.55f;
                     break;
                 case FurnitureSlotType.Rug:
@@ -89,7 +115,7 @@ namespace PawPath.Hub
                     break;
                 case FurnitureSlotType.Bowl:
                 case FurnitureSlotType.Water:
-                    minY = -2.10f;
+                    minY = -2.65f;
                     maxY = -1.25f;
                     break;
                 case FurnitureSlotType.Bed:

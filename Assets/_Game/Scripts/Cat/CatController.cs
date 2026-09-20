@@ -24,10 +24,10 @@ namespace PawPath.Cat
         [SerializeField] float iceSpeedMultiplier = 1.65f;
         [SerializeField] float bounceForce = 7.2f;
         [SerializeField] float walkAnimationSpeed = 1.75f;
-        [SerializeField] float groundedProbe = 0.28f;
+        [SerializeField] float groundedProbe = 0.336f;
         [SerializeField] LayerMask groundMask = ~0;
         [SerializeField] float airGrace = 0.45f;
-        [SerializeField] float visualHeight = 1.38f;
+        [SerializeField] float visualHeight = 1.656f;
 
         [Header("Kurtarma")]
         [SerializeField] SpriteRenderer bubbleRenderer;
@@ -111,7 +111,7 @@ namespace PawPath.Cat
             var circle = GetComponent<CircleCollider2D>();
             if (circle != null)
             {
-                circle.radius = 0.28f;
+                circle.radius = 0.336f;
                 circle.offset = Vector2.zero;
             }
             spawnPosition = world;
@@ -206,8 +206,8 @@ namespace PawPath.Cat
                 var circle = GetComponent<CircleCollider2D>();
                 if (circle != null)
                 {
-                    circle.radius = crouching ? 0.21f : 0.28f;
-                    circle.offset = crouching ? new Vector2(0f, -0.08f) : Vector2.zero;
+                    circle.radius = crouching ? 0.252f : 0.336f;
+                    circle.offset = crouching ? new Vector2(0f, -0.096f) : Vector2.zero;
                 }
             }
 
@@ -250,7 +250,7 @@ namespace PawPath.Cat
         bool IsGrounded(out PathSurfaceType surface)
         {
             surface = PathSurfaceType.Normal;
-            var hits = Physics2D.CircleCastAll(transform.position, 0.12f, Vector2.down, groundedProbe, groundMask);
+            var hits = Physics2D.CircleCastAll(transform.position, 0.144f, Vector2.down, groundedProbe, groundMask);
             for (int i = 0; i < hits.Length; i++)
             {
                 if (hits[i].collider == null)

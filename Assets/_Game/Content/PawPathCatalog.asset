@@ -514,6 +514,10 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 5b70e6509f4491743bd7035f7538899e, type: 2}
   - {fileID: 11400000, guid: 31d2370a9afe51743a579f9486c1236b, type: 2}
   - {fileID: 11400000, guid: 9f8edd8da300d7945ad3d0fd0f2a268e, type: 2}
+  - {fileID: 11400000, guid: e00f8a7964bce3a4f95287bb3d28a0ed, type: 2}
+  - {fileID: 11400000, guid: aca2f3f7f2c250245ab7f98814a69bb8, type: 2}
+  - {fileID: 11400000, guid: 9a48cb692d1dccb4c8ee7fbee51f3beb, type: 2}
+  - {fileID: 11400000, guid: 9a8c4a1a5a718df439a09308016d3689, type: 2}
   levels:
   - {fileID: -8482091838414750122}
   - {fileID: 6013454598846174603}
@@ -545,8 +549,8 @@ MonoBehaviour:
   - {fileID: 6697319454437858831}
   - {fileID: -5525705555030679784}
   - {fileID: -1786143255828469152}
-  homeBackground: {fileID: 21300000, guid: 9ac47e6b703f4c3ca1b2d671df0544a1, type: 3}
-  shopBackground: {fileID: 21300000, guid: 9ac47e6b703f4c3ca1b2d671df0544a1, type: 3}
+  homeBackground: {fileID: 21300000, guid: 572371efb06d2ba40baf74e72d5374ab, type: 3}
+  shopBackground: {fileID: 21300000, guid: 572371efb06d2ba40baf74e72d5374ab, type: 3}
   gameplayBackground: {fileID: 21300000, guid: 7bd18f9a60dd4a45b021337f56a892c2, type: 3}
   forestBackground: {fileID: 21300000, guid: 8d3bc06f27d649339e2b9b3335e43fb1, type: 3}
   roadGapSprite: {fileID: 21300000, guid: da31e904fc314d3793e74df30b144825, type: 3}

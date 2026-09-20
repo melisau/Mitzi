@@ -81,6 +81,11 @@ namespace PawPath.UI
         {
             if (catNeedsSystem != null)
             {
+                if (HubFurnitureView.Instance == null || !HubFurnitureView.Instance.HasPlacedBowl)
+                {
+                    ShowCareMessage("Önce dükkândan mama kabı satın al. Puan için kediyi sev veya bölüm geç.");
+                    return;
+                }
                 bool fed = catNeedsSystem.FeedCat();
                 if (fed && CatHouseInteraction.Instance != null)
                     CatHouseInteraction.Instance.SendSelectedToBowl();
@@ -92,6 +97,11 @@ namespace PawPath.UI
         {
             if (catNeedsSystem != null)
             {
+                if (HubFurnitureView.Instance == null || !HubFurnitureView.Instance.HasPlacedWater)
+                {
+                    ShowCareMessage("Önce dükkândan su kabı satın al. Puan için kediyi sev veya bölüm geç.");
+                    return;
+                }
                 bool drank = catNeedsSystem.GiveWater();
                 if (drank && CatHouseInteraction.Instance != null)
                     CatHouseInteraction.Instance.SendSelectedToWater();
@@ -158,6 +168,14 @@ namespace PawPath.UI
                 sleepButton.onClick.RemoveListener(OnSleepClicked);
                 sleepButton.onClick.AddListener(OnSleepClicked);
             }
+        }
+
+        void ShowCareMessage(string message)
+        {
+            if (energyWarningText == null)
+                return;
+            energyWarningText.gameObject.SetActive(true);
+            energyWarningText.text = message;
         }
 
         static void UpdateCareButton(Button button, bool available, string availableText)

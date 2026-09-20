@@ -152,7 +152,7 @@ namespace PawPath.Core
             var rb = catGo.AddComponent<Rigidbody2D>();
             rb.freezeRotation = true;
             var circle = catGo.AddComponent<CircleCollider2D>();
-            circle.radius = 0.28f;
+            circle.radius = 0.336f;
             // Eğimli tümseklerde collider sürtünmesi kedinin yatay hareketini
             // sıfırlamasın; yürüyüş kontrolü hızı zaten CatController'da belirliyor.
             circle.sharedMaterial = new PhysicsMaterial2D("CatMovementNoFriction")
@@ -210,11 +210,13 @@ namespace PawPath.Core
             portal.transform.localPosition = new Vector3(0f, 0.72f, 0f);
             var renderer = portal.AddComponent<SpriteRenderer>();
             renderer.sprite = portalSprite != null ? portalSprite : FallbackSprite.WhiteCircle();
-            renderer.color = portalSprite != null ? Color.white : new Color(1f, 0.82f, 0.32f, 0.75f);
+            renderer.color = portalSprite != null
+                ? new Color(1f, 1f, 1f, 0.68f)
+                : new Color(1f, 0.82f, 0.32f, 0.68f);
             renderer.sortingOrder = 8;
             if (renderer.sprite != null && renderer.sprite.bounds.size.y > 0f)
             {
-                float scale = 3.45f / renderer.sprite.bounds.size.y;
+                float scale = 5.65f / renderer.sprite.bounds.size.y;
                 portal.transform.localScale = new Vector3(scale, scale, 1f);
                 // Goal merkezi kedi yüksekliğindedir; portalın sprite alt sınırını
                 // kaldırım yüzeyine biraz gömerek havada kalmasını önle.
@@ -260,31 +262,91 @@ namespace PawPath.Core
             var hud = Panel("HUD", canvas, new Vector2(0, 0), new Vector2(0, 0), new Color(1, 1, 1, 0));
             hud.AddComponent<HudView>();
             var content = SafeContent(hud.transform);
-            var love = Label(content, "Love", GameText.Love + ": 0", new Vector2(1f, 1f), new Vector2(-350f, -55f));
+            var love = Label(content, "Love", GameText.Love + ": 0", new Vector2(1f, 1f), new Vector2(-505f, -42f));
             var level = Label(content, "Level", GameText.LevelLabel(1), new Vector2(0.5f, 1f), new Vector2(0, -140));
             var ink = Label(content, "Ink", "", new Vector2(1f, 1f), new Vector2(-585f, -55f));
             love.fontSize = 21;
             ink.fontSize = 21;
             love.rectTransform.sizeDelta = new Vector2(220f, 52f);
             ink.rectTransform.sizeDelta = new Vector2(220f, 52f);
-            var selected = Label(content, "Selected", GameText.PlayingAs + ": Mitzi", new Vector2(0.5f, 1f), new Vector2(0, -260));
-            var play = Button(content, "PlayButton", "Çizerek Oyna", new Vector2(0.5f, 0f), new Vector2(0, 225), new Color(0.93f, 0.72f, 0.76f));
-            var directPlay = Button(content, "DirectPlayButton", "Tuşlarla Oyna", new Vector2(0.5f, 0f), new Vector2(0, 145), new Color(0.72f, 0.82f, 0.94f));
-            var shop = Button(content, "ShopButton", GameText.Shop, new Vector2(0.5f, 0f), new Vector2(0, 65), new Color(0.78f, 0.84f, 0.72f));
-            var themeSelector = BuildThemeSelector(content);
+            var selected = Label(content, "Selected", "", new Vector2(0.5f, 1f), new Vector2(0, -260));
+            selected.gameObject.SetActive(false);
+            var play = Button(content, "PlayButton", "Oyna", new Vector2(1f, 1f), new Vector2(-120f, -55f), new Color(0.93f, 0.72f, 0.76f));
+            var shop = Button(content, "ShopButton", GameText.Shop, new Vector2(1f, 1f), new Vector2(-330f, -55f), new Color(0.78f, 0.84f, 0.72f));
+            StyleCompactTopButton(play, new Vector2(-92f, -42f));
+            StyleCompactTopButton(shop, new Vector2(-282f, -42f));
+
+            var modeMenu = new GameObject("PlayModeMenu", typeof(RectTransform));
+            modeMenu.transform.SetParent(content, false);
+            Stretch(modeMenu.GetComponent<RectTransform>());
+            var drawingPlay = Button(modeMenu.transform, "DrawingPlayButton", "Çizerek Oyna", new Vector2(1f, 1f), new Vector2(-150f, -125f), new Color(0.93f, 0.72f, 0.76f));
+            var directPlay = Button(modeMenu.transform, "DirectPlayButton", "Tuşlarla Oyna", new Vector2(1f, 1f), new Vector2(-150f, -195f), new Color(0.72f, 0.82f, 0.94f));
+            StyleCompactMenuButton(drawingPlay, new Vector2(-132f, -105f));
+            StyleCompactMenuButton(directPlay, new Vector2(-132f, -165f));
+            modeMenu.SetActive(false);
+
+            var themeSelectorObject = BuildThemeSelector(content);
+            var themeSelector = themeSelectorObject.GetComponent<ThemeSelectionUI>();
             var developerLove = Button(content, "DeveloperLove", "+100", new Vector2(0f, 0.5f), new Vector2(54f, 0f), new Color(0.55f, 0.45f, 0.70f, 0.82f));
             developerLove.GetComponent<RectTransform>().sizeDelta = new Vector2(92f, 50f);
             developerLove.GetComponentInChildren<Text>().fontSize = 18;
+            StyleWarmGameButton(developerLove, new Vector2(110f, 52f), 18);
             developerLove.onClick.AddListener(() =>
             {
                 if (CozyEconomyManager.Instance != null)
                     CozyEconomyManager.Instance.AddLove(100, "Geliştirici testi");
             });
             developerLove.gameObject.SetActive(Debug.isDebugBuild || Application.isEditor);
+
+            var mitziOnly = Button(content, "DeveloperMitziOnly", "Sadece Mitzi", new Vector2(0f, 0.5f), new Vector2(105f, -68f), new Color(0.55f, 0.45f, 0.70f, 0.82f));
+            mitziOnly.GetComponent<RectTransform>().sizeDelta = new Vector2(195f, 50f);
+            mitziOnly.GetComponentInChildren<Text>().fontSize = 17;
+            StyleWarmGameButton(mitziOnly, new Vector2(195f, 52f), 17);
+            void RefreshMitziOnlyLabel()
+            {
+                var label = mitziOnly.GetComponentInChildren<Text>();
+                if (label != null)
+                    label.text = SaveService.DeveloperMitziOnly ? "✓ Sadece Mitzi" : "Tüm Kediler";
+            }
+            RefreshMitziOnlyLabel();
+            mitziOnly.onClick.AddListener(() =>
+            {
+                SaveService.SetDeveloperMitziOnly(!SaveService.DeveloperMitziOnly);
+                RefreshMitziOnlyLabel();
+                if (CatHouseManager.Instance != null)
+                    CatHouseManager.Instance.RefreshResidents();
+                var mitzi = GameFlow.Instance != null && GameFlow.Instance.Catalog != null
+                    ? GameFlow.Instance.Catalog.GetCat("mitzi") : null;
+                if (mitzi != null)
+                    GameEvents.PlayableCatChanged(mitzi);
+            });
+            mitziOnly.gameObject.SetActive(Debug.isDebugBuild || Application.isEditor);
+
+            var resetProgress = Button(content, "DeveloperReset", "Baştan Başla", new Vector2(0f, 0.5f), new Vector2(105f, -132f), new Color(0.72f, 0.38f, 0.38f, 0.88f));
+            resetProgress.GetComponent<RectTransform>().sizeDelta = new Vector2(195f, 50f);
+            resetProgress.GetComponentInChildren<Text>().fontSize = 17;
+            StyleWarmGameButton(resetProgress, new Vector2(195f, 52f), 17);
+            resetProgress.onClick.AddListener(() =>
+            {
+                SaveService.ResetProgressForTesting();
+                SaveService.SetDeveloperMitziOnly(true);
+                RefreshMitziOnlyLabel();
+                if (CozyEconomyManager.Instance != null)
+                    CozyEconomyManager.Instance.RefreshUI();
+                if (GameFlow.Instance != null)
+                    GameFlow.Instance.EnterHub();
+                var mitzi = GameFlow.Instance != null && GameFlow.Instance.Catalog != null
+                    ? GameFlow.Instance.Catalog.GetCat("mitzi") : null;
+                if (mitzi != null)
+                    GameEvents.PlayableCatChanged(mitzi);
+            });
+            resetProgress.gameObject.SetActive(Debug.isDebugBuild || Application.isEditor);
             var restart = Button(content, "RestartButton", "Yeniden", new Vector2(1f, 1f), new Vector2(-125f, -55f), new Color(0.93f, 0.72f, 0.76f));
             restart.GetComponent<RectTransform>().sizeDelta = new Vector2(190f, 58f);
             var home = Button(content, "LevelHomeButton", "Eve Dön", new Vector2(0f, 1f), new Vector2(125f, -55f), new Color(0.78f, 0.84f, 0.72f));
             home.GetComponent<RectTransform>().sizeDelta = new Vector2(190f, 58f);
+            StyleWarmGameButton(restart, new Vector2(190f, 58f), 20);
+            StyleWarmGameButton(home, new Vector2(190f, 58f), 20);
             restart.gameObject.SetActive(false);
             home.gameObject.SetActive(false);
             var brushes = BuildBrushToolbar(content);
@@ -294,7 +356,7 @@ namespace PawPath.Core
             var controls = BuildMobileControls(content);
             controls.SetActive(false);
             hud.GetComponent<HudView>().Bind(love, level, ink, selected, play, shop, directPlay,
-                restart, home, careUi, brushes, tutorial, controls);
+                restart, home, careUi, brushes, tutorial, controls, modeMenu, drawingPlay, themeSelector);
             return hud;
         }
 
@@ -303,9 +365,10 @@ namespace PawPath.Core
             var panel = new GameObject("ThemeSelector", typeof(RectTransform));
             panel.transform.SetParent(parent, false);
             Stretch(panel.GetComponent<RectTransform>());
-            var street = Button(panel.transform, "StreetTheme", "Sokak", new Vector2(0f, 1f), new Vector2(125f, -105f), new Color(0.83f, 0.68f, 0.52f));
-            var forest = Button(panel.transform, "ForestTheme", "Orman", new Vector2(0f, 1f), new Vector2(125f, -170f), new Color(0.52f, 0.70f, 0.55f));
-            street.GetComponent<RectTransform>().sizeDelta = forest.GetComponent<RectTransform>().sizeDelta = new Vector2(205f, 52f);
+            var street = Button(panel.transform, "StreetTheme", "Sokak", new Vector2(1f, 1f), new Vector2(-150f, -125f), new Color(0.83f, 0.68f, 0.52f));
+            var forest = Button(panel.transform, "ForestTheme", "Orman", new Vector2(1f, 1f), new Vector2(-150f, -195f), new Color(0.52f, 0.70f, 0.55f));
+            StyleCompactMenuButton(street, new Vector2(-132f, -105f));
+            StyleCompactMenuButton(forest, new Vector2(-132f, -165f));
             panel.AddComponent<ThemeSelectionUI>().Bind(street, forest);
             return panel;
         }
@@ -327,6 +390,7 @@ namespace PawPath.Core
         {
             var button = Button(parent, name, label, anchor, position, new Color(0.18f, 0.20f, 0.25f, 0.82f));
             button.GetComponent<RectTransform>().sizeDelta = new Vector2(125f, 92f);
+            StyleWarmGameButton(button, new Vector2(125f, 92f), 22);
             button.gameObject.AddComponent<MobileControlButton>().Configure(action);
             var text = button.GetComponentInChildren<Text>();
             if (text != null)
@@ -346,14 +410,26 @@ namespace PawPath.Core
             var water = Button(content, "WaterButton", $"Su +{needs.waterPoints}", new Vector2(0.16f, 0f), new Vector2(0f, 130f), new Color(0.62f, 0.80f, 0.91f));
             var sleep = Button(content, "SleepButton", $"Uyu +{needs.sleepPoints}", new Vector2(0.16f, 0f), new Vector2(0f, 55f), new Color(0.75f, 0.69f, 0.86f));
             foreach (var button in new[] { feed, water, sleep })
-                button.GetComponent<RectTransform>().sizeDelta = new Vector2(260f, 58f);
+                StyleWarmGameButton(button, new Vector2(260f, 58f), 19);
 
             var daily = Label(content, "DailyPetting", "Günlük Okşama", new Vector2(0.84f, 0f), new Vector2(0f, 125f));
             daily.fontSize = 20;
-            daily.rectTransform.sizeDelta = new Vector2(330f, 48f);
+            daily.fontStyle = FontStyle.Bold;
+            daily.color = new Color(0.10f, 0.075f, 0.055f, 1f);
+            daily.alignment = TextAnchor.MiddleCenter;
+            daily.rectTransform.sizeDelta = new Vector2(350f, 38f);
+            AddTextPanelBackground(daily);
             var warning = Label(content, "EnergyStatus", "", new Vector2(0.84f, 0f), new Vector2(0f, 65f));
             warning.fontSize = 19;
-            warning.rectTransform.sizeDelta = new Vector2(360f, 70f);
+            warning.fontStyle = FontStyle.Bold;
+            warning.color = new Color(0.10f, 0.075f, 0.055f, 1f);
+            warning.alignment = TextAnchor.MiddleCenter;
+            warning.resizeTextForBestFit = true;
+            warning.resizeTextMinSize = 16;
+            warning.resizeTextMaxSize = 19;
+            warning.rectTransform.sizeDelta = new Vector2(430f, 48f);
+            warning.rectTransform.anchoredPosition = new Vector2(0f, 78f);
+            AddTextPanelBackground(warning);
 
             var ui = panel.AddComponent<CatNeedsUI>();
             ui.Bind(needs, feed, water, sleep, daily, warning);
@@ -373,6 +449,7 @@ namespace PawPath.Core
             AddBrushButton(toolbar.transform, "IceBrush", "Buz", 110f, new Color(0.95f, 0.98f, 1f), PathSurfaceType.Ice);
             var eraser = Button(toolbar.transform, "Eraser", "Sil", new Vector2(0.5f, 0f), new Vector2(220f, 46f), new Color(0.72f, 0.68f, 0.65f));
             eraser.GetComponent<RectTransform>().sizeDelta = new Vector2(92f, 58f);
+            StyleWarmGameButton(eraser, new Vector2(92f, 58f), 17);
             eraser.onClick.AddListener(() =>
             {
                 if (LineDraw.Instance != null)
@@ -385,6 +462,7 @@ namespace PawPath.Core
         {
             var button = Button(parent, name, label, new Vector2(0.5f, 0f), new Vector2(x, 46f), color);
             button.GetComponent<RectTransform>().sizeDelta = new Vector2(92f, 58f);
+            StyleWarmGameButton(button, new Vector2(92f, 58f), 17);
             var text = button.GetComponentInChildren<Text>();
             if (text != null)
             {
@@ -584,6 +662,78 @@ namespace PawPath.Core
             var label = Label(go.transform, "Text", text, new Vector2(0.5f, 0.5f), Vector2.zero);
             label.rectTransform.sizeDelta = new Vector2(400, 64);
             return go.GetComponent<Button>();
+        }
+
+        static void StyleCompactTopButton(Button button, Vector2 position)
+        {
+            var rt = button.GetComponent<RectTransform>();
+            rt.anchoredPosition = position;
+            StyleWarmGameButton(button, new Vector2(170f, 52f), 20);
+        }
+
+        static void StyleCompactMenuButton(Button button, Vector2 position)
+        {
+            StyleCompactTopButton(button, position);
+            button.GetComponent<RectTransform>().sizeDelta = new Vector2(250f, 52f);
+            var image = button.GetComponent<Image>();
+            image.sprite = RusticUiSpriteFactory.ParchmentPanel();
+            image.type = Image.Type.Sliced;
+            image.color = Color.white;
+        }
+
+        static void StyleWarmGameButton(Button button, Vector2 size, int fontSize)
+        {
+            if (button == null)
+                return;
+            button.GetComponent<RectTransform>().sizeDelta = size;
+            var image = button.GetComponent<Image>();
+            if (image != null)
+            {
+                image.sprite = RusticUiSpriteFactory.WoodButton();
+                image.type = Image.Type.Sliced;
+                image.color = Color.white;
+            }
+            if (button.GetComponent<Outline>() == null)
+            {
+                var outline = button.gameObject.AddComponent<Outline>();
+                outline.effectColor = new Color(0.92f, 0.80f, 0.63f, 0.55f);
+                outline.effectDistance = new Vector2(1f, -1f);
+            }
+            var label = button.GetComponentInChildren<Text>();
+            if (label != null)
+            {
+                label.fontSize = fontSize;
+                label.color = new Color(0.10f, 0.075f, 0.055f, 1f);
+                label.fontStyle = FontStyle.Bold;
+            }
+
+            var colors = button.colors;
+            colors.normalColor = Color.white;
+            colors.highlightedColor = new Color(1f, 0.92f, 0.78f, 1f);
+            colors.pressedColor = new Color(0.82f, 0.70f, 0.56f, 1f);
+            colors.selectedColor = Color.white;
+            colors.disabledColor = new Color(0.78f, 0.72f, 0.65f, 0.72f);
+            button.colors = colors;
+        }
+
+        static void AddTextPanelBackground(Text text)
+        {
+            var background = new GameObject(text.name + "Background", typeof(RectTransform), typeof(Image));
+            background.transform.SetParent(text.transform.parent, false);
+            var rt = background.GetComponent<RectTransform>();
+            rt.anchorMin = text.rectTransform.anchorMin;
+            rt.anchorMax = text.rectTransform.anchorMax;
+            rt.pivot = text.rectTransform.pivot;
+            rt.anchoredPosition = text.rectTransform.anchoredPosition;
+            rt.sizeDelta = text.rectTransform.sizeDelta;
+            var image = background.GetComponent<Image>();
+            image.sprite = RusticUiSpriteFactory.ParchmentPanel();
+            image.type = Image.Type.Sliced;
+            image.color = new Color(1f, 1f, 1f, 0.84f);
+            var outline = background.AddComponent<Outline>();
+            outline.effectColor = new Color(0.92f, 0.80f, 0.63f, 0.48f);
+            outline.effectDistance = new Vector2(1f, -1f);
+            background.transform.SetSiblingIndex(text.transform.GetSiblingIndex());
         }
 
         static void Stretch(RectTransform rt)

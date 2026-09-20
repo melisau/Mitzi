@@ -9,8 +9,9 @@ namespace PawPath.Levels
     /// </summary>
     public class LevelCourseBuilder : MonoBehaviour
     {
+        public const float GameplayScale = 1.20f;
         const float RoadCenterY = -1.85f;
-        const float RoadHeight = 0.96f;
+        const float RoadHeight = 0.96f * GameplayScale;
         const float SecondSectionOffset = 13.0f;
         static readonly Color RoadColor = new Color(0.72f, 0.54f, 0.38f, 1f);
         static readonly Color ObstacleColor = new Color(0.61f, 0.42f, 0.29f, 1f);
@@ -20,7 +21,7 @@ namespace PawPath.Levels
         Sprite moundSprite;
         Sprite roadSprite;
 
-        public float CatSpawnY => RoadCenterY + RoadHeight * 0.5f + 0.40f;
+        public float CatSpawnY => RoadCenterY + RoadHeight * 0.5f + 0.40f * GameplayScale;
         public float GoalY => CatSpawnY + 0.15f;
         public float GoalX => 19.35f;
 
@@ -114,13 +115,15 @@ namespace PawPath.Levels
             int tileCount = Mathf.Max(1, Mathf.CeilToInt(width / 3.1f));
             float tileWidth = width / tileCount;
             float left = centerX - width * 0.5f;
+            float roadTop = RoadCenterY + RoadHeight * 0.5f;
+            CreateRoadUnderfill(centerX, width + 0.18f, roadTop);
             for (int i = 0; i < tileCount; i++)
             {
                 float x = left + tileWidth * (i + 0.5f);
-                // Görsel dosyasının üstünde/altında şeffaf pay var. X ve Y'yi
-                // ayrı ölçekleyerek taş kesitini kalın, yürüme yüzeyini düz tutuyoruz.
+                // Üst çim/yürüme yüzeyi eski doğru konumunda kalır. Ekranın altına
+                // uzanan kalınlık ayrı bir dolgu görseliyle sağlanır.
                 Decoration("RoadVisual", roadSprite, new Vector2(x, RoadCenterY - 0.02f),
-                    tileWidth + 0.12f, 1, 3.35f);
+                    tileWidth + 0.18f, 1, 3.35f * GameplayScale);
             }
         }
 
@@ -132,18 +135,22 @@ namespace PawPath.Levels
             // bir collider tepesi oluşturuyordu. Biraz alçaltıp tabanını genişletiyoruz.
             float heightVariant = isTallVariant ? 1.55f : 1f;
             float widthVariant = isTallVariant ? 1.15f : 1f;
-            float obstacleWidth = width * 1.62f * widthVariant;
-            float obstacleHeight = height * 1.62f * heightVariant;
+            float obstacleWidth = width * 1.62f * widthVariant * GameplayScale;
+            float obstacleHeight = height * 1.62f * heightVariant * GameplayScale;
             float visualWidth = obstacleWidth * 1.95f;
-            float visualOverlap = (moundSprite != null && moundSprite.name.Contains("forest") ? 0.52f : 0.95f) * heightVariant;
+            float visualOverlap = (moundSprite != null && moundSprite.name.Contains("forest") ? 0.52f : 0.95f) *
+                heightVariant * GameplayScale;
             float colliderHeight = obstacleHeight;
             if (moundSprite != null && moundSprite.bounds.size.x > 0f)
             {
                 // Görsel genişlikten ölçeklendiği için, hedef yükseklik oranını korumak
-                // adına genişlik artışını dikey ölçekten çıkarıyoruz.
+                // adına genişlik artışını dikey ölçekten çıkarıyoruz. Görselin yolun
+                // içine gömülen kısmı yürünebilir tepe değildir; collider hesabından
+                // çıkarılmazsa kedi görünen tümseğin üstünde havada kalır.
                 float spriteHeightScale = heightVariant / widthVariant;
                 float visibleRatioHeight = visualWidth * moundSprite.bounds.size.y / moundSprite.bounds.size.x * spriteHeightScale;
-                colliderHeight = Mathf.Min(obstacleHeight, visibleRatioHeight * 0.82f);
+                float visibleHeightAboveRoad = Mathf.Max(0.35f, visibleRatioHeight - visualOverlap);
+                colliderHeight = Mathf.Min(obstacleHeight, visibleHeightAboveRoad * 0.90f);
             }
             float roadTop = RoadCenterY + RoadHeight * 0.5f;
             // Alfa boşluğu yalnızca görsel yerleşimine aittir. Fizik şeklinin
@@ -198,10 +205,16 @@ namespace PawPath.Levels
         void Gap(float centerX, float width)
         {
             if (gapSprite != null)
+            {
                 // Üst kırık kenarlar yol hizasında kalır; yalnızca aşağıdaki
-                // toprak kesiti büyütülerek çukur daha derin görünür.
-                Decoration("GapVisual", gapSprite, new Vector2(centerX, RoadCenterY - 0.28f),
-                    width + 1.85f, 0, 2.55f);
+                // toprak kesiti büyütülerek çukur daha derin görünür. Merkez
+                // konumu yol yüzeyinden ölçeklendiği için büyürken bağlantı kopmaz.
+                float roadTop = RoadCenterY + RoadHeight * 0.5f;
+                // Görselin en yüksek uçları doğrudan yol yüzeyine sabitlenir; böylece
+                // orman çukurunun yan dudakları yükselmez ve arada boşluk kalmaz.
+                DecorationTopAligned("GapVisual", gapSprite, centerX,
+                    roadTop, (width + 1.95f) * GameplayScale, -2, 5.8f);
+            }
         }
 
         void Decoration(string objectName, Sprite sprite, Vector2 position, float targetWidth,
@@ -237,6 +250,38 @@ namespace PawPath.Levels
             float centerY = bottomY - sprite.bounds.min.y * scaleY;
             Decoration(objectName, sprite, new Vector2(centerX, centerY), targetWidth, sortingOrder,
                 sprite.bounds.size.y * scaleY);
+        }
+
+        void DecorationTopAligned(string objectName, Sprite sprite, float centerX,
+            float topY, float targetWidth, int sortingOrder, float targetHeight)
+        {
+            if (sprite == null || sprite.bounds.size.x <= 0f || sprite.bounds.size.y <= 0f)
+                return;
+
+            float scaleX = targetWidth / sprite.bounds.size.x;
+            float scaleY = targetHeight / sprite.bounds.size.y;
+            // Sprite'ın gerçek üst bounds'u tam yol yüzeyine oturur. X ekseninde
+            // komşu karolar hafifçe bindirilerek aradaki ince çizgiler kapatılır.
+            float centerY = topY - sprite.bounds.max.y * scaleY;
+            Decoration(objectName, sprite, new Vector2(centerX, centerY), targetWidth,
+                sortingOrder, targetHeight);
+        }
+
+        void CreateRoadUnderfill(float centerX, float width, float topY)
+        {
+            const float bottomY = -5.35f;
+            float height = topY - bottomY;
+            var go = new GameObject("RoadUnderfill");
+            go.transform.SetParent(generatedRoot, false);
+            go.transform.position = new Vector2(centerX, bottomY + height * 0.5f);
+            go.transform.localScale = new Vector3(width, height, 1f);
+            var renderer = go.AddComponent<SpriteRenderer>();
+            renderer.sprite = FallbackSprite.WhiteSquare();
+            bool forest = roadSprite != null && roadSprite.name.ToLowerInvariant().Contains("forest");
+            renderer.color = forest
+                ? new Color(0.115f, 0.095f, 0.065f, 1f)
+                : new Color(0.34f, 0.20f, 0.12f, 1f);
+            renderer.sortingOrder = -1;
         }
 
         void CreateSolid(string objectName, Vector2 position, Vector2 size, Color color, int sortingOrder)

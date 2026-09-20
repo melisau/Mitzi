@@ -24,6 +24,9 @@ namespace PawPath.Hub
         public bool HasPlacedWater => SaveService.Data != null &&
             SaveService.Data.placedItemIds != null && SaveService.Data.placedItemIds.Contains("cat_water");
 
+        public bool HasPlacedBowl => SaveService.Data != null &&
+            SaveService.Data.placedItemIds != null && SaveService.Data.placedItemIds.Contains("food_bowl");
+
         private void OnEnable()
         {
             GameEvents.OnShopChanged += Refresh;
@@ -100,12 +103,12 @@ namespace PawPath.Hub
                 return;
             float targetHeight = type switch
             {
-                PawPath.Content.FurnitureSlotType.Rug => 1.45f,
+                PawPath.Content.FurnitureSlotType.Rug => 2.55f,
                 PawPath.Content.FurnitureSlotType.Bed => 2.1f,
-                PawPath.Content.FurnitureSlotType.Bowl => 1.0f,
-                PawPath.Content.FurnitureSlotType.Water => 1.0f,
-                PawPath.Content.FurnitureSlotType.Sand => 1.15f,
-                PawPath.Content.FurnitureSlotType.Poster => 1.9f,
+                PawPath.Content.FurnitureSlotType.Bowl => 0.76f,
+                PawPath.Content.FurnitureSlotType.Water => 0.76f,
+                PawPath.Content.FurnitureSlotType.Sand => 2.05f,
+                PawPath.Content.FurnitureSlotType.Poster => 2.35f,
                 PawPath.Content.FurnitureSlotType.Tree => 3.5f,
                 _ => 5f
             };

@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5453fd3994f158f44848f3bb7b9c08e9, type: 3}
+  m_Name: item_cat_water
+  m_EditorClassIdentifier: 
+  id: cat_water
+  displayName: "Su Kab\u0131"
+  description: "Kedilerin su i\xE7mek i\xE7in kullanaca\u011F\u0131 su kab\u0131."
+  lovePointCost: 25
+  icon: {fileID: 21300000, guid: 7f88172a9a4521b4ab0c67ddc8f51f08, type: 3}
+  placedSprite: {fileID: 21300000, guid: 7f88172a9a4521b4ab0c67ddc8f51f08, type: 3}
+  slotType: 5
