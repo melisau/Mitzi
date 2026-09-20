@@ -27,6 +27,12 @@ namespace PawPath.Data
         public Sprite forestGapSprite;
         public Sprite forestMoundSprite;
         public Sprite forestPlatformSprite;
+        [Header("Cadde Teması")]
+        public Sprite cityBackground;
+        public Sprite cityGapSprite;
+        public Sprite cityPlatformSprite;
+        public Sprite cityCarSprite;
+        public Sprite cityVanSprite;
         public Sprite finishPortalSprite;
         [Header("Başarı Ekranı")]
         public Sprite[] completionFaces;

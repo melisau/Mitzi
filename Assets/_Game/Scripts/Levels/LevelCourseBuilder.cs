@@ -19,17 +19,19 @@ namespace PawPath.Levels
         Transform generatedRoot;
         Sprite gapSprite;
         Sprite moundSprite;
+        Sprite alternateMoundSprite;
         Sprite roadSprite;
 
         public float CatSpawnY => RoadCenterY + RoadHeight * 0.5f + 0.40f * GameplayScale;
         public float GoalY => CatSpawnY + 0.15f;
         public float GoalX => 19.35f;
 
-        public void BindVisuals(Sprite gap, Sprite mound, Sprite road)
+        public void BindVisuals(Sprite gap, Sprite mound, Sprite road, Sprite alternateMound = null)
         {
             gapSprite = gap;
             moundSprite = mound;
             roadSprite = road;
+            alternateMoundSprite = alternateMound;
         }
 
         public void Build(int levelNumber)
@@ -129,6 +131,8 @@ namespace PawPath.Levels
 
         void Obstacle(float centerX, float width, float height)
         {
+            Sprite obstacleSprite = alternateMoundSprite != null && Random.value >= 0.5f
+                ? alternateMoundSprite : moundSprite;
             bool isTallVariant = Random.value >= 0.5f;
             // Uzun varyant eskiden 2 kat yüksek ve normal varyantla aynı genişlikteydi.
             // Bu, yamacı gereğinden dikleştiriyor ve çift zıplamayla bile geçilemeyen
@@ -138,17 +142,18 @@ namespace PawPath.Levels
             float obstacleWidth = width * 1.62f * widthVariant * GameplayScale;
             float obstacleHeight = height * 1.62f * heightVariant * GameplayScale;
             float visualWidth = obstacleWidth * 1.95f;
-            float visualOverlap = (moundSprite != null && moundSprite.name.Contains("forest") ? 0.52f : 0.95f) *
+            bool cityVehicle = obstacleSprite != null && obstacleSprite.name.Contains("city_car");
+            float visualOverlap = (cityVehicle ? 0.03f : obstacleSprite != null && obstacleSprite.name.Contains("forest") ? 0.52f : 0.95f) *
                 heightVariant * GameplayScale;
             float colliderHeight = obstacleHeight;
-            if (moundSprite != null && moundSprite.bounds.size.x > 0f)
+            if (obstacleSprite != null && obstacleSprite.bounds.size.x > 0f)
             {
                 // Görsel genişlikten ölçeklendiği için, hedef yükseklik oranını korumak
                 // adına genişlik artışını dikey ölçekten çıkarıyoruz. Görselin yolun
                 // içine gömülen kısmı yürünebilir tepe değildir; collider hesabından
                 // çıkarılmazsa kedi görünen tümseğin üstünde havada kalır.
                 float spriteHeightScale = heightVariant / widthVariant;
-                float visibleRatioHeight = visualWidth * moundSprite.bounds.size.y / moundSprite.bounds.size.x * spriteHeightScale;
+                float visibleRatioHeight = visualWidth * obstacleSprite.bounds.size.y / obstacleSprite.bounds.size.x * spriteHeightScale;
                 float visibleHeightAboveRoad = Mathf.Max(0.35f, visibleRatioHeight - visualOverlap);
                 colliderHeight = Mathf.Min(obstacleHeight, visibleHeightAboveRoad * 0.90f);
             }
@@ -183,12 +188,12 @@ namespace PawPath.Levels
                 new Vector2(halfW, -halfH)
             };
 
-            if (moundSprite != null)
+            if (obstacleSprite != null)
             {
                 // Üretilen orman tümseği PNG'sinin altında geniş şeffaf tuval payı var.
                 // Görünen yosun/toprak tabanını yolun içine oturtmak için yalnızca bu
                 // görsele daha fazla bindirme uygula.
-                DecorationBottomAligned("HumpVisual", moundSprite, centerX, roadTop - visualOverlap,
+                DecorationBottomAligned("HumpVisual", obstacleSprite, centerX, roadTop - visualOverlap,
                     visualWidth, 2, heightVariant / widthVariant);
             }
             else

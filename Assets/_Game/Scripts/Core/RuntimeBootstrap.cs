@@ -367,9 +367,11 @@ namespace PawPath.Core
             Stretch(panel.GetComponent<RectTransform>());
             var street = Button(panel.transform, "StreetTheme", "Sokak", new Vector2(1f, 1f), new Vector2(-150f, -125f), new Color(0.83f, 0.68f, 0.52f));
             var forest = Button(panel.transform, "ForestTheme", "Orman", new Vector2(1f, 1f), new Vector2(-150f, -195f), new Color(0.52f, 0.70f, 0.55f));
+            var city = Button(panel.transform, "CityTheme", "Cadde", new Vector2(1f, 1f), new Vector2(-150f, -255f), new Color(0.62f, 0.58f, 0.54f));
             StyleCompactMenuButton(street, new Vector2(-132f, -105f));
             StyleCompactMenuButton(forest, new Vector2(-132f, -165f));
-            panel.AddComponent<ThemeSelectionUI>().Bind(street, forest);
+            StyleCompactMenuButton(city, new Vector2(-132f, -225f));
+            panel.AddComponent<ThemeSelectionUI>().Bind(street, forest, city);
             return panel;
         }
 
@@ -509,7 +511,7 @@ namespace PawPath.Core
 
         static GameObject BuildLevelComplete(Transform canvas, PawPathCatalog catalog)
         {
-            var panel = Panel("LevelComplete", canvas, Vector2.zero, Vector2.one, new Color(0.98f, 0.93f, 0.84f, 0.98f));
+            var panel = Panel("LevelComplete", canvas, Vector2.zero, Vector2.one, new Color(0.98f, 0.93f, 0.84f, 0.68f));
             var content = SafeContent(panel.transform);
             var success = Label(content, "Success", "BAŞARDIN!", new Vector2(0.5f, 0.82f), Vector2.zero);
             success.fontSize = 54;
@@ -536,6 +538,8 @@ namespace PawPath.Core
             next.GetComponent<RectTransform>().sizeDelta = new Vector2(440f, 78f);
             var home = Button(content, "CompletionHome", "Kedi Evine Dön", new Vector2(0.5f, 0.09f), Vector2.zero, new Color(0.78f, 0.84f, 0.72f));
             home.GetComponent<RectTransform>().sizeDelta = new Vector2(440f, 78f);
+            StyleWarmGameButton(next, new Vector2(440f, 78f), 27);
+            StyleWarmGameButton(home, new Vector2(440f, 78f), 27);
 
             var screen = panel.AddComponent<LevelCompleteUI>();
             screen.Bind(title, reward, next, home, faceImage, catalog != null ? catalog.completionFaces : null);
@@ -679,6 +683,9 @@ namespace PawPath.Core
             image.sprite = RusticUiSpriteFactory.ParchmentPanel();
             image.type = Image.Type.Sliced;
             image.color = Color.white;
+            var menuLabel = button.GetComponentInChildren<Text>();
+            if (menuLabel != null)
+                menuLabel.color = new Color(0.16f, 0.11f, 0.075f, 1f);
         }
 
         static void StyleWarmGameButton(Button button, Vector2 size, int fontSize)
@@ -703,7 +710,7 @@ namespace PawPath.Core
             if (label != null)
             {
                 label.fontSize = fontSize;
-                label.color = new Color(0.10f, 0.075f, 0.055f, 1f);
+                label.color = new Color(1f, 0.96f, 0.88f, 1f);
                 label.fontStyle = FontStyle.Bold;
             }
 

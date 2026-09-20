@@ -73,20 +73,26 @@ namespace PawPath.Levels
             if (catalog == null)
                 return;
 
-            bool forestTheme = ThemeSelectionUI.GetSelectedTheme(levelNumber) == 1;
+            int selectedTheme = ThemeSelectionUI.GetSelectedTheme(levelNumber);
+            bool forestTheme = selectedTheme == 1;
+            bool cityTheme = selectedTheme == 2;
             if (courseBuilder != null)
             {
                 courseBuilder.BindVisuals(
-                    forestTheme && catalog.forestGapSprite != null ? catalog.forestGapSprite : catalog.roadGapSprite,
-                    forestTheme && catalog.forestMoundSprite != null ? catalog.forestMoundSprite : catalog.moundSprite,
-                    forestTheme && catalog.forestPlatformSprite != null ? catalog.forestPlatformSprite : catalog.roadPlatformSprite);
+                    cityTheme && catalog.cityGapSprite != null ? catalog.cityGapSprite :
+                        forestTheme && catalog.forestGapSprite != null ? catalog.forestGapSprite : catalog.roadGapSprite,
+                    cityTheme && catalog.cityCarSprite != null ? catalog.cityCarSprite :
+                        forestTheme && catalog.forestMoundSprite != null ? catalog.forestMoundSprite : catalog.moundSprite,
+                    cityTheme && catalog.cityPlatformSprite != null ? catalog.cityPlatformSprite :
+                        forestTheme && catalog.forestPlatformSprite != null ? catalog.forestPlatformSprite : catalog.roadPlatformSprite,
+                    cityTheme ? catalog.cityVanSprite : null);
             }
 
             if (seasonBackdrop != null)
             {
-                var background = forestTheme && catalog.forestBackground != null
-                    ? catalog.forestBackground
-                    : catalog.gameplayBackground;
+                var background = cityTheme && catalog.cityBackground != null
+                    ? catalog.cityBackground
+                    : forestTheme && catalog.forestBackground != null ? catalog.forestBackground : catalog.gameplayBackground;
                 seasonBackdrop.SetBackground(background);
             }
         }

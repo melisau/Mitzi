@@ -559,6 +559,11 @@ MonoBehaviour:
   forestGapSprite: {fileID: 21300000, guid: 72f430151bc44e62b5ae3a3a9aba9487, type: 3}
   forestMoundSprite: {fileID: 21300000, guid: 26d8dc4080fa4e79a802713d475a5f22, type: 3}
   forestPlatformSprite: {fileID: 21300000, guid: ef23408c89004cfc962bdb8726e1b12f, type: 3}
+  cityBackground: {fileID: 21300000, guid: ce02071bbcb3dec4a8a725a8db5cdf81, type: 3}
+  cityGapSprite: {fileID: 21300000, guid: 9b3d5de8affcf0147bfdbed10b8cefe2, type: 3}
+  cityPlatformSprite: {fileID: 21300000, guid: 9c0d44d0269a1c04192774ec5e539fb5, type: 3}
+  cityCarSprite: {fileID: 21300000, guid: ea7ea890117145643be21bb2c35b4ade, type: 3}
+  cityVanSprite: {fileID: 21300000, guid: 0672477962867034db0e485a388b10d3, type: 3}
   finishPortalSprite: {fileID: 21300000, guid: 71fa809c24e6479cb4125806e44f450a, type: 3}
   completionFaces:
   - {fileID: 21300000, guid: 79d36b25a3e14f0f8f354bec59b7de9e, type: 3}
