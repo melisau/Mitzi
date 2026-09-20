@@ -27,6 +27,7 @@ namespace PawPath.Data
         public Sprite portrait;
         public Sprite idleSprite;
         public RuntimeAnimatorController animator;
+        public Sprite[] sleepFrames;
         public AudioClip purrClip;
         public AudioClip meowClip;
     }

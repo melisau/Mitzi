@@ -120,6 +120,7 @@ namespace PawPath.Cat
             }
             spawnPosition = world;
             transform.position = world;
+            body.simulated = true;
             body.velocity = Vector2.zero;
             busy = false;
             airTimer = 0f;
@@ -310,8 +311,7 @@ namespace PawPath.Cat
                 CozyEconomyManager.Instance.RemoveLove(10, "Kırmızı yola temas");
             yield return new WaitForSeconds(0.35f);
             busy = false;
-            if (LevelManager.Instance != null)
-                LevelManager.Instance.BeginCurrentLevel();
+            GameFlow.Instance?.ShowLevelFailure("Tehlikeli alana temas ettin. Daha güvenli bir yol dene!");
         }
 
         public void FlipTowards(Vector2 target)
@@ -336,13 +336,11 @@ namespace PawPath.Cat
 
             yield return new WaitForSeconds(0.2f);
 
-            transform.position = spawnPosition;
             body.simulated = true;
             body.velocity = Vector2.zero;
             airTimer = 0f;
             busy = false;
-            CozyAudioManager.Instance?.PlayRescue();
-            GameEvents.CatRescued();
+            GameFlow.Instance?.ShowLevelFailure("Kedi çukura düştü. Zıplama zamanını veya çizdiğin yolu değiştir!");
         }
 
         public void BindVisual(Transform vis, SpriteRenderer bubble)
