@@ -15,6 +15,7 @@ namespace PawPath.Levels
         const float SecondSectionOffset = 13.0f;
         static readonly Color RoadColor = new Color(0.72f, 0.54f, 0.38f, 1f);
         static readonly Color ObstacleColor = new Color(0.61f, 0.42f, 0.29f, 1f);
+        static readonly Color CityRoadFillColor = new Color(0.70f, 0.66f, 0.60f, 1f);
 
         Transform generatedRoot;
         Sprite gapSprite;
@@ -28,7 +29,7 @@ namespace PawPath.Levels
 
         public void BindVisuals(Sprite gap, Sprite mound, Sprite road, Sprite alternateMound = null)
         {
-            gapSprite = gap;
+            gapSprite = CreateCityTrashContainer(gap);
             moundSprite = mound;
             roadSprite = CreateCitySidewalkSurface(road);
             alternateMoundSprite = alternateMound;
@@ -36,15 +37,15 @@ namespace PawPath.Levels
 
         static Sprite CreateCitySidewalkSurface(Sprite source)
         {
-            if (source == null || !source.name.Contains("city_sidewalk"))
-                return source;
-            Rect rect = source.rect;
-            // Kaynağın yalnızca üstteki kaldırım/tuğla şeridini kullan; borulu
-            // yeraltı kısmı düz dolgu tarafından tamamen gizlenecek.
-            var surfaceRect = new Rect(rect.x, rect.y + rect.height * 0.78f, rect.width, rect.height * 0.22f);
-            var sprite = Sprite.Create(source.texture, surfaceRect, new Vector2(0.5f, 0.5f), source.pixelsPerUnit);
-            sprite.name = "city_sidewalk_surface";
-            return sprite;
+            // Cadde için artık yalnızca temiz taş kaldırım dokusu kullanılıyor;
+            // eski borulu görselde gereken kırpma yeni görseli bozuyordu.
+            return source;
+        }
+
+        static Sprite CreateCityTrashContainer(Sprite source)
+        {
+            // Yeni PNG zaten yalnızca şeffaf arka planlı konteynırı içeriyor.
+            return source;
         }
 
         public void Build(int levelNumber)
@@ -137,7 +138,7 @@ namespace PawPath.Levels
                 float x = left + tileWidth * (i + 0.5f);
                 // Üst çim/yürüme yüzeyi eski doğru konumunda kalır. Ekranın altına
                 // uzanan kalınlık ayrı bir dolgu görseliyle sağlanır.
-                bool citySurface = roadSprite != null && roadSprite.name.Contains("city_sidewalk_surface");
+                bool citySurface = roadSprite != null && roadSprite.name.Contains("city_sidewalk");
                 float visualHeight = citySurface ? 0.82f : 3.35f * GameplayScale;
                 float visualCenterY = citySurface
                     ? roadTop - visualHeight * 0.5f + 0.03f
@@ -151,7 +152,10 @@ namespace PawPath.Levels
         {
             Sprite obstacleSprite = alternateMoundSprite != null && Random.value >= 0.5f
                 ? alternateMoundSprite : moundSprite;
-            bool isTallVariant = Random.value >= 0.5f;
+            bool cityVehicle = obstacleSprite != null && obstacleSprite.name.Contains("city_car");
+            // Cadde temasında boyut varyasyonu yoktur: sadece otomobil/minibüs
+            // görseli değişir. Büyük-küçük varyasyonu orman tümseklerine aittir.
+            bool isTallVariant = !cityVehicle && Random.value >= 0.5f;
             // Uzun varyant eskiden 2 kat yüksek ve normal varyantla aynı genişlikteydi.
             // Bu, yamacı gereğinden dikleştiriyor ve çift zıplamayla bile geçilemeyen
             // bir collider tepesi oluşturuyordu. Biraz alçaltıp tabanını genişletiyoruz.
@@ -160,7 +164,6 @@ namespace PawPath.Levels
             float obstacleWidth = width * 1.62f * widthVariant * GameplayScale;
             float obstacleHeight = height * 1.62f * heightVariant * GameplayScale;
             float visualWidth = obstacleWidth * 1.95f;
-            bool cityVehicle = obstacleSprite != null && obstacleSprite.name.Contains("city_car");
             float visualOverlap = (cityVehicle ? 0.03f : obstacleSprite != null && obstacleSprite.name.Contains("forest") ? 0.52f : 0.95f) *
                 heightVariant * GameplayScale;
             float colliderHeight = obstacleHeight;
@@ -173,7 +176,9 @@ namespace PawPath.Levels
                 float spriteHeightScale = heightVariant / widthVariant;
                 float visibleRatioHeight = visualWidth * obstacleSprite.bounds.size.y / obstacleSprite.bounds.size.x * spriteHeightScale;
                 float visibleHeightAboveRoad = Mathf.Max(0.35f, visibleRatioHeight - visualOverlap);
-                colliderHeight = Mathf.Min(obstacleHeight, visibleHeightAboveRoad * 0.90f);
+                colliderHeight = cityVehicle
+                    ? visibleHeightAboveRoad * 0.96f
+                    : Mathf.Min(obstacleHeight, visibleHeightAboveRoad * 0.90f);
             }
             float roadTop = RoadCenterY + RoadHeight * 0.5f;
             // Alfa boşluğu yalnızca görsel yerleşimine aittir. Fizik şeklinin
@@ -194,17 +199,28 @@ namespace PawPath.Levels
             // Dikdörtgen collider kediyi görselin boş köşelerinde havada tutuyordu.
             // Tepeyi tek keskin nokta yerine kısa bir düzlük yapıyoruz. CircleCollider
             // aksi halde iki eğimin birleştiği noktaya sıkışıp ilerleyemiyordu.
-            collider.points = new[]
-            {
-                new Vector2(-halfW, -halfH),
-                new Vector2(-halfW * 0.86f, -halfH * 0.62f),
-                new Vector2(-halfW * 0.52f, halfH * 0.12f),
-                new Vector2(-halfW * 0.18f, halfH * 0.76f),
-                new Vector2(halfW * 0.18f, halfH * 0.76f),
-                new Vector2(halfW * 0.52f, halfH * 0.12f),
-                new Vector2(halfW * 0.86f, -halfH * 0.62f),
-                new Vector2(halfW, -halfH)
-            };
+            collider.points = cityVehicle
+                ? new[]
+                {
+                    new Vector2(-halfW, -halfH),
+                    new Vector2(-halfW * 0.92f, -halfH * 0.20f),
+                    new Vector2(-halfW * 0.62f, halfH * 0.72f),
+                    new Vector2(-halfW * 0.30f, halfH),
+                    new Vector2(halfW * 0.30f, halfH),
+                    new Vector2(halfW * 0.72f, halfH * 0.58f),
+                    new Vector2(halfW, -halfH)
+                }
+                : new[]
+                {
+                    new Vector2(-halfW, -halfH),
+                    new Vector2(-halfW * 0.86f, -halfH * 0.62f),
+                    new Vector2(-halfW * 0.52f, halfH * 0.12f),
+                    new Vector2(-halfW * 0.18f, halfH * 0.76f),
+                    new Vector2(halfW * 0.18f, halfH * 0.76f),
+                    new Vector2(halfW * 0.52f, halfH * 0.12f),
+                    new Vector2(halfW * 0.86f, -halfH * 0.62f),
+                    new Vector2(halfW, -halfH)
+                };
 
             if (obstacleSprite != null)
             {
@@ -233,6 +249,23 @@ namespace PawPath.Levels
                 // toprak kesiti büyütülerek çukur daha derin görünür. Merkez
                 // konumu yol yüzeyinden ölçeklendiği için büyürken bağlantı kopmaz.
                 float roadTop = RoadCenterY + RoadHeight * 0.5f;
+                bool cityContainer = gapSprite.name.Contains("city_trash");
+                if (cityContainer)
+                {
+                    // Konteynır kaldırımın üstünde değil, açıklığın içinde durur.
+                    // Buraya collider eklenmediği için alan aşılacak çukur olarak kalır.
+                    const float cityGapBottom = -5.35f;
+                    float cityGapFillTop = roadTop - 1.10f;
+                    float cityGapFillHeight = cityGapFillTop - cityGapBottom;
+                    Decoration("CityGapUnderfill", FallbackSprite.WhiteSquare(),
+                        new Vector2(centerX, cityGapBottom + cityGapFillHeight * 0.5f),
+                        width * GameplayScale, 0, cityGapFillHeight);
+                    generatedRoot.GetChild(generatedRoot.childCount - 1)
+                        .GetComponent<SpriteRenderer>().color = CityRoadFillColor;
+                    DecorationBottomAligned("TrashContainer", gapSprite, centerX,
+                        roadTop - 1.15f, width * 1.50f, 2);
+                    return;
+                }
                 // Görselin en yüksek uçları doğrudan yol yüzeyine sabitlenir; böylece
                 // orman çukurunun yan dudakları yükselmez ve arada boşluk kalmaz.
                 DecorationTopAligned("GapVisual", gapSprite, centerX,
@@ -303,7 +336,7 @@ namespace PawPath.Levels
             bool forest = roadSprite != null && roadSprite.name.ToLowerInvariant().Contains("forest");
             bool city = roadSprite != null && roadSprite.name.Contains("city_sidewalk");
             renderer.color = city
-                ? new Color(0.16f, 0.145f, 0.135f, 1f)
+                ? CityRoadFillColor
                 : forest ? new Color(0.115f, 0.095f, 0.065f, 1f) : new Color(0.34f, 0.20f, 0.12f, 1f);
             renderer.sortingOrder = -1;
         }

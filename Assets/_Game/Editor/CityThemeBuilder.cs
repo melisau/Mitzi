@@ -29,7 +29,7 @@ public static class CityThemeBuilder
                 continue;
             importer.textureType = TextureImporterType.Sprite;
             importer.spriteImportMode = SpriteImportMode.Single;
-            importer.alphaIsTransparency = path.Contains("car_");
+            importer.alphaIsTransparency = path.Contains("car_") || path.Contains("trash_gap");
             importer.mipmapEnabled = false;
             importer.filterMode = FilterMode.Bilinear;
             importer.SaveAndReimport();
