@@ -276,15 +276,26 @@ namespace PawPath.Core
             selected.gameObject.SetActive(false);
             var play = Button(content, "PlayButton", "Oyna", new Vector2(1f, 1f), new Vector2(-120f, -55f), new Color(0.93f, 0.72f, 0.76f));
             var shop = Button(content, "ShopButton", GameText.Shop, new Vector2(1f, 1f), new Vector2(-330f, -55f), new Color(0.78f, 0.84f, 0.72f));
-            StyleCompactTopButton(play, new Vector2(-92f, -42f));
-            StyleCompactTopButton(shop, new Vector2(-282f, -42f));
+            StyleCompactTopButton(play, new Vector2(-180f, -62f));
+            StyleCompactTopButton(shop, new Vector2(-540f, -62f));
             var editHome = Button(content, "EditHomeButton", "✎", new Vector2(1f, 1f),
-                new Vector2(-405f, -42f), new Color(0.78f, 0.72f, 0.64f));
+                new Vector2(-785f, -62f), new Color(0.78f, 0.72f, 0.64f));
             var flipFurniture = Button(content, "FlipFurnitureButton", "↔", new Vector2(1f, 1f),
-                new Vector2(-405f, -105f), new Color(0.78f, 0.72f, 0.64f));
-            StyleWarmGameButton(editHome, new Vector2(64f, 52f), 27);
-            StyleWarmGameButton(flipFurniture, new Vector2(64f, 52f), 26);
+                new Vector2(-785f, -178f), new Color(0.78f, 0.72f, 0.64f));
+            StyleWarmGameButton(editHome, new Vector2(128f, 104f), 42);
+            StyleWarmGameButton(flipFurniture, new Vector2(128f, 104f), 40);
             flipFurniture.gameObject.SetActive(false);
+            var quitGame = Button(content, "QuitGameButton", "Oyundan Çık", new Vector2(1f, 1f),
+                new Vector2(-960f, -62f), new Color(0.66f, 0.48f, 0.40f));
+            StyleWarmGameButton(quitGame, new Vector2(200f, 104f), 25);
+            quitGame.onClick.AddListener(() =>
+            {
+#if UNITY_EDITOR
+                UnityEditor.EditorApplication.isPlaying = false;
+#else
+                Application.Quit();
+#endif
+            });
 
             var musicMute = Button(content, "MusicMuteButton", "♫", new Vector2(0f, 1f),
                 new Vector2(52f, -44f), new Color(0.68f, 0.57f, 0.44f, 0.94f));
@@ -319,8 +330,8 @@ namespace PawPath.Core
             Stretch(modeMenu.GetComponent<RectTransform>());
             var drawingPlay = Button(modeMenu.transform, "DrawingPlayButton", "Çizerek Oyna", new Vector2(1f, 1f), new Vector2(-150f, -125f), new Color(0.93f, 0.72f, 0.76f));
             var directPlay = Button(modeMenu.transform, "DirectPlayButton", "Tuşlarla Oyna", new Vector2(1f, 1f), new Vector2(-150f, -195f), new Color(0.72f, 0.82f, 0.94f));
-            StyleCompactMenuButton(drawingPlay, new Vector2(-132f, -105f));
-            StyleCompactMenuButton(directPlay, new Vector2(-132f, -165f));
+            StyleCompactTopButton(drawingPlay, new Vector2(-180f, -180f));
+            StyleCompactTopButton(directPlay, new Vector2(-180f, -305f));
             modeMenu.SetActive(false);
 
             var themeSelectorObject = BuildThemeSelector(content);
@@ -381,7 +392,7 @@ namespace PawPath.Core
             resetProgress.gameObject.SetActive(Debug.isDebugBuild || Application.isEditor);
             var restart = Button(content, "RestartButton", "Yeniden", new Vector2(1f, 1f), new Vector2(-125f, -55f), new Color(0.93f, 0.72f, 0.76f));
             restart.GetComponent<RectTransform>().sizeDelta = new Vector2(190f, 58f);
-            var home = Button(content, "LevelHomeButton", "Eve Dön", new Vector2(0f, 1f), new Vector2(125f, -55f), new Color(0.78f, 0.84f, 0.72f));
+            var home = Button(content, "LevelHomeButton", "Eve Dön", new Vector2(0f, 1f), new Vector2(125f, -125f), new Color(0.78f, 0.84f, 0.72f));
             home.GetComponent<RectTransform>().sizeDelta = new Vector2(190f, 58f);
             StyleWarmGameButton(restart, new Vector2(190f, 58f), 20);
             StyleWarmGameButton(home, new Vector2(190f, 58f), 20);
@@ -407,9 +418,9 @@ namespace PawPath.Core
             var street = Button(panel.transform, "StreetTheme", "Sokak", new Vector2(1f, 1f), new Vector2(-150f, -125f), new Color(0.83f, 0.68f, 0.52f));
             var forest = Button(panel.transform, "ForestTheme", "Orman", new Vector2(1f, 1f), new Vector2(-150f, -195f), new Color(0.52f, 0.70f, 0.55f));
             var city = Button(panel.transform, "CityTheme", "Cadde", new Vector2(1f, 1f), new Vector2(-150f, -255f), new Color(0.62f, 0.58f, 0.54f));
-            StyleCompactMenuButton(street, new Vector2(-132f, -105f));
-            StyleCompactMenuButton(forest, new Vector2(-132f, -165f));
-            StyleCompactMenuButton(city, new Vector2(-132f, -225f));
+            StyleCompactMenuButton(street, new Vector2(-280f, -160f));
+            StyleCompactMenuButton(forest, new Vector2(-280f, -285f));
+            StyleCompactMenuButton(city, new Vector2(-280f, -410f));
             panel.AddComponent<ThemeSelectionUI>().Bind(street, forest, city);
             return panel;
         }
@@ -419,10 +430,10 @@ namespace PawPath.Core
             var controls = new GameObject("MobileControls", typeof(RectTransform));
             controls.transform.SetParent(parent, false);
             Stretch(controls.GetComponent<RectTransform>());
-            AddControlButton(controls.transform, "Left", "◀", new Vector2(0f, 0f), new Vector2(100f, 105f), MobileAction.Left);
-            AddControlButton(controls.transform, "Right", "▶", new Vector2(0f, 0f), new Vector2(245f, 105f), MobileAction.Right);
-            AddControlButton(controls.transform, "Jump", "ZIPLA", new Vector2(1f, 0f), new Vector2(-250f, 105f), MobileAction.Jump);
-            AddControlButton(controls.transform, "Crouch", "EĞİL", new Vector2(1f, 0f), new Vector2(-105f, 105f), MobileAction.Crouch);
+            AddControlButton(controls.transform, "Left", "◀", new Vector2(0f, 0f), new Vector2(125f, 120f), MobileAction.Left);
+            AddControlButton(controls.transform, "Right", "▶", new Vector2(0f, 0f), new Vector2(375f, 120f), MobileAction.Right);
+            AddControlButton(controls.transform, "Jump", "ZIPLA", new Vector2(1f, 0f), new Vector2(-375f, 120f), MobileAction.Jump);
+            AddControlButton(controls.transform, "Crouch", "EĞİL", new Vector2(1f, 0f), new Vector2(-125f, 120f), MobileAction.Crouch);
             return controls;
         }
 
@@ -430,13 +441,13 @@ namespace PawPath.Core
             Vector2 position, MobileAction action)
         {
             var button = Button(parent, name, label, anchor, position, new Color(0.18f, 0.20f, 0.25f, 0.82f));
-            button.GetComponent<RectTransform>().sizeDelta = new Vector2(125f, 92f);
-            StyleWarmGameButton(button, new Vector2(125f, 92f), 22);
+            button.GetComponent<RectTransform>().sizeDelta = new Vector2(200f, 140f);
+            StyleWarmGameButton(button, new Vector2(200f, 140f), 30);
             button.gameObject.AddComponent<MobileControlButton>().Configure(action);
             var text = button.GetComponentInChildren<Text>();
             if (text != null)
             {
-                text.fontSize = 22;
+                text.fontSize = 30;
                 text.color = Color.white;
             }
         }
@@ -447,11 +458,11 @@ namespace PawPath.Core
             panel.AddComponent<CanvasGroup>();
             var content = SafeContent(panel.transform);
 
-            var feed = Button(content, "FeedButton", $"Mama +{needs.foodPoints}", new Vector2(0.16f, 0f), new Vector2(0f, 205f), new Color(0.88f, 0.72f, 0.55f));
-            var water = Button(content, "WaterButton", $"Su +{needs.waterPoints}", new Vector2(0.16f, 0f), new Vector2(0f, 130f), new Color(0.62f, 0.80f, 0.91f));
-            var sleep = Button(content, "SleepButton", $"Uyu +{needs.sleepPoints}", new Vector2(0.16f, 0f), new Vector2(0f, 55f), new Color(0.75f, 0.69f, 0.86f));
+            var feed = Button(content, "FeedButton", $"Mama +{needs.foodPoints}", new Vector2(0.16f, 0f), new Vector2(0f, 275f), new Color(0.88f, 0.72f, 0.55f));
+            var water = Button(content, "WaterButton", $"Su +{needs.waterPoints}", new Vector2(0.16f, 0f), new Vector2(0f, 145f), new Color(0.62f, 0.80f, 0.91f));
+            var sleep = Button(content, "SleepButton", $"Uyu +{needs.sleepPoints}", new Vector2(0.16f, 0f), new Vector2(0f, 15f), new Color(0.75f, 0.69f, 0.86f));
             foreach (var button in new[] { feed, water, sleep })
-                StyleWarmGameButton(button, new Vector2(260f, 58f), 19);
+                StyleWarmGameButton(button, new Vector2(520f, 116f), 30);
 
             var daily = Label(content, "DailyPetting", "Günlük Okşama", new Vector2(0.84f, 0f), new Vector2(0f, 125f));
             daily.fontSize = 20;
@@ -484,13 +495,13 @@ namespace PawPath.Core
             var rt = toolbar.GetComponent<RectTransform>();
             Stretch(rt);
 
-            AddBrushButton(toolbar.transform, "NormalBrush", "Yol", -220f, new Color(0.17f, 0.15f, 0.14f), PathSurfaceType.Normal);
-            AddBrushButton(toolbar.transform, "BounceBrush", "Zıpla", -110f, new Color(0.20f, 0.55f, 0.95f), PathSurfaceType.Bounce);
+            AddBrushButton(toolbar.transform, "NormalBrush", "Yol", -340f, new Color(0.17f, 0.15f, 0.14f), PathSurfaceType.Normal);
+            AddBrushButton(toolbar.transform, "BounceBrush", "Zıpla", -170f, new Color(0.20f, 0.55f, 0.95f), PathSurfaceType.Bounce);
             AddBrushButton(toolbar.transform, "HazardBrush", "!", 0f, new Color(0.88f, 0.20f, 0.20f), PathSurfaceType.Hazard);
-            AddBrushButton(toolbar.transform, "IceBrush", "Buz", 110f, new Color(0.95f, 0.98f, 1f), PathSurfaceType.Ice);
-            var eraser = Button(toolbar.transform, "Eraser", "Sil", new Vector2(0.5f, 0f), new Vector2(220f, 46f), new Color(0.72f, 0.68f, 0.65f));
-            eraser.GetComponent<RectTransform>().sizeDelta = new Vector2(92f, 58f);
-            StyleWarmGameButton(eraser, new Vector2(92f, 58f), 17);
+            AddBrushButton(toolbar.transform, "IceBrush", "Buz", 170f, new Color(0.95f, 0.98f, 1f), PathSurfaceType.Ice);
+            var eraser = Button(toolbar.transform, "Eraser", "Sil", new Vector2(0.5f, 0f), new Vector2(340f, 68f), new Color(0.72f, 0.68f, 0.65f));
+            eraser.GetComponent<RectTransform>().sizeDelta = new Vector2(150f, 88f);
+            StyleWarmGameButton(eraser, new Vector2(150f, 88f), 24);
             eraser.onClick.AddListener(() =>
             {
                 if (LineDraw.Instance != null)
@@ -501,13 +512,13 @@ namespace PawPath.Core
 
         static void AddBrushButton(Transform parent, string name, string label, float x, Color color, PathSurfaceType type)
         {
-            var button = Button(parent, name, label, new Vector2(0.5f, 0f), new Vector2(x, 46f), color);
-            button.GetComponent<RectTransform>().sizeDelta = new Vector2(92f, 58f);
-            StyleWarmGameButton(button, new Vector2(92f, 58f), 17);
+            var button = Button(parent, name, label, new Vector2(0.5f, 0f), new Vector2(x, 68f), color);
+            button.GetComponent<RectTransform>().sizeDelta = new Vector2(150f, 88f);
+            StyleWarmGameButton(button, new Vector2(150f, 88f), 24);
             var text = button.GetComponentInChildren<Text>();
             if (text != null)
             {
-                text.fontSize = 17;
+                text.fontSize = 24;
                 text.color = type == PathSurfaceType.Normal ? Color.white : new Color(0.18f, 0.16f, 0.17f);
             }
             button.onClick.AddListener(() =>
@@ -756,13 +767,13 @@ namespace PawPath.Core
         {
             var rt = button.GetComponent<RectTransform>();
             rt.anchoredPosition = position;
-            StyleWarmGameButton(button, new Vector2(170f, 52f), 20);
+            StyleWarmGameButton(button, new Vector2(340f, 104f), 32);
         }
 
         static void StyleCompactMenuButton(Button button, Vector2 position)
         {
             StyleCompactTopButton(button, position);
-            button.GetComponent<RectTransform>().sizeDelta = new Vector2(250f, 52f);
+            button.GetComponent<RectTransform>().sizeDelta = new Vector2(500f, 104f);
             var image = button.GetComponent<Image>();
             image.sprite = RusticUiSpriteFactory.ParchmentPanel();
             image.type = Image.Type.Sliced;

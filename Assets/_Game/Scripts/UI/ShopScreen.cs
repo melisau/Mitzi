@@ -71,10 +71,13 @@ namespace PawPath.UI
                 grid.startAxis = GridLayoutGroup.Axis.Horizontal;
                 grid.childAlignment = TextAnchor.UpperCenter;
                 grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-                grid.constraintCount = 3; 
+                grid.constraintCount = 4;
             }
-            grid.cellSize = new Vector2(280, 360);
-            grid.spacing = new Vector2(28, 24);
+            // Geniş ekranlarda ürünler tek sırada dört kart olarak görünür.
+            grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            grid.constraintCount = 4;
+            grid.cellSize = new Vector2(250, 350);
+            grid.spacing = new Vector2(22, 24);
 
             var fitter = listRoot.GetComponent<ContentSizeFitter>();
             if (fitter == null)

@@ -28,8 +28,8 @@ MonoBehaviour:
   - {fileID: 21300000, guid: d9b6298cb81ad6d47b171c193202dd06, type: 3}
   - {fileID: 21300000, guid: 46dde9f799a4e8b409741c77c66b1116, type: 3}
   - {fileID: 21300000, guid: 54ffebdce4c07e44f9f4bc199bf6c620, type: 3}
-  - {fileID: 21300000, guid: d92affd51a26dfd488cb621696bb0762, type: 3}
-  - {fileID: 21300000, guid: 44ce069d639598343b4befae5a14f76e, type: 3}
+  - {fileID: 0}
+  - {fileID: 0}
   purrClip: {fileID: 8300000, guid: e80123ad28420eb4aad2764e876419db, type: 3}
   meowClip: {fileID: 0}
 --- !u!114 &-8853985181083747102

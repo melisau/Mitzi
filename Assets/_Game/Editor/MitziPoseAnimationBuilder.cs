@@ -10,8 +10,9 @@ namespace PawPath.EditorTools
     {
         const string SitClipPath = "Assets/_Game/Art/Cats/mitzi_sit.anim";
         const string JumpClipPath = "Assets/_Game/Art/Cats/mitzi_jump.anim";
+        const string CrouchClipPath = "Assets/_Game/Art/Cats/mitzi_crouch.anim";
         const string ControllerPath = "Assets/_Game/Art/cat_walk_1.controller";
-        const string SessionKey = "PawPath.MitziPoseAnimationBuilder.v2";
+        const string SessionKey = "PawPath.MitziPoseAnimationBuilder.v3";
 
         static MitziPoseAnimationBuilder()
         {
@@ -33,6 +34,7 @@ namespace PawPath.EditorTools
         {
             var sitFrames = LoadFrames("mitzi_sit");
             var jumpFrames = LoadFrames("mitzi_jump");
+            var crouchSprite = LoadSingleSprite("Assets/_Game/Art/Cats/mitzi_crouch.png");
             if (sitFrames.Length != 4 || jumpFrames.Length != 4)
             {
                 Debug.LogWarning("Mitzi poz animasyonları kurulamadı: sprite sheet'ler dört kareye ayrılamadı.");
@@ -41,6 +43,9 @@ namespace PawPath.EditorTools
 
             var sitClip = CreateClip(SitClipPath, "mitzi_sit", sitFrames, 6f, false);
             var jumpClip = CreateClip(JumpClipPath, "mitzi_jump", jumpFrames, 7f, false);
+            var crouchClip = crouchSprite != null
+                ? CreateClip(CrouchClipPath, "mitzi_crouch", new[] { crouchSprite }, 1f, false)
+                : null;
             var controller = AssetDatabase.LoadAssetAtPath<AnimatorController>(ControllerPath);
             if (controller == null)
             {
@@ -59,6 +64,8 @@ namespace PawPath.EditorTools
 
             SetStateMotion(stateMachine, "Sit", sitClip);
             SetStateMotion(stateMachine, "Jump", jumpClip);
+            if (crouchClip != null)
+                SetStateMotion(stateMachine, "Crouch", crouchClip);
             EditorUtility.SetDirty(controller);
             AssetDatabase.SaveAssets();
 
@@ -96,6 +103,27 @@ namespace PawPath.EditorTools
                 frames[index] = AssetDatabase.LoadAssetAtPath<Sprite>(path);
             }
             return frames.Where(frame => frame != null).ToArray();
+        }
+
+        static Sprite LoadSingleSprite(string path)
+        {
+            var importer = AssetImporter.GetAtPath(path) as TextureImporter;
+            var texture = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+            if (importer == null || texture == null)
+                return null;
+
+            importer.textureType = TextureImporterType.Sprite;
+            importer.spriteImportMode = SpriteImportMode.Single;
+            importer.alphaIsTransparency = true;
+            importer.mipmapEnabled = false;
+            importer.spritePixelsPerUnit = texture.height / 11.5f;
+            var settings = new TextureImporterSettings();
+            importer.ReadTextureSettings(settings);
+            settings.spriteAlignment = (int)SpriteAlignment.Center;
+            settings.spritePivot = new Vector2(0.5f, 0.5f);
+            importer.SetTextureSettings(settings);
+            importer.SaveAndReimport();
+            return AssetDatabase.LoadAssetAtPath<Sprite>(path);
         }
 
         static AnimationClip CreateClip(string path, string name, Sprite[] frames, float frameRate, bool loop)
