@@ -85,7 +85,8 @@ namespace PawPath.Levels
                         forestTheme && catalog.forestMoundSprite != null ? catalog.forestMoundSprite : catalog.moundSprite,
                     cityTheme && catalog.cityPlatformSprite != null ? catalog.cityPlatformSprite :
                         forestTheme && catalog.forestPlatformSprite != null ? catalog.forestPlatformSprite : catalog.roadPlatformSprite,
-                    cityTheme ? catalog.cityVanSprite : null);
+                    cityTheme ? catalog.cityVanSprite : null,
+                    cityTheme ? catalog.cityRoadSprite : null);
             }
 
             if (seasonBackdrop != null)

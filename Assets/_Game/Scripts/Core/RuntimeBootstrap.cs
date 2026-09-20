@@ -275,6 +275,13 @@ namespace PawPath.Core
             var shop = Button(content, "ShopButton", GameText.Shop, new Vector2(1f, 1f), new Vector2(-330f, -55f), new Color(0.78f, 0.84f, 0.72f));
             StyleCompactTopButton(play, new Vector2(-92f, -42f));
             StyleCompactTopButton(shop, new Vector2(-282f, -42f));
+            var editHome = Button(content, "EditHomeButton", "✎", new Vector2(1f, 1f),
+                new Vector2(-405f, -42f), new Color(0.78f, 0.72f, 0.64f));
+            var flipFurniture = Button(content, "FlipFurnitureButton", "↔", new Vector2(1f, 1f),
+                new Vector2(-405f, -105f), new Color(0.78f, 0.72f, 0.64f));
+            StyleWarmGameButton(editHome, new Vector2(64f, 52f), 27);
+            StyleWarmGameButton(flipFurniture, new Vector2(64f, 52f), 26);
+            flipFurniture.gameObject.SetActive(false);
 
             var modeMenu = new GameObject("PlayModeMenu", typeof(RectTransform));
             modeMenu.transform.SetParent(content, false);
@@ -356,7 +363,8 @@ namespace PawPath.Core
             var controls = BuildMobileControls(content);
             controls.SetActive(false);
             hud.GetComponent<HudView>().Bind(love, level, ink, selected, play, shop, directPlay,
-                restart, home, careUi, brushes, tutorial, controls, modeMenu, drawingPlay, themeSelector);
+                restart, home, careUi, brushes, tutorial, controls, modeMenu, drawingPlay, themeSelector,
+                editHome, flipFurniture);
             return hud;
         }
 

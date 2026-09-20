@@ -9,6 +9,7 @@ using PawPath.Economy;
 using PawPath.Levels;
 using PawPath.Localization;
 using PawPath.Gameplay;
+using PawPath.Hub;
 
 namespace PawPath.UI
 {
@@ -32,6 +33,8 @@ namespace PawPath.UI
         [SerializeField] private GameObject mobileControls;
         [SerializeField] private GameObject playModeMenu;
         [SerializeField] private Button drawingPlayButton;
+        [SerializeField] private Button editHomeButton;
+        [SerializeField] private Button flipFurnitureButton;
         [SerializeField] private ThemeSelectionUI themeSelection;
         GameplayPlayMode pendingMode;
         Coroutine selectedNameRoutine;
@@ -132,6 +135,11 @@ namespace PawPath.UI
                 playButton.gameObject.SetActive(false);
             if (shopButton != null)
                 shopButton.gameObject.SetActive(false);
+            HomeEditMode.Close();
+            if (editHomeButton != null)
+                editHomeButton.gameObject.SetActive(false);
+            if (flipFurnitureButton != null)
+                flipFurnitureButton.gameObject.SetActive(false);
             if (playModeMenu != null)
                 playModeMenu.SetActive(false);
             if (themeSelection != null)
@@ -146,7 +154,11 @@ namespace PawPath.UI
                 restartButton.gameObject.SetActive(true);
             if (homeButton != null)
                 homeButton.gameObject.SetActive(true);
-            if (GameplayMode.IsDrawing)
+            bool cityTheme = LevelManager.Instance != null &&
+                ThemeSelectionUI.GetSelectedTheme(LevelManager.Instance.DisplayLevel) == 2;
+            if (cityTheme)
+                ShowCityTutorialOnce();
+            else if (GameplayMode.IsDrawing)
                 ShowBrushTutorialOnce();
         }
 
@@ -157,6 +169,13 @@ namespace PawPath.UI
                 playButton.gameObject.SetActive(true);
             if (shopButton != null)
                 shopButton.gameObject.SetActive(true);
+            if (editHomeButton != null)
+            {
+                editHomeButton.gameObject.SetActive(true);
+                SetEditButtonLabel(false);
+            }
+            if (flipFurnitureButton != null)
+                flipFurnitureButton.gameObject.SetActive(false);
             // Bölüm başlarken bu alt buton kapatılıyor. Eve dönüldüğünde menü
             // yeniden açılmadan önce tekrar etkinleştirilmezse yalnızca çizim
             // seçeneği görünüyordu.
@@ -240,7 +259,7 @@ namespace PawPath.UI
         public void Bind(Text love, Text level, Text ink, Text selected, Button play, Button shop,
             Button directPlay, Button restart, Button home, CatNeedsUI careUI, GameObject brushes,
             GameObject tutorial, GameObject controls, GameObject modeMenu,
-            Button drawingPlay, ThemeSelectionUI themeSelector)
+            Button drawingPlay, ThemeSelectionUI themeSelector, Button editButton, Button flipButton)
         {
             loveLabel = love;
             levelLabel = level;
@@ -257,6 +276,8 @@ namespace PawPath.UI
             mobileControls = controls;
             playModeMenu = modeMenu;
             drawingPlayButton = drawingPlay;
+            editHomeButton = editButton;
+            flipFurnitureButton = flipButton;
             themeSelection = themeSelector;
             if (themeSelection != null)
                 themeSelection.SetSelectionCallback(_ => StartSelectedMode());
@@ -293,6 +314,24 @@ namespace PawPath.UI
                 drawingPlayButton.onClick.AddListener(OnDrawingPlayButtonClicked);
             }
 
+            if (editHomeButton != null)
+            {
+                editHomeButton.onClick.RemoveAllListeners();
+                editHomeButton.onClick.AddListener(() =>
+                {
+                    bool active = HomeEditMode.Toggle();
+                    SetEditButtonLabel(active);
+                    if (flipFurnitureButton != null)
+                        flipFurnitureButton.gameObject.SetActive(active);
+                });
+            }
+
+            if (flipFurnitureButton != null)
+            {
+                flipFurnitureButton.onClick.RemoveAllListeners();
+                flipFurnitureButton.onClick.AddListener(HomeEditMode.FlipSelected);
+            }
+
             if (restartButton != null)
             {
                 restartButton.onClick.RemoveAllListeners();
@@ -314,6 +353,15 @@ namespace PawPath.UI
             }
         }
 
+        void SetEditButtonLabel(bool active)
+        {
+            if (editHomeButton == null)
+                return;
+            var label = editHomeButton.GetComponentInChildren<Text>();
+            if (label != null)
+                label.text = active ? "✓ ✎" : "✎";
+        }
+
         private void RefreshInitialState()
         {
             RefreshLove(SaveService.Data.lovePoints);
@@ -327,10 +375,34 @@ namespace PawPath.UI
             if (brushTutorial == null || PlayerPrefs.GetInt("PawPath.BrushTutorialSeen.v2", 0) == 1)
                 return;
 
+            SetTutorialText("YOLU TAMAMLAMA\n\nKedi hazır zeminde kendi yürür.\nYalnızca çukurlara köprü, tümseklere rampa çiz.\n\nSiyah: Normal yol   Mavi: Zıplatır\nKırmızı: Tehlike   Beyaz: Kaygan yol\nSilgi: Çizdiğin yolu siler");
             brushTutorial.SetActive(true);
             PlayerPrefs.SetInt("PawPath.BrushTutorialSeen.v2", 1);
             PlayerPrefs.Save();
             StartCoroutine(HideBrushTutorial());
+        }
+
+        private void ShowCityTutorialOnce()
+        {
+            if (brushTutorial == null || PlayerPrefs.GetInt("PawPath.CityTutorialSeen.v1", 0) == 1)
+                return;
+
+            SetTutorialText("CADDE YOLU\n\nArabaların üzerinden atlamak için zıpla.\nKonteynırların bulunduğu çukurlara düşmemek için zamanında zıpla.\n\nDikkatli ilerle ve yolun sonundaki kapıya ulaş!");
+            brushTutorial.SetActive(true);
+            PlayerPrefs.SetInt("PawPath.CityTutorialSeen.v1", 1);
+            PlayerPrefs.Save();
+            StartCoroutine(HideBrushTutorial());
+        }
+
+        private void SetTutorialText(string value)
+        {
+            if (brushTutorial == null)
+                return;
+            var label = brushTutorial.transform.Find("TutorialText")?.GetComponent<Text>();
+            if (label == null)
+                label = brushTutorial.GetComponentInChildren<Text>();
+            if (label != null)
+                label.text = value;
         }
 
         private IEnumerator HideBrushTutorial()

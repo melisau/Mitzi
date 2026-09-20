@@ -22,17 +22,20 @@ namespace PawPath.Levels
         Sprite moundSprite;
         Sprite alternateMoundSprite;
         Sprite roadSprite;
+        Sprite roadUnderfillSprite;
 
         public float CatSpawnY => RoadCenterY + RoadHeight * 0.5f + 0.40f * GameplayScale;
         public float GoalY => CatSpawnY + 0.15f;
         public float GoalX => 19.35f;
 
-        public void BindVisuals(Sprite gap, Sprite mound, Sprite road, Sprite alternateMound = null)
+        public void BindVisuals(Sprite gap, Sprite mound, Sprite road, Sprite alternateMound = null,
+            Sprite underfill = null)
         {
             gapSprite = CreateCityTrashContainer(gap);
             moundSprite = mound;
             roadSprite = CreateCitySidewalkSurface(road);
             alternateMoundSprite = alternateMound;
+            roadUnderfillSprite = underfill;
         }
 
         static Sprite CreateCitySidewalkSurface(Sprite source)
@@ -53,6 +56,18 @@ namespace PawPath.Levels
             ClearGenerated();
             generatedRoot = new GameObject("GeneratedCourse").transform;
             generatedRoot.SetParent(transform, false);
+
+            // Cadde asfaltı bütün bölüm boyunca tek görseldir. Parça parça çizmek
+            // şeritlerin her kaldırım ve konteynır altında yeniden başlamasına yol açıyordu.
+            if (roadUnderfillSprite != null)
+            {
+                const float cityRoadBottom = -5.35f;
+                float cityRoadTop = RoadCenterY + RoadHeight * 0.5f;
+                float cityRoadHeight = cityRoadTop - cityRoadBottom;
+                Decoration("ContinuousCityRoad", roadUnderfillSprite,
+                    new Vector2(6.5f, cityRoadBottom + cityRoadHeight * 0.5f),
+                    36f, -1, cityRoadHeight);
+            }
 
             int pattern = Mathf.Abs(levelNumber - 1) % 5;
             // Kameranın ilk ve son ekranında kaldırımın kadraj dışında da devam
@@ -257,13 +272,16 @@ namespace PawPath.Levels
                     const float cityGapBottom = -5.35f;
                     float cityGapFillTop = roadTop - 1.10f;
                     float cityGapFillHeight = cityGapFillTop - cityGapBottom;
-                    Decoration("CityGapUnderfill", FallbackSprite.WhiteSquare(),
-                        new Vector2(centerX, cityGapBottom + cityGapFillHeight * 0.5f),
-                        width * GameplayScale, 0, cityGapFillHeight);
-                    generatedRoot.GetChild(generatedRoot.childCount - 1)
-                        .GetComponent<SpriteRenderer>().color = CityRoadFillColor;
+                    if (roadUnderfillSprite == null)
+                    {
+                        Decoration("CityGapUnderfill", FallbackSprite.WhiteSquare(),
+                            new Vector2(centerX, cityGapBottom + cityGapFillHeight * 0.5f),
+                            width * GameplayScale, 0, cityGapFillHeight);
+                        generatedRoot.GetChild(generatedRoot.childCount - 1)
+                            .GetComponent<SpriteRenderer>().color = CityRoadFillColor;
+                    }
                     DecorationBottomAligned("TrashContainer", gapSprite, centerX,
-                        roadTop - 1.15f, width * 1.50f, 2);
+                        roadTop - 1.66f, width * 2.10f, 2);
                     return;
                 }
                 // Görselin en yüksek uçları doğrudan yol yüzeyine sabitlenir; böylece
@@ -325,6 +343,8 @@ namespace PawPath.Levels
 
         void CreateRoadUnderfill(float centerX, float width, float topY)
         {
+            if (roadUnderfillSprite != null)
+                return;
             const float bottomY = -5.35f;
             float height = topY - bottomY;
             var go = new GameObject("RoadUnderfill");
@@ -332,10 +352,10 @@ namespace PawPath.Levels
             go.transform.position = new Vector2(centerX, bottomY + height * 0.5f);
             go.transform.localScale = new Vector3(width, height, 1f);
             var renderer = go.AddComponent<SpriteRenderer>();
-            renderer.sprite = FallbackSprite.WhiteSquare();
+            renderer.sprite = roadUnderfillSprite != null ? roadUnderfillSprite : FallbackSprite.WhiteSquare();
             bool forest = roadSprite != null && roadSprite.name.ToLowerInvariant().Contains("forest");
             bool city = roadSprite != null && roadSprite.name.Contains("city_sidewalk");
-            renderer.color = city
+            renderer.color = roadUnderfillSprite != null ? Color.white : city
                 ? CityRoadFillColor
                 : forest ? new Color(0.115f, 0.095f, 0.065f, 1f) : new Color(0.34f, 0.20f, 0.12f, 1f);
             renderer.sortingOrder = -1;
