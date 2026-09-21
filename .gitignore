@@ -28,3 +28,7 @@ ExportedObj/
 sysinfo.txt
 crashlytics-build.properties
 .aider*
+# Local secrets
+.env
+.env.*
+!.env.example
