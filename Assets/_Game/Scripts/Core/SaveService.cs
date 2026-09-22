@@ -5,13 +5,17 @@ using UnityEngine;
 namespace PawPath.Core
 {
     /// <summary>
-    /// Tüm kalıcı veri tek JSON blob olarak PlayerPrefs'te tutulur.
+    /// Kayıt PlayerPrefs'te JSON + son sağlam yedek olarak tutulur.
     /// ScriptableObject tanımları (kedi / ürün kimlikleri) bu kayıta referans verir.
     /// </summary>
     public static class SaveService
     {
         const string Key = "PawPath.Save.v1";
+        const string BackupKey = "PawPath.Save.v1.backup";
+        const string CorruptPrimaryKey = "PawPath.Save.v1.corrupt";
+        const string CorruptBackupKey = "PawPath.Save.v1.backup.corrupt";
         const string MitziOnlyKey = "PawPath.Developer.MitziOnly";
+        public const int CurrentSchemaVersion = 2;
 
         [Serializable]
         public class CatNeedState
@@ -27,6 +31,7 @@ namespace PawPath.Core
         [Serializable]
         public class SaveData
         {
+            public int schemaVersion = CurrentSchemaVersion;
             public int lovePoints = 0;
             public int highestCompletedLevel = 0;
             public string selectedCatId = "mitzi";
@@ -37,6 +42,7 @@ namespace PawPath.Core
         }
 
         static SaveData cache;
+        static bool readOnlyFutureSave;
 
         public static SaveData Data
         {

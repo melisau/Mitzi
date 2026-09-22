@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using Unity.Profiling;
 using PawPath.Audio;
 using PawPath.Core;
 using PawPath.Gameplay;
@@ -15,6 +16,9 @@ namespace PawPath.Drawing
     public class LineDraw : MonoBehaviour
     {
         public static LineDraw Instance { get; private set; }
+        static readonly ProfilerMarker BeginStrokeMarker = new ProfilerMarker("PawPath.LineDraw.BeginStroke");
+        static readonly ProfilerMarker AppendPointMarker = new ProfilerMarker("PawPath.LineDraw.AppendPoint");
+        static readonly ProfilerMarker EraseMarker = new ProfilerMarker("PawPath.LineDraw.Erase");
 
         [Header("Fırça")]
         [SerializeField] float minPointDistance = 0.07f;
@@ -28,6 +32,7 @@ namespace PawPath.Drawing
         [SerializeField] float defaultInk = 18f;
 
         Camera cam;
+        Material sharedSpriteMaterial;
         readonly List<GameObject> strokes = new List<GameObject>();
         readonly List<Vector2> currentPoints = new List<Vector2>();
         LineRenderer currentLine;
@@ -50,6 +55,35 @@ namespace PawPath.Drawing
             cam = GetComponent<Camera>();
             inkLeft = defaultInk;
             InkMax = defaultInk;
+        }
+
+        void OnDestroy()
+        {
+            if (Instance == this)
+                Instance = null;
+            // Yalnızca burada oluşturulan varsayılan materyal bize aittir.
+            if (sharedSpriteMaterial != null)
+            {
+                if (Application.isPlaying)
+                    Destroy(sharedSpriteMaterial);
+                else
+                    DestroyImmediate(sharedSpriteMaterial);
+            }
+        }
+
+        Material SharedSpriteMaterial()
+        {
+            if (sharedSpriteMaterial == null)
+            {
+                var shader = Shader.Find("Sprites/Default");
+                if (shader == null)
+                {
+                    Debug.LogError("[PawPath] Sprites/Default shader bulunamadı.");
+                    return null;
+                }
+                sharedSpriteMaterial = new Material(shader) { name = "PawPath Shared Draw Material" };
+            }
+            return sharedSpriteMaterial;
         }
 
         public void ResetInk(float budget)
@@ -97,6 +131,7 @@ namespace PawPath.Drawing
 
         void BeginStroke(Vector2 world)
         {
+            using var sample = BeginStrokeMarker.Auto();
             if (inkLeft <= 0.01f)
                 return;
 
@@ -120,15 +155,7 @@ namespace PawPath.Drawing
             currentLine.alignment = LineAlignment.TransformZ;
             currentLine.sortingOrder = lineSortingOrder;
             currentLine.useWorldSpace = true;
-            if (lineMaterial != null)
-            {
-                currentLine.material = lineMaterial;
-            }
-            else
-            {
-                var shader = Shader.Find("Sprites/Default");
-                currentLine.material = new Material(shader);
-            }
+            currentLine.sharedMaterial = lineMaterial != null ? lineMaterial : SharedSpriteMaterial();
             currentLine.startColor = lineColor;
             currentLine.endColor = lineColor;
             ApplyTaper(currentLine, lineWidth);
@@ -152,6 +179,7 @@ namespace PawPath.Drawing
 
         void AppendPoint(Vector2 world)
         {
+            using var sample = AppendPointMarker.Auto();
             if (currentPoints.Count == 0)
                 return;
 
@@ -262,7 +290,7 @@ namespace PawPath.Drawing
             layer.textureMode = LineTextureMode.Tile;
             layer.alignment = LineAlignment.TransformZ;
             layer.sortingOrder = sorting;
-            layer.material = new Material(Shader.Find("Sprites/Default"));
+            layer.sharedMaterial = SharedSpriteMaterial();
             layer.startColor = layer.endColor = color;
             ApplyTaper(layer, width);
             return layer;
@@ -324,6 +352,7 @@ namespace PawPath.Drawing
 
         void EraseAt(Vector2 world)
         {
+            using var sample = EraseMarker.Auto();
             var hits = Physics2D.OverlapCircleAll(world, 0.32f);
             foreach (var hit in hits)
             {

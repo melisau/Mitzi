@@ -150,19 +150,17 @@ namespace PawPath.Cat
 
         public bool CanStartLevel()
         {
-            var needs = GetNeeds(SelectedCatId);
-            return needs.hunger >= minimumNeedToPlay &&
-                needs.water >= minimumNeedToPlay &&
-                needs.affection >= minimumNeedToPlay;
+            return CatNeedsRules.CanTravel(GetNeeds(SelectedCatId), minimumNeedToPlay);
         }
 
         public string TravelStatus()
         {
             var needs = GetNeeds(SelectedCatId);
             string values = $"Mama {needs.hunger} · Su {needs.water} · Sevgi {needs.affection}";
-            return CanStartLevel()
-                ? $"Kedin yola hazır — {values}"
-                : $"Yola çıkmak için her ihtiyaç en az {minimumNeedToPlay} olmalı. {values}";
+            bool ready = CatNeedsRules.CanTravel(needs, minimumNeedToPlay);
+            return ready
+                ? $"Kedin yola hazır\n{values}"
+                : $"Bakım gerekli (her biri en az {minimumNeedToPlay})\n{values}";
         }
 
         bool TryDailyCare(string key, int points, string reason)
@@ -203,6 +201,18 @@ namespace PawPath.Cat
         {
             bool changed = false;
             long now = DateTime.UtcNow.Ticks;
+            foreach (string catId in SaveService.Data.unlockedCatIds)
+            {
+                if (string.IsNullOrEmpty(catId) ||
+                    SaveService.Data.catNeeds.Exists(state => state != null && state.catId == catId))
+                    continue;
+                SaveService.Data.catNeeds.Add(new SaveService.CatNeedState
+                {
+                    catId = catId,
+                    lastNeedsUpdateUtcTicks = now
+                });
+                changed = true;
+            }
             foreach (var needs in SaveService.Data.catNeeds)
                 if (needs != null)
                     changed |= ApplyDecay(needs, now);
@@ -214,6 +224,26 @@ namespace PawPath.Cat
 
         bool ApplyDecay(SaveService.CatNeedState needs, long now)
         {
+            return CatNeedsRules.ApplyDecay(needs, now, maximumOfflineHours,
+                hungerLossPerHalfHour, waterLossPerHalfHour, affectionLossPerHalfHour);
+        }
+    }
+
+    /// <summary>Kayda veya Unity sahnesine dokunmadan sınanabilen bakım kuralları.</summary>
+    public static class CatNeedsRules
+    {
+        public static bool CanTravel(SaveService.CatNeedState needs, int minimum)
+        {
+            return needs != null && needs.hunger >= minimum &&
+                needs.water >= minimum && needs.affection >= minimum;
+        }
+
+        public static bool ApplyDecay(SaveService.CatNeedState needs, long now,
+            int maximumOfflineHours, int hungerPerHalfHour, int waterPerHalfHour,
+            int affectionPerHalfHour)
+        {
+            if (needs == null)
+                return false;
             long previous = needs.lastNeedsUpdateUtcTicks;
             if (previous <= 0 || previous > now)
             {
@@ -228,9 +258,9 @@ namespace PawPath.Cat
                 return false;
             long maximumPeriods = Math.Max(1, maximumOfflineHours) * 2L;
             long appliedPeriods = Math.Min(periods, maximumPeriods);
-            needs.hunger = Mathf.Max(0, needs.hunger - (int)Math.Min(100L, appliedPeriods * Math.Max(0, hungerLossPerHalfHour)));
-            needs.water = Mathf.Max(0, needs.water - (int)Math.Min(100L, appliedPeriods * Math.Max(0, waterLossPerHalfHour)));
-            needs.affection = Mathf.Max(0, needs.affection - (int)Math.Min(100L, appliedPeriods * Math.Max(0, affectionLossPerHalfHour)));
+            needs.hunger = Mathf.Max(0, needs.hunger - (int)Math.Min(100L, appliedPeriods * Math.Max(0, hungerPerHalfHour)));
+            needs.water = Mathf.Max(0, needs.water - (int)Math.Min(100L, appliedPeriods * Math.Max(0, waterPerHalfHour)));
+            needs.affection = Mathf.Max(0, needs.affection - (int)Math.Min(100L, appliedPeriods * Math.Max(0, affectionPerHalfHour)));
             // Uzun çevrimdışı aradan kalan süre sonraki açılışta tekrar düşülmez.
             needs.lastNeedsUpdateUtcTicks = periods > maximumPeriods
                 ? now : previous + periods * interval;

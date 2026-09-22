@@ -34,6 +34,8 @@ namespace PawPath.UI
 
         void OnEnable()
         {
+            if (catNeedsSystem != null)
+                catNeedsSystem.NeedsChanged += UpdateUI;
             GameEvents.OnLovePointsChanged += OnLoveChanged;
             GameEvents.OnPlayableCatChanged += OnSelectedCatChanged;
             GameEvents.OnHubEntered += UpdateUI;
@@ -43,6 +45,8 @@ namespace PawPath.UI
 
         void OnDisable()
         {
+            if (catNeedsSystem != null)
+                catNeedsSystem.NeedsChanged -= UpdateUI;
             GameEvents.OnLovePointsChanged -= OnLoveChanged;
             GameEvents.OnPlayableCatChanged -= OnSelectedCatChanged;
             GameEvents.OnHubEntered -= UpdateUI;
@@ -70,15 +74,14 @@ namespace PawPath.UI
 
             if (energyWarningText != null)
             {
-                bool ready = catNeedsSystem.CanStartLevel();
                 energyWarningText.gameObject.SetActive(true);
-                energyWarningText.text = ready
-                    ? "Kedin yola çıkmaya hazır"
-                    : $"Yola çıkmak için {catNeedsSystem.requiredEnergyToPlay} Sevgi gerekli";
+                energyWarningText.text = catNeedsSystem.TravelStatus();
             }
 
-            UpdateCareButton(feedButton, catNeedsSystem.CanFeedToday, $"Mama +{catNeedsSystem.foodPoints}");
-            UpdateCareButton(waterButton, catNeedsSystem.CanGiveWaterToday, $"Su +{catNeedsSystem.waterPoints}");
+            UpdateCareButton(feedButton, true, catNeedsSystem.CanFeedToday
+                ? $"Mama +{catNeedsSystem.foodPoints}" : "Mama Ver");
+            UpdateCareButton(waterButton, true, catNeedsSystem.CanGiveWaterToday
+                ? $"Su +{catNeedsSystem.waterPoints}" : "Su Ver");
             UpdateCareButton(sleepButton, catNeedsSystem.CanSleepToday, $"Uyu +{catNeedsSystem.sleepPoints}");
         }
 
@@ -135,7 +138,7 @@ namespace PawPath.UI
                 if (energyWarningText != null)
                 {
                     energyWarningText.gameObject.SetActive(true);
-                    energyWarningText.text = $"Yola çıkmak için en az {catNeedsSystem.requiredEnergyToPlay} Sevgi Puanı gerekli!";
+                    energyWarningText.text = catNeedsSystem.TravelStatus();
                 }
                 CozyAudioManager.Instance?.PlayError();
                 return false;
