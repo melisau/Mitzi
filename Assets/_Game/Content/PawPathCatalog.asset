@@ -653,6 +653,7 @@ MonoBehaviour:
   - {fileID: 21300000, guid: e1c801ce2e3e413ca4d9a42f2620a84d, type: 3}
   - {fileID: 21300000, guid: 441e20930a67429184da7f6571b720c0, type: 3}
   - {fileID: 21300000, guid: f19386a9111d450d97b824d27c676248, type: 3}
+  completionBackground: {fileID: 21300000, guid: fb6cf618bf9dbe44c9d654248a0726dd, type: 3}
   failureBackground: {fileID: 21300000, guid: 053cd80549122ec45af532e8edea9419, type: 3}
   birdFrames:
   - {fileID: 21300000, guid: 746e147c872317a4ead6a70ab1adb73d, type: 3}

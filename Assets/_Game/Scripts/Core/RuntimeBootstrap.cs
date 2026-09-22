@@ -570,7 +570,27 @@ namespace PawPath.Core
 
         static GameObject BuildLevelComplete(Transform canvas, PawPathCatalog catalog)
         {
-            var panel = Panel("LevelComplete", canvas, Vector2.zero, Vector2.one, new Color(0.98f, 0.93f, 0.84f, 0.68f));
+            var panel = Panel("LevelComplete", canvas, Vector2.zero, Vector2.one,
+                catalog != null && catalog.completionBackground != null
+                    ? Color.black
+                    : new Color(0.98f, 0.93f, 0.84f, 0.68f));
+            if (catalog != null && catalog.completionBackground != null)
+            {
+                var backgroundGo = new GameObject("CompletionBackground", typeof(RectTransform),
+                    typeof(Image), typeof(AspectRatioFitter));
+                backgroundGo.transform.SetParent(panel.transform, false);
+                var backgroundRt = backgroundGo.GetComponent<RectTransform>();
+                backgroundRt.anchorMin = backgroundRt.anchorMax = new Vector2(0.5f, 0.5f);
+                backgroundRt.anchoredPosition = Vector2.zero;
+                var background = backgroundGo.GetComponent<Image>();
+                background.sprite = catalog.completionBackground;
+                background.color = Color.white;
+                background.raycastTarget = false;
+                var fitter = backgroundGo.GetComponent<AspectRatioFitter>();
+                fitter.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
+                fitter.aspectRatio = catalog.completionBackground.rect.width /
+                    catalog.completionBackground.rect.height;
+            }
             var content = SafeContent(panel.transform);
             var success = Label(content, "Success", "BAŞARDIN!", new Vector2(0.5f, 0.82f), Vector2.zero);
             success.fontSize = 54;

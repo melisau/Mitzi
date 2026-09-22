@@ -62,6 +62,7 @@ namespace PawPath.Data
         public AudioClip shopSellSfx;
         [Header("Başarı Ekranı")]
         public Sprite[] completionFaces;
+        public Sprite completionBackground;
         public Sprite failureBackground;
         public Sprite[] birdFrames;
         [Header("Köpek ve Tırmanma")]
