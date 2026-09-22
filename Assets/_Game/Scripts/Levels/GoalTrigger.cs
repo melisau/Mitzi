@@ -1,5 +1,6 @@
 using UnityEngine;
 using PawPath.Cat;
+using PawPath.Core;
 
 namespace PawPath.Levels
 {
@@ -10,6 +11,8 @@ namespace PawPath.Levels
     public class GoalTrigger : MonoBehaviour
     {
         [SerializeField] float finishLineTolerance = 0.05f;
+        [SerializeField] float lowerYFromGoal = -0.65f;
+        [SerializeField] float upperYFromGoal = 4.70f;
         bool completed;
 
         void Reset()
@@ -22,9 +25,8 @@ namespace PawPath.Levels
 
         void Update()
         {
-            if (!completed && CatController.Instance != null &&
-                CatController.Instance.transform.position.x >= transform.position.x - finishLineTolerance)
-                Complete();
+            // Hızlı geçişlerde trigger olayı kaçsa bile aynı X/Y koşulları geçerlidir.
+            TryComplete(CatController.Instance);
         }
 
         void OnTriggerEnter2D(Collider2D other)
@@ -34,15 +36,25 @@ namespace PawPath.Levels
             if (other.transform != CatController.Instance.transform &&
                 other.transform.parent != CatController.Instance.transform)
                 return;
-            Complete();
+            TryComplete(CatController.Instance);
         }
 
-        void Complete()
+        void TryComplete(CatController cat)
         {
-            if (completed || CatController.Instance == null || CatController.Instance.IsBusy)
+            if (completed || cat == null || cat.IsBusy ||
+                GameFlow.Instance == null || GameFlow.Instance.State != GameFlowState.Gameplay ||
+                !IsWithinFinishBounds(cat.transform.position, transform.position,
+                    finishLineTolerance, lowerYFromGoal, upperYFromGoal))
                 return;
             completed = true;
             LevelManager.Instance?.CompleteLevel();
+        }
+
+        public static bool IsWithinFinishBounds(Vector2 cat, Vector2 goal,
+            float xTolerance, float lowerY, float upperY)
+        {
+            return cat.x >= goal.x - xTolerance &&
+                cat.y >= goal.y + lowerY && cat.y <= goal.y + upperY;
         }
     }
 }

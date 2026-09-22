@@ -14,7 +14,7 @@ public static class CityThemeBuilder
         "Assets/_Game/Art/city_sidewalk_platform_v1.png",
         "Assets/_Game/Art/city_car_small_v1.png",
         "Assets/_Game/Art/city_car_van_v1.png",
-        "Assets/_Game/Art/city_road_surface_v1.png"
+        "Assets/city_road_underfill.jpg"
     };
 
     static CityThemeBuilder() => EditorApplication.delayCall += Apply;
@@ -32,9 +32,12 @@ public static class CityThemeBuilder
             importer.spriteImportMode = SpriteImportMode.Single;
             importer.alphaIsTransparency = path.Contains("car_") || path.Contains("trash_gap");
             importer.mipmapEnabled = false;
-            importer.filterMode = path.Contains("road_surface") ? FilterMode.Point : FilterMode.Bilinear;
-            if (path.Contains("road_surface"))
-                importer.textureCompression = TextureImporterCompression.Uncompressed;
+            importer.filterMode = FilterMode.Bilinear;
+            if (path.Contains("city_road_underfill"))
+            {
+                importer.wrapMode = TextureWrapMode.Repeat;
+                importer.npotScale = TextureImporterNPOTScale.None;
+            }
             importer.SaveAndReimport();
         }
 

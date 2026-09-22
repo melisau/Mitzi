@@ -5,7 +5,7 @@ using PawPath.Data;
 [InitializeOnLoad]
 public static class FailureScreenBuilder
 {
-    const string ImagePath = "Assets/lose_pic.jpg";
+    const string ImagePath = "Assets/failed_screen_cat.jpg";
     const string CatalogPath = "Assets/_Game/Content/PawPathCatalog.asset";
 
     static FailureScreenBuilder() => EditorApplication.delayCall += Apply;

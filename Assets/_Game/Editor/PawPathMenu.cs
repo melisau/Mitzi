@@ -142,9 +142,8 @@ namespace PawPath.EditorTools
         [MenuItem("Paw Path/Reset Save Data")]
         public static void ResetSave()
         {
-            PlayerPrefs.DeleteKey("PawPath.Save.v1");
-            PlayerPrefs.Save();
-            Debug.Log("[PawPath] Kayıt silindi.");
+            PawPath.Core.SaveService.ResetProgressForTesting();
+            Debug.Log("[PawPath] İlerleme ve yedek test için sıfırlandı.");
         }
     }
 }

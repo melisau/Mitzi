@@ -12,6 +12,7 @@ namespace PawPath.UI
         [SerializeField] Button streetButton;
         [SerializeField] Button forestButton;
         [SerializeField] Button cityButton;
+        [SerializeField] Button cyberButton;
         Action<int> onThemeChosen;
         bool requestedVisible;
 
@@ -28,15 +29,18 @@ namespace PawPath.UI
             GameEvents.OnLevelStarted -= Hide;
         }
 
-        public void Bind(Button street, Button forest, Button city = null)
+        public void Bind(Button street, Button forest, Button city = null, Button cyber = null)
         {
             streetButton = street;
             forestButton = forest;
             cityButton = city;
+            cyberButton = cyber;
             streetButton.onClick.AddListener(() => Select(0));
             forestButton.onClick.AddListener(() => Select(1));
             if (cityButton != null)
                 cityButton.onClick.AddListener(() => Select(2));
+            if (cyberButton != null)
+                cyberButton.onClick.AddListener(() => Select(3));
             Refresh();
         }
 
@@ -76,6 +80,11 @@ namespace PawPath.UI
                 cityButton.interactable = true;
                 SetLabel(cityButton, selected == 2 ? "✓ Cadde" : "Cadde");
             }
+            if (cyberButton != null)
+            {
+                cyberButton.interactable = true;
+                SetLabel(cyberButton, selected == 3 ? "✓ Neo Teknoloji" : "Neo Teknoloji");
+            }
         }
 
         public void Hide()
@@ -106,7 +115,7 @@ namespace PawPath.UI
             if (PlayerPrefs.HasKey(ThemeKey))
             {
                 int chosen = PlayerPrefs.GetInt(ThemeKey, 0);
-                return Mathf.Clamp(chosen, 0, 2);
+                return Mathf.Clamp(chosen, 0, 3);
             }
             return ((Mathf.Max(1, levelNumber) - 1) / 5) % 2;
         }

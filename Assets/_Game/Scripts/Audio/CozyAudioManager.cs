@@ -163,7 +163,7 @@ namespace PawPath.Audio
 
         public void PlayThemeMusic(int theme)
         {
-            AudioClip clip = theme == 2 ? cityMusic : theme == 1 ? forestMusic : streetMusic;
+            AudioClip clip = theme == 2 || theme == 3 ? cityMusic : theme == 1 ? forestMusic : streetMusic;
             SwitchMusic(clip);
         }
 

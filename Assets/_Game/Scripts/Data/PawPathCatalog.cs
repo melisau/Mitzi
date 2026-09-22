@@ -38,6 +38,12 @@ namespace PawPath.Data
         public Sprite cityCarSprite;
         public Sprite cityVanSprite;
         public Sprite cityRoadSprite;
+        [Header("Neo Teknoloji Teması")]
+        public Sprite cyberBackground;
+        public Sprite cyberGroundTile;
+        public Sprite[] cyberObstacleSprites;
+        public Sprite roboticBird;
+        public Sprite[] roboticDogWalkFrames;
         public Sprite finishPortalSprite;
         [Header("Sesler")]
         public AudioClip homeMusic;

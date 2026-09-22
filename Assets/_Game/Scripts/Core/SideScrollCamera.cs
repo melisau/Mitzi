@@ -55,5 +55,12 @@ namespace PawPath.Core
             velocityX = 0f;
             transform.position = new Vector3(minX, startY, transform.position.z);
         }
+
+        public void SetCourseGoalX(float goalX)
+        {
+            // Kapı ekranın sağ tarafında kalsın; uzatılmış yolun sonunda
+            // kameranın eski 13.2 sınırında takılması engellenir.
+            maxX = Mathf.Max(minX, goalX - 6.15f);
+        }
     }
 }

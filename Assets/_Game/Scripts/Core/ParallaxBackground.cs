@@ -3,7 +3,7 @@ using UnityEngine;
 namespace PawPath.Core
 {
     /// <summary>
-    /// Tek bir arka plan sprite'ını beş yatay karo hâline getirir ve kameradan
+    /// Tek bir arka plan sprite'ını yedi yatay karo hâline getirir ve kameradan
     /// daha yavaş taşıyarak ilerleme/parallax hissi verir.
     /// </summary>
     public class ParallaxBackground : MonoBehaviour
@@ -42,9 +42,11 @@ namespace PawPath.Core
 
             float localWidth = centerRenderer.sprite.bounds.size.x;
             CreateTile("BackdropTile_-2", -2f * localWidth, false);
+            CreateTile("BackdropTile_-3", -3f * localWidth, true);
             CreateTile("BackdropTile_-1", -localWidth, true);
             CreateTile("BackdropTile_1", localWidth, true);
             CreateTile("BackdropTile_2", 2f * localWidth, false);
+            CreateTile("BackdropTile_3", 3f * localWidth, true);
         }
 
         public void SetSprite(Sprite sprite)

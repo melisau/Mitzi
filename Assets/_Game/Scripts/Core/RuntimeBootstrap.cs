@@ -144,9 +144,9 @@ namespace PawPath.Core
             goal.transform.position = new Vector3(6.25f, 0.2f, 0f);
             var goalCol = goal.AddComponent<BoxCollider2D>();
             goalCol.isTrigger = true;
-            // Kapı çizgisinden bölümün sağına kadar uzanan geniş WinZone.
-            goalCol.size = new Vector2(10f, 12f);
-            goalCol.offset = new Vector2(5f, 0f);
+            // Geniş yatay WinZone korunur; altı artık çukurun derinine uzanmaz.
+            goalCol.size = new Vector2(10f, 5.35f);
+            goalCol.offset = new Vector2(5f, 2.025f);
             goal.AddComponent<GoalTrigger>();
             BuildFinishGate(goal.transform, catalog.finishPortalSprite);
 
@@ -424,10 +424,12 @@ namespace PawPath.Core
             var street = Button(panel.transform, "StreetTheme", "Sokak", new Vector2(1f, 1f), new Vector2(-150f, -125f), new Color(0.83f, 0.68f, 0.52f));
             var forest = Button(panel.transform, "ForestTheme", "Orman", new Vector2(1f, 1f), new Vector2(-150f, -195f), new Color(0.52f, 0.70f, 0.55f));
             var city = Button(panel.transform, "CityTheme", "Cadde", new Vector2(1f, 1f), new Vector2(-150f, -255f), new Color(0.62f, 0.58f, 0.54f));
+            var cyber = Button(panel.transform, "CyberTheme", "Neo Teknoloji", new Vector2(1f, 1f), new Vector2(-150f, -315f), new Color(0.35f, 0.28f, 0.55f));
             StyleCompactTopButton(street, new Vector2(-180f, -180f));
             StyleCompactTopButton(forest, new Vector2(-180f, -305f));
             StyleCompactTopButton(city, new Vector2(-180f, -430f));
-            panel.AddComponent<ThemeSelectionUI>().Bind(street, forest, city);
+            StyleCompactTopButton(cyber, new Vector2(-180f, -555f));
+            panel.AddComponent<ThemeSelectionUI>().Bind(street, forest, city, cyber);
             return panel;
         }
 

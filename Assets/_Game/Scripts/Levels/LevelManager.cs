@@ -38,7 +38,11 @@ namespace PawPath.Levels
             Current = ResolveLevel(DisplayLevel);
             var cameraFollow = Camera.main != null ? Camera.main.GetComponent<SideScrollCamera>() : null;
             if (cameraFollow != null)
+            {
+                if (courseBuilder != null)
+                    cameraFollow.SetCourseGoalX(courseBuilder.GoalX);
                 cameraFollow.ResetView();
+            }
             ApplyLevelTheme(Current.levelNumber);
             if (courseBuilder != null)
                 courseBuilder.Build(Current.levelNumber);
@@ -60,7 +64,7 @@ namespace PawPath.Levels
             }
 
             if (LineDraw.Instance != null)
-                LineDraw.Instance.ResetInk(Current.inkBudget);
+                LineDraw.Instance.ResetInk(Current.inkBudget * 2f);
 
             if (CozyAudioManager.Instance != null)
                 CozyAudioManager.Instance.PlaySeason(Current.season);
@@ -77,33 +81,40 @@ namespace PawPath.Levels
             int selectedTheme = ThemeSelectionUI.GetSelectedTheme(levelNumber);
             bool forestTheme = selectedTheme == 1;
             bool cityTheme = selectedTheme == 2;
+            bool cyberTheme = selectedTheme == 3;
             if (CozyAudioManager.Instance != null)
                 CozyAudioManager.Instance.PlayThemeMusic(selectedTheme);
             if (courseBuilder != null)
             {
                 courseBuilder.BindVisuals(
-                    cityTheme && catalog.cityGapSprite != null ? catalog.cityGapSprite :
+                    cyberTheme ? null : cityTheme && catalog.cityGapSprite != null ? catalog.cityGapSprite :
                         forestTheme && catalog.forestGapSprite != null ? catalog.forestGapSprite : catalog.roadGapSprite,
-                    cityTheme && catalog.cityCarSprite != null ? catalog.cityCarSprite :
+                    cyberTheme ? null : cityTheme && catalog.cityCarSprite != null ? catalog.cityCarSprite :
                         forestTheme && catalog.forestMoundSprite != null ? catalog.forestMoundSprite : catalog.moundSprite,
-                    cityTheme && catalog.cityPlatformSprite != null ? catalog.cityPlatformSprite :
+                    cyberTheme && catalog.cyberGroundTile != null ? catalog.cyberGroundTile :
+                        cityTheme && catalog.cityPlatformSprite != null ? catalog.cityPlatformSprite :
                         forestTheme && catalog.forestGroundUnderfillSprite != null
                             ? catalog.forestGroundUnderfillSprite : catalog.roadPlatformSprite,
-                    cityTheme ? catalog.cityVanSprite :
+                    cyberTheme ? null : cityTheme ? catalog.cityVanSprite :
                         forestTheme ? null : catalog.streetMoundHighSprite,
                     cityTheme ? catalog.cityRoadSprite :
                         null,
-                    catalog.birdFrames,
-                    catalog.dogRunFrames,
-                    catalog.climbTreeSprite,
-                    catalog.climbingCatFrames,
-                    forestTheme || cityTheme ? null : catalog.streetGapLeftSprite,
-                    forestTheme || cityTheme ? null : catalog.streetGapRightSprite);
+                    cyberTheme ? (catalog.roboticBird != null ? new[] { catalog.roboticBird } : null)
+                        : catalog.birdFrames,
+                    cyberTheme ? catalog.roboticDogWalkFrames : catalog.dogRunFrames,
+                    cyberTheme ? null : catalog.climbTreeSprite,
+                    cyberTheme ? null : catalog.climbingCatFrames,
+                    forestTheme || cityTheme || cyberTheme ? null : catalog.streetGapLeftSprite,
+                    forestTheme || cityTheme || cyberTheme ? null : catalog.streetGapRightSprite,
+                    cyberTheme,
+                    cyberTheme ? catalog.cyberObstacleSprites : null);
             }
 
             if (seasonBackdrop != null)
             {
-                var background = cityTheme && catalog.cityBackground != null
+                var background = cyberTheme && catalog.cyberBackground != null
+                    ? catalog.cyberBackground
+                    : cityTheme && catalog.cityBackground != null
                     ? catalog.cityBackground
                     : forestTheme && catalog.forestBackground != null ? catalog.forestBackground : catalog.gameplayBackground;
                 seasonBackdrop.SetBackground(background);

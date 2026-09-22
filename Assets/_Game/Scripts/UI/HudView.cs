@@ -216,7 +216,7 @@ namespace PawPath.UI
         private void RefreshLove(int total)
         {
             if (loveLabel != null)
-                loveLabel.text = $"{GameText.Love}: {total}";
+                loveLabel.text = $"Dükkan Puanı: {total}";
         }
 
         private void RefreshCat(CatDefinition cat)

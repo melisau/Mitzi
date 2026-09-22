@@ -196,10 +196,10 @@ namespace PawPath.Hub
 
         void UpdateLoveTextDisplay()
         {
-            if (loveText != null && CozyEconomyManager.Instance != null)
-            {
-                loveText.text = $"💖 Sevgi: {CozyEconomyManager.Instance.LovePoints}";
-            }
+            if (loveText == null || cat == null || CatNeedsSystem.Instance == null)
+                return;
+            int affection = CatNeedsSystem.Instance.GetNeeds(cat.id).affection;
+            loveText.text = $"💖 {cat.displayName} sevgisi: {affection}/100";
         }
 
         void EnsureWorldLoveText()
@@ -228,8 +228,10 @@ namespace PawPath.Hub
 
         void UpdateWorldLoveText()
         {
-            if (worldLoveText != null && CozyEconomyManager.Instance != null)
-                worldLoveText.text = $"+1 Sevgi  |  {CozyEconomyManager.Instance.LovePoints}";
+            if (worldLoveText == null || cat == null || CatNeedsSystem.Instance == null)
+                return;
+            int affection = CatNeedsSystem.Instance.GetNeeds(cat.id).affection;
+            worldLoveText.text = $"{cat.displayName} sevgisi: {affection}/100";
         }
 
         void SpawnFloatingText()

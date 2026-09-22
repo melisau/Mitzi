@@ -610,7 +610,25 @@ MonoBehaviour:
   cityPlatformSprite: {fileID: 21300000, guid: 9c0d44d0269a1c04192774ec5e539fb5, type: 3}
   cityCarSprite: {fileID: 21300000, guid: ea7ea890117145643be21bb2c35b4ade, type: 3}
   cityVanSprite: {fileID: 21300000, guid: 0672477962867034db0e485a388b10d3, type: 3}
-  cityRoadSprite: {fileID: 21300000, guid: 3fab94d783fc4fffbde9db6ed7978d42, type: 3}
+  cityRoadSprite: {fileID: 21300000, guid: 9ae09f0e5eb1e7043bfc374380f4cccc, type: 3}
+  cyberBackground: {fileID: 21300000, guid: a1751648154d0264083fc39de405dd5b, type: 3}
+  cyberGroundTile: {fileID: 21300000, guid: 6759b36ff7a25e74fbe1b5d829f9f4f8, type: 3}
+  cyberObstacleSprites:
+  - {fileID: 21300000, guid: 934acb2897d674e41903ebee156a21b2, type: 3}
+  - {fileID: 21300000, guid: 521d9f7ce211b674da2a4b14d66ef015, type: 3}
+  - {fileID: 21300000, guid: 5288c9b3d4065204f80750d4ba87d321, type: 3}
+  - {fileID: 21300000, guid: a6e51a80563b8144ebe75c424acd1552, type: 3}
+  roboticBird: {fileID: 21300000, guid: d0a2d79e9a3fe044c9efddd92d1a7a67, type: 3}
+  roboticDogWalkFrames:
+  - {fileID: 21300000, guid: cb6da2a7c32b3ef4e937e1836120c4d6, type: 3}
+  - {fileID: 21300000, guid: 70a7a402e4f234a44bfc4f779f628de6, type: 3}
+  - {fileID: 21300000, guid: 9379c6bdf76ca63419594b94ac9fa372, type: 3}
+  - {fileID: 21300000, guid: 99eed07f98cbdca408592d1a29d16d10, type: 3}
+  - {fileID: 21300000, guid: f6fe01c56eb611e4ebc08ae8a6b734e2, type: 3}
+  - {fileID: 21300000, guid: 3489847006d01ea4a93014c88420ca8c, type: 3}
+  - {fileID: 21300000, guid: 5465b2c12ebaed643ac7e7c290e71da4, type: 3}
+  - {fileID: 21300000, guid: 4c4fecd4fe40062499877835bcd5be95, type: 3}
+  - {fileID: 21300000, guid: 60f82a36324f40a429409011a1a448fb, type: 3}
   finishPortalSprite: {fileID: 21300000, guid: 71fa809c24e6479cb4125806e44f450a, type: 3}
   homeMusic: {fileID: 8300000, guid: 729affca41972b544a5f17d900f5189c, type: 3}
   streetMusic: {fileID: 8300000, guid: af2f9362614ec2742b6a82ce24c4263e, type: 3}
@@ -635,7 +653,7 @@ MonoBehaviour:
   - {fileID: 21300000, guid: e1c801ce2e3e413ca4d9a42f2620a84d, type: 3}
   - {fileID: 21300000, guid: 441e20930a67429184da7f6571b720c0, type: 3}
   - {fileID: 21300000, guid: f19386a9111d450d97b824d27c676248, type: 3}
-  failureBackground: {fileID: 21300000, guid: 6785a8b268a32254cb7242e83404dd36, type: 3}
+  failureBackground: {fileID: 21300000, guid: 053cd80549122ec45af532e8edea9419, type: 3}
   birdFrames:
   - {fileID: 21300000, guid: 746e147c872317a4ead6a70ab1adb73d, type: 3}
   - {fileID: 21300000, guid: cf86d25345c194d4599383a35d055f49, type: 3}

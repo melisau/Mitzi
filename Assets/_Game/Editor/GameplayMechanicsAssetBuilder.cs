@@ -10,7 +10,7 @@ public static class GameplayMechanicsAssetBuilder
     const string CatalogPath = "Assets/_Game/Content/PawPathCatalog.asset";
     const string FoodItemPath = "Assets/_Game/Content/item_food_bowl.asset";
     // v2 köpek karelerini eski Default Texture durumundan zorla Sprite'a geçirir.
-    const string SessionKey = "PawPath.GameplayMechanicsAssets.v2";
+    const string SessionKey = "PawPath.GameplayMechanicsAssets.v5";
 
     static GameplayMechanicsAssetBuilder()
     {
@@ -26,6 +26,11 @@ public static class GameplayMechanicsAssetBuilder
         if (catalog == null) return;
 
         catalog.dogRunFrames = LoadSeries("Assets/dog_run ({0}).png", 14);
+        catalog.roboticDogWalkFrames = LoadSeries("Assets/walk_robotic_dog ({0}).png", 9);
+        catalog.roboticBird = LoadSprite("Assets/robotic_bird.png");
+        catalog.cyberBackground = LoadSprite("Assets/cyber_neo.jpg");
+        catalog.cyberGroundTile = LoadSprite("Assets/cyber_ground_tile.png");
+        catalog.cyberObstacleSprites = LoadSeries("Assets/neo_techno_object ({0}).png", 4);
         catalog.climbingCatFrames = LoadSeries("Assets/climbing_cat ({0}).png", 4);
         catalog.climbTreeSprite = LoadSprite("Assets/climb_tree.png");
 
@@ -39,7 +44,7 @@ public static class GameplayMechanicsAssetBuilder
 
         EditorUtility.SetDirty(catalog);
         AssetDatabase.SaveAssets();
-        Debug.Log("Köpek koşusu, tırmanma ve Mitzi mama yeme kareleri bağlandı.");
+        Debug.Log("Köpek koşusu, robotik köpek/kuş, Neo Teknoloji zemini ve etkileşim kareleri bağlandı.");
     }
 
     static Sprite[] LoadSeries(string pattern, int count)
@@ -58,9 +63,11 @@ public static class GameplayMechanicsAssetBuilder
         {
             importer.textureType = TextureImporterType.Sprite;
             importer.spriteImportMode = SpriteImportMode.Single;
-            importer.alphaIsTransparency = true;
+            importer.alphaIsTransparency = path.EndsWith(".png");
             importer.mipmapEnabled = false;
-            importer.filterMode = FilterMode.Bilinear;
+            importer.filterMode = path.Contains("cyber_neo") ? FilterMode.Point : FilterMode.Bilinear;
+            if (path.Contains("cyber_ground_tile"))
+                importer.wrapMode = TextureWrapMode.Repeat;
             importer.SaveAndReimport();
         }
         return AssetDatabase.LoadAssetAtPath<Sprite>(path);

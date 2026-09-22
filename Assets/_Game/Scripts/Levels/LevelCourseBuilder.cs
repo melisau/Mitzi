@@ -14,10 +14,10 @@ namespace PawPath.Levels
         public const float GameplayScale = 1.20f;
         const float RoadCenterY = -1.85f;
         const float RoadHeight = 0.96f * GameplayScale;
-        const float SecondSectionOffset = 13.0f;
+        const float SectionOffset = 13.0f;
         const int IntroLevelCount = 5;
         const float CourseLeft = -9.35f;
-        const float CourseRight = 23f;
+        const float CourseRight = 49f;
         static readonly Color RoadColor = new Color(0.72f, 0.54f, 0.38f, 1f);
         static readonly Color ObstacleColor = new Color(0.61f, 0.42f, 0.29f, 1f);
         static readonly Color CityRoadFillColor = new Color(0.70f, 0.66f, 0.60f, 1f);
@@ -34,6 +34,11 @@ namespace PawPath.Levels
         Sprite[] dogRunFrames;
         Sprite climbTreeSprite;
         Sprite[] climbingCatFrames;
+        bool cyberTheme;
+        Sprite croppedCyberRoadSprite;
+        Sprite[] cyberObstacleSprites;
+        readonly Sprite[] croppedCyberObstacleSprites = new Sprite[4];
+        int cyberObstacleCount;
         // Fizik, kaplama ve çukur uçları aynı dünya koordinatlarını kullanır.
         readonly List<RoadSpan> roads = new List<RoadSpan>();
         readonly List<GapSpan> gaps = new List<GapSpan>();
@@ -81,12 +86,13 @@ namespace PawPath.Levels
 
         public float CatSpawnY => RoadCenterY + RoadHeight * 0.5f + 0.40f * GameplayScale;
         public float GoalY => CatSpawnY + 0.15f;
-        public float GoalX => 19.35f;
+        public float GoalX => CourseRight - 4.10f;
 
         public void BindVisuals(Sprite gap, Sprite mound, Sprite road, Sprite alternateMound = null,
             Sprite underfill = null, Sprite[] birds = null, Sprite[] dogs = null,
             Sprite tree = null, Sprite[] climbingFrames = null,
-            Sprite streetGapLeft = null, Sprite streetGapRight = null)
+            Sprite streetGapLeft = null, Sprite streetGapRight = null, bool useCyberTheme = false,
+            Sprite[] cyberObstacles = null)
         {
             gapSprite = CreateCityTrashContainer(gap);
             moundSprite = mound;
@@ -99,6 +105,9 @@ namespace PawPath.Levels
             climbingCatFrames = climbingFrames;
             streetGapLeftSprite = streetGapLeft;
             streetGapRightSprite = streetGapRight;
+            cyberTheme = useCyberTheme;
+            cyberObstacleSprites = cyberObstacles;
+            croppedCyberRoadSprite = null;
         }
 
         static Sprite CreateCitySidewalkSurface(Sprite source)
@@ -122,6 +131,21 @@ namespace PawPath.Levels
             roads.Clear();
             gaps.Clear();
             moundVisualRanges.Clear();
+            cyberObstacleCount = 0;
+            for (int i = 0; i < croppedCyberObstacleSprites.Length; i++)
+                croppedCyberObstacleSprites[i] = null;
+            if (cyberTheme && birdFrames != null && birdFrames.Length == 1 && birdFrames[0] != null)
+            {
+                Texture2D texture = birdFrames[0].texture;
+                if (texture.width == 536 && texture.height == 427)
+                {
+                    var croppedBird = Sprite.Create(texture, new Rect(90f, 104f, 305f, 271f),
+                        new Vector2(0.5f, 0.5f), birdFrames[0].pixelsPerUnit, 0, SpriteMeshType.FullRect);
+                    croppedBird.name = "RoboticBirdVisible";
+                    generatedRuntimeAssets.Add(croppedBird);
+                    birdFrames = new[] { croppedBird };
+                }
+            }
             generatedRoot = new GameObject("GeneratedCourse").transform;
             generatedRoot.SetParent(transform, false);
 
@@ -132,9 +156,9 @@ namespace PawPath.Levels
                 const float cityRoadBottom = -5.35f;
                 float cityRoadTop = RoadCenterY + RoadHeight * 0.5f;
                 float cityRoadHeight = cityRoadTop - cityRoadBottom;
-                Decoration("ContinuousCityRoad", roadUnderfillSprite,
-                    new Vector2(6.5f, cityRoadBottom + cityRoadHeight * 0.5f),
-                    36f, -1, cityRoadHeight);
+                CreateContinuousCityUnderfill((CourseLeft + CourseRight) * 0.5f,
+                    cityRoadBottom + cityRoadHeight * 0.5f,
+                    CourseRight - CourseLeft + 4f, cityRoadHeight);
             }
 
             if (levelNumber <= IntroLevelCount)
@@ -142,25 +166,30 @@ namespace PawPath.Levels
                 int pattern = Mathf.Abs(levelNumber - 1) % 5;
                 Road(-8.25f, 2.2f);
                 BuildPattern(pattern, 0f);
-                BuildPattern((pattern + 2) % 5, SecondSectionOffset);
-                Road(21.55f, 2.9f);
+                BuildPattern((pattern + 2) % 5, SectionOffset);
+                BuildPattern((pattern + 4) % 5, SectionOffset * 2f);
+                BuildPattern((pattern + 1) % 5, SectionOffset * 3f);
+                Road(21.55f + SectionOffset * 2f, 2.9f);
             }
             else
             {
                 BuildVariedCourse(levelNumber);
             }
+            if (cyberTheme && cyberObstacleCount == 0)
+                TryPlaceIntroCyberObstacle();
             BuildModeChallenge(levelNumber);
             BuildDogAndTreeChallenge(levelNumber);
         }
 
         void BuildVariedCourse(int levelNumber)
         {
-            // Beş güvenli bölge, çukurların doğma/hedef alanına ya da birbirine
+            // On güvenli bölge, çukurların doğma/hedef alanına ya da birbirine
             // yaklaşmasını önler. Bölüm numarası hem bölge seçimini hem ölçüleri
             // sabitler; yeniden denemede yol değişmez.
-            float[] gapLanes = { -2.7f, 1.5f, 5.8f, 10.2f, 14.8f };
-            var selected = new List<int> { layoutRandom.Next(0, 2), layoutRandom.Next(2, 5) };
-            int gapCount = 2 + layoutRandom.Next(0, 3);
+            float[] gapLanes = { -2.7f, 1.5f, 5.8f, 10.2f, 14.8f,
+                19.4f, 24.2f, 29.4f, 35.2f, 41.1f };
+            var selected = new List<int> { layoutRandom.Next(0, 3), layoutRandom.Next(6, 10) };
+            int gapCount = 4 + layoutRandom.Next(0, 3);
             while (selected.Count < gapCount)
             {
                 int lane = layoutRandom.Next(gapLanes.Length);
@@ -192,7 +221,7 @@ namespace PawPath.Levels
 
             // Tümsek yalnız geniş platformlarda oluşur; giriş, bitiş ve çukur
             // kenarları boş kalır. İki tümsek arasında da yürüme payı bulunur.
-            int moundCount = 1 + layoutRandom.Next(0, 2);
+            int moundCount = 2 + layoutRandom.Next(0, 3);
             var moundPositions = new List<float>();
             for (int i = 0; i < moundCount; i++)
             {
@@ -200,7 +229,7 @@ namespace PawPath.Levels
                 foreach (RoadSpan range in roads)
                 {
                     float min = Mathf.Max(range.Left + 2.2f, -4.2f);
-                    float max = Mathf.Min(range.Right - 2.2f, 17.1f);
+                    float max = Mathf.Min(range.Right - 2.2f, GoalX - 2.2f);
                     if (max > min)
                         candidates.Add(new Vector2(min, max));
                 }
@@ -292,6 +321,11 @@ namespace PawPath.Levels
 
             int tileCount = Mathf.Max(1, Mathf.CeilToInt(span.Width / 3.1f));
             float tileWidth = span.Width / tileCount;
+            if (cyberTheme && roadSprite.name.Contains("cyber_ground_tile"))
+            {
+                CreateCyberRoad(span);
+                return;
+            }
             if (roadSprite.name.Contains("new_road_terracot") ||
                 roadSprite.name.Contains("forest_ground_underfill"))
             {
@@ -335,6 +369,35 @@ namespace PawPath.Levels
             // Tam derinlikli görsel çukurun içine taşmamalı.
             renderer.size = new Vector2(span.Width, height);
             ApplyRoundedTopCornerMask(go.transform, renderer, span.CenterX, span.Width, height);
+        }
+
+        void CreateCyberRoad(RoadSpan span)
+        {
+            // Gelen PNG'nin üstünde ve altında geniş şeffaf pay var. Yalnızca
+            // 669x137 görünür şeridi kırpınca yol collider'ına tam oturur.
+            if (croppedCyberRoadSprite == null)
+            {
+                Texture2D texture = roadSprite.texture;
+                Rect rect = texture.width == 669 && texture.height == 373
+                    ? new Rect(0f, 119f, 669f, 137f)
+                    : new Rect(0f, 0f, texture.width, texture.height);
+                croppedCyberRoadSprite = Sprite.Create(texture, rect, new Vector2(0.5f, 0.5f),
+                    roadSprite.pixelsPerUnit, 0, SpriteMeshType.FullRect);
+                croppedCyberRoadSprite.name = "CyberGroundVisibleStrip";
+                generatedRuntimeAssets.Add(croppedCyberRoadSprite);
+            }
+
+            CreateRoadUnderfill(span.CenterX, span.Width, span.Top);
+            const float visualHeight = 0.82f;
+            var go = new GameObject("CyberGroundVisual");
+            go.transform.SetParent(generatedRoot, false);
+            go.transform.position = new Vector2(span.CenterX, span.Top - visualHeight * 0.5f);
+            var renderer = go.AddComponent<SpriteRenderer>();
+            renderer.sprite = croppedCyberRoadSprite;
+            renderer.sortingOrder = 1;
+            renderer.drawMode = SpriteDrawMode.Tiled;
+            renderer.tileMode = SpriteTileMode.Continuous;
+            renderer.size = new Vector2(span.Width, visualHeight);
         }
 
         void ApplyRoundedTopCornerMask(Transform roadTransform, SpriteRenderer roadRenderer,
@@ -409,6 +472,11 @@ namespace PawPath.Levels
 
         void Obstacle(float centerX, float width, float height)
         {
+            if (cyberTheme)
+            {
+                CreateCyberObstacle(centerX);
+                return;
+            }
             bool streetMoundPair = moundSprite != null && alternateMoundSprite != null &&
                 moundSprite.name.Contains("street_mound") &&
                 alternateMoundSprite.name.Contains("street_mound_high");
@@ -544,6 +612,133 @@ namespace PawPath.Levels
                 renderer.drawMode = SpriteDrawMode.Sliced;
                 renderer.size = new Vector2(obstacleWidth, obstacleHeight);
             }
+        }
+
+        void TryPlaceIntroCyberObstacle()
+        {
+            // İlk iki kalıpta tümsek çağrısı yok; Neo modda en az bir obje görünsün.
+            float bestWidth = 0f;
+            float bestX = 0f;
+            foreach (RoadSpan road in roads)
+            {
+                float left = Mathf.Max(road.Left + 1.3f, 0f);
+                float right = Mathf.Min(road.Right - 1.3f, 14f);
+                if (right - left <= bestWidth)
+                    continue;
+                bestWidth = right - left;
+                bestX = (left + right) * 0.5f;
+            }
+            if (bestWidth > 0.8f)
+                CreateCyberObstacle(bestX);
+        }
+
+        void CreateCyberObstacle(float centerX)
+        {
+            if (cyberObstacleSprites == null || cyberObstacleSprites.Length == 0)
+                return;
+            int index = (currentLevelNumber - 1 + cyberObstacleCount) % cyberObstacleSprites.Length;
+            if (index >= croppedCyberObstacleSprites.Length || cyberObstacleSprites[index] == null)
+                return;
+
+            Sprite sprite = GetCroppedCyberObstacle(index);
+            // Neo objeleri yol dekorundan ayrışsın; yüksek modeller hâlâ
+            // çift zıplamayla aşılabilecek aralıkta tutulur.
+            float targetHeight = index == 2 ? 1.34f : index == 1 ? 1.78f : 1.70f;
+            float scale = targetHeight / Mathf.Max(0.01f, sprite.bounds.size.y);
+            float visibleWidth = sprite.bounds.size.x * scale;
+            visibleWidth = ClampWidthToContainingRoad(centerX, visibleWidth, 0.24f);
+            if (visibleWidth < 0.45f)
+                return;
+            scale = visibleWidth / sprite.bounds.size.x;
+            float visibleHeight = sprite.bounds.size.y * scale;
+            float roadTop = RoadCenterY + RoadHeight * 0.5f;
+
+            var go = new GameObject($"CyberObstacle_{index + 1}");
+            go.transform.SetParent(generatedRoot, false);
+            go.transform.position = new Vector2(centerX, roadTop + visibleHeight * 0.5f);
+            var collider = go.AddComponent<BoxCollider2D>();
+            collider.size = new Vector2(visibleWidth * 0.90f, visibleHeight * 0.90f);
+
+            var visual = new GameObject("Visual");
+            visual.transform.SetParent(go.transform, false);
+            visual.transform.localScale = new Vector3(scale, scale, 1f);
+            visual.transform.localPosition = new Vector3(0f,
+                -sprite.bounds.min.y * scale - visibleHeight * 0.5f, 0f);
+            var renderer = visual.AddComponent<SpriteRenderer>();
+            renderer.sprite = sprite;
+            renderer.sortingOrder = 3;
+            CreateCyberObstacleGlow(go.transform, visibleWidth, visibleHeight, index);
+            moundVisualRanges.Add(new Vector2(centerX - visibleWidth * 0.5f,
+                centerX + visibleWidth * 0.5f));
+            cyberObstacleCount++;
+        }
+
+        void CreateCyberObstacleGlow(Transform parent, float width, float height, int index)
+        {
+            float sideX = width * 0.5f + 0.045f;
+            float topY = height * 0.5f + 0.035f;
+            float bottomY = -height * 0.5f + 0.045f;
+            float frameWidth = width + 0.13f;
+            float frameHeight = topY - bottomY;
+            var positions = new[]
+            {
+                new Vector2(-sideX, (topY + bottomY) * 0.5f),
+                new Vector2(sideX, (topY + bottomY) * 0.5f),
+                new Vector2(0f, topY),
+                new Vector2(0f, bottomY)
+            };
+            var inner = new SpriteRenderer[4];
+            var outer = new SpriteRenderer[4];
+            for (int i = 0; i < 4; i++)
+            {
+                bool vertical = i < 2;
+                inner[i] = CreateCyberGlowLine(parent, $"NeonEdge_{i}", positions[i],
+                    vertical ? new Vector2(0.035f, frameHeight) : new Vector2(frameWidth, 0.035f), 4);
+                outer[i] = CreateCyberGlowLine(parent, $"NeonHalo_{i}", positions[i],
+                    vertical ? new Vector2(0.16f, frameHeight + 0.14f)
+                        : new Vector2(frameWidth + 0.14f, 0.16f), 2);
+            }
+            parent.gameObject.AddComponent<CyberObstacleGlow>().Configure(inner, outer, index * 0.85f);
+        }
+
+        static SpriteRenderer CreateCyberGlowLine(Transform parent, string name, Vector2 position,
+            Vector2 size, int sortingOrder)
+        {
+            var line = new GameObject(name);
+            line.transform.SetParent(parent, false);
+            line.transform.localPosition = position;
+            line.transform.localScale = new Vector3(size.x, size.y, 1f);
+            var renderer = line.AddComponent<SpriteRenderer>();
+            renderer.sprite = FallbackSprite.WhiteSquare();
+            renderer.sortingOrder = sortingOrder;
+            return renderer;
+        }
+
+        Sprite GetCroppedCyberObstacle(int index)
+        {
+            if (croppedCyberObstacleSprites[index] != null)
+                return croppedCyberObstacleSprites[index];
+            Sprite source = cyberObstacleSprites[index];
+            Texture2D texture = source.texture;
+            Rect rect;
+            switch (index)
+            {
+                case 0: rect = new Rect(13f, 11f, 143f, 217f); break;
+                case 1: rect = new Rect(31f, 5f, 137f, 235f); break;
+                case 2: rect = new Rect(22f, 11f, 260f, 216f); break;
+                default: rect = new Rect(9f, 13f, 139f, 227f); break;
+            }
+            int[] expectedWidths = { 170, 205, 291, 170 };
+            int[] expectedHeights = { 244, 251, 247, 248 };
+            if (texture.width != expectedWidths[index] || texture.height != expectedHeights[index])
+                return source;
+
+            Sprite cropped = Sprite.Create(texture, rect, new Vector2(0.5f, 0.5f),
+                source.pixelsPerUnit, 0, SpriteMeshType.FullRect);
+            cropped.name = $"CyberObstacleVisible_{index + 1}";
+            generatedRuntimeAssets.Add(cropped);
+            croppedCyberObstacleSprites[index] = cropped;
+            return cropped;
         }
 
         float ClampWidthToContainingRoad(float centerX, float desiredWidth, float edgeInset)
@@ -700,13 +895,14 @@ namespace PawPath.Levels
             // sayısı, ilk konumu, uçuş yüksekliği ve hızı deterministik olarak değişir.
             // Böylece yeniden denemede düzen korunur fakat her bölüm aynı hissettirmez.
             var random = new System.Random(levelNumber * 7919 + 173);
-            int birdCount = 2 + (levelNumber % 3 == 0 ? 1 : 0);
+            int birdCount = 4 + (levelNumber % 3 == 0 ? 1 : 0);
             float roadTop = RoadCenterY + RoadHeight * 0.5f;
             for (int i = 0; i < birdCount; i++)
             {
                 // Kuş bir kez sağdan girip uzun bir mesafe uçar; kısa bir bölgede
                 // ışınlanıp tekrar tekrar doğmaz.
-                float spawnX = 11.5f + i * 5.4f + NextRange(random, 0.4f, 1.8f);
+                float spawnX = 9.5f + i * ((GoalX - 13f) / (birdCount - 1)) +
+                    NextRange(random, 0.4f, 1.8f);
                 float height = roadTop + NextRange(random, 1.25f, 2.85f);
                 float speed = NextRange(random, 0.72f, 1.48f);
                 float width = NextRange(random, 1.00f, 1.38f);
@@ -775,8 +971,41 @@ namespace PawPath.Levels
             if (spawnTree && TryChooseTreeX(treeRandom, out float treeX))
                 CreateClimbableTree(treeX, roadTop);
             if (hasDog)
-                CreateDog(22.4f, roadTop, -9.5f,
-                    1.8f + levelNumber % 4 * 0.18f);
+            {
+                // Uzayan bölümde tek köpek en sağdan koşup kamera gelmeden
+                // çukurda geri dönebiliyordu. İki güvenli yol bölgesi seçilir.
+                var dogRandom = new System.Random(levelNumber * 32531 + 211);
+                bool first = TryChooseDogSpawnX(dogRandom, 15f, 25f, out float firstX);
+                bool second = TryChooseDogSpawnX(dogRandom, 33f, 42f, out float secondX);
+                float speed = 1.8f + levelNumber % 4 * 0.18f;
+                if (first)
+                    CreateDog(firstX, roadTop, CourseLeft - 0.15f, speed, 0);
+                if (second)
+                    CreateDog(secondX, roadTop, CourseLeft - 0.15f, speed, 1);
+                if (!first && !second)
+                    CreateDog(CourseRight - 0.6f, roadTop, CourseLeft - 0.15f, speed, 0);
+            }
+        }
+
+        bool TryChooseDogSpawnX(System.Random random, float minX, float maxX, out float spawnX)
+        {
+            float edgeMargin = cyberTheme ? 1.20f : 1.55f;
+            var validRanges = new List<Vector2>();
+            foreach (RoadSpan road in roads)
+            {
+                float left = Mathf.Max(minX, road.Left + edgeMargin);
+                float right = Mathf.Min(maxX, road.Right - edgeMargin);
+                if (right > left)
+                    validRanges.Add(new Vector2(left, right));
+            }
+            if (validRanges.Count == 0)
+            {
+                spawnX = 0f;
+                return false;
+            }
+            Vector2 selected = validRanges[random.Next(validRanges.Count)];
+            spawnX = NextRange(random, selected.x, selected.y);
+            return true;
         }
 
         bool TryChooseTreeX(System.Random random, out float treeX)
@@ -784,7 +1013,7 @@ namespace PawPath.Levels
             // Ağaç bir çukura değil gerçek yol collider'ına yerleşsin. Kenarlardan
             // pay bırakmak tırmanma trigger'ının boşluğa taşmasını engeller.
             const float minX = 4.5f;
-            const float maxX = 15.5f;
+            float maxX = GoalX - 4.5f;
             const float edgeMargin = 1.05f;
             var validRanges = new List<Vector2>();
             foreach (RoadSpan range in roads)
@@ -806,27 +1035,32 @@ namespace PawPath.Levels
             return true;
         }
 
-        void CreateDog(float x, float roadTop, float leftBound, float speed)
+        void CreateDog(float x, float roadTop, float leftBound, float speed, int dogIndex)
         {
             Sprite first = dogRunFrames[0];
-            var go = new GameObject("DogObstacle");
+            var go = new GameObject($"DogObstacle_{dogIndex + 1}");
             go.transform.SetParent(generatedRoot, false);
-            var renderer = go.AddComponent<SpriteRenderer>();
+            go.transform.position = new Vector3(x, roadTop, 0f);
+            var visual = new GameObject("DogVisual");
+            visual.transform.SetParent(go.transform, false);
+            var renderer = visual.AddComponent<SpriteRenderer>();
             renderer.sprite = first;
             renderer.sortingOrder = 9;
-            float targetWidth = 2.75f;
-            float scale = first.bounds.size.x > 0f ? targetWidth / first.bounds.size.x : 1f;
-            go.transform.localScale = new Vector3(-scale, scale, 1f);
-            float bottomOffset = -first.bounds.min.y * scale;
-            go.transform.position = new Vector3(x, roadTop + bottomOffset, 0f);
             var collider = go.AddComponent<BoxCollider2D>();
             collider.isTrigger = true;
-            collider.size = new Vector2(first.bounds.size.x * 0.72f, first.bounds.size.y * 0.62f);
-            collider.offset = new Vector2(0f, first.bounds.min.y + first.bounds.size.y * 0.34f);
+            collider.size = cyberTheme ? new Vector2(1.30f, 0.82f) : new Vector2(1.98f, 1.05f);
+            collider.offset = new Vector2(0f, collider.size.y * 0.5f);
             var body = go.AddComponent<Rigidbody2D>();
             body.bodyType = RigidbodyType2D.Kinematic;
             body.interpolation = RigidbodyInterpolation2D.Interpolate;
-            go.AddComponent<DogObstacle>().Configure(renderer, dogRunFrames, speed, leftBound, roadTop);
+            var dogGaps = new Vector2[gaps.Count];
+            for (int i = 0; i < gaps.Count; i++)
+                dogGaps[i] = new Vector2(gaps[i].Left, gaps[i].Right);
+            go.AddComponent<DogObstacle>().Configure(renderer, dogRunFrames, speed, leftBound,
+                CourseRight + 2f,
+                roadTop, cyberTheme ? 1.95f : 2.75f,
+                cyberTheme ? 0.05f : 0.42f, cyberTheme ? 0.085f : 0.055f,
+                dogGaps, currentLevelNumber + dogIndex);
         }
 
         void CreateClimbableTree(float x, float roadTop)
@@ -930,7 +1164,8 @@ namespace PawPath.Levels
             renderer.sprite = roadUnderfillSprite != null ? roadUnderfillSprite : FallbackSprite.WhiteSquare();
             bool forest = roadSprite != null && roadSprite.name.ToLowerInvariant().Contains("forest");
             bool city = roadSprite != null && roadSprite.name.Contains("city_sidewalk");
-            renderer.color = roadUnderfillSprite != null ? Color.white : city
+            renderer.color = roadUnderfillSprite != null ? Color.white : cyberTheme
+                ? new Color(0.10f, 0.12f, 0.20f, 1f) : city
                 ? CityRoadFillColor
                 : forest ? new Color(0.115f, 0.095f, 0.065f, 1f) : new Color(0.34f, 0.20f, 0.12f, 1f);
             renderer.sortingOrder = -1;
@@ -941,6 +1176,24 @@ namespace PawPath.Levels
                 renderer.size = new Vector2(width, height);
                 go.transform.localScale = Vector3.one;
             }
+        }
+
+        void CreateContinuousCityUnderfill(float centerX, float centerY, float width, float height)
+        {
+            var go = new GameObject("ContinuousCityRoad");
+            go.transform.SetParent(generatedRoot, false);
+            go.transform.position = new Vector2(centerX, centerY);
+            var renderer = go.AddComponent<SpriteRenderer>();
+            renderer.sprite = roadUnderfillSprite;
+            renderer.sortingOrder = -1;
+            renderer.drawMode = SpriteDrawMode.Tiled;
+            renderer.tileMode = SpriteTileMode.Continuous;
+            // Kare dokunun tüm dikey kesiti görünür; yatayda en-boy oranı
+            // bozulmadan tekrar eder. Eski 36x4 germe dokuyu eziyordu.
+            float spriteHeight = Mathf.Max(0.01f, roadUnderfillSprite.bounds.size.y);
+            float scale = height / spriteHeight;
+            go.transform.localScale = new Vector3(scale, scale, 1f);
+            renderer.size = new Vector2(width / scale, spriteHeight);
         }
 
         bool IsContinuousCityUnderfill()

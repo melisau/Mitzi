@@ -1,66 +1,49 @@
-# Yol Çizen Pati (Paw Path)
+# Mitzi (Paw Path)
 
-Doodle Road tarzı, kedi karakterli cozy mobil oyun . Parmakla yol çizersin; kedi fizikle o yolda yürür . Düşünce yanmaz, pembe baloncukla doğduğu yere döner ancak ceza olarak enerji/sevgi puanı düşer . Her 5 bölümde yeni bir kedi eve davet edilir . Ev; koleksiyon, bakım (mama/su/uyku) ve okşama merkezidir .
+Mitzi is a cozy, side-scrolling 2D cat game built with **Unity 2022.3.50f1** and the Built-in Render Pipeline. Guide a cat across gaps and obstacles, collect rewards, and care for your growing group of cats at home. The project is playable but is still under development and has not been validated on physical devices.
 
-Hedef motor: **Unity 2022.3 LTS + 2D (Built-in)** . Sprite shader'ları pembe çıkmasın diye ilk prototip URP zorunlu değil; URP'ye geçince LineDraw materyalini Universal 2D'ye çevirmen yeterli .
+## Current gameplay
 
-## Neden bu mimari
+- Choose **Draw to Play** to draw physical paths with normal, bounce, hazard, or ice brushes, or **Play with Buttons** for direct left/right, jump, and crouch controls.
+- Play in street, forest, or city themes. Levels contain gaps, mounds, a finish gate, collectible birds, and running dogs. A climbable tree appears in some levels; climbing starts only when the cat is nearby and the player presses Up, W, or Jump.
+- The first five levels use introductory layouts. Later levels vary gap and mound placement deterministically by level number, so replaying the same level keeps its layout.
+- Reach the finish gate to advance. Falling or touching a hazard opens a failure screen with a retry option. A new cat can be rescued every five completed levels. The default roster is Mitzi, Pamuk, Kömür, Tarçın, Ada, and Moka.
+- At home, select a cat and tap the floor to send it there, or tap an interactive item such as a food bowl, litter box, or cat tree. Buy, place, move, and flip furniture in the shop and home editor.
+- Music and sound effects have separate mute controls. Progress is saved locally as versioned JSON in Unity `PlayerPrefs`, with a last-known-good backup. The save includes level progress, Love Points, selected and unlocked cats, owned/placed items, and per-cat care values.
 
-- Tek sahne, durum makinesi (`GameFlow`): mobilde sahne yükü ve bellek sıçraması olmaz .
-- Kedi / ürün / bölüm verisi `ScriptableObject`; kayıt `PlayerPrefs` JSON . Tasarımcı asset değiştirir, kayıt kimlik tutar .
-- `CatalogFactory` asset yokken bile prototipi ayağa kaldırır . Grafik gelince sprite alanlarını doldurman yeter .
-- Çizim `LineRenderer + EdgeCollider2D`: Doodle Road’daki “çizdiğin şey zemin olur” hissi, ekstra navmesh olmadan .
+## Controls
 
-## Oyun içi Mekanikler & Bakım Sistemi
+| Mode | Input |
+| --- | --- |
+| Drawing | Draw on the screen with a finger or mouse; choose a brush or eraser from the toolbar. |
+| Direct control | Use the on-screen Left, Right, Jump, and Crouch buttons. Keyboard controls are also available in the Unity Editor. |
+| Home | Tap a cat to select it, tap the floor to move it, or tap an item to interact. Use Edit Home to reposition furniture. |
 
-### 🐾 Bakım ve Enerji Yönetimi (`CatNeedsSystem`)
-- **Bölüm Giriş Koşulu:** Kedinin bölüme başlayabilmesi için en az **20 Enerji/Sevgi Puanı** olması gerekir. Puan yetersizse kedi yorgun görünür ve "Yola Çık" butonu kilitlenir.
-- **Günlük Okşama Limiti (Cap):** Okşayarak mırıldatma ile günde en fazla **100 Puan** kazanılabilir. Limit dolduğunda okşama efekti çalışır ancak puan artmaz.
-- **Ev Etkileşimleri (Bakım Puanları):**
-  - 🍲 **Mama Kabı:** Mamasını tazelemek **+15 Puan**
-  - 🥛 **Su Kabı:** Suyunu doldurmak **+20 Puan**
-  - 💤 **Yatak:** Uykuda dinlendirmek **+30 Puan**
-- **Düşme Cezası:** Kedi uçurumdan veya zemin dışına düştüğünde pembe baloncukla başa döner ve **-10 Puan** düşer.
+## Open the project
 
-### 🛍️ Ekonomi ve Dükkan
-- **Tekil Satın Alma Güvenliği:** Her mobilya/aksesuar sadece 1 kez satın alınabilir. Satın alınan ürünler dükkanda "SAT" durumuna geçer ve geri satıldığında maliyetin %50'si iade edilir.
+1. In Unity Hub, add this repository as an **existing project** and open it with Unity **2022.3.50f1**.
+2. Open `Assets/Scenes/PawPath.unity` and press **Play**.
+3. If rebuilding a starter scene for a new setup, use **Paw Path > Build Starter Scene**. This regenerates the starter scene and catalog; do not use it casually on a customized project.
 
-## Unity’de açılış (zorunlu)
+`Assets/Scenes/HubTest.unity` is a separate development scene. **Paw Path > Reset Save Data** deletes local progress for testing.
 
-1. Unity Hub → Add → bu klasör (`Mitzi`) .
-2. 2D (URP) şablonu değil, **mevcut proje** olarak aç (Packages zaten URP referansı içerir) . İlk import birkaç dakika sürebilir .
-3. Menü: **Paw Path → Build Starter Scene** 
-4. `Assets/Scenes/PawPath.unity` açılır . Play.
+## Project structure
 
-Editörde fare ile çiz, telefonda parmak . Hub’da kediye basılı tutarak okşa (Sevgi Puanı), kısa dokunuşla oynanacak kediyi seç . **Yola Çık** ile bölüm .
+| Area | Responsibility |
+| --- | --- |
+| `Assets/_Game/Scripts/Core` | Single-scene game flow, runtime setup, camera, and local saves. |
+| `Assets/_Game/Scripts/Levels` | Level generation, goals, birds, dogs, trees, and cat unlocks. |
+| `Assets/_Game/Scripts/Drawing` and `Gameplay` | Drawable colliders, surfaces, and direct/mobile controls. |
+| `Assets/_Game/Scripts/Hub` and `UI` | Home interactions, furniture editing, shop, and screens. |
+| `Assets/_Game/Scripts/Data` and `Content` | `ScriptableObject` definitions and catalog data. |
+| `Assets/_Game/Scripts/Audio` | Theme music, effects, and separate mute settings. |
 
-Kayıt sıfırlamak: **Paw Path → Reset Save Data** 
+## Verification and current limitations
 
-## Sistemler
+- Use **Mitzi > Validate Course Geometry** in the Unity Editor to check road, gap, and mound bounds for levels 1–100. This is a geometry validation command, **not** a full automated gameplay test suite.
+- Use **Mitzi > Validate Save Format** to check legacy migration, malformed JSON rejection, backup readability, and newer-version protection without changing the live save. Export/import JSON APIs exist for future device transfer, but there is no in-game transfer interface yet.
+- Follow the [QA checklist](QA_CHECKLIST.md) for falling, reaching the goal, cat/item interactions, save loading, screen ratios, and real-device checks. Android and iOS device results have not yet been recorded.
+- Hunger, water, and affection are stored per cat and decrease every 30 minutes, including capped offline time (up to eight hours per return). Each value must be at least 20 for the selected cat to start a level. Shared Love Points remain the shop currency; daily care rewards are limited, but feeding and watering can still restore needs afterward.
+- Some non-Mitzi cats do not yet have complete animation sets. Visual alignment and memory use of runtime road-corner masks still need device profiling.
 
-| Script | Görev |
-|---|---|
-| `LineDraw` | Fırça, mürekkep bütçesi, collider yol  |
-| `CatController` | Rigidbody2D yürüyüş, baloncukla dönüş ve düşüş puan cezası  |
-| `CatPettingSystem` | Mırıldama, kalp, titreşim ve günlük limitli okşama puanı  |
-| `CatNeedsSystem` | Günlük puan limitleri, mama/su/uyku bakımı ve giriş enerjisi kontrolü |
-| `LevelManager` + `CatUnlockService` | Bölüm ve her 5. seviyede kedi  |
-| `CozyEconomyManager` | Sevgi puanı, dükkan ve tekil satın alma kontrolü  |
-| `HubFurnitureView` | Evdeki mobilya slotlarının dinamik görsel güncellenmesi |
-| `CatHouseManager` | Koleksiyon spawn + seçim  |
-| `RuntimeBootstrap` | Boş sahnede oynanır iskelet  |
-
-## Grafik ve ses ekleme
-
-- `Assets/_Game/Art/Prompts/MIDJOURNEY.md` — karakter, ev, mevsim, UI promptları 
-- `Assets/_Game/Audio/Docs/SOUND_DESIGN.md` — loop ve SFX talimatı 
-- Sprite’ları `CatDefinition` / `ShopItemDefinition` alanlarına sürükle 
-- Klipleri `CozyAudioManager` Inspector’ına ata 
-
-## Kediler (her 5 bölüm)
-
-Mitzi (açık) → Pamuk (5) → Kömür (10) → Tarçın (15) → Ada (20) → Moka (25) 
-
-## Not
-
-İlk Play’de daire placeholder sprite’lar görünür; bu bilinçli . Pastel renkler kedi ırkını ayırır . Asıl art pipeline prompt dosyalarındadır .
+The current artwork, audio, and catalog references live under `Assets/_Game`. Keep gameplay geometry and colliders separate from decorative sprites when adding new environment art.
