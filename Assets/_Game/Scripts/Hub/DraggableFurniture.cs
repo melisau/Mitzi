@@ -18,11 +18,10 @@ namespace PawPath.Hub
         string KeyY => $"PawPath.Furniture.{slotType}.Y";
         string KeyFlip => $"PawPath.Furniture.{slotType}.Flip";
 
-        public bool BlocksCats => slotType == FurnitureSlotType.Bowl ||
-            slotType == FurnitureSlotType.Water ||
-            slotType == FurnitureSlotType.Sand ||
-            slotType == FurnitureSlotType.Bed ||
-            slotType == FurnitureSlotType.Tree;
+        // Ev eşyaları yalnızca yerleştirme ve tıklama etkileşimi içindir.
+        // Kedilerin tıklanan hedefe yürümesini fiziksel ya da rota engeli olarak
+        // kesmez; görsel olarak eşyanın önünden/arkasından geçebilirler.
+        public bool BlocksCats => false;
 
         public Bounds CatObstacleBounds
         {

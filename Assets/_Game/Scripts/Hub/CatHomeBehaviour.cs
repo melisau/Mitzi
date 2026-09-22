@@ -21,7 +21,9 @@ namespace PawPath.Hub
     /// </summary>
     public class CatHomeBehaviour : MonoBehaviour
     {
-        [SerializeField] float walkSpeed = 0.65f;
+        [SerializeField] float walkSpeed = 0.78f;
+        [SerializeField] float directedSpeedMultiplier = 2.15f;
+        [SerializeField] float directedAnimationSpeed = 1.42f;
         [SerializeField] Vector2 roomX = new Vector2(-5.4f, 5.4f);
         // Kediler zeminde derinlik hissi verecek kadar hareket eder; üst sınır
         // yükselirse süpürgelik/duvar üzerine çıkmış gibi görünürler.
@@ -35,6 +37,7 @@ namespace PawPath.Hub
         float stateTimer;
         bool interacting;
         bool navigatingDetour;
+        bool directedMovement;
         ResidentActivity arrivalActivity = ResidentActivity.Standing;
         Transform visual;
         Animator animator;
@@ -62,7 +65,10 @@ namespace PawPath.Hub
             if (CurrentActivity == ResidentActivity.Walking)
             {
                 var target = new Vector3(targetPosition.x, targetPosition.y, transform.position.z);
-                float speed = interacting ? walkSpeed * 0.72f : walkSpeed;
+                float speed = directedMovement ? walkSpeed * directedSpeedMultiplier :
+                    interacting ? walkSpeed * 0.72f : walkSpeed;
+                if (animator != null)
+                    animator.speed = directedMovement ? directedAnimationSpeed : 0.92f;
                 transform.position = Vector3.MoveTowards(transform.position, target, speed * Time.deltaTime);
                 if (Vector2.Distance(transform.position, lastProgressPosition) >= 0.025f)
                 {
@@ -88,6 +94,7 @@ namespace PawPath.Hub
                         PlanPathToFinal();
                         return;
                     }
+                    directedMovement = false;
                     if (arrivalActivity == ResidentActivity.Eating || arrivalActivity == ResidentActivity.Drinking ||
                         arrivalActivity == ResidentActivity.Playing || arrivalActivity == ResidentActivity.Sleeping)
                     {
@@ -115,7 +122,7 @@ namespace PawPath.Hub
             {
                 if (animator.HasState(0, WalkState))
                     animator.Play(WalkState, 0, 0f);
-                animator.speed = 0.85f;
+                animator.speed = directedMovement ? directedAnimationSpeed : 0.92f;
             }
             else if (CurrentActivity == ResidentActivity.Sitting && animator.HasState(0, SitState))
             {
@@ -143,6 +150,9 @@ namespace PawPath.Hub
 
         public void WalkTo(Vector2 worldPoint, ResidentActivity whenArrived = ResidentActivity.Standing)
         {
+            // Oyuncunun dokunarak verdiği hedefler, rastgele oda dolaşmasından
+            // daha hızlı ve daha akıcı tamamlanır. Detour kullanılması bunu bozmaz.
+            directedMovement = true;
             finalPosition = new Vector2(
                 Mathf.Clamp(worldPoint.x, roomX.x, roomX.y),
                 Mathf.Clamp(worldPoint.y, roomY.x, roomY.y));
@@ -155,8 +165,10 @@ namespace PawPath.Hub
 
         public void WalkDirectTo(Vector2 worldPoint, ResidentActivity whenArrived = ResidentActivity.Standing)
         {
+            directedMovement = true;
             finalPosition = new Vector2(
-                Mathf.Clamp(worldPoint.x, roomX.x, roomX.y),
+                // Kenara yerleştirilen mama kabı/kedi ağacı da erişilebilir olsun.
+                Mathf.Clamp(worldPoint.x, roomX.x - 1.20f, roomX.y + 1.20f),
                 Mathf.Clamp(worldPoint.y, roomY.x, roomY.y));
             targetPosition = finalPosition;
             arrivalActivity = whenArrived;
@@ -176,6 +188,7 @@ namespace PawPath.Hub
 
         void BeginWalk()
         {
+            directedMovement = false;
             CurrentActivity = ResidentActivity.Walking;
             finalPosition = new Vector2(Random.Range(roomX.x, roomX.y), Random.Range(roomY.x, roomY.y));
             arrivalActivity = ResidentActivity.Standing;
@@ -281,6 +294,8 @@ namespace PawPath.Hub
             scale.x = Mathf.Abs(scale.x) * (x >= transform.position.x ? 1f : -1f);
             visual.localScale = scale;
         }
+
+        public void FaceTowards(float x) => Face(x);
 
         void UpdateDepthOrder()
         {

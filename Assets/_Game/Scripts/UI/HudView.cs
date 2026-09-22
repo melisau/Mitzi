@@ -398,7 +398,7 @@ namespace PawPath.UI
 
         private void PresentTutorial()
         {
-            GameFlow.Instance?.SetGameplayPaused(true);
+            GameFlow.Instance?.ShowInfoOverlay();
             brushTutorial.SetActive(true);
             var dismissButton = brushTutorial.GetComponent<Button>();
             if (dismissButton != null)
@@ -420,7 +420,7 @@ namespace PawPath.UI
             }
             if (brushTutorial != null)
                 brushTutorial.SetActive(false);
-            GameFlow.Instance?.SetGameplayPaused(false);
+            GameFlow.Instance?.DismissInfoOverlay();
         }
 
         private void SetTutorialText(string value)

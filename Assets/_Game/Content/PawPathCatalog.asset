@@ -20,6 +20,7 @@ MonoBehaviour:
     k\u0131v\u0131r\u0131p 'hadi yol \xE7iz' diyor."
   personality: 0
   unlockAfterLevel: 0
+  isStarterCat: 1
   furTint: {r: 0.86, g: 0.62, b: 0.38, a: 1}
   portrait: {fileID: 21300000, guid: 83f41818b273b204e83ad278ce0b267e, type: 3}
   idleSprite: {fileID: 21300000, guid: 83f41818b273b204e83ad278ce0b267e, type: 3}
@@ -33,6 +34,7 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 54ffebdce4c07e44f9f4bc199bf6c620, type: 3}
   - {fileID: 0}
   - {fileID: 0}
+  useDetailedHomeAnimations: 1
   purrClip: {fileID: 8300000, guid: e80123ad28420eb4aad2764e876419db, type: 3}
   meowClip: {fileID: 0}
 --- !u!114 &-8853985181083747102
@@ -56,6 +58,7 @@ MonoBehaviour:
     'Ben de ailenin par\xE7as\u0131 olay\u0131m' diyor sessizce."
   personality: 2
   unlockAfterLevel: 20
+  isStarterCat: 0
   furTint: {r: 0.72, g: 0.74, b: 0.78, a: 1}
   portrait: {fileID: 21300000, guid: d468c46ce2b1403796e4fa680c23f164, type: 3}
   idleSprite: {fileID: 21300000, guid: d468c46ce2b1403796e4fa680c23f164, type: 3}
@@ -64,6 +67,7 @@ MonoBehaviour:
   idleFrames: []
   jumpFrames: []
   sleepFrames: []
+  useDetailedHomeAnimations: 0
   purrClip: {fileID: 0}
   meowClip: {fileID: 0}
 --- !u!114 &-8482091838414750122
@@ -143,6 +147,7 @@ MonoBehaviour:
   interactionType: 0
   interactionAnimation: {fileID: 0}
   interactionFrames: []
+  interactionVisualScale: 1
 --- !u!114 &-6643478054506200867
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -218,6 +223,7 @@ MonoBehaviour:
     kokusunu \xE7oktan tan\u0131yor."
   personality: 3
   unlockAfterLevel: 10
+  isStarterCat: 0
   furTint: {r: 0.18, g: 0.16, b: 0.2, a: 1}
   portrait: {fileID: 21300000, guid: b246a24ac0914fd58c1d1466d4a9bd82, type: 3}
   idleSprite: {fileID: 21300000, guid: b246a24ac0914fd58c1d1466d4a9bd82, type: 3}
@@ -226,6 +232,7 @@ MonoBehaviour:
   idleFrames: []
   jumpFrames: []
   sleepFrames: []
+  useDetailedHomeAnimations: 0
   purrClip: {fileID: 0}
   meowClip: {fileID: 0}
 --- !u!114 &-5525705555030679784
@@ -287,6 +294,7 @@ MonoBehaviour:
   interactionType: 0
   interactionAnimation: {fileID: 0}
   interactionFrames: []
+  interactionVisualScale: 1
 --- !u!114 &-4715009435341770624
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -329,6 +337,7 @@ MonoBehaviour:
   interactionType: 0
   interactionAnimation: {fileID: 0}
   interactionFrames: []
+  interactionVisualScale: 1
 --- !u!114 &-4426814187468879861
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -493,6 +502,7 @@ MonoBehaviour:
     m\xFCs\xFCn?' diye bak\u0131yor. Evde ona bir g\xFCne\u015F dilimi ay\u0131raca\u011F\u0131z."
   personality: 1
   unlockAfterLevel: 5
+  isStarterCat: 0
   furTint: {r: 0.96, g: 0.95, b: 0.93, a: 1}
   portrait: {fileID: 21300000, guid: a135913f9b3049918e2c246bb0cc51a1, type: 3}
   idleSprite: {fileID: 21300000, guid: e5f13763bf30a744ba5ce2422cc193f4, type: 3}
@@ -501,6 +511,7 @@ MonoBehaviour:
   idleFrames: []
   jumpFrames: []
   sleepFrames: []
+  useDetailedHomeAnimations: 0
   purrClip: {fileID: 0}
   meowClip: {fileID: 0}
 --- !u!114 &-242122376908666679
@@ -776,6 +787,7 @@ MonoBehaviour:
     gibi m\u0131r\u0131ldan\u0131yor. Kap\u0131y\u0131 a\xE7\u0131k b\u0131rak\u0131yoruz."
   personality: 4
   unlockAfterLevel: 15
+  isStarterCat: 0
   furTint: {r: 0.9, g: 0.55, b: 0.32, a: 1}
   portrait: {fileID: 21300000, guid: c357b35bd1a3422f9fd5c72d39be71e3, type: 3}
   idleSprite: {fileID: 21300000, guid: c357b35bd1a3422f9fd5c72d39be71e3, type: 3}
@@ -784,6 +796,7 @@ MonoBehaviour:
   idleFrames: []
   jumpFrames: []
   sleepFrames: []
+  useDetailedHomeAnimations: 0
   purrClip: {fileID: 0}
   meowClip: {fileID: 0}
 --- !u!114 &5239382098774973219
@@ -809,6 +822,7 @@ MonoBehaviour:
   interactionType: 0
   interactionAnimation: {fileID: 0}
   interactionFrames: []
+  interactionVisualScale: 1
 --- !u!114 &6013454598846174603
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -902,6 +916,7 @@ MonoBehaviour:
     ikinci ok\u015Famada evinin yolunu \xF6\u011Frenir."
   personality: 1
   unlockAfterLevel: 25
+  isStarterCat: 0
   furTint: {r: 0.45, g: 0.32, b: 0.24, a: 1}
   portrait: {fileID: 21300000, guid: e579d57df3c24495a7f0dc791d340275, type: 3}
   idleSprite: {fileID: 21300000, guid: e579d57df3c24495a7f0dc791d340275, type: 3}
@@ -910,6 +925,7 @@ MonoBehaviour:
   idleFrames: []
   jumpFrames: []
   sleepFrames: []
+  useDetailedHomeAnimations: 0
   purrClip: {fileID: 0}
   meowClip: {fileID: 0}
 --- !u!114 &7962687299715179581

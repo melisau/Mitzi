@@ -386,7 +386,9 @@ namespace PawPath.Levels
             // Aynı bölüm tekrarlandığında aynı sonuç çıkar; farklı bölümlerde
             // ağacın varlığı ve yeri değişir.
             var treeRandom = new System.Random(levelNumber * 104729 + 811);
-            bool spawnTree = hasTree && treeRandom.NextDouble() < 0.60;
+            // Ağaç çoğu bölümde görünür; her dört bölümden birinde bulunmaz.
+            // Böylece mekanik kaybolmuş gibi hissedilmez ama her oyunda da zorunlu değildir.
+            bool spawnTree = hasTree && levelNumber % 4 != 0;
             if (spawnTree && TryChooseTreeX(treeRandom, out float treeX))
                 CreateClimbableTree(treeX, roadTop);
             if (hasDog)
@@ -456,7 +458,7 @@ namespace PawPath.Levels
             go.transform.localScale = new Vector3(scale, scale, 1f);
             // PNG'nin kök altında şeffaf payı var. Görünen kök ucunu kaldırıma
             // gömerek ağacın havada durmasını önleriz.
-            const float visibleRootInset = 0.78f;
+            const float visibleRootInset = 0.98f;
             go.transform.position = new Vector3(x,
                 roadTop - climbTreeSprite.bounds.min.y * scale - visibleRootInset, 0f);
 

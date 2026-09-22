@@ -226,7 +226,9 @@ namespace PawPath.Core
                 portal.transform.localScale = new Vector3(scale, scale, 1f);
                 // Goal merkezi kedi yüksekliğindedir; portalın sprite alt sınırını
                 // kaldırım yüzeyine biraz gömerek havada kalmasını önle.
-                float localY = -0.76f - renderer.sprite.bounds.min.y * scale;
+                // Görselin altındaki şeffaf pay nedeniyle kapı hâlâ havada
+                // görünüyordu; yalnız görseli biraz daha zemine göm.
+                float localY = -1.02f - renderer.sprite.bounds.min.y * scale;
                 portal.transform.localPosition = new Vector3(0f, localY, 0f);
             }
         }
@@ -367,10 +369,9 @@ namespace PawPath.Core
                 RefreshMitziOnlyLabel();
                 if (CatHouseManager.Instance != null)
                     CatHouseManager.Instance.RefreshResidents();
-                var mitzi = GameFlow.Instance != null && GameFlow.Instance.Catalog != null
-                    ? GameFlow.Instance.Catalog.GetCat("mitzi") : null;
-                if (mitzi != null)
-                    GameEvents.PlayableCatChanged(mitzi);
+                var starterCat = GameFlow.Instance != null ? GameFlow.Instance.Catalog?.StarterCat : null;
+                if (starterCat != null)
+                    GameEvents.PlayableCatChanged(starterCat);
             });
             mitziOnly.gameObject.SetActive(Debug.isDebugBuild || Application.isEditor);
 
@@ -387,10 +388,9 @@ namespace PawPath.Core
                     CozyEconomyManager.Instance.RefreshUI();
                 if (GameFlow.Instance != null)
                     GameFlow.Instance.EnterHub();
-                var mitzi = GameFlow.Instance != null && GameFlow.Instance.Catalog != null
-                    ? GameFlow.Instance.Catalog.GetCat("mitzi") : null;
-                if (mitzi != null)
-                    GameEvents.PlayableCatChanged(mitzi);
+                var starterCat = GameFlow.Instance != null ? GameFlow.Instance.Catalog?.StarterCat : null;
+                if (starterCat != null)
+                    GameEvents.PlayableCatChanged(starterCat);
             });
             resetProgress.gameObject.SetActive(Debug.isDebugBuild || Application.isEditor);
             var restart = Button(content, "RestartButton", "Yeniden", new Vector2(1f, 1f), new Vector2(-125f, -55f), new Color(0.93f, 0.72f, 0.76f));

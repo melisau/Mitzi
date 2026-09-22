@@ -66,6 +66,10 @@ namespace PawPath.Data
             return cats.Find(c => c != null && c.id == id);
         }
 
+        public CatDefinition StarterCat => cats != null
+            ? cats.Find(c => c != null && c.isStarterCat) ?? cats.Find(c => c != null)
+            : null;
+
         public ShopItemDefinition GetItem(string id)
         {
             if (shopItems == null)

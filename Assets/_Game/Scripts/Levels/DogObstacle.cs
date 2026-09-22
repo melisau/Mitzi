@@ -46,7 +46,9 @@ namespace PawPath.Levels
             if (renderer == null || renderer.sprite == null) return;
             float scaleY = Mathf.Abs(transform.lossyScale.y);
             var position = transform.position;
-            position.y = groundY - renderer.sprite.bounds.min.y * scaleY - 0.06f;
+            // Karelerde patilerin altında şeffaf pay bulunduğu için sprite sınırını
+            // yol yüzeyinin biraz altına göm; koşarken havada süzülmez.
+            position.y = groundY - renderer.sprite.bounds.min.y * scaleY - 0.42f;
             transform.position = position;
         }
 

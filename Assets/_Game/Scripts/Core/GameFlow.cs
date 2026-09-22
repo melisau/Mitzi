@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using PawPath.Content;
 using PawPath.Cat;
@@ -9,6 +10,17 @@ using PawPath.Audio;
 
 namespace PawPath.Core
 {
+    public enum GameFlowState
+    {
+        MainMenu,
+        InfoOverlay,
+        Gameplay,
+        Pause,
+        Victory,
+        GameOver,
+        Rescue
+    }
+
     /// <summary>
     /// Tek sahneli akış: Hub <-> Seviye. DontDestroyOnLoad gerekmez; sahne kurucu bunu kök nesneye koyar.
     /// </summary>
@@ -25,8 +37,10 @@ namespace PawPath.Core
         [SerializeField] GameObject levelFailureRoot;
 
         public PawPathCatalog Catalog => catalog;
-        public bool InHub { get; private set; } = true;
-        public bool GameplayPaused { get; private set; }
+        public GameFlowState State { get; private set; } = GameFlowState.MainMenu;
+        public bool InHub => State == GameFlowState.MainMenu;
+        public bool GameplayPaused => State != GameFlowState.MainMenu && State != GameFlowState.Gameplay;
+        public event Action<GameFlowState> StateChanged;
 
         void Awake()
         {
@@ -49,8 +63,7 @@ namespace PawPath.Core
 
         public void EnterHub()
         {
-            SetGameplayPaused(false);
-            InHub = true;
+            TransitionTo(GameFlowState.MainMenu);
             var cameraFollow = Camera.main != null ? Camera.main.GetComponent<SideScrollCamera>() : null;
             if (cameraFollow != null)
                 cameraFollow.ResetView();
@@ -73,7 +86,7 @@ namespace PawPath.Core
                 EnterHub();
                 return;
             }
-            InHub = false;
+            TransitionTo(GameFlowState.Gameplay);
             SetRoots(hub: false, level: true, hud: true, rescue: false, complete: false, failure: false);
             if (LevelManager.Instance != null)
                 LevelManager.Instance.BeginCurrentLevel();
@@ -81,7 +94,7 @@ namespace PawPath.Core
 
         public void ShowRescue(CatDefinition cat)
         {
-            SetGameplayPaused(true);
+            TransitionTo(GameFlowState.Rescue);
             SetRoots(hub: false, level: false, hud: false, rescue: true, complete: false, failure: false);
             var screen = rescueRoot != null ? rescueRoot.GetComponent<UI.RescueScreen>() : null;
             if (screen != null)
@@ -90,7 +103,7 @@ namespace PawPath.Core
 
         public void ShowLevelComplete(int completedLevel, int reward)
         {
-            SetGameplayPaused(true);
+            TransitionTo(GameFlowState.Victory);
             SetRoots(hub: false, level: false, hud: false, rescue: false, complete: true, failure: false);
             var screen = levelCompleteRoot != null ? levelCompleteRoot.GetComponent<UI.LevelCompleteUI>() : null;
             if (screen != null)
@@ -99,7 +112,7 @@ namespace PawPath.Core
 
         public void ShowLevelFailure(string reason)
         {
-            SetGameplayPaused(true);
+            TransitionTo(GameFlowState.GameOver);
             SetRoots(hub: false, level: false, hud: false, rescue: false, complete: false, failure: true);
             var screen = levelFailureRoot != null ? levelFailureRoot.GetComponent<UI.LevelFailureUI>() : null;
             screen?.Present(reason);
@@ -107,14 +120,44 @@ namespace PawPath.Core
 
         public void RetryCurrentLevel()
         {
-            InHub = false;
+            TransitionTo(GameFlowState.Gameplay);
             SetRoots(hub: false, level: true, hud: true, rescue: false, complete: false, failure: false);
             LevelManager.Instance?.BeginCurrentLevel();
         }
 
         public void SetGameplayPaused(bool paused)
         {
-            GameplayPaused = paused;
+            if (InHub)
+                return;
+            TransitionTo(paused ? GameFlowState.Pause : GameFlowState.Gameplay);
+        }
+
+        public void ShowInfoOverlay() => TransitionTo(GameFlowState.InfoOverlay);
+
+        public void DismissInfoOverlay()
+        {
+            if (State == GameFlowState.InfoOverlay)
+                TransitionTo(GameFlowState.Gameplay);
+        }
+
+        void TransitionTo(GameFlowState next)
+        {
+            if (State == next)
+            {
+                ApplyTimeScale(next);
+                return;
+            }
+
+            State = next;
+            ApplyTimeScale(next);
+            StateChanged?.Invoke(next);
+        }
+
+        static void ApplyTimeScale(GameFlowState state)
+        {
+            bool paused = state == GameFlowState.InfoOverlay || state == GameFlowState.Pause ||
+                state == GameFlowState.Victory || state == GameFlowState.GameOver ||
+                state == GameFlowState.Rescue;
             Time.timeScale = paused ? 0f : 1f;
             if (paused && CatController.Instance != null)
                 CatController.Instance.StopImmediately();

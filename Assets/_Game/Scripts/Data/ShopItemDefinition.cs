@@ -8,7 +8,8 @@ namespace PawPath.Content
         Eating,
         Playing,
         Sleeping,
-        Climbing
+        Climbing,
+        Toileting
     }
 
     public enum FurnitureSlotType
@@ -37,5 +38,10 @@ namespace PawPath.Content
         public ItemInteractionType interactionType;
         public AnimationClip interactionAnimation;
         public Sprite[] interactionFrames;
+        [Tooltip("Birleşik etkileşim karelerinin yerleştirilmiş iteme göre görsel ölçeği.")]
+        public float interactionVisualScale = 1f;
+
+        public float EffectiveInteractionVisualScale => interactionVisualScale > 0.01f
+            ? interactionVisualScale : 1f;
     }
 }

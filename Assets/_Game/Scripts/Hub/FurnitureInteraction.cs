@@ -48,7 +48,8 @@ namespace PawPath.Hub
             if (cats.Length == 0) return;
             CatHomeBehaviour nearest = null;
             if (item.interactionType == ItemInteractionType.Eating ||
-                item.interactionType == ItemInteractionType.Climbing)
+                item.interactionType == ItemInteractionType.Climbing ||
+                item.interactionType == ItemInteractionType.Toileting)
             {
                 string selectedId = SaveService.Data != null ? SaveService.Data.selectedCatId : "mitzi";
                 foreach (var candidate in cats)
@@ -61,7 +62,8 @@ namespace PawPath.Hub
             if (nearest == null) nearest = cats[0];
             float best = Vector2.SqrMagnitude(nearest.transform.position - transform.position);
             if (item.interactionType != ItemInteractionType.Eating &&
-                item.interactionType != ItemInteractionType.Climbing)
+                item.interactionType != ItemInteractionType.Climbing &&
+                item.interactionType != ItemInteractionType.Toileting)
             {
                 for (int i = 0; i < cats.Length; i++)
                 {
@@ -96,24 +98,47 @@ namespace PawPath.Hub
                     if (other != cat && Vector2.Distance(other.transform.position, transform.position) < 2.0f)
                         other.MoveAwayFrom(transform.position, 2.15f);
                 float side = cat.transform.position.x <= transform.position.x ? -1f : 1f;
-                destination.x += side * 0.48f;
+                // Transform merkezi değil, kedinin başı mama kabına ulaşmalı.
+                // Görsel genişliğine göre yaklaşma payı hesaplamak farklı
+                // boyuttaki kedilerin de kabın uzağında yemesini önler.
+                var catRenderer = cat.GetComponentInChildren<SpriteRenderer>();
+                float headReach = catRenderer != null
+                    ? Mathf.Clamp(catRenderer.bounds.size.x * 0.40f, 0.72f, 1.12f)
+                    : 0.88f;
+                destination.x += side * headReach;
                 destination.y += 0.04f;
                 cat.WalkDirectTo(destination, activity);
             }
             else if (item.interactionType == ItemInteractionType.Climbing)
             {
-                float side = cat.transform.position.x <= transform.position.x ? -1f : 1f;
-                destination.x += side * 0.58f;
-                destination.y -= 0.10f;
+                // Evdeki kedi ağacına yandan uzakta değil, gövdenin tam
+                // merkezine yürür. Dikey hareket ancak bu hedefe varınca başlar.
+                destination.x = transform.position.x;
+                destination.y = cat.transform.position.y;
+                cat.WalkDirectTo(destination, activity);
+            }
+            else if (item.interactionType == ItemInteractionType.Toileting)
+            {
+                destination.x = transform.position.x;
+                destination.y = cat.transform.position.y;
                 cat.WalkDirectTo(destination, activity);
             }
             else
                 cat.WalkTo(destination, activity);
-            float timeout = 8f;
+            float timeout = 22f;
             while (timeout > 0f && cat.CurrentActivity == ResidentActivity.Walking)
             {
                 timeout -= Time.deltaTime;
                 yield return null;
+            }
+            // Etkileşim animasyonu eşyanın uzağında başlayamaz. Son fizik karesi
+            // hedefe tam ulaşmadıysa kediyi hesaplanan temas noktasına sabitle.
+            if (item.interactionType == ItemInteractionType.Eating ||
+                item.interactionType == ItemInteractionType.Climbing ||
+                item.interactionType == ItemInteractionType.Toileting)
+            {
+                cat.transform.position = new Vector3(destination.x, destination.y, cat.transform.position.z);
+                cat.FaceTowards(transform.position.x);
             }
             if (item.interactionAnimation != null)
             {
@@ -121,7 +146,7 @@ namespace PawPath.Hub
                 if (animator != null) animator.Play(item.interactionAnimation.name, 0, 0f);
             }
             if (item.interactionType == ItemInteractionType.Eating &&
-                cat.Definition != null && cat.Definition.id == "mitzi" &&
+                cat.Definition != null && cat.Definition.useDetailedHomeAnimations &&
                 item.interactionFrames != null && item.interactionFrames.Length > 0)
             {
                 // Coroutine zorla kesilmez; son kareden sonra sprite, ölçek ve
@@ -133,10 +158,18 @@ namespace PawPath.Hub
             }
             if (item.interactionType == ItemInteractionType.Climbing)
             {
-                Sprite[] climbFrames = cat.Definition != null && cat.Definition.id == "mitzi"
+                Sprite[] climbFrames = cat.Definition != null && cat.Definition.useDetailedHomeAnimations
                     ? item.interactionFrames : null;
                 yield return PlaySmallHomeClimb(cat, climbFrames);
                 CatNeedsSystem.Instance?.RewardInteraction(3, "Kedi ağacına tırmanma");
+                running = false;
+                yield break;
+            }
+            if (item.interactionType == ItemInteractionType.Toileting &&
+                item.interactionFrames != null && item.interactionFrames.Length >= 3)
+            {
+                yield return PlayLitterBoxSequence(cat, item.interactionFrames);
+                CatNeedsSystem.Instance?.RewardInteraction(2, "Kedi kumu kullanımı");
                 running = false;
                 yield break;
             }
@@ -206,15 +239,26 @@ namespace PawPath.Hub
             var sleepAnimator = cat.GetComponent<MitziSleepAnimator>();
             Sprite previous = renderer.sprite;
             Vector3 previousScale = renderer.transform.localScale;
+            Vector3 previousLocalPosition = renderer.transform.localPosition;
             Vector3 start = cat.transform.position;
-            float displayedWidth = previous != null
-                ? previous.bounds.size.x * Mathf.Abs(previousScale.x) : 2.2f;
+            float displayedHeight = previous != null
+                ? previous.bounds.size.y * Mathf.Abs(previousScale.y) : 2.2f;
+            float tallestFrame = 0f;
+            if (frames != null)
+                foreach (var candidate in frames)
+                    if (candidate != null)
+                        tallestFrame = Mathf.Max(tallestFrame, candidate.bounds.size.y);
+            float fixedClimbScale = tallestFrame > 0f
+                ? displayedHeight / tallestFrame : Mathf.Abs(previousScale.y);
+            float baselineBottom = previous != null
+                ? previousLocalPosition.y + previous.bounds.min.y * Mathf.Abs(previousScale.y)
+                : previousLocalPosition.y;
             bool animatorWasEnabled = animator != null && animator.enabled;
             if (sleepAnimator != null) sleepAnimator.SetExternalAnimation(true);
             if (animator != null) animator.enabled = false;
 
-            const float riseHeight = 0.58f;
-            const float phaseDuration = 0.72f;
+            const float riseHeight = 0.52f;
+            const float phaseDuration = 0.54f;
             float elapsed = 0f;
             while (elapsed < phaseDuration * 2f)
             {
@@ -231,8 +275,11 @@ namespace PawPath.Hub
                     if (frame != null)
                     {
                         renderer.sprite = frame;
-                        float scale = frame.bounds.size.x > 0f ? displayedWidth / frame.bounds.size.x : Mathf.Abs(previousScale.y);
-                        renderer.transform.localScale = new Vector3(Mathf.Sign(previousScale.x) * scale, scale, 1f);
+                        renderer.transform.localScale = new Vector3(
+                            Mathf.Sign(previousScale.x) * fixedClimbScale, fixedClimbScale, 1f);
+                        var local = renderer.transform.localPosition;
+                        local.y = baselineBottom - frame.bounds.min.y * fixedClimbScale;
+                        renderer.transform.localPosition = local;
                     }
                 }
                 elapsed += Time.deltaTime;
@@ -242,8 +289,75 @@ namespace PawPath.Hub
             cat.transform.position = start;
             renderer.sprite = previous;
             renderer.transform.localScale = previousScale;
+            renderer.transform.localPosition = previousLocalPosition;
             if (animator != null) animator.enabled = animatorWasEnabled;
             if (sleepAnimator != null) sleepAnimator.SetExternalAnimation(false);
+        }
+
+        IEnumerator PlayLitterBoxSequence(CatHomeBehaviour cat, Sprite[] frames)
+        {
+            var furnitureRenderer = GetComponent<SpriteRenderer>();
+            var catRenderer = cat.GetComponentInChildren<SpriteRenderer>();
+            if (furnitureRenderer == null || catRenderer == null)
+                yield break;
+
+            Sprite originalFurniture = furnitureRenderer.sprite;
+            Vector3 originalFurnitureScale = transform.localScale;
+            Vector3 originalFurniturePosition = transform.position;
+            float displayedHeight = furnitureRenderer.bounds.size.y;
+            float groundBottom = furnitureRenderer.bounds.min.y;
+            var animator = cat.GetComponentInChildren<Animator>();
+            bool animatorWasEnabled = animator != null && animator.enabled;
+            var sleepAnimator = cat.GetComponent<MitziSleepAnimator>();
+            if (sleepAnimator != null) sleepAnimator.SetExternalAnimation(true);
+            if (animator != null) animator.enabled = false;
+            catRenderer.enabled = false;
+
+            // Inspector/yeniden import sırasında array sırası değişse bile
+            // giriş ve çıkış karelerinin oynatma sırası sabit kalır.
+            Sprite[] orderedFrames =
+            {
+                FindFrame(frames, "cat_sand_out"),
+                FindFrame(frames, "cat_sand_in2"),
+                FindFrame(frames, "cat_sand_in")
+            };
+            float[] frameDurations = { 0.72f, 0.62f, 1.35f };
+            for (int i = 0; i < 3; i++)
+            {
+                Sprite frame = orderedFrames[i] != null ? orderedFrames[i] : frames[i];
+                if (frame == null) continue;
+                float scale = frame.bounds.size.y > 0f
+                    ? displayedHeight / frame.bounds.size.y * item.EffectiveInteractionVisualScale
+                    : Mathf.Abs(originalFurnitureScale.y);
+                furnitureRenderer.sprite = frame;
+                // Kedi kumu animasyon kareleri, normal item görseline göre
+                // karşı yönde hazırlanmış. Kaynak yön farkını ters çevirirken
+                // kullanıcının eşya için seçtiği ayna yönünü de koru.
+                float animationDirection = -Mathf.Sign(originalFurnitureScale.x);
+                transform.localScale = new Vector3(
+                    animationDirection * scale, scale, originalFurnitureScale.z);
+                Vector3 position = transform.position;
+                position.y = groundBottom - frame.bounds.min.y * scale;
+                transform.position = position;
+                yield return new WaitForSeconds(frameDurations[i]);
+            }
+
+            furnitureRenderer.sprite = originalFurniture;
+            transform.localScale = originalFurnitureScale;
+            transform.position = originalFurniturePosition;
+            catRenderer.enabled = true;
+            if (animator != null) animator.enabled = animatorWasEnabled;
+            if (sleepAnimator != null) sleepAnimator.SetExternalAnimation(false);
+        }
+
+        static Sprite FindFrame(Sprite[] frames, string exactName)
+        {
+            if (frames == null) return null;
+            foreach (Sprite frame in frames)
+                if (frame != null && string.Equals(frame.name, exactName,
+                    System.StringComparison.OrdinalIgnoreCase))
+                    return frame;
+            return null;
         }
     }
 }

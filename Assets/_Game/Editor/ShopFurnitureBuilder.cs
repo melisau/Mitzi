@@ -82,6 +82,18 @@ public static class ShopFurnitureBuilder
             item.slotType = data.slot;
             item.icon = sprite;
             item.placedSprite = sprite;
+            if (data.slot == FurnitureSlotType.Sand)
+            {
+                string[] framePaths = { "Assets/cat_sand_out.png", "Assets/cat_sand_in2.png", "Assets/cat_sand_in.png" };
+                item.interactionType = ItemInteractionType.Toileting;
+                item.interactionVisualScale = 0.60f;
+                item.interactionFrames = new Sprite[framePaths.Length];
+                for (int i = 0; i < framePaths.Length; i++)
+                {
+                    PrepareSprite(framePaths[i]);
+                    item.interactionFrames[i] = AssetDatabase.LoadAssetAtPath<Sprite>(framePaths[i]);
+                }
+            }
             EditorUtility.SetDirty(item);
 
             catalog.shopItems.RemoveAll(existing => existing != null && existing.id == data.id && existing != item);

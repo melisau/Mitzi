@@ -16,7 +16,7 @@ namespace PawPath.Content
             {
                 Cat("mitzi", "Mitzi", 0, new Color(0.86f, 0.62f, 0.38f), CatPersonality.Curious,
                     "Evin ilk patisi. Güneş lekelerini takip etmeyi ve senin çizdiğin köprülerde minik adımlar atmayı sever.",
-                    "Mitzi zaten seninle. Pencerenin önünde kuyruğunu kıvırıp 'hadi yol çiz' diyor."),
+                    "Mitzi zaten seninle. Pencerenin önünde kuyruğunu kıvırıp 'hadi yol çiz' diyor.", true),
                 Cat("pamuk", "Pamuk", 5, new Color(0.96f, 0.95f, 0.93f), CatPersonality.Sleepy,
                     "Bulut gibi, usul usul. En yumuşak mindere kıvrılıp mırıldanır.",
                     "Parkın bankının altında titreyen bir yumak buldun. Pamuk, burnunu parmağına değdirip 'beni de götürür müsün?' diye bakıyor. Evde ona bir güneş dilimi ayıracağız."),
@@ -62,7 +62,8 @@ namespace PawPath.Content
             return catalog;
         }
 
-        static CatDefinition Cat(string id, string name, int unlock, Color tint, CatPersonality p, string bio, string encounter)
+        static CatDefinition Cat(string id, string name, int unlock, Color tint, CatPersonality p,
+            string bio, string encounter, bool detailedHomeAnimations = false)
         {
             var c = ScriptableObject.CreateInstance<CatDefinition>();
             c.id = id;
@@ -72,6 +73,8 @@ namespace PawPath.Content
             c.personality = p;
             c.bio = bio;
             c.encounterDialogue = encounter;
+            c.isStarterCat = detailedHomeAnimations;
+            c.useDetailedHomeAnimations = detailedHomeAnimations;
             return c;
         }
 

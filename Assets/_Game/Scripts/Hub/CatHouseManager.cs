@@ -53,7 +53,7 @@ namespace PawPath.Hub
             {
                 if (cat == null || !SaveService.HasCat(cat.id))
                     continue;
-                if (SaveService.DeveloperMitziOnly && cat.id != "mitzi")
+                if (SaveService.DeveloperMitziOnly && !cat.isStarterCat)
                     continue;
                 int spotIndex = shuffledSpots.Count > 0
                     ? shuffledSpots[slot % shuffledSpots.Count]
@@ -122,7 +122,7 @@ namespace PawPath.Hub
             if (homeBehaviour == null)
                 homeBehaviour = go.AddComponent<CatHomeBehaviour>();
             homeBehaviour.BindDefinition(cat);
-            if (cat.id == "mitzi" && sr != null && cat.sleepFrames != null && cat.sleepFrames.Length > 0)
+            if (cat.useDetailedHomeAnimations && sr != null && cat.sleepFrames != null && cat.sleepFrames.Length > 0)
             {
                 var sleepAnimator = go.GetComponent<MitziSleepAnimator>();
                 if (sleepAnimator == null)
