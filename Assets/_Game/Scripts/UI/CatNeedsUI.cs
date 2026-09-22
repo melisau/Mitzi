@@ -35,6 +35,7 @@ namespace PawPath.UI
         void OnEnable()
         {
             GameEvents.OnLovePointsChanged += OnLoveChanged;
+            GameEvents.OnPlayableCatChanged += OnSelectedCatChanged;
             GameEvents.OnHubEntered += UpdateUI;
             GameEvents.OnLevelStarted += HideForLevel;
             UpdateUI();
@@ -43,6 +44,7 @@ namespace PawPath.UI
         void OnDisable()
         {
             GameEvents.OnLovePointsChanged -= OnLoveChanged;
+            GameEvents.OnPlayableCatChanged -= OnSelectedCatChanged;
             GameEvents.OnHubEntered -= UpdateUI;
             GameEvents.OnLevelStarted -= HideForLevel;
         }
@@ -51,6 +53,8 @@ namespace PawPath.UI
         {
             UpdateUI();
         }
+
+        void OnSelectedCatChanged(PawPath.Data.CatDefinition _) => UpdateUI();
 
         public void UpdateUI()
         {
