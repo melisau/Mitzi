@@ -22,11 +22,15 @@ namespace PawPath.Data
         public Sprite forestBackground;
         [Header("Bölüm Engelleri")]
         public Sprite roadGapSprite;
+        public Sprite streetGapLeftSprite;
+        public Sprite streetGapRightSprite;
         public Sprite moundSprite;
+        public Sprite streetMoundHighSprite;
         public Sprite roadPlatformSprite;
         public Sprite forestGapSprite;
         public Sprite forestMoundSprite;
         public Sprite forestPlatformSprite;
+        public Sprite forestGroundUnderfillSprite;
         [Header("Cadde Teması")]
         public Sprite cityBackground;
         public Sprite cityGapSprite;

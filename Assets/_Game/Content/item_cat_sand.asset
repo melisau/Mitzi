@@ -16,8 +16,8 @@ MonoBehaviour:
   displayName: Kedi Kumu
   description: "Kediler i\xE7in temiz ve rahat kum alan\u0131."
   lovePointCost: 35
-  icon: {fileID: 21300000, guid: 7ba9f607359f9e743bdd5b66d091e140, type: 3}
-  placedSprite: {fileID: 21300000, guid: 7ba9f607359f9e743bdd5b66d091e140, type: 3}
+  icon: {fileID: 21300000, guid: 4eeefb9465de63046a871d0eb4474bb8, type: 3}
+  placedSprite: {fileID: 21300000, guid: 4eeefb9465de63046a871d0eb4474bb8, type: 3}
   slotType: 6
   interactionType: 5
   interactionAnimation: {fileID: 0}
@@ -25,4 +25,4 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 9677f2e49a54d5b4db21ff82fc67d5d6, type: 3}
   - {fileID: 21300000, guid: 90b25e577c91d3e4a943efff6bc4f6f6, type: 3}
   - {fileID: 21300000, guid: 43334290762ab33458f2810818b4879c, type: 3}
-  interactionVisualScale: 0.6
+  interactionVisualScale: 1

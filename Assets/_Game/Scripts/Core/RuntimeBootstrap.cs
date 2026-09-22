@@ -127,7 +127,10 @@ namespace PawPath.Core
                 parallax.Bind(cam, sky, 0.32f);
             }
             var course = levelRoot.AddComponent<LevelCourseBuilder>();
-            course.BindVisuals(catalog.roadGapSprite, catalog.moundSprite, catalog.roadPlatformSprite);
+            course.BindVisuals(catalog.roadGapSprite, catalog.moundSprite, catalog.roadPlatformSprite,
+                catalog.streetMoundHighSprite,
+                streetGapLeft: catalog.streetGapLeftSprite,
+                streetGapRight: catalog.streetGapRightSprite);
 
             var season = levelRoot.AddComponent<SeasonBackdrop>();
             season.Bind(sky, landscapeGround, null);

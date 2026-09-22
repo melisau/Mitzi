@@ -596,11 +596,15 @@ MonoBehaviour:
   gameplayBackground: {fileID: 21300000, guid: 7bd18f9a60dd4a45b021337f56a892c2, type: 3}
   forestBackground: {fileID: 21300000, guid: 8d3bc06f27d649339e2b9b3335e43fb1, type: 3}
   roadGapSprite: {fileID: 21300000, guid: da31e904fc314d3793e74df30b144825, type: 3}
-  moundSprite: {fileID: 21300000, guid: 52f5ff84ace44c738132ddd16b43b8a0, type: 3}
-  roadPlatformSprite: {fileID: 21300000, guid: f68ae68004ef4d858591d899cad884d6, type: 3}
+  streetGapLeftSprite: {fileID: 0}
+  streetGapRightSprite: {fileID: 0}
+  moundSprite: {fileID: 21300000, guid: 3668a3923e4f2ad40a93c339d0d6cac8, type: 3}
+  streetMoundHighSprite: {fileID: 21300000, guid: bffc8c6db8ae1f24283fe572ac9190dd, type: 3}
+  roadPlatformSprite: {fileID: 21300000, guid: ea5d4fe11fa2cff49b5fec677396a7d9, type: 3}
   forestGapSprite: {fileID: 21300000, guid: 72f430151bc44e62b5ae3a3a9aba9487, type: 3}
   forestMoundSprite: {fileID: 21300000, guid: 26d8dc4080fa4e79a802713d475a5f22, type: 3}
-  forestPlatformSprite: {fileID: 21300000, guid: ef23408c89004cfc962bdb8726e1b12f, type: 3}
+  forestPlatformSprite: {fileID: 0}
+  forestGroundUnderfillSprite: {fileID: 21300000, guid: 43046c2cd3a397f48974fd4a82dc04b8, type: 3}
   cityBackground: {fileID: 21300000, guid: ce02071bbcb3dec4a8a725a8db5cdf81, type: 3}
   cityGapSprite: {fileID: 21300000, guid: 9b3d5de8affcf0147bfdbed10b8cefe2, type: 3}
   cityPlatformSprite: {fileID: 21300000, guid: 9c0d44d0269a1c04192774ec5e539fb5, type: 3}

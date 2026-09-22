@@ -12,6 +12,7 @@ namespace PawPath.Hub
         ShopItemDefinition item;
         bool running;
         Collider2D hitbox;
+        float nextInteractionTime;
 
         public void Configure(ShopItemDefinition definition)
         {
@@ -21,7 +22,8 @@ namespace PawPath.Hub
 
         void Update()
         {
-            if (running || item == null || item.interactionType == ItemInteractionType.None ||
+            if (running || Time.unscaledTime < nextInteractionTime ||
+                item == null || item.interactionType == ItemInteractionType.None ||
                 GameFlow.Instance == null || !GameFlow.Instance.InHub || HomeEditMode.Active)
                 return;
             bool pressed = Input.touchCount > 0
@@ -42,7 +44,8 @@ namespace PawPath.Hub
 
         void TryInteract()
         {
-            if (running || item == null || item.interactionType == ItemInteractionType.None ||
+            if (running || Time.unscaledTime < nextInteractionTime ||
+                item == null || item.interactionType == ItemInteractionType.None ||
                 HomeEditMode.Active || GameFlow.Instance == null || !GameFlow.Instance.InHub) return;
             var cats = FindObjectsOfType<CatHomeBehaviour>();
             if (cats.Length == 0) return;
@@ -170,6 +173,9 @@ namespace PawPath.Hub
             {
                 yield return PlayLitterBoxSequence(cat, item.interactionFrames);
                 CatNeedsSystem.Instance?.RewardInteraction(2, "Kedi kumu kullanımı");
+                // Aynı dokunuşun mouse/touch olayları veya hemen ardından gelen
+                // ikinci tıklama animasyonu yeniden başlatmasın.
+                nextInteractionTime = Time.unscaledTime + 1.25f;
                 running = false;
                 yield break;
             }
@@ -322,7 +328,8 @@ namespace PawPath.Hub
                 FindFrame(frames, "cat_sand_in")
             };
             float[] frameDurations = { 0.72f, 0.62f, 1.35f };
-            for (int i = 0; i < 3; i++)
+            // One-shot: kareler yalnızca bir defa ilerler; modulo veya tekrar yoktur.
+            for (int i = 0; i < orderedFrames.Length; i++)
             {
                 Sprite frame = orderedFrames[i] != null ? orderedFrames[i] : frames[i];
                 if (frame == null) continue;
@@ -330,10 +337,9 @@ namespace PawPath.Hub
                     ? displayedHeight / frame.bounds.size.y * item.EffectiveInteractionVisualScale
                     : Mathf.Abs(originalFurnitureScale.y);
                 furnitureRenderer.sprite = frame;
-                // Kedi kumu animasyon kareleri, normal item görseline göre
-                // karşı yönde hazırlanmış. Kaynak yön farkını ters çevirirken
-                // kullanıcının eşya için seçtiği ayna yönünü de koru.
-                float animationDirection = -Mathf.Sign(originalFurnitureScale.x);
+                // Yeni kedi kumu görseli animasyon kareleriyle aynı yöndedir.
+                // Kullanıcı itemi aynaladıysa yalnızca o mevcut yönü koru.
+                float animationDirection = Mathf.Sign(originalFurnitureScale.x);
                 transform.localScale = new Vector3(
                     animationDirection * scale, scale, originalFurnitureScale.z);
                 Vector3 position = transform.position;

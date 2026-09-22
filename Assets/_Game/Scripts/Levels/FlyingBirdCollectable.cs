@@ -10,12 +10,12 @@ namespace PawPath.Levels
     {
         SpriteRenderer renderer;
         Sprite[] frames;
-        float speed, leftBound, baseY, bobPhase, frameTimer;
+        float speed, leftBound, baseY, bobPhase, frameTimer, visualWidth;
         int frameIndex;
         bool collected;
 
         public void Configure(SpriteRenderer target, Sprite[] animationFrames, float flightSpeed,
-            float minX, float phase)
+            float minX, float phase, float targetVisualWidth)
         {
             renderer = target;
             frames = animationFrames;
@@ -23,6 +23,8 @@ namespace PawPath.Levels
             leftBound = minX;
             baseY = transform.position.y;
             bobPhase = phase;
+            visualWidth = targetVisualWidth;
+            ApplyFrameScale();
         }
 
         void Update()
@@ -43,6 +45,18 @@ namespace PawPath.Levels
             frameTimer = 0f;
             frameIndex = (frameIndex + 1) % frames.Length;
             renderer.sprite = frames[frameIndex];
+            ApplyFrameScale();
+        }
+
+        void ApplyFrameScale()
+        {
+            if (renderer == null || renderer.sprite == null || renderer.sprite.bounds.size.x <= 0f)
+                return;
+            float scale = visualWidth / renderer.sprite.bounds.size.x;
+            transform.localScale = new Vector3(scale, scale, 1f);
+            Transform reward = transform.Find("RewardLabel");
+            if (reward != null)
+                reward.localScale = new Vector3(1f / scale, 1f / scale, 1f);
         }
 
         void OnTriggerEnter2D(Collider2D other)

@@ -37,7 +37,7 @@ public static class ShopFurnitureBuilder
         new ItemData("cat_water", "Su Kabı", "Kedilerin su içmek için kullanacağı su kabı.", 25,
             FurnitureSlotType.Water, "Assets/cat_water.png"),
         new ItemData("cat_sand", "Kedi Kumu", "Kediler için temiz ve rahat kum alanı.", 35,
-            FurnitureSlotType.Sand, "Assets/cat_sand.png"),
+            FurnitureSlotType.Sand, "Assets/new_cat_sand.png"),
         new ItemData("cat_tree", "Kedi Ağacı", "Tırmanmak, dinlenmek ve evi seyretmek için.", 80,
             FurnitureSlotType.Tree, "Assets/cat_tree.png"),
         new ItemData("cat_toy_mouse", "Oyuncak Fare", "Mitzi'nin peşinden koşup patileriyle oynayabileceği yumuşak fare.", 30,
@@ -86,7 +86,7 @@ public static class ShopFurnitureBuilder
             {
                 string[] framePaths = { "Assets/cat_sand_out.png", "Assets/cat_sand_in2.png", "Assets/cat_sand_in.png" };
                 item.interactionType = ItemInteractionType.Toileting;
-                item.interactionVisualScale = 0.60f;
+                item.interactionVisualScale = 1f;
                 item.interactionFrames = new Sprite[framePaths.Length];
                 for (int i = 0; i < framePaths.Length; i++)
                 {

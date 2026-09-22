@@ -25,46 +25,60 @@ namespace PawPath.EditorTools
             const string wallpaperPath = "Assets/_Game/Art/home_background_gemini.jpg";
             const string gameplayPath = "Assets/_Game/Art/street_gameplay_summer_v1.png";
             const string gapPath = "Assets/_Game/Art/obstacle_road_gap_v1.png";
-            const string moundPath = "Assets/_Game/Art/obstacle_stone_mound_v1.png";
-            const string roadPath = "Assets/_Game/Art/road_terracotta_platform_v1.png";
+            const string moundPath = "Assets/street_mound.png";
+            const string streetMoundHighPath = "Assets/street_mound_high.png";
+            const string roadPath = "Assets/new_road_terracot.png";
             const string forestBackgroundPath = "Assets/_Game/Art/forest_overcast_gameplay_v1.png";
             const string forestGapPath = "Assets/_Game/Art/forest_road_gap_v1.png";
             const string forestMoundPath = "Assets/_Game/Art/forest_mound_v1.png";
-            const string forestRoadPath = "Assets/_Game/Art/forest_ground_platform_v1.png";
+            const string forestUnderfillPath = "Assets/forest_ground_underfill.png";
             const string finishPortalPath = "Assets/_Game/Art/finish_portal_glow_v1.png";
             var catalogAsset = AssetDatabase.LoadAssetAtPath<PawPathCatalog>(catalogPath);
             var wallpaper = AssetDatabase.LoadAssetAtPath<Sprite>(wallpaperPath);
             var gameplay = AssetDatabase.LoadAssetAtPath<Sprite>(gameplayPath);
             var gap = AssetDatabase.LoadAssetAtPath<Sprite>(gapPath);
             var mound = AssetDatabase.LoadAssetAtPath<Sprite>(moundPath);
+            var streetMoundHigh = AssetDatabase.LoadAssetAtPath<Sprite>(streetMoundHighPath);
             var road = AssetDatabase.LoadAssetAtPath<Sprite>(roadPath);
             var forestBackground = AssetDatabase.LoadAssetAtPath<Sprite>(forestBackgroundPath);
             var forestGap = AssetDatabase.LoadAssetAtPath<Sprite>(forestGapPath);
             var forestMound = AssetDatabase.LoadAssetAtPath<Sprite>(forestMoundPath);
-            var forestRoad = AssetDatabase.LoadAssetAtPath<Sprite>(forestRoadPath);
+            var forestUnderfill = AssetDatabase.LoadAssetAtPath<Sprite>(forestUnderfillPath);
             var finishPortal = AssetDatabase.LoadAssetAtPath<Sprite>(finishPortalPath);
-            if (catalogAsset == null || wallpaper == null || gameplay == null || gap == null || mound == null || road == null ||
-                forestBackground == null || forestGap == null || forestMound == null || forestRoad == null || finishPortal == null)
+            if (catalogAsset == null || wallpaper == null || gameplay == null || gap == null ||
+                mound == null || streetMoundHigh == null || road == null ||
+                forestBackground == null || forestGap == null || forestMound == null ||
+                forestUnderfill == null || finishPortal == null)
                 return;
             if (catalogAsset.homeBackground == wallpaper &&
                 catalogAsset.shopBackground == wallpaper &&
                 catalogAsset.gameplayBackground == gameplay &&
-                catalogAsset.roadGapSprite == gap && catalogAsset.moundSprite == mound &&
+                catalogAsset.roadGapSprite == gap && catalogAsset.streetGapLeftSprite == null &&
+                catalogAsset.streetGapRightSprite == null && catalogAsset.moundSprite == mound &&
+                catalogAsset.streetMoundHighSprite == streetMoundHigh &&
                 catalogAsset.roadPlatformSprite == road && catalogAsset.forestBackground == forestBackground &&
                 catalogAsset.forestGapSprite == forestGap && catalogAsset.forestMoundSprite == forestMound &&
-                catalogAsset.forestPlatformSprite == forestRoad && catalogAsset.finishPortalSprite == finishPortal)
+                catalogAsset.forestPlatformSprite == null &&
+                catalogAsset.forestGroundUnderfillSprite == forestUnderfill &&
+                catalogAsset.finishPortalSprite == finishPortal)
                 return;
 
             catalogAsset.homeBackground = wallpaper;
             catalogAsset.shopBackground = wallpaper;
             catalogAsset.gameplayBackground = gameplay;
             catalogAsset.roadGapSprite = gap;
+            // Deneme amaçlı iki parçalı kenarlar kaldırıldı; eski tek parça
+            // roadGapSprite yeniden kullanılır.
+            catalogAsset.streetGapLeftSprite = null;
+            catalogAsset.streetGapRightSprite = null;
             catalogAsset.moundSprite = mound;
+            catalogAsset.streetMoundHighSprite = streetMoundHigh;
             catalogAsset.roadPlatformSprite = road;
             catalogAsset.forestBackground = forestBackground;
             catalogAsset.forestGapSprite = forestGap;
             catalogAsset.forestMoundSprite = forestMound;
-            catalogAsset.forestPlatformSprite = forestRoad;
+            catalogAsset.forestPlatformSprite = null;
+            catalogAsset.forestGroundUnderfillSprite = forestUnderfill;
             catalogAsset.finishPortalSprite = finishPortal;
             EditorUtility.SetDirty(catalogAsset);
             AssetDatabase.SaveAssets();
