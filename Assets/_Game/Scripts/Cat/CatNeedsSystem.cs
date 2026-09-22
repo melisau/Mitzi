@@ -15,10 +15,16 @@ namespace PawPath.Cat
         public int waterPoints = 20;
         public int sleepPoints = 30;
 
-        [Header("Giriş Koşulu")]
-        public int requiredEnergyToPlay = 20;
+        [Header("Kedi Bakımı")]
+        [Range(0, 100)] public int minimumNeedToPlay = 20;
+        [Min(0)] public int hungerLossPerHalfHour = 2;
+        [Min(0)] public int waterLossPerHalfHour = 3;
+        [Min(0)] public int affectionLossPerHalfHour = 1;
+        [Min(1)] public int maximumOfflineHours = 8;
 
         private int currentDailyPettingPoints = 0;
+        float nextNeedsRefresh;
+        public event Action NeedsChanged;
 
         const string FeedKey = "DailyCare.Feed";
         const string WaterKey = "DailyCare.Water";
@@ -36,6 +42,27 @@ namespace PawPath.Cat
             if (Instance == null)
                 Instance = this;
             CheckDailyReset();
+            RefreshAllNeeds();
+        }
+
+        void Update()
+        {
+            if (Time.unscaledTime < nextNeedsRefresh)
+                return;
+            nextNeedsRefresh = Time.unscaledTime + 60f;
+            RefreshAllNeeds();
+        }
+
+        void OnApplicationFocus(bool focused)
+        {
+            if (focused)
+                RefreshAllNeeds();
+        }
+
+        void OnApplicationPause(bool paused)
+        {
+            if (!paused)
+                RefreshAllNeeds();
         }
 
         private void CheckDailyReset()
@@ -92,25 +119,22 @@ namespace PawPath.Cat
         public bool FeedCat(string catId = null)
         {
             catId = string.IsNullOrEmpty(catId) ? SelectedCatId : catId;
-            bool success = TryDailyCare(CareKey(FeedKey, catId), foodPoints, "Mama Verme");
-            if (success)
-            {
-                GetNeeds(catId).hunger = 100;
-                SaveService.Persist();
-            }
-            return success;
+            // Günlük Sevgi ödülü sınırlı; mama kabı ise kediyi her kullanımda besleyebilir.
+            TryDailyCare(CareKey(FeedKey, catId), foodPoints, "Mama Verme");
+            GetNeeds(catId).hunger = 100;
+            SaveService.Persist();
+            NeedsChanged?.Invoke();
+            return true;
         }
 
         public bool GiveWater(string catId = null)
         {
             catId = string.IsNullOrEmpty(catId) ? SelectedCatId : catId;
-            bool success = TryDailyCare(CareKey(WaterKey, catId), waterPoints, "Su Verme");
-            if (success)
-            {
-                GetNeeds(catId).water = 100;
-                SaveService.Persist();
-            }
-            return success;
+            TryDailyCare(CareKey(WaterKey, catId), waterPoints, "Su Verme");
+            GetNeeds(catId).water = 100;
+            SaveService.Persist();
+            NeedsChanged?.Invoke();
+            return true;
         }
 
         public bool PutToSleep()
@@ -126,8 +150,19 @@ namespace PawPath.Cat
 
         public bool CanStartLevel()
         {
-            if (CozyEconomyManager.Instance == null) return true;
-            return CozyEconomyManager.Instance.LovePoints >= requiredEnergyToPlay;
+            var needs = GetNeeds(SelectedCatId);
+            return needs.hunger >= minimumNeedToPlay &&
+                needs.water >= minimumNeedToPlay &&
+                needs.affection >= minimumNeedToPlay;
+        }
+
+        public string TravelStatus()
+        {
+            var needs = GetNeeds(SelectedCatId);
+            string values = $"Mama {needs.hunger} · Su {needs.water} · Sevgi {needs.affection}";
+            return CanStartLevel()
+                ? $"Kedin yola hazır — {values}"
+                : $"Yola çıkmak için her ihtiyaç en az {minimumNeedToPlay} olmalı. {values}";
         }
 
         bool TryDailyCare(string key, int points, string reason)
@@ -151,11 +186,55 @@ namespace PawPath.Cat
         {
             if (string.IsNullOrEmpty(catId)) catId = "mitzi";
             var found = SaveService.Data.catNeeds.Find(state => state != null && state.catId == catId);
-            if (found != null) return found;
-            found = new SaveService.CatNeedState { catId = catId };
-            SaveService.Data.catNeeds.Add(found);
-            SaveService.Persist();
+            if (found == null)
+            {
+                found = new SaveService.CatNeedState { catId = catId,
+                    lastNeedsUpdateUtcTicks = DateTime.UtcNow.Ticks };
+                SaveService.Data.catNeeds.Add(found);
+                SaveService.Persist();
+                return found;
+            }
+            if (ApplyDecay(found, DateTime.UtcNow.Ticks))
+                SaveService.Persist();
             return found;
+        }
+
+        void RefreshAllNeeds()
+        {
+            bool changed = false;
+            long now = DateTime.UtcNow.Ticks;
+            foreach (var needs in SaveService.Data.catNeeds)
+                if (needs != null)
+                    changed |= ApplyDecay(needs, now);
+            if (!changed)
+                return;
+            SaveService.Persist();
+            NeedsChanged?.Invoke();
+        }
+
+        bool ApplyDecay(SaveService.CatNeedState needs, long now)
+        {
+            long previous = needs.lastNeedsUpdateUtcTicks;
+            if (previous <= 0 || previous > now)
+            {
+                needs.lastNeedsUpdateUtcTicks = now;
+                return true;
+            }
+
+            const long interval = TimeSpan.TicksPerMinute * 30;
+            long elapsed = now - previous;
+            long periods = elapsed / interval;
+            if (periods == 0)
+                return false;
+            long maximumPeriods = Math.Max(1, maximumOfflineHours) * 2L;
+            long appliedPeriods = Math.Min(periods, maximumPeriods);
+            needs.hunger = Mathf.Max(0, needs.hunger - (int)Math.Min(100L, appliedPeriods * Math.Max(0, hungerLossPerHalfHour)));
+            needs.water = Mathf.Max(0, needs.water - (int)Math.Min(100L, appliedPeriods * Math.Max(0, waterLossPerHalfHour)));
+            needs.affection = Mathf.Max(0, needs.affection - (int)Math.Min(100L, appliedPeriods * Math.Max(0, affectionLossPerHalfHour)));
+            // Uzun çevrimdışı aradan kalan süre sonraki açılışta tekrar düşülmez.
+            needs.lastNeedsUpdateUtcTicks = periods > maximumPeriods
+                ? now : previous + periods * interval;
+            return true;
         }
     }
 }

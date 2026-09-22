@@ -20,6 +20,8 @@ namespace PawPath.Core
             public int hunger = 100;
             public int water = 100;
             public int affection = 100;
+            // Sıfır: eski kayıttan geçiş; geçmişe dönük bakım cezası uygulanmaz.
+            public long lastNeedsUpdateUtcTicks;
         }
 
         [Serializable]
