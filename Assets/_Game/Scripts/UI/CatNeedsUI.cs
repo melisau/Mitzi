@@ -58,7 +58,7 @@ namespace PawPath.UI
 
             SetVisible(GameFlow.Instance == null || GameFlow.Instance.InHub);
 
-            int currentDaily = PlayerPrefs.GetInt("DailyPettingPoints", 0);
+            int currentDaily = catNeedsSystem.DailyPettingPoints;
             if (dailyPettingProgressText != null)
             {
                 dailyPettingProgressText.text = $"Günlük Okşama: {currentDaily} / {catNeedsSystem.maxDailyPettingPoints}";

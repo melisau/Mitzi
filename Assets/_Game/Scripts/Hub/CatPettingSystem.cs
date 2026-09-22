@@ -108,7 +108,7 @@ namespace PawPath.Hub
                     bool awarded = true;
                     if (needsSystem != null)
                     {
-                        awarded = needsSystem.TryPetCat(lovePerTick);
+                        awarded = needsSystem.TryPetCat(lovePerTick, cat != null ? cat.id : null);
                         if (!awarded)
                         {
                             Debug.Log("Günlük okşama sınırına ulaşıldı!");

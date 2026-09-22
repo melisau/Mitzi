@@ -441,7 +441,7 @@ namespace PawPath.Levels
             var body = go.AddComponent<Rigidbody2D>();
             body.bodyType = RigidbodyType2D.Kinematic;
             body.interpolation = RigidbodyInterpolation2D.Interpolate;
-            go.AddComponent<DogObstacle>().Configure(renderer, dogRunFrames, speed, leftBound);
+            go.AddComponent<DogObstacle>().Configure(renderer, dogRunFrames, speed, leftBound, roadTop);
         }
 
         void CreateClimbableTree(float x, float roadTop)

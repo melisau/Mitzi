@@ -24,7 +24,7 @@ namespace PawPath.Cat
         const string WaterKey = "DailyCare.Water";
         const string SleepKey = "DailyCare.Sleep";
 
-        public int DailyPettingPoints => currentDailyPettingPoints;
+        public int DailyPettingPoints => PlayerPrefs.GetInt($"DailyPettingPoints.{SelectedCatId}", 0);
         string SelectedCatId => SaveService.Data != null && !string.IsNullOrEmpty(SaveService.Data.selectedCatId)
             ? SaveService.Data.selectedCatId : "mitzi";
         public bool CanFeedToday => !WasUsedToday(CareKey(FeedKey, SelectedCatId));
@@ -62,6 +62,14 @@ namespace PawPath.Cat
 
             catId = string.IsNullOrEmpty(catId) ? SelectedCatId : catId;
             var needs = GetNeeds(catId);
+            string dailyPointsKey = $"DailyPettingPoints.{catId}";
+            string dailyDateKey = $"DailyPettingDate.{catId}";
+            if (PlayerPrefs.GetString(dailyDateKey, "") != Today())
+            {
+                PlayerPrefs.SetString(dailyDateKey, Today());
+                PlayerPrefs.SetInt(dailyPointsKey, 0);
+            }
+            currentDailyPettingPoints = PlayerPrefs.GetInt(dailyPointsKey, 0);
 
             if (currentDailyPettingPoints >= maxDailyPettingPoints)
             {
@@ -70,7 +78,7 @@ namespace PawPath.Cat
 
             int allowedPoints = Mathf.Min(pointsEarned, maxDailyPettingPoints - currentDailyPettingPoints);
             currentDailyPettingPoints += allowedPoints;
-            PlayerPrefs.SetInt("DailyPettingPoints", currentDailyPettingPoints);
+            PlayerPrefs.SetInt(dailyPointsKey, currentDailyPettingPoints);
             needs.affection = Mathf.Clamp(needs.affection + allowedPoints, 0, 100);
             SaveService.Persist();
 

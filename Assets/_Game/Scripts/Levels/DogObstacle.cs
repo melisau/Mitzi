@@ -9,17 +9,19 @@ namespace PawPath.Levels
     {
         SpriteRenderer renderer;
         Sprite[] frames;
-        float speed, leftBound, frameTimer;
+        float speed, leftBound, groundY, frameTimer;
         int frameIndex;
         bool failed;
 
         public void Configure(SpriteRenderer target, Sprite[] animationFrames, float runSpeed,
-            float minX)
+            float minX, float roadSurfaceY)
         {
             renderer = target;
             frames = animationFrames;
             speed = runSpeed;
             leftBound = minX;
+            groundY = roadSurfaceY;
+            AlignFeetToGround();
         }
 
         void Update()
@@ -32,10 +34,20 @@ namespace PawPath.Levels
             }
             if (frames == null || frames.Length == 0 || renderer == null) return;
             frameTimer += Time.deltaTime;
-            if (frameTimer < 0.075f) return;
+            if (frameTimer < 0.055f) return;
             frameTimer = 0f;
             frameIndex = (frameIndex + 1) % frames.Length;
             renderer.sprite = frames[frameIndex];
+            AlignFeetToGround();
+        }
+
+        void AlignFeetToGround()
+        {
+            if (renderer == null || renderer.sprite == null) return;
+            float scaleY = Mathf.Abs(transform.lossyScale.y);
+            var position = transform.position;
+            position.y = groundY - renderer.sprite.bounds.min.y * scaleY - 0.06f;
+            transform.position = position;
         }
 
         void OnTriggerEnter2D(Collider2D other)
