@@ -27,6 +27,10 @@ namespace PawPath.Data
         public Sprite portrait;
         public Sprite idleSprite;
         public RuntimeAnimatorController animator;
+        [Header("İsteğe Bağlı Animasyon Kareleri")]
+        public Sprite[] walkFrames;
+        public Sprite[] idleFrames;
+        public Sprite[] jumpFrames;
         public Sprite[] sleepFrames;
         public AudioClip purrClip;
         public AudioClip meowClip;

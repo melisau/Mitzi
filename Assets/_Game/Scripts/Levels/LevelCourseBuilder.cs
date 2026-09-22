@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using PawPath.Hub;
 using PawPath.Gameplay;
@@ -25,13 +26,18 @@ namespace PawPath.Levels
         Sprite roadSprite;
         Sprite roadUnderfillSprite;
         Sprite[] birdFrames;
+        Sprite[] dogRunFrames;
+        Sprite climbTreeSprite;
+        Sprite[] climbingCatFrames;
+        readonly List<Vector2> roadRanges = new List<Vector2>();
 
         public float CatSpawnY => RoadCenterY + RoadHeight * 0.5f + 0.40f * GameplayScale;
         public float GoalY => CatSpawnY + 0.15f;
         public float GoalX => 19.35f;
 
         public void BindVisuals(Sprite gap, Sprite mound, Sprite road, Sprite alternateMound = null,
-            Sprite underfill = null, Sprite[] birds = null)
+            Sprite underfill = null, Sprite[] birds = null, Sprite[] dogs = null,
+            Sprite tree = null, Sprite[] climbingFrames = null)
         {
             gapSprite = CreateCityTrashContainer(gap);
             moundSprite = mound;
@@ -39,6 +45,9 @@ namespace PawPath.Levels
             alternateMoundSprite = alternateMound;
             roadUnderfillSprite = underfill;
             birdFrames = birds;
+            dogRunFrames = dogs;
+            climbTreeSprite = tree;
+            climbingCatFrames = climbingFrames;
         }
 
         static Sprite CreateCitySidewalkSurface(Sprite source)
@@ -57,6 +66,7 @@ namespace PawPath.Levels
         public void Build(int levelNumber)
         {
             ClearGenerated();
+            roadRanges.Clear();
             generatedRoot = new GameObject("GeneratedCourse").transform;
             generatedRoot.SetParent(transform, false);
 
@@ -80,6 +90,7 @@ namespace PawPath.Levels
             BuildPattern((pattern + 2) % 5, SecondSectionOffset);
             Road(21.55f, 2.9f);
             BuildModeChallenge(levelNumber);
+            BuildDogAndTreeChallenge(levelNumber);
         }
 
         void BuildPattern(int pattern, float offsetX)
@@ -130,10 +141,12 @@ namespace PawPath.Levels
 
         void Road(float centerX, float width)
         {
+            roadRanges.Add(new Vector2(centerX - width * 0.5f, centerX + width * 0.5f));
             var go = new GameObject("Road");
             go.transform.SetParent(generatedRoot, false);
             go.transform.position = new Vector2(centerX, RoadCenterY);
             var collider = go.AddComponent<BoxCollider2D>();
+            collider.isTrigger = false;
             collider.size = new Vector2(width, RoadHeight);
 
             if (roadSprite == null)
@@ -308,13 +321,14 @@ namespace PawPath.Levels
             float roadTop = RoadCenterY + RoadHeight * 0.5f;
             for (int i = 0; i < birdCount; i++)
             {
-                float zoneCenter = 7.0f + i * 5.2f + NextRange(random, -0.7f, 0.7f);
-                float spawnX = zoneCenter + NextRange(random, 1.0f, 3.2f);
+                // Kuş bir kez sağdan girip uzun bir mesafe uçar; kısa bir bölgede
+                // ışınlanıp tekrar tekrar doğmaz.
+                float spawnX = 11.5f + i * 5.4f + NextRange(random, 0.4f, 1.8f);
                 float height = roadTop + NextRange(random, 1.25f, 2.85f);
                 float speed = NextRange(random, 0.72f, 1.48f);
                 float width = NextRange(random, 1.00f, 1.38f);
-                CreateFlyingBird(i + 1, new Vector2(spawnX, height), zoneCenter - 3.1f,
-                    zoneCenter + 3.1f, speed, width, NextRange(random, 0f, 6.28f));
+                CreateFlyingBird(i + 1, new Vector2(spawnX, height), -9.5f,
+                    speed, width, NextRange(random, 0f, 6.28f));
             }
         }
 
@@ -323,7 +337,7 @@ namespace PawPath.Levels
             return min + (float)random.NextDouble() * (max - min);
         }
 
-        void CreateFlyingBird(int index, Vector2 position, float leftBound, float rightBound,
+        void CreateFlyingBird(int index, Vector2 position, float leftBound,
             float speed, float targetWidth, float phase)
         {
             Sprite firstFrame = birdFrames[0];
@@ -338,13 +352,127 @@ namespace PawPath.Levels
             go.transform.localScale = new Vector3(scale, scale, 1f);
 
             var collider = go.AddComponent<BoxCollider2D>();
+            collider.isTrigger = true;
             collider.size = new Vector2(firstFrame.bounds.size.x * 0.62f,
                 firstFrame.bounds.size.y * 0.58f);
             var body = go.AddComponent<Rigidbody2D>();
             body.bodyType = RigidbodyType2D.Kinematic;
             body.interpolation = RigidbodyInterpolation2D.Interpolate;
-            go.AddComponent<FlyingBirdObstacle>().Configure(renderer, birdFrames, speed,
-                leftBound, rightBound, phase);
+            go.AddComponent<FlyingBirdCollectable>().Configure(renderer, birdFrames, speed,
+                leftBound, phase);
+
+            var rewardGo = new GameObject("RewardLabel");
+            rewardGo.transform.SetParent(go.transform, false);
+            rewardGo.transform.localPosition = new Vector3(0f, firstFrame.bounds.extents.y + 0.22f, 0f);
+            rewardGo.transform.localScale = new Vector3(1f / scale, 1f / scale, 1f);
+            var reward = rewardGo.AddComponent<TextMesh>();
+            reward.text = "♥ +3";
+            reward.anchor = TextAnchor.MiddleCenter;
+            reward.alignment = TextAlignment.Center;
+            reward.fontSize = 44;
+            reward.characterSize = 0.035f;
+            reward.color = new Color(1f, 0.82f, 0.16f, 1f);
+            rewardGo.GetComponent<MeshRenderer>().sortingOrder = 10;
+        }
+
+        void BuildDogAndTreeChallenge(int levelNumber)
+        {
+            bool hasDog = dogRunFrames != null && dogRunFrames.Length > 0 && dogRunFrames[0] != null;
+            bool hasTree = climbTreeSprite != null;
+            if (!hasDog && !hasTree)
+                return;
+
+            float roadTop = RoadCenterY + RoadHeight * 0.5f;
+            // Aynı bölüm tekrarlandığında aynı sonuç çıkar; farklı bölümlerde
+            // ağacın varlığı ve yeri değişir.
+            var treeRandom = new System.Random(levelNumber * 104729 + 811);
+            bool spawnTree = hasTree && treeRandom.NextDouble() < 0.60;
+            if (spawnTree && TryChooseTreeX(treeRandom, out float treeX))
+                CreateClimbableTree(treeX, roadTop);
+            if (hasDog)
+                CreateDog(22.4f, roadTop, -9.5f,
+                    1.8f + levelNumber % 4 * 0.18f);
+        }
+
+        bool TryChooseTreeX(System.Random random, out float treeX)
+        {
+            // Ağaç bir çukura değil gerçek yol collider'ına yerleşsin. Kenarlardan
+            // pay bırakmak tırmanma trigger'ının boşluğa taşmasını engeller.
+            const float minX = 4.5f;
+            const float maxX = 15.5f;
+            const float edgeMargin = 1.05f;
+            var validRanges = new List<Vector2>();
+            foreach (var range in roadRanges)
+            {
+                float start = Mathf.Max(minX, range.x + edgeMargin);
+                float end = Mathf.Min(maxX, range.y - edgeMargin);
+                if (end > start)
+                    validRanges.Add(new Vector2(start, end));
+            }
+
+            if (validRanges.Count == 0)
+            {
+                treeX = 0f;
+                return false;
+            }
+
+            var chosen = validRanges[random.Next(validRanges.Count)];
+            treeX = NextRange(random, chosen.x, chosen.y);
+            return true;
+        }
+
+        void CreateDog(float x, float roadTop, float leftBound, float speed)
+        {
+            Sprite first = dogRunFrames[0];
+            var go = new GameObject("DogObstacle");
+            go.transform.SetParent(generatedRoot, false);
+            var renderer = go.AddComponent<SpriteRenderer>();
+            renderer.sprite = first;
+            renderer.sortingOrder = 9;
+            float targetWidth = 2.75f;
+            float scale = first.bounds.size.x > 0f ? targetWidth / first.bounds.size.x : 1f;
+            go.transform.localScale = new Vector3(-scale, scale, 1f);
+            float bottomOffset = -first.bounds.min.y * scale;
+            go.transform.position = new Vector3(x, roadTop + bottomOffset, 0f);
+            var collider = go.AddComponent<BoxCollider2D>();
+            collider.isTrigger = true;
+            collider.size = new Vector2(first.bounds.size.x * 0.72f, first.bounds.size.y * 0.62f);
+            collider.offset = new Vector2(0f, first.bounds.min.y + first.bounds.size.y * 0.34f);
+            var body = go.AddComponent<Rigidbody2D>();
+            body.bodyType = RigidbodyType2D.Kinematic;
+            body.interpolation = RigidbodyInterpolation2D.Interpolate;
+            go.AddComponent<DogObstacle>().Configure(renderer, dogRunFrames, speed, leftBound);
+        }
+
+        void CreateClimbableTree(float x, float roadTop)
+        {
+            var go = new GameObject("ClimbableTree");
+            go.transform.SetParent(generatedRoot, false);
+            var renderer = go.AddComponent<SpriteRenderer>();
+            renderer.sprite = climbTreeSprite;
+            renderer.sortingOrder = 7;
+            float targetHeight = 5.25f;
+            float scale = climbTreeSprite.bounds.size.y > 0f ? targetHeight / climbTreeSprite.bounds.size.y : 1f;
+            go.transform.localScale = new Vector3(scale, scale, 1f);
+            // PNG'nin kök altında şeffaf payı var. Görünen kök ucunu kaldırıma
+            // gömerek ağacın havada durmasını önleriz.
+            const float visibleRootInset = 0.78f;
+            go.transform.position = new Vector3(x,
+                roadTop - climbTreeSprite.bounds.min.y * scale - visibleRootInset, 0f);
+
+            var trigger = go.AddComponent<BoxCollider2D>();
+            trigger.isTrigger = true;
+            // Bu collider fiziksel engel değildir; yalnız gövde merkezinde dar
+            // bir tırmanma menzili tanımlar. Kedi sağ-sol ile serbestçe geçer.
+            trigger.size = new Vector2(climbTreeSprite.bounds.size.x * 0.16f,
+                climbTreeSprite.bounds.size.y * 0.82f);
+            trigger.offset = new Vector2(0f,
+                climbTreeSprite.bounds.min.y + climbTreeSprite.bounds.size.y * 0.46f);
+            var perch = new GameObject("ClimbPerch").transform;
+            perch.SetParent(go.transform, false);
+            // Tepe noktası ağacın görsel sınırını aşmaz.
+            perch.localPosition = new Vector3(0f, climbTreeSprite.bounds.max.y * 0.78f, 0f);
+            go.AddComponent<ClimbableTree>().Configure(climbingCatFrames, perch);
         }
 
         void Decoration(string objectName, Sprite sprite, Vector2 position, float targetWidth,

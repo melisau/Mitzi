@@ -141,7 +141,9 @@ namespace PawPath.Core
             goal.transform.position = new Vector3(6.25f, 0.2f, 0f);
             var goalCol = goal.AddComponent<BoxCollider2D>();
             goalCol.isTrigger = true;
-            goalCol.size = new Vector2(1.3f, 1.6f);
+            // Kapı çizgisinden bölümün sağına kadar uzanan geniş WinZone.
+            goalCol.size = new Vector2(10f, 12f);
+            goalCol.offset = new Vector2(5f, 0f);
             goal.AddComponent<GoalTrigger>();
             BuildFinishGate(goal.transform, catalog.finishPortalSprite);
 
@@ -419,9 +421,9 @@ namespace PawPath.Core
             var street = Button(panel.transform, "StreetTheme", "Sokak", new Vector2(1f, 1f), new Vector2(-150f, -125f), new Color(0.83f, 0.68f, 0.52f));
             var forest = Button(panel.transform, "ForestTheme", "Orman", new Vector2(1f, 1f), new Vector2(-150f, -195f), new Color(0.52f, 0.70f, 0.55f));
             var city = Button(panel.transform, "CityTheme", "Cadde", new Vector2(1f, 1f), new Vector2(-150f, -255f), new Color(0.62f, 0.58f, 0.54f));
-            StyleCompactMenuButton(street, new Vector2(-280f, -160f));
-            StyleCompactMenuButton(forest, new Vector2(-280f, -285f));
-            StyleCompactMenuButton(city, new Vector2(-280f, -410f));
+            StyleCompactTopButton(street, new Vector2(-180f, -180f));
+            StyleCompactTopButton(forest, new Vector2(-180f, -305f));
+            StyleCompactTopButton(city, new Vector2(-180f, -430f));
             panel.AddComponent<ThemeSelectionUI>().Bind(street, forest, city);
             return panel;
         }
@@ -459,11 +461,11 @@ namespace PawPath.Core
             panel.AddComponent<CanvasGroup>();
             var content = SafeContent(panel.transform);
 
-            var feed = Button(content, "FeedButton", $"Mama +{needs.foodPoints}", new Vector2(0.16f, 0f), new Vector2(0f, 275f), new Color(0.88f, 0.72f, 0.55f));
-            var water = Button(content, "WaterButton", $"Su +{needs.waterPoints}", new Vector2(0.16f, 0f), new Vector2(0f, 145f), new Color(0.62f, 0.80f, 0.91f));
-            var sleep = Button(content, "SleepButton", $"Uyu +{needs.sleepPoints}", new Vector2(0.16f, 0f), new Vector2(0f, 15f), new Color(0.75f, 0.69f, 0.86f));
+            var feed = Button(content, "FeedButton", $"Mama +{needs.foodPoints}", new Vector2(0.16f, 0f), new Vector2(0f, 300f), new Color(0.88f, 0.72f, 0.55f));
+            var water = Button(content, "WaterButton", $"Su +{needs.waterPoints}", new Vector2(0.16f, 0f), new Vector2(0f, 195f), new Color(0.62f, 0.80f, 0.91f));
+            var sleep = Button(content, "SleepButton", $"Uyu +{needs.sleepPoints}", new Vector2(0.16f, 0f), new Vector2(0f, 90f), new Color(0.75f, 0.69f, 0.86f));
             foreach (var button in new[] { feed, water, sleep })
-                StyleWarmGameButton(button, new Vector2(520f, 116f), 30);
+                StyleWarmGameButton(button, new Vector2(420f, 88f), 26);
 
             var daily = Label(content, "DailyPetting", "Günlük Okşama", new Vector2(0.84f, 0f), new Vector2(0f, 125f));
             daily.fontSize = 20;
@@ -542,7 +544,8 @@ namespace PawPath.Core
             text.rectTransform.sizeDelta = new Vector2(680f, 370f);
             text.fontSize = 27;
             text.color = Color.white;
-            panel.GetComponent<Image>().raycastTarget = false;
+            panel.GetComponent<Image>().raycastTarget = true;
+            panel.AddComponent<Button>();
             return panel;
         }
 

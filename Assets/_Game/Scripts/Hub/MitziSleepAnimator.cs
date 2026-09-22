@@ -17,6 +17,7 @@ namespace PawPath.Hub
         bool wasSleeping;
         bool initialized;
         bool transitioning;
+        bool externalAnimationActive;
         Vector3 awakeScale;
         Vector3 awakePosition;
         const float FrameDuration = 0.18f;
@@ -47,6 +48,10 @@ namespace PawPath.Hub
         void Update()
         {
             if (spriteRenderer == null || behaviour == null || frames == null || frames.Length == 0)
+                return;
+            // Mama yeme gibi özel bir animasyon aynı SpriteRenderer'ı kullanırken
+            // uyanık pozu her karede geri yükleyip animasyonu ezme.
+            if (externalAnimationActive)
                 return;
             bool sleeping = behaviour.CurrentActivity == ResidentActivity.Sleeping;
             if (!initialized)
@@ -105,6 +110,13 @@ namespace PawPath.Hub
                     transitioning = false;
                 }
             }
+        }
+
+        public void SetExternalAnimation(bool active)
+        {
+            externalAnimationActive = active;
+            if (active)
+                transitioning = false;
         }
 
         void ApplyFrame(Sprite frame)

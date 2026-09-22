@@ -93,6 +93,10 @@ namespace PawPath.Hub
                     if (drag == null)
                         drag = targetSlot.gameObject.AddComponent<DraggableFurniture>();
                     drag.Configure(item.slotType, sr);
+                    var interaction = targetSlot.GetComponent<FurnitureInteraction>();
+                    if (interaction == null)
+                        interaction = targetSlot.gameObject.AddComponent<FurnitureInteraction>();
+                    interaction.Configure(item);
                 }
             }
         }

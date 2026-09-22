@@ -24,6 +24,9 @@ MonoBehaviour:
   portrait: {fileID: 21300000, guid: 83f41818b273b204e83ad278ce0b267e, type: 3}
   idleSprite: {fileID: 21300000, guid: 83f41818b273b204e83ad278ce0b267e, type: 3}
   animator: {fileID: 9100000, guid: 06ebee0f895a2f046a9d821886f34574, type: 2}
+  walkFrames: []
+  idleFrames: []
+  jumpFrames: []
   sleepFrames:
   - {fileID: 21300000, guid: d9b6298cb81ad6d47b171c193202dd06, type: 3}
   - {fileID: 21300000, guid: 46dde9f799a4e8b409741c77c66b1116, type: 3}
@@ -57,6 +60,9 @@ MonoBehaviour:
   portrait: {fileID: 21300000, guid: d468c46ce2b1403796e4fa680c23f164, type: 3}
   idleSprite: {fileID: 21300000, guid: d468c46ce2b1403796e4fa680c23f164, type: 3}
   animator: {fileID: 0}
+  walkFrames: []
+  idleFrames: []
+  jumpFrames: []
   sleepFrames: []
   purrClip: {fileID: 0}
   meowClip: {fileID: 0}
@@ -134,6 +140,9 @@ MonoBehaviour:
   icon: {fileID: 0}
   placedSprite: {fileID: 0}
   slotType: 0
+  interactionType: 0
+  interactionAnimation: {fileID: 0}
+  interactionFrames: []
 --- !u!114 &-6643478054506200867
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -213,6 +222,9 @@ MonoBehaviour:
   portrait: {fileID: 21300000, guid: b246a24ac0914fd58c1d1466d4a9bd82, type: 3}
   idleSprite: {fileID: 21300000, guid: b246a24ac0914fd58c1d1466d4a9bd82, type: 3}
   animator: {fileID: 0}
+  walkFrames: []
+  idleFrames: []
+  jumpFrames: []
   sleepFrames: []
   purrClip: {fileID: 0}
   meowClip: {fileID: 0}
@@ -272,6 +284,9 @@ MonoBehaviour:
   icon: {fileID: 0}
   placedSprite: {fileID: 0}
   slotType: 0
+  interactionType: 0
+  interactionAnimation: {fileID: 0}
+  interactionFrames: []
 --- !u!114 &-4715009435341770624
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -311,6 +326,9 @@ MonoBehaviour:
   icon: {fileID: 0}
   placedSprite: {fileID: 0}
   slotType: 0
+  interactionType: 0
+  interactionAnimation: {fileID: 0}
+  interactionFrames: []
 --- !u!114 &-4426814187468879861
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -479,6 +497,9 @@ MonoBehaviour:
   portrait: {fileID: 21300000, guid: a135913f9b3049918e2c246bb0cc51a1, type: 3}
   idleSprite: {fileID: 21300000, guid: e5f13763bf30a744ba5ce2422cc193f4, type: 3}
   animator: {fileID: 9100000, guid: ae7c324b2a71d3d469aaf32fd9688dd3, type: 2}
+  walkFrames: []
+  idleFrames: []
+  jumpFrames: []
   sleepFrames: []
   purrClip: {fileID: 0}
   meowClip: {fileID: 0}
@@ -599,12 +620,33 @@ MonoBehaviour:
   - {fileID: 21300000, guid: e1c801ce2e3e413ca4d9a42f2620a84d, type: 3}
   - {fileID: 21300000, guid: 441e20930a67429184da7f6571b720c0, type: 3}
   - {fileID: 21300000, guid: f19386a9111d450d97b824d27c676248, type: 3}
-  failureBackground: {fileID: 21300000, guid: 97cb0d75096b6244b9165df05e371da7, type: 3}
+  failureBackground: {fileID: 21300000, guid: 6785a8b268a32254cb7242e83404dd36, type: 3}
   birdFrames:
   - {fileID: 21300000, guid: 746e147c872317a4ead6a70ab1adb73d, type: 3}
   - {fileID: 21300000, guid: cf86d25345c194d4599383a35d055f49, type: 3}
   - {fileID: 21300000, guid: dddbbcc0ee0c4bc4c9f1bf71df463497, type: 3}
   - {fileID: 21300000, guid: 1e17960b98448b74d8ddc4daedb1899a, type: 3}
+  dogRunFrames:
+  - {fileID: 21300000, guid: 1b90eae0e17f74248ab6bc92ec79ae87, type: 3}
+  - {fileID: 21300000, guid: 295d8189b33daa8418725e141c9f8af7, type: 3}
+  - {fileID: 21300000, guid: 747f49ed5e9bfa146889a04c610e4249, type: 3}
+  - {fileID: 21300000, guid: d571c1f8faf6dce409aaa43bde5ca61e, type: 3}
+  - {fileID: 21300000, guid: e2490ea3cf4255a49a5832f14dd19ce8, type: 3}
+  - {fileID: 21300000, guid: 5541051aa2f975f42b49000ff656a27d, type: 3}
+  - {fileID: 21300000, guid: 79616a529b6935341abbde061b975dd0, type: 3}
+  - {fileID: 21300000, guid: 71bb4ba476cb6c44eade9b371cdc555a, type: 3}
+  - {fileID: 21300000, guid: 1b192be9d77718e4383bda763061e11a, type: 3}
+  - {fileID: 21300000, guid: a4d03e810a7e2024398fa301afc41668, type: 3}
+  - {fileID: 21300000, guid: 11ccba21b321735488481db4f1c7adfa, type: 3}
+  - {fileID: 21300000, guid: 0386d08208c15b543a8d72a5729db17e, type: 3}
+  - {fileID: 21300000, guid: 7343ba13627ef6d479674804393023b5, type: 3}
+  - {fileID: 21300000, guid: 7602cc7e32a1a914e9903de5211318f8, type: 3}
+  climbTreeSprite: {fileID: 21300000, guid: 4a50ccc1bb90b1a45ade39c87230af46, type: 3}
+  climbingCatFrames:
+  - {fileID: 21300000, guid: f0fc127883c0a46458efa11e4cb9d7b2, type: 3}
+  - {fileID: 21300000, guid: a95712b8d9f0a714fb2cfafec03959db, type: 3}
+  - {fileID: 21300000, guid: f21adc1064dec5746a66310d1eed0bbf, type: 3}
+  - {fileID: 21300000, guid: 88903cfcda9805c418742785ea47b58e, type: 3}
 --- !u!114 &809415211630189811
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -738,6 +780,9 @@ MonoBehaviour:
   portrait: {fileID: 21300000, guid: c357b35bd1a3422f9fd5c72d39be71e3, type: 3}
   idleSprite: {fileID: 21300000, guid: c357b35bd1a3422f9fd5c72d39be71e3, type: 3}
   animator: {fileID: 0}
+  walkFrames: []
+  idleFrames: []
+  jumpFrames: []
   sleepFrames: []
   purrClip: {fileID: 0}
   meowClip: {fileID: 0}
@@ -761,6 +806,9 @@ MonoBehaviour:
   icon: {fileID: 0}
   placedSprite: {fileID: 0}
   slotType: 0
+  interactionType: 0
+  interactionAnimation: {fileID: 0}
+  interactionFrames: []
 --- !u!114 &6013454598846174603
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -858,6 +906,9 @@ MonoBehaviour:
   portrait: {fileID: 21300000, guid: e579d57df3c24495a7f0dc791d340275, type: 3}
   idleSprite: {fileID: 21300000, guid: e579d57df3c24495a7f0dc791d340275, type: 3}
   animator: {fileID: 0}
+  walkFrames: []
+  idleFrames: []
+  jumpFrames: []
   sleepFrames: []
   purrClip: {fileID: 0}
   meowClip: {fileID: 0}

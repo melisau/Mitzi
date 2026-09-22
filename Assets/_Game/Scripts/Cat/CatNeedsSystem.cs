@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using PawPath.Economy;
+using PawPath.Core;
 
 namespace PawPath.Cat
 {
@@ -24,9 +25,11 @@ namespace PawPath.Cat
         const string SleepKey = "DailyCare.Sleep";
 
         public int DailyPettingPoints => currentDailyPettingPoints;
-        public bool CanFeedToday => !WasUsedToday(FeedKey);
-        public bool CanGiveWaterToday => !WasUsedToday(WaterKey);
-        public bool CanSleepToday => !WasUsedToday(SleepKey);
+        string SelectedCatId => SaveService.Data != null && !string.IsNullOrEmpty(SaveService.Data.selectedCatId)
+            ? SaveService.Data.selectedCatId : "mitzi";
+        public bool CanFeedToday => !WasUsedToday(CareKey(FeedKey, SelectedCatId));
+        public bool CanGiveWaterToday => !WasUsedToday(CareKey(WaterKey, SelectedCatId));
+        public bool CanSleepToday => !WasUsedToday(CareKey(SleepKey, SelectedCatId));
 
         private void Awake()
         {
@@ -53,9 +56,12 @@ namespace PawPath.Cat
             }
         }
 
-        public bool TryPetCat(int pointsEarned)
+        public bool TryPetCat(int pointsEarned, string catId = null)
         {
             CheckDailyReset();
+
+            catId = string.IsNullOrEmpty(catId) ? SelectedCatId : catId;
+            var needs = GetNeeds(catId);
 
             if (currentDailyPettingPoints >= maxDailyPettingPoints)
             {
@@ -65,6 +71,8 @@ namespace PawPath.Cat
             int allowedPoints = Mathf.Min(pointsEarned, maxDailyPettingPoints - currentDailyPettingPoints);
             currentDailyPettingPoints += allowedPoints;
             PlayerPrefs.SetInt("DailyPettingPoints", currentDailyPettingPoints);
+            needs.affection = Mathf.Clamp(needs.affection + allowedPoints, 0, 100);
+            SaveService.Persist();
 
             if (CozyEconomyManager.Instance != null)
             {
@@ -73,19 +81,39 @@ namespace PawPath.Cat
             return true;
         }
 
-        public bool FeedCat()
+        public bool FeedCat(string catId = null)
         {
-            return TryDailyCare(FeedKey, foodPoints, "Mama Verme");
+            catId = string.IsNullOrEmpty(catId) ? SelectedCatId : catId;
+            bool success = TryDailyCare(CareKey(FeedKey, catId), foodPoints, "Mama Verme");
+            if (success)
+            {
+                GetNeeds(catId).hunger = 100;
+                SaveService.Persist();
+            }
+            return success;
         }
 
-        public bool GiveWater()
+        public bool GiveWater(string catId = null)
         {
-            return TryDailyCare(WaterKey, waterPoints, "Su Verme");
+            catId = string.IsNullOrEmpty(catId) ? SelectedCatId : catId;
+            bool success = TryDailyCare(CareKey(WaterKey, catId), waterPoints, "Su Verme");
+            if (success)
+            {
+                GetNeeds(catId).water = 100;
+                SaveService.Persist();
+            }
+            return success;
         }
 
         public bool PutToSleep()
         {
-            return TryDailyCare(SleepKey, sleepPoints, "Dinlendirme");
+            return TryDailyCare(CareKey(SleepKey, SelectedCatId), sleepPoints, "Dinlendirme");
+        }
+
+        public void RewardInteraction(int points, string reason)
+        {
+            if (points > 0)
+                CozyEconomyManager.Instance?.AddLove(points, reason);
         }
 
         public bool CanStartLevel()
@@ -109,5 +137,17 @@ namespace PawPath.Cat
 
         static bool WasUsedToday(string key) => PlayerPrefs.GetString(key, "") == Today();
         static string Today() => DateTime.Now.ToString("yyyy-MM-dd");
+        static string CareKey(string baseKey, string catId) => $"{baseKey}.{catId}";
+
+        public SaveService.CatNeedState GetNeeds(string catId)
+        {
+            if (string.IsNullOrEmpty(catId)) catId = "mitzi";
+            var found = SaveService.Data.catNeeds.Find(state => state != null && state.catId == catId);
+            if (found != null) return found;
+            found = new SaveService.CatNeedState { catId = catId };
+            SaveService.Data.catNeeds.Add(found);
+            SaveService.Persist();
+            return found;
+        }
     }
 }

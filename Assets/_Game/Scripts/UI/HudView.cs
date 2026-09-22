@@ -38,6 +38,7 @@ namespace PawPath.UI
         [SerializeField] private ThemeSelectionUI themeSelection;
         GameplayPlayMode pendingMode;
         Coroutine selectedNameRoutine;
+        Coroutine tutorialRoutine;
 
         private void Awake()
         {
@@ -156,10 +157,11 @@ namespace PawPath.UI
                 homeButton.gameObject.SetActive(true);
             bool cityTheme = LevelManager.Instance != null &&
                 ThemeSelectionUI.GetSelectedTheme(LevelManager.Instance.DisplayLevel) == 2;
-            if (cityTheme)
-                ShowCityTutorialOnce();
-            else if (GameplayMode.IsDrawing)
-                ShowBrushTutorialOnce();
+            bool tutorialShown = cityTheme
+                ? ShowCityTutorialOnce()
+                : GameplayMode.IsDrawing && ShowBrushTutorialOnce();
+            if (!tutorialShown)
+                GameFlow.Instance?.SetGameplayPaused(false);
         }
 
         private void OnHubEntered()
@@ -370,28 +372,55 @@ namespace PawPath.UI
             HideSelectedCatName();
         }
 
-        private void ShowBrushTutorialOnce()
+        private bool ShowBrushTutorialOnce()
         {
             if (brushTutorial == null || PlayerPrefs.GetInt("PawPath.BrushTutorialSeen.v2", 0) == 1)
-                return;
+                return false;
 
             SetTutorialText("YOLU TAMAMLAMA\n\nKedi hazır zeminde kendi yürür.\nYalnızca çukurlara köprü, tümseklere rampa çiz.\n\nSiyah: Normal yol   Mavi: Zıplatır\nKırmızı: Tehlike   Beyaz: Kaygan yol\nSilgi: Çizdiğin yolu siler");
-            brushTutorial.SetActive(true);
             PlayerPrefs.SetInt("PawPath.BrushTutorialSeen.v2", 1);
             PlayerPrefs.Save();
-            StartCoroutine(HideBrushTutorial());
+            PresentTutorial();
+            return true;
         }
 
-        private void ShowCityTutorialOnce()
+        private bool ShowCityTutorialOnce()
         {
             if (brushTutorial == null || PlayerPrefs.GetInt("PawPath.CityTutorialSeen.v1", 0) == 1)
-                return;
+                return false;
 
             SetTutorialText("CADDE YOLU\n\nArabaların üzerinden atlamak için zıpla.\nKonteynırların bulunduğu çukurlara düşmemek için zamanında zıpla.\n\nDikkatli ilerle ve yolun sonundaki kapıya ulaş!");
-            brushTutorial.SetActive(true);
             PlayerPrefs.SetInt("PawPath.CityTutorialSeen.v1", 1);
             PlayerPrefs.Save();
-            StartCoroutine(HideBrushTutorial());
+            PresentTutorial();
+            return true;
+        }
+
+        private void PresentTutorial()
+        {
+            GameFlow.Instance?.SetGameplayPaused(true);
+            brushTutorial.SetActive(true);
+            var dismissButton = brushTutorial.GetComponent<Button>();
+            if (dismissButton != null)
+            {
+                dismissButton.onClick.RemoveListener(DismissTutorial);
+                dismissButton.onClick.AddListener(DismissTutorial);
+            }
+            if (tutorialRoutine != null)
+                StopCoroutine(tutorialRoutine);
+            tutorialRoutine = StartCoroutine(HideBrushTutorial());
+        }
+
+        private void DismissTutorial()
+        {
+            if (tutorialRoutine != null)
+            {
+                StopCoroutine(tutorialRoutine);
+                tutorialRoutine = null;
+            }
+            if (brushTutorial != null)
+                brushTutorial.SetActive(false);
+            GameFlow.Instance?.SetGameplayPaused(false);
         }
 
         private void SetTutorialText(string value)
@@ -407,9 +436,9 @@ namespace PawPath.UI
 
         private IEnumerator HideBrushTutorial()
         {
-            yield return new WaitForSeconds(5f);
-            if (brushTutorial != null)
-                brushTutorial.SetActive(false);
+            yield return new WaitForSecondsRealtime(5f);
+            tutorialRoutine = null;
+            DismissTutorial();
         }
     }
 }

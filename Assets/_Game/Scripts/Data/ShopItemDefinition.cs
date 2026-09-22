@@ -2,6 +2,15 @@ using UnityEngine;
 
 namespace PawPath.Content
 {
+    public enum ItemInteractionType
+    {
+        None,
+        Eating,
+        Playing,
+        Sleeping,
+        Climbing
+    }
+
     public enum FurnitureSlotType
     {
         Rug,
@@ -25,5 +34,8 @@ namespace PawPath.Content
         public Sprite icon;
         public Sprite placedSprite;
         public FurnitureSlotType slotType;
+        public ItemInteractionType interactionType;
+        public AnimationClip interactionAnimation;
+        public Sprite[] interactionFrames;
     }
 }

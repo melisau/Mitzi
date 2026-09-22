@@ -26,6 +26,7 @@ namespace PawPath.Core
 
         public PawPathCatalog Catalog => catalog;
         public bool InHub { get; private set; } = true;
+        public bool GameplayPaused { get; private set; }
 
         void Awake()
         {
@@ -48,6 +49,7 @@ namespace PawPath.Core
 
         public void EnterHub()
         {
+            SetGameplayPaused(false);
             InHub = true;
             var cameraFollow = Camera.main != null ? Camera.main.GetComponent<SideScrollCamera>() : null;
             if (cameraFollow != null)
@@ -79,6 +81,7 @@ namespace PawPath.Core
 
         public void ShowRescue(CatDefinition cat)
         {
+            SetGameplayPaused(true);
             SetRoots(hub: false, level: false, hud: false, rescue: true, complete: false, failure: false);
             var screen = rescueRoot != null ? rescueRoot.GetComponent<UI.RescueScreen>() : null;
             if (screen != null)
@@ -87,6 +90,7 @@ namespace PawPath.Core
 
         public void ShowLevelComplete(int completedLevel, int reward)
         {
+            SetGameplayPaused(true);
             SetRoots(hub: false, level: false, hud: false, rescue: false, complete: true, failure: false);
             var screen = levelCompleteRoot != null ? levelCompleteRoot.GetComponent<UI.LevelCompleteUI>() : null;
             if (screen != null)
@@ -95,6 +99,7 @@ namespace PawPath.Core
 
         public void ShowLevelFailure(string reason)
         {
+            SetGameplayPaused(true);
             SetRoots(hub: false, level: false, hud: false, rescue: false, complete: false, failure: true);
             var screen = levelFailureRoot != null ? levelFailureRoot.GetComponent<UI.LevelFailureUI>() : null;
             screen?.Present(reason);
@@ -105,6 +110,14 @@ namespace PawPath.Core
             InHub = false;
             SetRoots(hub: false, level: true, hud: true, rescue: false, complete: false, failure: false);
             LevelManager.Instance?.BeginCurrentLevel();
+        }
+
+        public void SetGameplayPaused(bool paused)
+        {
+            GameplayPaused = paused;
+            Time.timeScale = paused ? 0f : 1f;
+            if (paused && CatController.Instance != null)
+                CatController.Instance.StopImmediately();
         }
 
         public void BindCatalog(PawPathCatalog value) => catalog = value;

@@ -74,7 +74,8 @@ namespace PawPath.Drawing
 
         void Update()
         {
-            if (!GameplayMode.IsDrawing || !CanDraw || GameFlow.Instance != null && GameFlow.Instance.InHub)
+            if (!GameplayMode.IsDrawing || !CanDraw ||
+                GameFlow.Instance != null && (GameFlow.Instance.InHub || GameFlow.Instance.GameplayPaused))
                 return;
             if (IsPointerOverUi())
                 return;
@@ -138,7 +139,10 @@ namespace PawPath.Drawing
                 new Color(1f, 1f, 1f, 0.30f), lineSortingOrder + 1);
 
             currentCollider = go.AddComponent<EdgeCollider2D>();
-            currentCollider.edgeRadius = lineWidth * 0.45f;
+            // LineRenderer noktaları çizginin merkezindedir. Fizik yüzeyini
+            // çizginin görünen üst kenarına taşıyoruz.
+            currentCollider.edgeRadius = Mathf.Min(0.015f, lineWidth * 0.08f);
+            currentCollider.offset = Vector2.up * (lineWidth * 0.5f - currentCollider.edgeRadius);
             if (pathPhysics != null)
                 currentCollider.sharedMaterial = pathPhysics;
 

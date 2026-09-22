@@ -121,6 +121,7 @@ namespace PawPath.Hub
             var homeBehaviour = go.GetComponent<CatHomeBehaviour>();
             if (homeBehaviour == null)
                 homeBehaviour = go.AddComponent<CatHomeBehaviour>();
+            homeBehaviour.BindDefinition(cat);
             if (cat.id == "mitzi" && sr != null && cat.sleepFrames != null && cat.sleepFrames.Length > 0)
             {
                 var sleepAnimator = go.GetComponent<MitziSleepAnimator>();

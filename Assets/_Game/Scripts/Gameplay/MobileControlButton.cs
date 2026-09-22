@@ -10,6 +10,7 @@ namespace PawPath.Gameplay
         static bool left, right, crouch, jumpQueued;
         public static float Horizontal => (right ? 1f : 0f) - (left ? 1f : 0f);
         public static bool CrouchHeld => crouch;
+        public static bool JumpQueued => jumpQueued;
         public static bool ConsumeJump() { bool value = jumpQueued; jumpQueued = false; return value; }
         public static void Set(MobileAction action, bool pressed)
         {

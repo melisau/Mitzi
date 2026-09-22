@@ -33,6 +33,7 @@ namespace PawPath.Levels
 
         public void BeginCurrentLevel()
         {
+            GameFlow.Instance?.SetGameplayPaused(true);
             completionHandled = false;
             Current = ResolveLevel(DisplayLevel);
             var cameraFollow = Camera.main != null ? Camera.main.GetComponent<SideScrollCamera>() : null;
@@ -89,7 +90,10 @@ namespace PawPath.Levels
                         forestTheme && catalog.forestPlatformSprite != null ? catalog.forestPlatformSprite : catalog.roadPlatformSprite,
                     cityTheme ? catalog.cityVanSprite : null,
                     cityTheme ? catalog.cityRoadSprite : null,
-                    catalog.birdFrames);
+                    catalog.birdFrames,
+                    catalog.dogRunFrames,
+                    catalog.climbTreeSprite,
+                    catalog.climbingCatFrames);
             }
 
             if (seasonBackdrop != null)

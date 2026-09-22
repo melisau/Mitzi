@@ -25,7 +25,7 @@ namespace PawPath.Cat
         [SerializeField] float iceSpeedMultiplier = 1.65f;
         [SerializeField] float bounceForce = 7.2f;
         [SerializeField] float walkAnimationSpeed = 1.75f;
-        [SerializeField] float groundedProbe = 0.336f;
+        [SerializeField] float groundedProbe = 0.12f;
         [SerializeField] LayerMask groundMask = ~0;
         [SerializeField] float airGrace = 0.45f;
         [SerializeField] float visualHeight = 1.656f;
@@ -47,6 +47,18 @@ namespace PawPath.Cat
         int jumpsRemaining = 2;
         bool jumpAnimationPlaying;
         float stepTimer;
+        bool climbing;
+        float climbUntil;
+        float climbFrameTimer;
+        int climbFrameIndex;
+        Sprite[] climbFrames;
+        float normalGravityScale;
+        Vector2 climbStartPosition;
+        Vector2 climbTargetPosition;
+        float climbStartTime;
+        float climbRiseDuration;
+        const float ClimbAlignDuration = 0.28f;
+        bool climbTopPoseApplied;
 
         static readonly int WalkState = Animator.StringToHash("Walk");
         static readonly int JumpState = Animator.StringToHash("Jump");
@@ -54,6 +66,14 @@ namespace PawPath.Cat
 
         public bool IsBusy => busy;
         public CatDefinition Definition => definition;
+        public bool IsClimbing => climbing;
+
+        public void StopImmediately()
+        {
+            if (body != null)
+                body.velocity = Vector2.zero;
+            keyboardJumpQueued = false;
+        }
 
         void Awake()
         {
@@ -63,6 +83,7 @@ namespace PawPath.Cat
             body.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
             body.interpolation = RigidbodyInterpolation2D.Interpolate;
             body.gravityScale = 2.4f;
+            normalGravityScale = body.gravityScale;
             sprite = visual != null ? visual.GetComponent<SpriteRenderer>() : GetComponentInChildren<SpriteRenderer>();
             animator = visual != null ? visual.GetComponent<Animator>() : GetComponentInChildren<Animator>();
             if (bubbleRenderer != null)
@@ -104,13 +125,102 @@ namespace PawPath.Cat
 
         void Update()
         {
+            if (GameFlow.Instance != null && GameFlow.Instance.GameplayPaused)
+                return;
             if (!GameplayMode.IsDrawing &&
                 (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow)))
                 keyboardJumpQueued = true;
+            if (climbing)
+                UpdateClimbing();
+        }
+
+        public void BeginClimb(Vector2 perchPosition, Sprite[] frames, float duration)
+        {
+            if (climbing || body == null) return;
+            keyboardJumpQueued = false;
+            climbing = true;
+            climbFrames = frames;
+            climbFrameIndex = 0;
+            climbFrameTimer = 0f;
+            climbTopPoseApplied = false;
+            climbStartTime = Time.time;
+            climbRiseDuration = Mathf.Clamp(duration * 0.72f, 1.65f, 2.35f);
+            climbUntil = Time.time + duration;
+            body.velocity = Vector2.zero;
+            body.gravityScale = 0f;
+            climbStartPosition = transform.position;
+            // Kedi ağacın üzerinde dikey yükselir. Hedef ağacın tepesidir fakat
+            // bozuk bir pivot olması halinde tek tırmanışta aşırı yükselmez.
+            climbTargetPosition = new Vector2(perchPosition.x,
+                Mathf.Clamp(perchPosition.y, climbStartPosition.y + 1.4f, climbStartPosition.y + 4.6f));
+            if (animator != null) animator.enabled = false;
+            if (sprite != null && climbFrames != null && climbFrames.Length > 0 && climbFrames[0] != null)
+            {
+                sprite.sprite = climbFrames[0];
+                FitVisualToHeight();
+            }
+        }
+
+        void UpdateClimbing()
+        {
+            body.velocity = Vector2.zero;
+            float elapsed = Time.time - climbStartTime;
+            if (elapsed < ClimbAlignDuration)
+            {
+                float align = Mathf.Clamp01(elapsed / ClimbAlignDuration);
+                transform.position = new Vector2(
+                    Mathf.Lerp(climbStartPosition.x, climbTargetPosition.x, align),
+                    climbStartPosition.y);
+                return;
+            }
+
+            // Gövdeye hizalandıktan sonra X sabit kalır; yalnızca Y ekseninde
+            // ağacın tepesine doğru kademeli olarak yükselir.
+            float rise = Mathf.Clamp01((elapsed - ClimbAlignDuration) / climbRiseDuration);
+            float easedRise = rise * rise * (3f - 2f * rise);
+            transform.position = new Vector2(climbTargetPosition.x,
+                Mathf.Lerp(climbStartPosition.y, climbTargetPosition.y, easedRise));
+            if (climbFrames != null && climbFrames.Length > 0)
+            {
+                int nextFrame = Mathf.Min(climbFrames.Length - 1,
+                    Mathf.FloorToInt(rise * climbFrames.Length));
+                if (nextFrame != climbFrameIndex && climbFrames[nextFrame] != null)
+                {
+                    climbFrameIndex = nextFrame;
+                    sprite.sprite = climbFrames[climbFrameIndex];
+                    FitVisualToHeight();
+                }
+            }
+            // Tepeye varınca tırmanma pozunda asılı kalmaz; normal ayakta/yürüme
+            // görseline dönerek köpek geçene kadar dalın üzerinde bekler.
+            if (rise >= 0.995f && !climbTopPoseApplied)
+            {
+                climbTopPoseApplied = true;
+                if (definition != null && definition.idleSprite != null)
+                {
+                    sprite.sprite = definition.idleSprite;
+                    FitVisualToHeight();
+                }
+            }
+            if (Time.time < climbUntil) return;
+            climbing = false;
+            body.gravityScale = normalGravityScale;
+            if (definition != null && definition.idleSprite != null)
+                sprite.sprite = definition.idleSprite;
+            if (animator != null)
+            {
+                animator.enabled = animator.runtimeAnimatorController != null;
+                if (animator.enabled && animator.HasState(0, WalkState))
+                    animator.Play(WalkState, 0, 0f);
+            }
+            FitVisualToHeight();
         }
 
         public void PlaceAtSpawn(Vector2 world)
         {
+            climbing = false;
+            if (body != null)
+                body.gravityScale = normalGravityScale;
             crouching = false;
             keyboardJumpQueued = false;
             jumpsRemaining = 2;
@@ -135,7 +245,17 @@ namespace PawPath.Cat
         {
             if (busy)
                 return;
+            if (climbing)
+            {
+                body.velocity = Vector2.zero;
+                return;
+            }
             if (GameFlow.Instance != null && GameFlow.Instance.InHub)
+            {
+                body.velocity = Vector2.zero;
+                return;
+            }
+            if (GameFlow.Instance != null && GameFlow.Instance.GameplayPaused)
             {
                 body.velocity = Vector2.zero;
                 return;
@@ -290,7 +410,14 @@ namespace PawPath.Cat
         bool IsGrounded(out PathSurfaceType surface)
         {
             surface = PathSurfaceType.Normal;
-            var hits = Physics2D.CircleCastAll(transform.position, 0.144f, Vector2.down, groundedProbe, groundMask);
+            var circle = GetComponent<CircleCollider2D>();
+            float colliderRadius = circle != null ? circle.radius : 0.336f;
+            Vector2 colliderOffset = circle != null ? circle.offset : Vector2.zero;
+            const float probeRadius = 0.12f;
+            Vector2 probeOrigin = (Vector2)transform.position + colliderOffset +
+                Vector2.down * Mathf.Max(0f, colliderRadius - probeRadius);
+            var hits = Physics2D.CircleCastAll(probeOrigin, probeRadius, Vector2.down,
+                groundedProbe, groundMask);
             for (int i = 0; i < hits.Length; i++)
             {
                 if (hits[i].collider == null)

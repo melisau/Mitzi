@@ -1,5 +1,6 @@
 using UnityEngine;
 using PawPath.Core;
+using PawPath.Data;
 
 namespace PawPath.Hub
 {
@@ -10,7 +11,8 @@ namespace PawPath.Hub
         Sitting,
         Sleeping,
         Eating,
-        Drinking
+        Drinking,
+        Playing
     }
 
     /// <summary>
@@ -26,6 +28,7 @@ namespace PawPath.Hub
         [SerializeField] Vector2 roomY = new Vector2(-1.82f, -1.12f);
 
         public ResidentActivity CurrentActivity { get; private set; }
+        public CatDefinition Definition { get; private set; }
 
         Vector2 targetPosition;
         Vector2 finalPosition;
@@ -85,7 +88,8 @@ namespace PawPath.Hub
                         PlanPathToFinal();
                         return;
                     }
-                    if (arrivalActivity == ResidentActivity.Eating || arrivalActivity == ResidentActivity.Drinking)
+                    if (arrivalActivity == ResidentActivity.Eating || arrivalActivity == ResidentActivity.Drinking ||
+                        arrivalActivity == ResidentActivity.Playing || arrivalActivity == ResidentActivity.Sleeping)
                     {
                         CurrentActivity = arrivalActivity;
                         stateTimer = 3.2f;
@@ -135,6 +139,8 @@ namespace PawPath.Hub
                 BeginRest();
         }
 
+        public void BindDefinition(CatDefinition definition) => Definition = definition;
+
         public void WalkTo(Vector2 worldPoint, ResidentActivity whenArrived = ResidentActivity.Standing)
         {
             finalPosition = new Vector2(
@@ -145,6 +151,27 @@ namespace PawPath.Hub
             stateTimer = 20f;
             ResetProgressWatch();
             PlanPathToFinal();
+        }
+
+        public void WalkDirectTo(Vector2 worldPoint, ResidentActivity whenArrived = ResidentActivity.Standing)
+        {
+            finalPosition = new Vector2(
+                Mathf.Clamp(worldPoint.x, roomX.x, roomX.y),
+                Mathf.Clamp(worldPoint.y, roomY.x, roomY.y));
+            targetPosition = finalPosition;
+            arrivalActivity = whenArrived;
+            navigatingDetour = false;
+            CurrentActivity = ResidentActivity.Walking;
+            stateTimer = 20f;
+            ResetProgressWatch();
+        }
+
+        public void MoveAwayFrom(Vector2 point, float distance = 1.8f)
+        {
+            float direction = transform.position.x <= point.x ? -1f : 1f;
+            Vector2 target = new Vector2(point.x + direction * distance,
+                Mathf.Clamp(transform.position.y + Random.Range(-0.20f, 0.20f), roomY.x, roomY.y));
+            WalkDirectTo(target, ResidentActivity.Standing);
         }
 
         void BeginWalk()

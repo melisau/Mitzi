@@ -54,6 +54,10 @@ namespace PawPath.Data
         public Sprite[] completionFaces;
         public Sprite failureBackground;
         public Sprite[] birdFrames;
+        [Header("Köpek ve Tırmanma")]
+        public Sprite[] dogRunFrames;
+        public Sprite climbTreeSprite;
+        public Sprite[] climbingCatFrames;
 
         public CatDefinition GetCat(string id)
         {

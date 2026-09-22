@@ -14,6 +14,15 @@ namespace PawPath.Core
         const string MitziOnlyKey = "PawPath.Developer.MitziOnly";
 
         [Serializable]
+        public class CatNeedState
+        {
+            public string catId;
+            public int hunger = 100;
+            public int water = 100;
+            public int affection = 100;
+        }
+
+        [Serializable]
         public class SaveData
         {
             public int lovePoints = 0;
@@ -22,6 +31,7 @@ namespace PawPath.Core
             public List<string> unlockedCatIds = new List<string> { "mitzi" };
             public List<string> ownedItemIds = new List<string>();
             public List<string> placedItemIds = new List<string>();
+            public List<CatNeedState> catNeeds = new List<CatNeedState>();
         }
 
         static SaveData cache;
@@ -54,6 +64,8 @@ namespace PawPath.Core
                     cache.ownedItemIds = new List<string>();
                 if (cache.placedItemIds == null)
                     cache.placedItemIds = new List<string>();
+                if (cache.catNeeds == null)
+                    cache.catNeeds = new List<CatNeedState>();
                 if (string.IsNullOrWhiteSpace(cache.selectedCatId) || !cache.unlockedCatIds.Contains(cache.selectedCatId))
                     cache.selectedCatId = "mitzi";
                 cache.lovePoints = Mathf.Max(0, cache.lovePoints);
