@@ -15,6 +15,9 @@ namespace PawPath.Levels
         const float RoadCenterY = -1.85f;
         const float RoadHeight = 0.96f * GameplayScale;
         const float SecondSectionOffset = 13.0f;
+        const int IntroLevelCount = 5;
+        const float CourseLeft = -9.35f;
+        const float CourseRight = 23f;
         static readonly Color RoadColor = new Color(0.72f, 0.54f, 0.38f, 1f);
         static readonly Color ObstacleColor = new Color(0.61f, 0.42f, 0.29f, 1f);
         static readonly Color CityRoadFillColor = new Color(0.70f, 0.66f, 0.60f, 1f);
@@ -31,8 +34,50 @@ namespace PawPath.Levels
         Sprite[] dogRunFrames;
         Sprite climbTreeSprite;
         Sprite[] climbingCatFrames;
-        readonly List<Vector2> roadRanges = new List<Vector2>();
+        // Fizik, kaplama ve çukur uçları aynı dünya koordinatlarını kullanır.
+        readonly List<RoadSpan> roads = new List<RoadSpan>();
+        readonly List<GapSpan> gaps = new List<GapSpan>();
+        readonly List<Vector2> moundVisualRanges = new List<Vector2>();
         readonly List<UnityEngine.Object> generatedRuntimeAssets = new List<UnityEngine.Object>();
+        int currentLevelNumber;
+        System.Random layoutRandom;
+
+        internal readonly struct RoadSpan
+        {
+            public readonly float Left;
+            public readonly float Right;
+            public readonly float Top;
+            public readonly float Bottom;
+            public float Width => Right - Left;
+            public float CenterX => (Left + Right) * 0.5f;
+            public float CenterY => (Top + Bottom) * 0.5f;
+
+            public RoadSpan(float left, float right, float top, float bottom)
+            {
+                Left = left;
+                Right = right;
+                Top = top;
+                Bottom = bottom;
+            }
+
+            public bool Contains(float x) => x >= Left && x <= Right;
+            public float MaxCenteredWidth(float x, float inset) =>
+                Mathf.Max(0f, 2f * Mathf.Min(x - Left - inset, Right - x - inset));
+        }
+
+        internal readonly struct GapSpan
+        {
+            public readonly float Left;
+            public readonly float Right;
+            public float Width => Right - Left;
+            public float CenterX => (Left + Right) * 0.5f;
+
+            public GapSpan(float left, float right)
+            {
+                Left = left;
+                Right = right;
+            }
+        }
 
         public float CatSpawnY => RoadCenterY + RoadHeight * 0.5f + 0.40f * GameplayScale;
         public float GoalY => CatSpawnY + 0.15f;
@@ -72,7 +117,11 @@ namespace PawPath.Levels
         public void Build(int levelNumber)
         {
             ClearGenerated();
-            roadRanges.Clear();
+            currentLevelNumber = levelNumber;
+            layoutRandom = new System.Random(unchecked(levelNumber * 48611 + 919));
+            roads.Clear();
+            gaps.Clear();
+            moundVisualRanges.Clear();
             generatedRoot = new GameObject("GeneratedCourse").transform;
             generatedRoot.SetParent(transform, false);
 
@@ -88,15 +137,88 @@ namespace PawPath.Levels
                     36f, -1, cityRoadHeight);
             }
 
-            int pattern = Mathf.Abs(levelNumber - 1) % 5;
-            // Kameranın ilk ve son ekranında kaldırımın kadraj dışında da devam
-            // etmesini sağlar; yalnızca tasarlanmış çukurlar açık kalır.
-            Road(-8.25f, 2.2f);
-            BuildPattern(pattern, 0f);
-            BuildPattern((pattern + 2) % 5, SecondSectionOffset);
-            Road(21.55f, 2.9f);
+            if (levelNumber <= IntroLevelCount)
+            {
+                int pattern = Mathf.Abs(levelNumber - 1) % 5;
+                Road(-8.25f, 2.2f);
+                BuildPattern(pattern, 0f);
+                BuildPattern((pattern + 2) % 5, SecondSectionOffset);
+                Road(21.55f, 2.9f);
+            }
+            else
+            {
+                BuildVariedCourse(levelNumber);
+            }
             BuildModeChallenge(levelNumber);
             BuildDogAndTreeChallenge(levelNumber);
+        }
+
+        void BuildVariedCourse(int levelNumber)
+        {
+            // Beş güvenli bölge, çukurların doğma/hedef alanına ya da birbirine
+            // yaklaşmasını önler. Bölüm numarası hem bölge seçimini hem ölçüleri
+            // sabitler; yeniden denemede yol değişmez.
+            float[] gapLanes = { -2.7f, 1.5f, 5.8f, 10.2f, 14.8f };
+            var selected = new List<int> { layoutRandom.Next(0, 2), layoutRandom.Next(2, 5) };
+            int gapCount = 2 + layoutRandom.Next(0, 3);
+            while (selected.Count < gapCount)
+            {
+                int lane = layoutRandom.Next(gapLanes.Length);
+                if (!selected.Contains(lane))
+                    selected.Add(lane);
+            }
+            selected.Sort();
+
+            var gaps = new List<Vector2>(selected.Count);
+            float maxGapWidth = Mathf.Min(1.52f, 1.22f + (levelNumber - IntroLevelCount) * 0.012f);
+            foreach (int lane in selected)
+            {
+                float center = gapLanes[lane] + NextRange(layoutRandom, -0.62f, 0.62f);
+                float width = NextRange(layoutRandom, 0.88f, maxGapWidth);
+                gaps.Add(new Vector2(center, width));
+            }
+
+            float roadStart = CourseLeft;
+            foreach (Vector2 gap in gaps)
+            {
+                float gapLeft = gap.x - gap.y * 0.5f;
+                Road((roadStart + gapLeft) * 0.5f, gapLeft - roadStart);
+                roadStart = gap.x + gap.y * 0.5f;
+            }
+            Road((roadStart + CourseRight) * 0.5f, CourseRight - roadStart);
+
+            foreach (Vector2 gap in gaps)
+                Gap(gap.x, gap.y);
+
+            // Tümsek yalnız geniş platformlarda oluşur; giriş, bitiş ve çukur
+            // kenarları boş kalır. İki tümsek arasında da yürüme payı bulunur.
+            int moundCount = 1 + layoutRandom.Next(0, 2);
+            var moundPositions = new List<float>();
+            for (int i = 0; i < moundCount; i++)
+            {
+                var candidates = new List<Vector2>();
+                foreach (RoadSpan range in roads)
+                {
+                    float min = Mathf.Max(range.Left + 2.2f, -4.2f);
+                    float max = Mathf.Min(range.Right - 2.2f, 17.1f);
+                    if (max > min)
+                        candidates.Add(new Vector2(min, max));
+                }
+                if (candidates.Count == 0)
+                    break;
+                bool placed = false;
+                for (int attempt = 0; attempt < 12 && !placed; attempt++)
+                {
+                    Vector2 range = candidates[layoutRandom.Next(candidates.Count)];
+                    float x = NextRange(layoutRandom, range.x, range.y);
+                    if (moundPositions.Exists(previous => Mathf.Abs(previous - x) < 4.5f))
+                        continue;
+                    Obstacle(x, NextRange(layoutRandom, 0.92f, 1.10f),
+                        NextRange(layoutRandom, 0.90f, 1.07f));
+                    moundPositions.Add(x);
+                    placed = true;
+                }
+            }
         }
 
         void BuildPattern(int pattern, float offsetX)
@@ -147,13 +269,15 @@ namespace PawPath.Levels
 
         void Road(float centerX, float width)
         {
-            roadRanges.Add(new Vector2(centerX - width * 0.5f, centerX + width * 0.5f));
+            var span = new RoadSpan(centerX - width * 0.5f, centerX + width * 0.5f,
+                RoadCenterY + RoadHeight * 0.5f, RoadCenterY - RoadHeight * 0.5f);
+            roads.Add(span);
             var go = new GameObject("Road");
             go.transform.SetParent(generatedRoot, false);
-            go.transform.position = new Vector2(centerX, RoadCenterY);
+            go.transform.position = new Vector2(span.CenterX, span.CenterY);
             var collider = go.AddComponent<BoxCollider2D>();
             collider.isTrigger = false;
-            collider.size = new Vector2(width, RoadHeight);
+            collider.size = new Vector2(span.Width, span.Top - span.Bottom);
 
             if (roadSprite == null)
             {
@@ -161,44 +285,47 @@ namespace PawPath.Levels
                 renderer.sprite = FallbackSprite.WhiteSquare();
                 renderer.color = RoadColor;
                 renderer.sortingOrder = 1;
-                go.transform.localScale = new Vector3(width, RoadHeight, 1f);
+                go.transform.localScale = new Vector3(span.Width, span.Top - span.Bottom, 1f);
                 collider.size = Vector2.one;
                 return;
             }
 
-            int tileCount = Mathf.Max(1, Mathf.CeilToInt(width / 3.1f));
-            float tileWidth = width / tileCount;
-            float left = centerX - width * 0.5f;
-            float roadTop = RoadCenterY + RoadHeight * 0.5f;
+            int tileCount = Mathf.Max(1, Mathf.CeilToInt(span.Width / 3.1f));
+            float tileWidth = span.Width / tileCount;
             if (roadSprite.name.Contains("new_road_terracot") ||
                 roadSprite.name.Contains("forest_ground_underfill"))
             {
-                CreateFullDepthRoad(centerX, width, roadTop);
+                CreateFullDepthRoad(span);
                 return;
             }
-            CreateRoadUnderfill(centerX, width + 0.18f, roadTop);
+            CreateRoadUnderfill(span.CenterX, span.Width, span.Top);
             for (int i = 0; i < tileCount; i++)
             {
-                float x = left + tileWidth * (i + 0.5f);
+                float x = span.Left + tileWidth * (i + 0.5f);
+                // Bindirme yalnız iç birleşimlerde kalır; ilk ve son karo çukura taşmaz.
+                float leftBleed = i > 0 ? 0.09f : 0f;
+                float rightBleed = i < tileCount - 1 ? 0.09f : 0f;
+                float visualX = x + (rightBleed - leftBleed) * 0.5f;
+                float visualWidth = tileWidth + leftBleed + rightBleed;
                 // Üst çim/yürüme yüzeyi eski doğru konumunda kalır. Ekranın altına
                 // uzanan kalınlık ayrı bir dolgu görseliyle sağlanır.
                 bool citySurface = roadSprite != null && roadSprite.name.Contains("city_sidewalk");
                 float visualHeight = citySurface ? 0.82f : 3.35f * GameplayScale;
                 float visualCenterY = citySurface
-                    ? roadTop - visualHeight * 0.5f + 0.03f
-                    : RoadCenterY - 0.02f;
-                Decoration("RoadVisual", roadSprite, new Vector2(x, visualCenterY),
-                    tileWidth + 0.18f, 1, visualHeight);
+                    ? span.Top - visualHeight * 0.5f + 0.03f
+                    : span.CenterY - 0.02f;
+                Decoration("RoadVisual", roadSprite, new Vector2(visualX, visualCenterY),
+                    visualWidth, 1, visualHeight);
             }
         }
 
-        void CreateFullDepthRoad(float centerX, float width, float roadTop)
+        void CreateFullDepthRoad(RoadSpan span)
         {
             const float bottomY = -5.35f;
-            float height = roadTop - bottomY;
+            float height = span.Top - bottomY;
             var go = new GameObject("RoadVisualFullDepth");
             go.transform.SetParent(generatedRoot, false);
-            go.transform.position = new Vector2(centerX, bottomY + height * 0.5f);
+            go.transform.position = new Vector2(span.CenterX, bottomY + height * 0.5f);
             var renderer = go.AddComponent<SpriteRenderer>();
             renderer.sprite = roadSprite;
             renderer.color = Color.white;
@@ -206,17 +333,28 @@ namespace PawPath.Levels
             renderer.drawMode = SpriteDrawMode.Tiled;
             renderer.tileMode = SpriteTileMode.Continuous;
             // Tam derinlikli görsel çukurun içine taşmamalı.
-            renderer.size = new Vector2(width, height);
-            ApplyRoundedTopCornerMask(go.transform, renderer, width, height);
+            renderer.size = new Vector2(span.Width, height);
+            ApplyRoundedTopCornerMask(go.transform, renderer, span.CenterX, span.Width, height);
         }
 
         void ApplyRoundedTopCornerMask(Transform roadTransform, SpriteRenderer roadRenderer,
-            float width, float height)
+            float centerX, float width, float height)
         {
-            const int textureSize = 256;
-            const float cornerRadius = 0.16f;
-            float radiusX = Mathf.Max(2f, cornerRadius / width * textureSize);
-            float radiusY = Mathf.Max(2f, cornerRadius / height * textureSize);
+            const int textureSize = 512;
+            // Bölüm ve yol konumu aynı kaldıkça şekil sabittir; her parçada ve
+            // iki köşede farklı, küçük bir aşınma miktarı kullanılır.
+            int seed = unchecked(currentLevelNumber * 73856093 ^
+                Mathf.RoundToInt(centerX * 100f) * 19349663 ^
+                Mathf.RoundToInt(width * 100f) * 83492791);
+            var random = new System.Random(seed);
+            float leftRadius = Mathf.Lerp(0.05f, 0.23f, (float)random.NextDouble());
+            float rightRadius = Mathf.Lerp(0.05f, 0.23f, (float)random.NextDouble());
+            float leftPhase = (float)random.NextDouble() * Mathf.PI * 2f;
+            float rightPhase = (float)random.NextDouble() * Mathf.PI * 2f;
+            float leftRadiusX = Mathf.Max(2f, leftRadius / width * textureSize);
+            float leftRadiusY = Mathf.Max(2f, leftRadius / height * textureSize);
+            float rightRadiusX = Mathf.Max(2f, rightRadius / width * textureSize);
+            float rightRadiusY = Mathf.Max(2f, rightRadius / height * textureSize);
             var texture = new Texture2D(textureSize, textureSize, TextureFormat.RGBA32, false)
             {
                 name = "RoundedRoadMaskTexture",
@@ -229,20 +367,19 @@ namespace PawPath.Levels
                 for (int x = 0; x < textureSize; x++)
                 {
                     bool visible = true;
-                    if (y >= textureSize - radiusY)
+                    if (y >= textureSize - leftRadiusY && x < leftRadiusX)
                     {
-                        if (x < radiusX)
-                        {
-                            float dx = (x - radiusX) / radiusX;
-                            float dy = (y - (textureSize - radiusY)) / radiusY;
-                            visible = dx * dx + dy * dy <= 1f;
-                        }
-                        else if (x >= textureSize - radiusX)
-                        {
-                            float dx = (x - (textureSize - radiusX)) / radiusX;
-                            float dy = (y - (textureSize - radiusY)) / radiusY;
-                            visible = dx * dx + dy * dy <= 1f;
-                        }
+                        float dx = (x - leftRadiusX) / leftRadiusX;
+                        float dy = (y - (textureSize - leftRadiusY)) / leftRadiusY;
+                        float irregularity = 0.035f * Mathf.Sin(y * 0.09f + leftPhase);
+                        visible = dx * dx + dy * dy <= 1f + irregularity;
+                    }
+                    else if (y >= textureSize - rightRadiusY && x >= textureSize - rightRadiusX)
+                    {
+                        float dx = (x - (textureSize - rightRadiusX)) / rightRadiusX;
+                        float dy = (y - (textureSize - rightRadiusY)) / rightRadiusY;
+                        float irregularity = 0.035f * Mathf.Sin(y * 0.09f + rightPhase);
+                        visible = dx * dx + dy * dy <= 1f + irregularity;
                     }
                     pixels[y * textureSize + x] = visible
                         ? new Color32(255, 255, 255, 255)
@@ -277,13 +414,14 @@ namespace PawPath.Levels
                 alternateMoundSprite.name.Contains("street_mound_high");
             bool cityVehiclePair = moundSprite != null && alternateMoundSprite != null &&
                 moundSprite.name.Contains("city_") && alternateMoundSprite.name.Contains("city_");
-            bool useAlternate = alternateMoundSprite != null && Random.value >= 0.5f;
+            bool useAlternate = alternateMoundSprite != null && layoutRandom.NextDouble() >= 0.5;
             Sprite obstacleSprite = useAlternate ? alternateMoundSprite : moundSprite;
             bool cityVehicle = cityVehiclePair ||
                 (obstacleSprite != null && obstacleSprite.name.Contains("city_"));
             // Cadde temasında boyut varyasyonu yoktur: sadece otomobil/minibüs
             // görseli değişir. Büyük-küçük varyasyonu orman tümseklerine aittir.
-            bool isTallVariant = streetMoundPair ? useAlternate : !cityVehicle && Random.value >= 0.5f;
+            bool isTallVariant = streetMoundPair ? useAlternate :
+                !cityVehicle && layoutRandom.NextDouble() >= 0.5;
             // Uzun varyant eskiden 2 kat yüksek ve normal varyantla aynı genişlikteydi.
             // Bu, yamacı gereğinden dikleştiriyor ve çift zıplamayla bile geçilemeyen
             // bir collider tepesi oluşturuyordu. Biraz alçaltıp tabanını genişletiyoruz.
@@ -298,6 +436,10 @@ namespace PawPath.Levels
             // kısmı boşluğun üzerinde asılı görünür. Her iki tarafta küçük bir pay
             // bırakarak görseli gerçek zemin sınırlarına sığdır.
             visualWidth = ClampWidthToContainingRoad(centerX, visualWidth, 0.10f);
+            if (visualWidth <= 0f)
+                return;
+            moundVisualRanges.Add(new Vector2(centerX - visualWidth * 0.5f,
+                centerX + visualWidth * 0.5f));
             obstacleWidth = Mathf.Min(obstacleWidth, visualWidth * 0.52f);
             float visualOverlap = (cityVehicle ? 0.27f : obstacleSprite != null && obstacleSprite.name.Contains("forest") ? 0.52f : 0.95f) *
                 heightVariant * GameplayScale;
@@ -406,24 +548,22 @@ namespace PawPath.Levels
 
         float ClampWidthToContainingRoad(float centerX, float desiredWidth, float edgeInset)
         {
-            foreach (Vector2 range in roadRanges)
+            foreach (RoadSpan road in roads)
             {
-                if (centerX < range.x || centerX > range.y)
+                if (!road.Contains(centerX))
                     continue;
-
-                float leftSpace = centerX - range.x - edgeInset;
-                float rightSpace = range.y - centerX - edgeInset;
-                float centeredWidth = 2f * Mathf.Max(0.1f, Mathf.Min(leftSpace, rightSpace));
-                return Mathf.Min(desiredWidth, centeredWidth);
+                return Mathf.Min(desiredWidth, road.MaxCenteredWidth(centerX, edgeInset));
             }
-            return desiredWidth;
+            return 0f;
         }
 
         void Gap(float centerX, float width)
         {
+            GapSpan gap = ResolvePhysicalGapBounds(centerX, width);
+            gaps.Add(gap);
             if (streetGapLeftSprite != null && streetGapRightSprite != null)
             {
-                CreateStreetGapEdges(centerX, width);
+                CreateStreetGapEdges(gap);
                 return;
             }
             if (gapSprite != null)
@@ -448,25 +588,25 @@ namespace PawPath.Levels
                         generatedRoot.GetChild(generatedRoot.childCount - 1)
                             .GetComponent<SpriteRenderer>().color = CityRoadFillColor;
                     }
-                    DecorationBottomAligned("TrashContainer", gapSprite, centerX,
-                        roadTop - 1.66f, width * 2.10f, 2);
+                    DecorationBottomAligned("TrashContainer", gapSprite, gap.CenterX,
+                        roadTop - 1.66f, gap.Width * 2.10f, 2);
                     return;
                 }
                 // Eski çukur görselinin alt parçaları yeni tam derinlikli zeminin
                 // önünde asılı sütun gibi görünmemeli. Geçerli alfa kenar assetleri
                 // sağlanana kadar kaplamayı yolun arkasında tutuyoruz.
-                DecorationTopAligned("GapVisual", gapSprite, centerX,
-                    roadTop, (width + 1.95f) * GameplayScale, -2, 5.8f);
+                DecorationTopAligned("GapVisual", gapSprite, gap.CenterX,
+                    roadTop, (gap.Width + 1.95f) * GameplayScale, -2, 5.8f);
             }
         }
 
-        void CreateStreetGapEdges(float centerX, float width)
+        void CreateStreetGapEdges(GapSpan gap)
         {
             float roadTop = RoadCenterY + RoadHeight * 0.5f;
             if (streetGapLeftSprite == streetGapRightSprite &&
                 streetGapLeftSprite.name.Contains("street_gap_left (2)"))
             {
-                CreateMirroredNaturalGapEdges(centerX, width, roadTop);
+                CreateMirroredNaturalGapEdges(gap, roadTop);
                 return;
             }
             const float visibleHeight = 2.60f;
@@ -474,12 +614,10 @@ namespace PawPath.Levels
             // doğrudan fiziksel çukurun iki sınırına sabitlenir.
             float leftScale = visibleHeight / 2.41f;
             float rightScale = visibleHeight / 2.39f;
-            ResolvePhysicalGapBounds(centerX, width, out float leftInnerEdge, out float rightInnerEdge);
-
             var left = new GameObject("StreetGapLeft");
             left.transform.SetParent(generatedRoot, false);
             left.transform.localScale = new Vector3(leftScale, leftScale, 1f);
-            left.transform.position = new Vector2(leftInnerEdge - 1.36f * leftScale,
+            left.transform.position = new Vector2(gap.Left - 1.36f * leftScale,
                 roadTop - 1.105f * leftScale);
             var leftRenderer = left.AddComponent<SpriteRenderer>();
             leftRenderer.sprite = streetGapLeftSprite;
@@ -490,25 +628,24 @@ namespace PawPath.Levels
             var right = new GameObject("StreetGapRight");
             right.transform.SetParent(generatedRoot, false);
             right.transform.localScale = new Vector3(rightScale, rightScale, 1f);
-            right.transform.position = new Vector2(rightInnerEdge + 2.135f * rightScale,
+            right.transform.position = new Vector2(gap.Right + 2.135f * rightScale,
                 roadTop - 1.085f * rightScale);
             var rightRenderer = right.AddComponent<SpriteRenderer>();
             rightRenderer.sprite = streetGapRightSprite;
             rightRenderer.sortingOrder = 0;
         }
 
-        void CreateMirroredNaturalGapEdges(float centerX, float width, float roadTop)
+        void CreateMirroredNaturalGapEdges(GapSpan gap, float roadTop)
         {
-            ResolvePhysicalGapBounds(centerX, width, out float leftEdge, out float rightEdge);
             // 612x408 tuval, görünür alfa 7,85..535,407. Görünen yüksekliği
             // yaklaşık 3 dünya biriminde tutup uçtaki kökü yol yüzeyine hizala.
             const float scale = 3f / 3.23f;
             const float innerEdgeFromPivot = 2.29f;
             const float topFromPivot = 1.19f;
 
-            CreateNaturalGapEdge("StreetGapLeftNatural", leftEdge - innerEdgeFromPivot * scale,
+            CreateNaturalGapEdge("StreetGapLeftNatural", gap.Left - innerEdgeFromPivot * scale,
                 roadTop - topFromPivot * scale, scale, false);
-            CreateNaturalGapEdge("StreetGapRightNatural", rightEdge + innerEdgeFromPivot * scale,
+            CreateNaturalGapEdge("StreetGapRightNatural", gap.Right + innerEdgeFromPivot * scale,
                 roadTop - topFromPivot * scale, scale, true);
         }
 
@@ -524,34 +661,34 @@ namespace PawPath.Levels
             renderer.sortingOrder = 2;
         }
 
-        void ResolvePhysicalGapBounds(float centerX, float fallbackWidth,
-            out float leftEdge, out float rightEdge)
+        GapSpan ResolvePhysicalGapBounds(float centerX, float fallbackWidth)
         {
-            leftEdge = centerX - fallbackWidth * 0.5f;
-            rightEdge = centerX + fallbackWidth * 0.5f;
+            float leftEdge = centerX - fallbackWidth * 0.5f;
+            float rightEdge = centerX + fallbackWidth * 0.5f;
             float bestLeftDistance = float.MaxValue;
             float bestRightDistance = float.MaxValue;
-            foreach (Vector2 range in roadRanges)
+            foreach (RoadSpan road in roads)
             {
-                if (range.y <= centerX)
+                if (road.Right <= centerX)
                 {
-                    float distance = centerX - range.y;
+                    float distance = centerX - road.Right;
                     if (distance < bestLeftDistance)
                     {
                         bestLeftDistance = distance;
-                        leftEdge = range.y;
+                        leftEdge = road.Right;
                     }
                 }
-                if (range.x >= centerX)
+                if (road.Left >= centerX)
                 {
-                    float distance = range.x - centerX;
+                    float distance = road.Left - centerX;
                     if (distance < bestRightDistance)
                     {
                         bestRightDistance = distance;
-                        rightEdge = range.x;
+                        rightEdge = road.Left;
                     }
                 }
             }
+            return new GapSpan(leftEdge, rightEdge);
         }
 
         void BuildModeChallenge(int levelNumber)
@@ -650,10 +787,10 @@ namespace PawPath.Levels
             const float maxX = 15.5f;
             const float edgeMargin = 1.05f;
             var validRanges = new List<Vector2>();
-            foreach (var range in roadRanges)
+            foreach (RoadSpan range in roads)
             {
-                float start = Mathf.Max(minX, range.x + edgeMargin);
-                float end = Mathf.Min(maxX, range.y - edgeMargin);
+                float start = Mathf.Max(minX, range.Left + edgeMargin);
+                float end = Mathf.Min(maxX, range.Right - edgeMargin);
                 if (end > start)
                     validRanges.Add(new Vector2(start, end));
             }
@@ -812,6 +949,42 @@ namespace PawPath.Levels
                 roadUnderfillSprite.name.ToLowerInvariant().Contains("city");
         }
 
+        // Editör doğrulaması bu veriyi sahne görseline bakmadan kontrol eder.
+        public string ValidateCourseGeometry()
+        {
+            const float tolerance = 0.001f;
+            foreach (RoadSpan road in roads)
+            {
+                if (road.Width <= 0f || road.Top <= road.Bottom)
+                    return "Geçersiz yol boyutu.";
+            }
+            foreach (GapSpan gap in gaps)
+            {
+                if (gap.Width <= 0f)
+                    return "Geçersiz çukur genişliği.";
+                foreach (RoadSpan road in roads)
+                {
+                    if (road.Left < gap.Right - tolerance && road.Right > gap.Left + tolerance)
+                        return "Çukur ile yol çakışıyor.";
+                }
+            }
+            foreach (Vector2 mound in moundVisualRanges)
+            {
+                bool contained = false;
+                foreach (RoadSpan road in roads)
+                {
+                    if (mound.x >= road.Left - tolerance && mound.y <= road.Right + tolerance)
+                    {
+                        contained = true;
+                        break;
+                    }
+                }
+                if (!contained)
+                    return "Tümsek görseli yol sınırından taşıyor.";
+            }
+            return null;
+        }
+
         void CreateSolid(string objectName, Vector2 position, Vector2 size, Color color, int sortingOrder)
         {
             var go = new GameObject(objectName);
@@ -831,11 +1004,25 @@ namespace PawPath.Levels
         void ClearGenerated()
         {
             if (generatedRoot != null)
-                Destroy(generatedRoot.gameObject);
+            {
+#if UNITY_EDITOR
+                if (!Application.isPlaying)
+                    DestroyImmediate(generatedRoot.gameObject);
+                else
+#endif
+                    Destroy(generatedRoot.gameObject);
+            }
             foreach (UnityEngine.Object asset in generatedRuntimeAssets)
             {
                 if (asset != null)
-                    Destroy(asset);
+                {
+#if UNITY_EDITOR
+                    if (!Application.isPlaying)
+                        DestroyImmediate(asset);
+                    else
+#endif
+                        Destroy(asset);
+                }
             }
             generatedRuntimeAssets.Clear();
         }
