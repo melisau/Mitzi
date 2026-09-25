@@ -22,3 +22,5 @@ MonoBehaviour:
   slotType: 8
   interactionType: 2
   interactionAnimation: {fileID: 0}
+  interactionFrames: []
+  interactionVisualScale: 1

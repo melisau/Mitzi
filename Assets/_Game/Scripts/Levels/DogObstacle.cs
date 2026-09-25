@@ -197,9 +197,55 @@ namespace PawPath.Levels
         {
             var cat = other.GetComponent<CatController>();
             if (failed || cat == null || cat.IsClimbing) return;
+            if (IsStompFromAbove(other))
+            {
+                failed = true;
+                Vector3 puffPosition = GetComponent<Collider2D>().bounds.center;
+                GetComponent<Collider2D>().enabled = false;
+                cat.BounceAfterDogStomp();
+                CozyAudioManager.Instance?.PlayBubble();
+                SpawnPuff(puffPosition);
+                Destroy(gameObject);
+                return;
+            }
             failed = true;
             CozyAudioManager.Instance?.PlayHurt();
             GameFlow.Instance?.ShowLevelFailure("Koşan köpeğe yakalandın. Üzerinden zıpla veya ağaca tırman!");
+        }
+
+        bool IsStompFromAbove(Collider2D catCollider)
+        {
+            var catBody = catCollider.attachedRigidbody;
+            var dogCollider = GetComponent<Collider2D>();
+            return catBody != null && dogCollider != null &&
+                catBody.velocity.y < -0.5f &&
+                catCollider.bounds.min.y >= dogCollider.bounds.max.y - 0.22f;
+        }
+
+        void SpawnPuff(Vector3 position)
+        {
+            var puff = new GameObject("DogStompPuff", typeof(ParticleSystem));
+            puff.transform.position = position;
+            var particles = puff.GetComponent<ParticleSystem>();
+            particles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            var main = particles.main;
+            main.playOnAwake = false;
+            main.loop = false;
+            main.duration = 0.45f;
+            main.startLifetime = 0.42f;
+            main.startSpeed = 2.1f;
+            main.startSize = 0.22f;
+            main.startColor = new Color(1f, 0.92f, 0.78f, 0.9f);
+            main.gravityModifier = 0.25f;
+            var emission = particles.emission;
+            emission.rateOverTime = 0f;
+            var shape = particles.shape;
+            shape.shapeType = ParticleSystemShapeType.Circle;
+            shape.radius = 0.28f;
+            puff.GetComponent<ParticleSystemRenderer>().sortingOrder = 12;
+            particles.Play();
+            particles.Emit(18);
+            Destroy(puff, 1f);
         }
     }
 }

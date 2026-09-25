@@ -26,3 +26,4 @@ MonoBehaviour:
   - {fileID: 21300000, guid: a95712b8d9f0a714fb2cfafec03959db, type: 3}
   - {fileID: 21300000, guid: f21adc1064dec5746a66310d1eed0bbf, type: 3}
   - {fileID: 21300000, guid: 88903cfcda9805c418742785ea47b58e, type: 3}
+  interactionVisualScale: 1

@@ -273,13 +273,17 @@ namespace PawPath.Core
             var hud = Panel("HUD", canvas, new Vector2(0, 0), new Vector2(0, 0), new Color(1, 1, 1, 0));
             hud.AddComponent<HudView>();
             var content = SafeContent(hud.transform);
-            var love = Label(content, "Love", GameText.Love + ": 0", new Vector2(1f, 1f), new Vector2(-505f, -42f));
+            var love = Label(content, "ShopBalance", "Dükkan Bakiyesi: 0",
+                new Vector2(0f, 1f), new Vector2(215f, -225f));
             var level = Label(content, "Level", GameText.LevelLabel(1), new Vector2(0.5f, 1f), new Vector2(0, -140));
-            var ink = Label(content, "Ink", "", new Vector2(1f, 1f), new Vector2(-585f, -55f));
-            love.fontSize = 21;
-            ink.fontSize = 21;
-            love.rectTransform.sizeDelta = new Vector2(220f, 52f);
-            ink.rectTransform.sizeDelta = new Vector2(220f, 52f);
+            var ink = Label(content, "Ink", "", new Vector2(0f, 1f), new Vector2(265f, -205f));
+            love.fontSize = 27;
+            love.fontStyle = FontStyle.Bold;
+            love.color = new Color(0.31f, 0.20f, 0.12f);
+            ink.fontSize = 24;
+            love.rectTransform.sizeDelta = new Vector2(390f, 64f);
+            AddTextPanelBackground(love);
+            ink.rectTransform.sizeDelta = new Vector2(460f, 52f);
             var selected = Label(content, "Selected", "", new Vector2(0.5f, 1f), new Vector2(0, -260));
             selected.gameObject.SetActive(false);
             var play = Button(content, "PlayButton", "Oyna", new Vector2(1f, 1f), new Vector2(-120f, -55f), new Color(0.93f, 0.72f, 0.76f));
@@ -304,6 +308,61 @@ namespace PawPath.Core
                 Application.Quit();
 #endif
             });
+
+            var settingsButton = Button(content, "SettingsButton", "Ayarlar", new Vector2(0f, 1f),
+                new Vector2(140f, -130f), new Color(0.66f, 0.48f, 0.40f));
+            StyleWarmGameButton(settingsButton, new Vector2(190f, 64f), 23);
+            var settingsPanel = Panel("DisplaySettings", content, Vector2.zero, Vector2.one,
+                new Color(0.12f, 0.08f, 0.06f, 0.86f));
+            var settingsContent = SafeContent(settingsPanel.transform);
+            var settingsTitle = Label(settingsContent, "SettingsTitle", "Görünüm Boyutu",
+                new Vector2(0.5f, 0.70f), Vector2.zero);
+            settingsTitle.color = Color.white;
+            settingsTitle.fontSize = 42;
+            var normalSize = Button(settingsContent, "NormalSize", "Normal",
+                new Vector2(0.5f, 0.50f), new Vector2(-220f, 0f), Color.white);
+            var largeSize = Button(settingsContent, "LargeSize", "Büyük",
+                new Vector2(0.5f, 0.50f), new Vector2(220f, 0f), Color.white);
+            var closeSettings = Button(settingsContent, "CloseSettings", "Kapat",
+                new Vector2(0.5f, 0.30f), Vector2.zero, Color.white);
+            StyleWarmGameButton(normalSize, new Vector2(330f, 90f), 30);
+            StyleWarmGameButton(largeSize, new Vector2(330f, 90f), 30);
+            StyleWarmGameButton(closeSettings, new Vector2(260f, 76f), 25);
+            void RefreshSizeLabels()
+            {
+                normalSize.GetComponentInChildren<Text>().text = DisplaySizeSettings.Large ? "Normal" : "✓ Normal";
+                largeSize.GetComponentInChildren<Text>().text = DisplaySizeSettings.Large ? "✓ Büyük" : "Büyük";
+            }
+            void SetSize(bool large)
+            {
+                DisplaySizeSettings.SetLarge(large);
+                RefreshSizeLabels();
+                float near = large ? 142f : 125f;
+                float far = large ? 414f : 375f;
+                foreach (var control in hud.GetComponentsInChildren<MobileControlButton>(true))
+                {
+                    var controlRect = control.GetComponent<RectTransform>();
+                    if (control.name == "Left") controlRect.anchoredPosition = new Vector2(near, 120f);
+                    if (control.name == "Right") controlRect.anchoredPosition = new Vector2(far, 120f);
+                    if (control.name == "Jump") controlRect.anchoredPosition = new Vector2(-far, 120f);
+                    if (control.name == "Crouch") controlRect.anchoredPosition = new Vector2(-near, 120f);
+                    controlRect.sizeDelta = large ? new Vector2(230f, 160f) : new Vector2(200f, 140f);
+                    var controlLabel = control.GetComponentInChildren<Text>();
+                    if (controlLabel != null) controlLabel.fontSize = large ? 34 : 30;
+                }
+                if (CatHouseManager.Instance != null)
+                    CatHouseManager.Instance.RefreshResidents();
+            }
+            normalSize.onClick.AddListener(() => SetSize(false));
+            largeSize.onClick.AddListener(() => SetSize(true));
+            closeSettings.onClick.AddListener(() => settingsPanel.SetActive(false));
+            settingsButton.onClick.AddListener(() =>
+            {
+                RefreshSizeLabels();
+                settingsPanel.transform.SetAsLastSibling();
+                settingsPanel.SetActive(true);
+            });
+            settingsPanel.SetActive(false);
 
             var musicMute = Button(content, "MusicMuteButton", "♫", new Vector2(0f, 1f),
                 new Vector2(52f, -44f), new Color(0.68f, 0.57f, 0.44f, 0.94f));
@@ -340,6 +399,29 @@ namespace PawPath.Core
             var directPlay = Button(modeMenu.transform, "DirectPlayButton", "Tuşlarla Oyna", new Vector2(1f, 1f), new Vector2(-150f, -195f), new Color(0.72f, 0.82f, 0.94f));
             StyleCompactTopButton(drawingPlay, new Vector2(-180f, -180f));
             StyleCompactTopButton(directPlay, new Vector2(-180f, -305f));
+            var easyDifficulty = Button(modeMenu.transform, "EasyDifficulty", "Kolay",
+                new Vector2(0.5f, 0.32f), new Vector2(-170f, 0f), new Color(0.52f, 0.70f, 0.55f));
+            var mediumDifficulty = Button(modeMenu.transform, "MediumDifficulty", "Orta",
+                new Vector2(0.5f, 0.32f), Vector2.zero, new Color(0.83f, 0.68f, 0.52f));
+            var hardDifficulty = Button(modeMenu.transform, "HardDifficulty", "Zor",
+                new Vector2(0.5f, 0.32f), new Vector2(170f, 0f), new Color(0.72f, 0.48f, 0.34f));
+            StyleWarmGameButton(easyDifficulty, new Vector2(145f, 70f), 24);
+            StyleWarmGameButton(mediumDifficulty, new Vector2(145f, 70f), 24);
+            StyleWarmGameButton(hardDifficulty, new Vector2(145f, 70f), 24);
+            void RefreshDifficultyLabels()
+            {
+                var selectedDifficulty = GameDifficulty.Selected;
+                easyDifficulty.GetComponentInChildren<Text>().text =
+                    selectedDifficulty == DifficultyLevel.Easy ? "✓ Kolay" : "Kolay";
+                mediumDifficulty.GetComponentInChildren<Text>().text =
+                    selectedDifficulty == DifficultyLevel.Medium ? "✓ Orta" : "Orta";
+                hardDifficulty.GetComponentInChildren<Text>().text =
+                    selectedDifficulty == DifficultyLevel.Hard ? "✓ Zor" : "Zor";
+            }
+            easyDifficulty.onClick.AddListener(() => { GameDifficulty.Select(DifficultyLevel.Easy); RefreshDifficultyLabels(); });
+            mediumDifficulty.onClick.AddListener(() => { GameDifficulty.Select(DifficultyLevel.Medium); RefreshDifficultyLabels(); });
+            hardDifficulty.onClick.AddListener(() => { GameDifficulty.Select(DifficultyLevel.Hard); RefreshDifficultyLabels(); });
+            RefreshDifficultyLabels();
             modeMenu.SetActive(false);
 
             var themeSelectorObject = BuildThemeSelector(content);
@@ -406,13 +488,26 @@ namespace PawPath.Core
             home.gameObject.SetActive(false);
             var brushes = BuildBrushToolbar(content);
             brushes.SetActive(false);
+            var previousDrawView = Button(content, "PreviousDrawView", "◀ Önceki",
+                new Vector2(0.5f, 1f), new Vector2(-395f, -64f), Color.white);
+            var startDrawingGame = Button(content, "StartDrawingGame", "Oyunu Başlat",
+                new Vector2(0.5f, 1f), new Vector2(0f, -64f), Color.white);
+            var nextDrawView = Button(content, "NextDrawView", "Sonraki ▶",
+                new Vector2(0.5f, 1f), new Vector2(395f, -64f), Color.white);
+            StyleWarmGameButton(previousDrawView, new Vector2(220f, 68f), 22);
+            StyleWarmGameButton(startDrawingGame, new Vector2(260f, 68f), 24);
+            StyleWarmGameButton(nextDrawView, new Vector2(220f, 68f), 22);
+            previousDrawView.gameObject.SetActive(false);
+            startDrawingGame.gameObject.SetActive(false);
+            nextDrawView.gameObject.SetActive(false);
             var tutorial = BuildBrushTutorial(content);
             tutorial.SetActive(false);
             var controls = BuildMobileControls(content);
             controls.SetActive(false);
             hud.GetComponent<HudView>().Bind(love, level, ink, selected, play, shop, directPlay,
                 restart, home, careUi, brushes, tutorial, controls, modeMenu, drawingPlay, themeSelector,
-                editHome, flipFurniture);
+                editHome, flipFurniture, settingsButton, settingsPanel,
+                previousDrawView, nextDrawView, startDrawingGame);
             return hud;
         }
 
@@ -438,10 +533,13 @@ namespace PawPath.Core
             var controls = new GameObject("MobileControls", typeof(RectTransform));
             controls.transform.SetParent(parent, false);
             Stretch(controls.GetComponent<RectTransform>());
-            AddControlButton(controls.transform, "Left", "◀", new Vector2(0f, 0f), new Vector2(125f, 120f), MobileAction.Left);
-            AddControlButton(controls.transform, "Right", "▶", new Vector2(0f, 0f), new Vector2(375f, 120f), MobileAction.Right);
-            AddControlButton(controls.transform, "Jump", "ZIPLA", new Vector2(1f, 0f), new Vector2(-375f, 120f), MobileAction.Jump);
-            AddControlButton(controls.transform, "Crouch", "EĞİL", new Vector2(1f, 0f), new Vector2(-125f, 120f), MobileAction.Crouch);
+            bool large = DisplaySizeSettings.Large;
+            float near = large ? 142f : 125f;
+            float far = large ? 414f : 375f;
+            AddControlButton(controls.transform, "Left", "◀", new Vector2(0f, 0f), new Vector2(near, 120f), MobileAction.Left);
+            AddControlButton(controls.transform, "Right", "▶", new Vector2(0f, 0f), new Vector2(far, 120f), MobileAction.Right);
+            AddControlButton(controls.transform, "Jump", "ZIPLA", new Vector2(1f, 0f), new Vector2(-far, 120f), MobileAction.Jump);
+            AddControlButton(controls.transform, "Crouch", "EĞİL", new Vector2(1f, 0f), new Vector2(-near, 120f), MobileAction.Crouch);
             return controls;
         }
 
@@ -449,13 +547,13 @@ namespace PawPath.Core
             Vector2 position, MobileAction action)
         {
             var button = Button(parent, name, label, anchor, position, new Color(0.18f, 0.20f, 0.25f, 0.82f));
-            button.GetComponent<RectTransform>().sizeDelta = new Vector2(200f, 140f);
-            StyleWarmGameButton(button, new Vector2(200f, 140f), 30);
+            var size = DisplaySizeSettings.Large ? new Vector2(230f, 160f) : new Vector2(200f, 140f);
+            StyleWarmGameButton(button, size, DisplaySizeSettings.Large ? 34 : 30);
             button.gameObject.AddComponent<MobileControlButton>().Configure(action);
             var text = button.GetComponentInChildren<Text>();
             if (text != null)
             {
-                text.fontSize = 30;
+                text.fontSize = DisplaySizeSettings.Large ? 34 : 30;
                 text.color = Color.white;
             }
         }
@@ -503,11 +601,10 @@ namespace PawPath.Core
             var rt = toolbar.GetComponent<RectTransform>();
             Stretch(rt);
 
-            AddBrushButton(toolbar.transform, "NormalBrush", "Yol", -340f, new Color(0.17f, 0.15f, 0.14f), PathSurfaceType.Normal);
-            AddBrushButton(toolbar.transform, "BounceBrush", "Zıpla", -170f, new Color(0.20f, 0.55f, 0.95f), PathSurfaceType.Bounce);
-            AddBrushButton(toolbar.transform, "HazardBrush", "!", 0f, new Color(0.88f, 0.20f, 0.20f), PathSurfaceType.Hazard);
-            AddBrushButton(toolbar.transform, "IceBrush", "Buz", 170f, new Color(0.95f, 0.98f, 1f), PathSurfaceType.Ice);
-            var eraser = Button(toolbar.transform, "Eraser", "Sil", new Vector2(0.5f, 0f), new Vector2(340f, 68f), new Color(0.72f, 0.68f, 0.65f));
+            AddBrushButton(toolbar.transform, "NormalBrush", "Yol", -255f, new Color(0.17f, 0.15f, 0.14f), PathSurfaceType.Normal);
+            AddBrushButton(toolbar.transform, "BounceBrush", "Zıpla", -85f, new Color(0.20f, 0.55f, 0.95f), PathSurfaceType.Bounce);
+            AddBrushButton(toolbar.transform, "IceBrush", "Buz", 85f, new Color(0.95f, 0.98f, 1f), PathSurfaceType.Ice);
+            var eraser = Button(toolbar.transform, "Eraser", "Sil", new Vector2(0.5f, 0f), new Vector2(255f, 68f), new Color(0.72f, 0.68f, 0.65f));
             eraser.GetComponent<RectTransform>().sizeDelta = new Vector2(150f, 88f);
             StyleWarmGameButton(eraser, new Vector2(150f, 88f), 24);
             eraser.onClick.AddListener(() =>
@@ -544,7 +641,7 @@ namespace PawPath.Core
             rt.sizeDelta = new Vector2(760f, 430f);
             rt.anchoredPosition = Vector2.zero;
             var text = Label(panel.transform, "TutorialText",
-                "YOLU TAMAMLAMA\n\nKedi hazır zeminde kendi yürür.\nYalnızca çukurlara köprü, tümseklere rampa çiz.\n\nSiyah: Normal yol   Mavi: Zıplatır\nKırmızı: Tehlike   Beyaz: Kaygan yol\nSilgi: Çizdiğin yolu siler",
+                "YOLU TAMAMLAMA\n\nÖnceki/Sonraki ile bölümün tamamını gezip yolları çiz.\nMürekkebin yarısı sonraki ekranlar için korunur.\nBitince Oyunu Başlat'a bas veya mürekkebi tüket.\n\nSiyah: Yol   Mavi: Zıpla   Beyaz: Buz   Silgi: Sil",
                 new Vector2(0.5f, 0.5f), Vector2.zero);
             text.rectTransform.sizeDelta = new Vector2(680f, 370f);
             text.fontSize = 27;
@@ -861,6 +958,7 @@ namespace PawPath.Core
             image.sprite = RusticUiSpriteFactory.ParchmentPanel();
             image.type = Image.Type.Sliced;
             image.color = new Color(1f, 1f, 1f, 0.84f);
+            image.raycastTarget = false;
             var outline = background.AddComponent<Outline>();
             outline.effectColor = new Color(0.92f, 0.80f, 0.63f, 0.48f);
             outline.effectDistance = new Vector2(1f, -1f);

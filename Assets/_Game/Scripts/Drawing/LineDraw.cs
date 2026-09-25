@@ -41,6 +41,7 @@ namespace PawPath.Drawing
         EdgeCollider2D currentCollider;
         bool drawing;
         float inkLeft;
+        float firstHalfInkSpent;
         PathSurfaceType brushType = PathSurfaceType.Normal;
         bool eraserMode;
 
@@ -91,8 +92,10 @@ namespace PawPath.Drawing
             ClearStrokes();
             InkMax = budget;
             inkLeft = budget;
+            firstHalfInkSpent = 0f;
             CanDraw = GameplayMode.IsDrawing;
             HasDrawnPath = false;
+            SetBrushType(PathSurfaceType.Normal);
         }
 
         public void ClearStrokes()
@@ -106,10 +109,13 @@ namespace PawPath.Drawing
             EndStroke();
         }
 
+        public void FinishCurrentStroke() => EndStroke();
+
         void Update()
         {
             if (!GameplayMode.IsDrawing || !CanDraw ||
-                GameFlow.Instance != null && (GameFlow.Instance.InHub || GameFlow.Instance.GameplayPaused))
+                GameFlow.Instance != null && GameFlow.Instance.State != GameFlowState.DrawingPreparation &&
+                GameFlow.Instance.State != GameFlowState.Gameplay)
                 return;
             if (IsPointerOverUi())
                 return;
@@ -132,7 +138,7 @@ namespace PawPath.Drawing
         void BeginStroke(Vector2 world)
         {
             using var sample = BeginStrokeMarker.Auto();
-            if (inkLeft <= 0.01f)
+            if (AvailableInkForCurrentView() <= 0.01f)
                 return;
 
             drawing = true;
@@ -188,15 +194,18 @@ namespace PawPath.Drawing
             if (dist < minPointDistance)
                 return;
 
-            if (inkLeft <= 0f)
+            float availableInk = AvailableInkForCurrentView();
+            if (availableInk <= 0.01f)
             {
                 EndStroke();
                 return;
             }
 
-            float spend = Mathf.Min(dist, inkLeft);
+            float spend = Mathf.Min(dist, availableInk);
             Vector2 next = last + (world - last).normalized * spend;
             inkLeft -= spend;
+            if (!IsInSecondPreparationHalf())
+                firstHalfInkSpent += spend;
             currentPoints.Add(next);
             HasDrawnPath = true;
 
@@ -207,6 +216,27 @@ namespace PawPath.Drawing
 
             if (currentPoints.Count >= 2)
                 currentCollider.points = smooth.ToArray();
+
+            if (inkLeft <= 0.01f)
+            {
+                inkLeft = 0f;
+                EndStroke();
+                CanDraw = false;
+                GameFlow.Instance?.StartGameplayFromDrawing();
+            }
+        }
+
+        public float AvailableInkForCurrentView()
+        {
+            if (!IsInSecondPreparationHalf())
+                return Mathf.Min(inkLeft, Mathf.Max(0f, InkMax * 0.5f - firstHalfInkSpent));
+            return inkLeft;
+        }
+
+        bool IsInSecondPreparationHalf()
+        {
+            var follow = GetComponent<SideScrollCamera>();
+            return follow == null || follow.IsSecondPreparationHalf;
         }
 
         void EndStroke()

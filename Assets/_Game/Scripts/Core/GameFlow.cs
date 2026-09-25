@@ -6,6 +6,7 @@ using PawPath.Data;
 using PawPath.Drawing;
 using PawPath.Levels;
 using PawPath.Audio;
+using PawPath.Gameplay;
 
 
 namespace PawPath.Core
@@ -14,6 +15,7 @@ namespace PawPath.Core
     {
         MainMenu,
         InfoOverlay,
+        DrawingPreparation,
         Gameplay,
         Pause,
         Victory,
@@ -129,7 +131,29 @@ namespace PawPath.Core
         {
             if (InHub)
                 return;
-            TransitionTo(paused ? GameFlowState.Pause : GameFlowState.Gameplay);
+            TransitionTo(paused ? GameFlowState.Pause : DrawingStillInProgress()
+                ? GameFlowState.DrawingPreparation : GameFlowState.Gameplay);
+        }
+
+        public void BeginDrawingPreparation()
+        {
+            if (!InHub)
+                TransitionTo(GameFlowState.DrawingPreparation);
+        }
+
+        public void StartGameplayFromDrawing(bool finishEarly = false)
+        {
+            if (State != GameFlowState.DrawingPreparation ||
+                !finishEarly && DrawingStillInProgress())
+                return;
+            if (LineDraw.Instance != null)
+            {
+                LineDraw.Instance.FinishCurrentStroke();
+                LineDraw.Instance.CanDraw = false;
+            }
+            var cameraFollow = Camera.main != null ? Camera.main.GetComponent<SideScrollCamera>() : null;
+            cameraFollow?.ResetView();
+            TransitionTo(GameFlowState.Gameplay);
         }
 
         public void ShowInfoOverlay() => TransitionTo(GameFlowState.InfoOverlay);
@@ -137,8 +161,12 @@ namespace PawPath.Core
         public void DismissInfoOverlay()
         {
             if (State == GameFlowState.InfoOverlay)
-                TransitionTo(GameFlowState.Gameplay);
+                TransitionTo(DrawingStillInProgress()
+                    ? GameFlowState.DrawingPreparation : GameFlowState.Gameplay);
         }
+
+        static bool DrawingStillInProgress() => GameplayMode.IsDrawing &&
+            LineDraw.Instance != null && LineDraw.Instance.InkLeft > 0.01f;
 
         void TransitionTo(GameFlowState next)
         {
@@ -155,7 +183,8 @@ namespace PawPath.Core
 
         static void ApplyTimeScale(GameFlowState state)
         {
-            bool paused = state == GameFlowState.InfoOverlay || state == GameFlowState.Pause ||
+            bool paused = state == GameFlowState.InfoOverlay ||
+                state == GameFlowState.DrawingPreparation || state == GameFlowState.Pause ||
                 state == GameFlowState.Victory || state == GameFlowState.GameOver ||
                 state == GameFlowState.Rescue;
             Time.timeScale = paused ? 0f : 1f;

@@ -1,5 +1,6 @@
 using UnityEngine;
 using PawPath.Data;
+using PawPath.Core;
 
 namespace PawPath.Hub
 {
@@ -33,7 +34,7 @@ namespace PawPath.Hub
             {
                 // Animator ilk etkinleştiğinde prefab ölçeğini 1'e çekebilir. Evdeki
                 // bütün kedilerle aynı kesin yüksekliği sprite ölçüsünden yeniden kur.
-                float normalizedScale = 2.20f / awakeSprite.bounds.size.y;
+                float normalizedScale = 2.20f * DisplaySizeSettings.CatScale / awakeSprite.bounds.size.y;
                 float direction = Mathf.Sign(spriteRenderer.transform.localScale.x);
                 if (Mathf.Approximately(direction, 0f)) direction = 1f;
                 awakeScale = new Vector3(direction * normalizedScale, normalizedScale, 1f);

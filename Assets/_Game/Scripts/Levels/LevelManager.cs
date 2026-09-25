@@ -7,6 +7,7 @@ using PawPath.Drawing;
 using PawPath.Economy;
 using PawPath.Season;
 using PawPath.UI;
+using PawPath.Gameplay;
 
 namespace PawPath.Levels
 {
@@ -65,6 +66,11 @@ namespace PawPath.Levels
 
             if (LineDraw.Instance != null)
                 LineDraw.Instance.ResetInk(Current.inkBudget * 2f);
+
+            // Hazırlık kilidi HUD olayına bağlı olmamalı; kedi ve fizik ilk kareden
+            // itibaren, mürekkep bitene kadar burada bekletilir.
+            if (GameplayMode.IsDrawing)
+                GameFlow.Instance?.BeginDrawingPreparation();
 
             if (CozyAudioManager.Instance != null)
                 CozyAudioManager.Instance.PlaySeason(Current.season);

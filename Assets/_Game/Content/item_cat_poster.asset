@@ -19,3 +19,7 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: 14c2f3d22f9461c4b948cca0a084a688, type: 3}
   placedSprite: {fileID: 21300000, guid: 14c2f3d22f9461c4b948cca0a084a688, type: 3}
   slotType: 4
+  interactionType: 0
+  interactionAnimation: {fileID: 0}
+  interactionFrames: []
+  interactionVisualScale: 1

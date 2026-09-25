@@ -972,16 +972,24 @@ namespace PawPath.Levels
                 CreateClimbableTree(treeX, roadTop);
             if (hasDog)
             {
-                // Uzayan bölümde tek köpek en sağdan koşup kamera gelmeden
-                // çukurda geri dönebiliyordu. İki güvenli yol bölgesi seçilir.
+                // Zorluk seçimi yalnızca bölüm kurulurken okunur; yeniden denemede
+                // aynı bölgenin köpek yerleri deterministik kalır.
                 var dogRandom = new System.Random(levelNumber * 32531 + 211);
                 bool first = TryChooseDogSpawnX(dogRandom, 15f, 25f, out float firstX);
                 bool second = TryChooseDogSpawnX(dogRandom, 33f, 42f, out float secondX);
-                float speed = 1.8f + levelNumber % 4 * 0.18f;
-                if (first)
-                    CreateDog(firstX, roadTop, CourseLeft - 0.15f, speed, 0);
-                if (second)
+                DifficultyLevel difficulty = GameDifficulty.Selected;
+                float speed = difficulty == DifficultyLevel.Easy
+                    ? 1.05f + levelNumber % 4 * 0.08f
+                    : difficulty == DifficultyLevel.Hard
+                        ? 2.25f + levelNumber % 4 * 0.18f
+                        : 1.8f + levelNumber % 4 * 0.18f;
+                if (first || (difficulty == DifficultyLevel.Easy && second))
+                    CreateDog(first ? firstX : secondX, roadTop, CourseLeft - 0.15f, speed, 0);
+                if (difficulty != DifficultyLevel.Easy && second)
                     CreateDog(secondX, roadTop, CourseLeft - 0.15f, speed, 1);
+                if (difficulty == DifficultyLevel.Hard &&
+                    TryChooseDogSpawnX(dogRandom, 27f, 31f, out float thirdX))
+                    CreateDog(thirdX, roadTop, CourseLeft - 0.15f, speed, 2);
                 if (!first && !second)
                     CreateDog(CourseRight - 0.6f, roadTop, CourseLeft - 0.15f, speed, 0);
             }

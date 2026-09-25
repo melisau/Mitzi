@@ -35,7 +35,12 @@ namespace PawPath.UI
         [SerializeField] private Button drawingPlayButton;
         [SerializeField] private Button editHomeButton;
         [SerializeField] private Button flipFurnitureButton;
+        [SerializeField] private Button settingsButton;
+        [SerializeField] private GameObject settingsPanel;
         [SerializeField] private ThemeSelectionUI themeSelection;
+        [SerializeField] private Button previousDrawViewButton;
+        [SerializeField] private Button nextDrawViewButton;
+        [SerializeField] private Button startDrawingGameButton;
         GameplayPlayMode pendingMode;
         Coroutine selectedNameRoutine;
         Coroutine tutorialRoutine;
@@ -132,6 +137,10 @@ namespace PawPath.UI
         {
             RefreshLevel();
             HideSelectedCatName();
+            if (loveLabel != null)
+                loveLabel.transform.parent.Find("ShopBalanceBackground")?.gameObject.SetActive(false);
+            if (loveLabel != null)
+                loveLabel.gameObject.SetActive(false);
             if (playButton != null)
                 playButton.gameObject.SetActive(false);
             if (shopButton != null)
@@ -141,14 +150,24 @@ namespace PawPath.UI
                 editHomeButton.gameObject.SetActive(false);
             if (flipFurnitureButton != null)
                 flipFurnitureButton.gameObject.SetActive(false);
+            if (settingsButton != null)
+                settingsButton.gameObject.SetActive(false);
+            if (settingsPanel != null)
+                settingsPanel.SetActive(false);
             if (playModeMenu != null)
                 playModeMenu.SetActive(false);
             if (themeSelection != null)
                 themeSelection.Hide();
             if (brushToolbar != null)
                 brushToolbar.SetActive(GameplayMode.IsDrawing);
+            RefreshDrawingPreparationButtons();
             if (mobileControls != null)
-                mobileControls.SetActive(!GameplayMode.IsDrawing);
+            {
+                bool drawing = GameplayMode.IsDrawing;
+                foreach (Transform control in mobileControls.transform)
+                    control.gameObject.SetActive(!drawing || control.name == "Jump");
+                mobileControls.SetActive(!drawing);
+            }
             if (inkLabel != null)
                 inkLabel.gameObject.SetActive(GameplayMode.IsDrawing);
             if (restartButton != null)
@@ -161,12 +180,23 @@ namespace PawPath.UI
                 ? ShowCityTutorialOnce()
                 : GameplayMode.IsDrawing && ShowBrushTutorialOnce();
             if (!tutorialShown)
-                GameFlow.Instance?.SetGameplayPaused(false);
+            {
+                if (GameplayMode.IsDrawing)
+                    GameFlow.Instance?.BeginDrawingPreparation();
+                else
+                    GameFlow.Instance?.SetGameplayPaused(false);
+            }
         }
 
         private void OnHubEntered()
         {
             HideSelectedCatName();
+            if (loveLabel != null)
+            {
+                loveLabel.gameObject.SetActive(true);
+                loveLabel.transform.parent.Find("ShopBalanceBackground")?.gameObject.SetActive(true);
+                RefreshLove(SaveService.Data.lovePoints);
+            }
             if (playButton != null)
                 playButton.gameObject.SetActive(true);
             if (shopButton != null)
@@ -178,6 +208,10 @@ namespace PawPath.UI
             }
             if (flipFurnitureButton != null)
                 flipFurnitureButton.gameObject.SetActive(false);
+            if (settingsButton != null)
+                settingsButton.gameObject.SetActive(true);
+            if (settingsPanel != null)
+                settingsPanel.SetActive(false);
             // Bölüm başlarken bu alt buton kapatılıyor. Eve dönüldüğünde menü
             // yeniden açılmadan önce tekrar etkinleştirilmezse yalnızca çizim
             // seçeneği görünüyordu.
@@ -191,6 +225,7 @@ namespace PawPath.UI
                 themeSelection.Hide();
             if (brushToolbar != null)
                 brushToolbar.SetActive(false);
+            SetDrawingPreparationButtonsVisible(false);
             if (restartButton != null)
                 restartButton.gameObject.SetActive(false);
             if (homeButton != null)
@@ -210,13 +245,74 @@ namespace PawPath.UI
             if (GameFlow.Instance != null && GameFlow.Instance.InHub)
                 return;
 
-            inkLabel.text = $"{GameText.Ink}: {LineDraw.Instance.InkLeft:0.0}";
+            bool preparing = GameFlow.Instance != null &&
+                GameFlow.Instance.State == GameFlowState.DrawingPreparation;
+            RefreshDrawingPreparationButtons();
+            if (preparing)
+            {
+                var cameraFollow = Camera.main != null ? Camera.main.GetComponent<SideScrollCamera>() : null;
+                int view = cameraFollow != null ? cameraFollow.PreparationViewIndex + 1 : 1;
+                int total = cameraFollow != null ? cameraFollow.PreparationViewCount : 1;
+                inkLabel.text = LineDraw.Instance.AvailableInkForCurrentView() <= 0.01f &&
+                    LineDraw.Instance.InkLeft > 0.01f
+                    ? $"Sonraki ekrana geç ▶ · Kalan {LineDraw.Instance.InkLeft:0.0}"
+                    : $"Çizim: {LineDraw.Instance.InkLeft:0.0} · Ekran {view}/{total}";
+            }
+            else
+                inkLabel.text = $"{GameText.Ink}: {LineDraw.Instance.InkLeft:0.0}";
+        }
+
+        void MoveDrawingView(int direction)
+        {
+            LineDraw.Instance?.FinishCurrentStroke();
+            var cameraFollow = Camera.main != null ? Camera.main.GetComponent<SideScrollCamera>() : null;
+            cameraFollow?.MovePreparationView(direction);
+            RefreshDrawingPreparationButtons();
+        }
+
+        void RefreshDrawingPreparationButtons()
+        {
+            bool preparing = GameFlow.Instance != null &&
+                GameFlow.Instance.State == GameFlowState.DrawingPreparation;
+            SetDrawingPreparationButtonsVisible(preparing);
+            if (brushToolbar != null && GameplayMode.IsDrawing &&
+                GameFlow.Instance != null && !GameFlow.Instance.InHub &&
+                GameFlow.Instance.State != GameFlowState.InfoOverlay)
+                brushToolbar.SetActive(preparing);
+            bool drawingGameplay = GameplayMode.IsDrawing && GameFlow.Instance != null &&
+                GameFlow.Instance.State == GameFlowState.Gameplay;
+            if (mobileControls != null && GameplayMode.IsDrawing && GameFlow.Instance != null &&
+                !GameFlow.Instance.InHub)
+                mobileControls.SetActive(drawingGameplay);
+            if (inkLabel != null && GameplayMode.IsDrawing && GameFlow.Instance != null &&
+                !GameFlow.Instance.InHub)
+                inkLabel.gameObject.SetActive(preparing);
+
+            if (!preparing)
+                return;
+            var cameraFollow = Camera.main != null ? Camera.main.GetComponent<SideScrollCamera>() : null;
+            if (previousDrawViewButton != null)
+                previousDrawViewButton.interactable = cameraFollow != null &&
+                    cameraFollow.PreparationViewIndex > 0;
+            if (nextDrawViewButton != null)
+                nextDrawViewButton.interactable = cameraFollow != null &&
+                    cameraFollow.PreparationViewIndex < cameraFollow.PreparationViewCount - 1;
+        }
+
+        void SetDrawingPreparationButtonsVisible(bool visible)
+        {
+            if (previousDrawViewButton != null)
+                previousDrawViewButton.gameObject.SetActive(visible);
+            if (nextDrawViewButton != null)
+                nextDrawViewButton.gameObject.SetActive(visible);
+            if (startDrawingGameButton != null)
+                startDrawingGameButton.gameObject.SetActive(visible);
         }
 
         private void RefreshLove(int total)
         {
             if (loveLabel != null)
-                loveLabel.text = $"Dükkan Puanı: {total}";
+                loveLabel.text = $"Dükkan Bakiyesi: {total}";
         }
 
         private void RefreshCat(CatDefinition cat)
@@ -261,7 +357,9 @@ namespace PawPath.UI
         public void Bind(Text love, Text level, Text ink, Text selected, Button play, Button shop,
             Button directPlay, Button restart, Button home, CatNeedsUI careUI, GameObject brushes,
             GameObject tutorial, GameObject controls, GameObject modeMenu,
-            Button drawingPlay, ThemeSelectionUI themeSelector, Button editButton, Button flipButton)
+            Button drawingPlay, ThemeSelectionUI themeSelector, Button editButton, Button flipButton,
+            Button settings, GameObject settingsRoot, Button previousDrawView,
+            Button nextDrawView, Button startDrawingGame)
         {
             loveLabel = love;
             levelLabel = level;
@@ -280,6 +378,11 @@ namespace PawPath.UI
             drawingPlayButton = drawingPlay;
             editHomeButton = editButton;
             flipFurnitureButton = flipButton;
+            settingsButton = settings;
+            settingsPanel = settingsRoot;
+            previousDrawViewButton = previousDrawView;
+            nextDrawViewButton = nextDrawView;
+            startDrawingGameButton = startDrawingGame;
             themeSelection = themeSelector;
             if (themeSelection != null)
                 themeSelection.SetSelectionCallback(_ => StartSelectedMode());
@@ -314,6 +417,22 @@ namespace PawPath.UI
             {
                 drawingPlayButton.onClick.RemoveListener(OnDrawingPlayButtonClicked);
                 drawingPlayButton.onClick.AddListener(OnDrawingPlayButtonClicked);
+            }
+
+            if (previousDrawViewButton != null)
+            {
+                previousDrawViewButton.onClick.RemoveAllListeners();
+                previousDrawViewButton.onClick.AddListener(() => MoveDrawingView(-1));
+            }
+            if (nextDrawViewButton != null)
+            {
+                nextDrawViewButton.onClick.RemoveAllListeners();
+                nextDrawViewButton.onClick.AddListener(() => MoveDrawingView(1));
+            }
+            if (startDrawingGameButton != null)
+            {
+                startDrawingGameButton.onClick.RemoveAllListeners();
+                startDrawingGameButton.onClick.AddListener(() => GameFlow.Instance?.StartGameplayFromDrawing(true));
             }
 
             if (editHomeButton != null)
@@ -377,7 +496,7 @@ namespace PawPath.UI
             if (brushTutorial == null || PlayerPrefs.GetInt("PawPath.BrushTutorialSeen.v2", 0) == 1)
                 return false;
 
-            SetTutorialText("YOLU TAMAMLAMA\n\nKedi hazır zeminde kendi yürür.\nYalnızca çukurlara köprü, tümseklere rampa çiz.\n\nSiyah: Normal yol   Mavi: Zıplatır\nKırmızı: Tehlike   Beyaz: Kaygan yol\nSilgi: Çizdiğin yolu siler");
+            SetTutorialText("YOLU TAMAMLAMA\n\nÖnceki/Sonraki ile bölümün tamamını gezip yolları çiz.\nMürekkebin yarısı sonraki ekranlar için korunur.\nBitince Oyunu Başlat'a bas veya mürekkebi tüket.\n\nSiyah: Yol   Mavi: Zıpla   Beyaz: Buz   Silgi: Sil");
             PlayerPrefs.SetInt("PawPath.BrushTutorialSeen.v2", 1);
             PlayerPrefs.Save();
             PresentTutorial();
