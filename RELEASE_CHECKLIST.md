@@ -20,7 +20,7 @@ Project Settings → Player → Android:
 | Target Architectures | ARMv7 + **ARM64** |
 | Minimum API Level | 23 |
 | Target API Level | 36 |
-| Package Name | `com.MelisaUyar.Mitzi` — **Play'e ilk yüklemeden sonra değiştirilemez.** Değiştirmek istiyorsan şimdi değiştir (ör. `com.melisauyar.mitzi`). |
+| Package Name | `com.mitzicat.game` (Android ve iOS) — **Play'e ilk yüklemeden sonra değiştirilemez.** "Override Default Package Name" açık olmalı; kapalıysa Unity adı Company Name'den türetir. |
 | Version / Bundle Version Code | Her yüklemede Bundle Version Code'u 1 artır. |
 
 ## 3. Elle yapılacaklar
