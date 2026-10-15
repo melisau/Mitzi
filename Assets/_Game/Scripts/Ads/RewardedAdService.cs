@@ -1,5 +1,6 @@
 using System;
 using GoogleMobileAds.Api;
+using GoogleMobileAds.Common;
 using UnityEngine;
 
 namespace PawPath.Ads
@@ -55,22 +56,19 @@ namespace PawPath.Ads
 
         void Start()
         {
-            // Reklam olayları Unity ana iş parçacığında gelsin; UI'ye doğrudan dokunabiliriz.
-            MobileAds.RaiseAdEventsOnUnityMainThread = true;
-
-            // Families politikası: tüm istekler çocuğa yönelik, rıza yaşının altında, en fazla G içerik.
+            // Families politikası: tüm istekler çocuğa yönelik (çocuk yönelimli + rıza yaşı altı
+            // işaretlerinin yeni karşılığı) ve en fazla G içerik.
             MobileAds.SetRequestConfiguration(new RequestConfiguration
             {
-                TagForChildDirectedTreatment = TagForChildDirectedTreatment.True,
-                TagForUnderAgeOfConsent = TagForUnderAgeOfConsent.True,
+                AgeRestrictedTreatment = AgeRestrictedTreatment.Child,
                 MaxAdContentRating = MaxAdContentRating.G
             });
 
-            MobileAds.Initialize(_ =>
+            MobileAds.Initialize(_ => OnMainThread(() =>
             {
                 initialized = true;
                 LoadAd();
-            });
+            }));
         }
 
         void Update()
@@ -87,7 +85,7 @@ namespace PawPath.Ads
 
             loading = true;
             retryAt = 0f;
-            RewardedAd.Load(AdsConfig.RewardedAdUnitId, new AdRequest(), (ad, error) =>
+            RewardedAd.Load(AdsConfig.RewardedAdUnitId, new AdRequest(), (ad, error) => OnMainThread(() =>
             {
                 loading = false;
                 if (error != null || ad == null)
@@ -101,10 +99,10 @@ namespace PawPath.Ads
 
                 failedLoads = 0;
                 rewardedAd = ad;
-                rewardedAd.OnAdFullScreenContentClosed += OnAdFinished;
-                rewardedAd.OnAdFullScreenContentFailed += _ => OnAdFinished();
+                rewardedAd.OnAdFullScreenContentClosed += () => OnMainThread(OnAdFinished);
+                rewardedAd.OnAdFullScreenContentFailed += _ => OnMainThread(OnAdFinished);
                 StateChanged?.Invoke();
-            });
+            }));
         }
 
         /// <summary>
@@ -115,15 +113,18 @@ namespace PawPath.Ads
             if (DailyLimitReached || !IsReady)
                 return false;
 
-            rewardedAd.Show(_ =>
+            rewardedAd.Show(_ => OnMainThread(() =>
             {
                 PlayerPrefs.SetInt(TodayKey, WatchedToday + 1);
                 PlayerPrefs.Save();
                 onRewarded?.Invoke();
                 StateChanged?.Invoke();
-            });
+            }));
             return true;
         }
+
+        /// <summary>SDK geri çağrıları başka iş parçacığında gelebilir; Unity API'si ana iş parçacığı ister.</summary>
+        static void OnMainThread(Action action) => MobileAdsEventExecutor.ExecuteInUpdate(action);
 
         void OnAdFinished()
         {
