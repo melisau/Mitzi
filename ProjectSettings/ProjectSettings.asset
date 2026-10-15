@@ -285,7 +285,14 @@ PlayerSettings:
   AndroidMinifyDebug: 0
   AndroidValidateAppBundleSize: 1
   AndroidAppBundleSizeToValidate: 200
-  m_BuildTargetIcons: []
+  m_BuildTargetIcons:
+  - m_BuildTarget: 
+    m_Icons:
+    - serializedVersion: 2
+      m_Icon: {fileID: 2800000, guid: 2de560918a9d41cabf2802b00d75628e, type: 3}
+      m_Width: 128
+      m_Height: 128
+      m_Kind: 0
   m_BuildTargetPlatformIcons:
   - m_BuildTarget: iPhone
     m_Icons:
@@ -386,32 +393,44 @@ PlayerSettings:
       m_SubKind: App Store
   - m_BuildTarget: Android
     m_Icons:
-    - m_Textures: []
+    - m_Textures:
+      - {fileID: 2800000, guid: 21af1d3eadf448cba8a3d648d4e7e0ba, type: 3}
+      - {fileID: 2800000, guid: e64302bcfcae4bbcbe9381bf7e1756b3, type: 3}
       m_Width: 432
       m_Height: 432
       m_Kind: 2
       m_SubKind: 
-    - m_Textures: []
+    - m_Textures:
+      - {fileID: 2800000, guid: 21af1d3eadf448cba8a3d648d4e7e0ba, type: 3}
+      - {fileID: 2800000, guid: e64302bcfcae4bbcbe9381bf7e1756b3, type: 3}
       m_Width: 324
       m_Height: 324
       m_Kind: 2
       m_SubKind: 
-    - m_Textures: []
+    - m_Textures:
+      - {fileID: 2800000, guid: 21af1d3eadf448cba8a3d648d4e7e0ba, type: 3}
+      - {fileID: 2800000, guid: e64302bcfcae4bbcbe9381bf7e1756b3, type: 3}
       m_Width: 216
       m_Height: 216
       m_Kind: 2
       m_SubKind: 
-    - m_Textures: []
+    - m_Textures:
+      - {fileID: 2800000, guid: 21af1d3eadf448cba8a3d648d4e7e0ba, type: 3}
+      - {fileID: 2800000, guid: e64302bcfcae4bbcbe9381bf7e1756b3, type: 3}
       m_Width: 162
       m_Height: 162
       m_Kind: 2
       m_SubKind: 
-    - m_Textures: []
+    - m_Textures:
+      - {fileID: 2800000, guid: 21af1d3eadf448cba8a3d648d4e7e0ba, type: 3}
+      - {fileID: 2800000, guid: e64302bcfcae4bbcbe9381bf7e1756b3, type: 3}
       m_Width: 108
       m_Height: 108
       m_Kind: 2
       m_SubKind: 
-    - m_Textures: []
+    - m_Textures:
+      - {fileID: 2800000, guid: 21af1d3eadf448cba8a3d648d4e7e0ba, type: 3}
+      - {fileID: 2800000, guid: e64302bcfcae4bbcbe9381bf7e1756b3, type: 3}
       m_Width: 81
       m_Height: 81
       m_Kind: 2

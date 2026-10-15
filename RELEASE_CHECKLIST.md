@@ -27,8 +27,8 @@ Project Settings → Player → Android:
 
 ## 3. Elle yapılacaklar
 
-- [ ] **İkon:** 1024×1024 PNG hazırla → Player → Icon → Android'de Adaptive (ön plan + arka plan) ve Legacy ikonları ata.
-- [ ] **İmza anahtarı:** Player → Publishing Settings → Keystore Manager → yeni keystore oluştur. Dosyayı ve şifreleri **repoya koymadan** güvenli bir yerde sakla (kaybolursa güncelleme yayınlanamaz; Play App Signing açık olsa bile yükleme anahtarı gerekir).
+- [x] **İkon:** `Assets/_Game/Art/AppIcon/` — varsayılan ikon (`app_icon.png`) ve Android uyarlanabilir ikon katmanları (`app_icon_bg.png` + `app_icon_fg.png`) Player Settings'e atandı. Play mağazası için 512×512 sürümü ayrıca verildi.
+- [x] **İmza anahtarı:** `mitzi-upload.keystore` (alias `mitzi`, RSA 4096, 2054'e kadar geçerli) oluşturuldu. Dosya ve şifre **repoda değil**; güvenli bir yerde sakla. CI, `ANDROID_KEYSTORE_*` secret'larıyla imzalı `.aab` üretir (bkz. `.github/CI_SETUP.md`). Play Console'da **Play App Signing** açık kalsın; bu anahtar yalnız *yükleme anahtarı* olur, kaybolursa Google'dan sıfırlatılabilir.
 - [ ] **Splash:** Unity Personal'da Unity logosu zorunludur; istersen kendi logonu ekleyebilirsin.
 - [ ] **Derleme:** File → Build Settings → Android → **Build App Bundle (Google Play)** işaretli → Build. Çıktı `.aab` olmalı.
 - [ ] Önce **Development Build** ile gerçek telefonda QA listesini çalıştır, ardından işaretsiz release derlemesini al.
