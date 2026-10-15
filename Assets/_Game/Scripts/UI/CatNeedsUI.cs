@@ -70,7 +70,7 @@ namespace PawPath.UI
             int currentDaily = catNeedsSystem.DailyPettingPoints;
             if (dailyPettingProgressText != null)
             {
-                dailyPettingProgressText.text = GameText.L($"Günlük Okşama: {currentDaily} / {catNeedsSystem.maxDailyPettingPoints}", $"Daily Petting: {currentDaily} / {catNeedsSystem.maxDailyPettingPoints}");
+                dailyPettingProgressText.text = GameText.L($"Günlük Okşama: {currentDaily} / {catNeedsSystem.maxDailyPettingPoints}", $"Daily Petting: {currentDaily} / {catNeedsSystem.maxDailyPettingPoints}", $"Tägliches Streicheln: {currentDaily} / {catNeedsSystem.maxDailyPettingPoints}");
             }
 
             if (energyWarningText != null)
@@ -80,10 +80,10 @@ namespace PawPath.UI
             }
 
             UpdateCareButton(feedButton, true, catNeedsSystem.CanFeedToday
-                ? GameText.L($"Mama +{catNeedsSystem.foodPoints}", $"Food +{catNeedsSystem.foodPoints}") : GameText.L("Mama Ver", "Feed"));
+                ? GameText.L($"Mama +{catNeedsSystem.foodPoints}", $"Food +{catNeedsSystem.foodPoints}", $"Futter +{catNeedsSystem.foodPoints}") : GameText.L("Mama Ver", "Feed", "Füttern"));
             UpdateCareButton(waterButton, true, catNeedsSystem.CanGiveWaterToday
-                ? GameText.L($"Su +{catNeedsSystem.waterPoints}", $"Water +{catNeedsSystem.waterPoints}") : GameText.L("Su Ver", "Give Water"));
-            UpdateCareButton(sleepButton, catNeedsSystem.CanSleepToday, GameText.L($"Uyu +{catNeedsSystem.sleepPoints}", $"Sleep +{catNeedsSystem.sleepPoints}"));
+                ? GameText.L($"Su +{catNeedsSystem.waterPoints}", $"Water +{catNeedsSystem.waterPoints}", $"Wasser +{catNeedsSystem.waterPoints}") : GameText.L("Su Ver", "Give Water", "Wasser geben"));
+            UpdateCareButton(sleepButton, catNeedsSystem.CanSleepToday, GameText.L($"Uyu +{catNeedsSystem.sleepPoints}", $"Sleep +{catNeedsSystem.sleepPoints}", $"Schlafen +{catNeedsSystem.sleepPoints}"));
         }
 
         private void OnFeedClicked()
@@ -92,7 +92,7 @@ namespace PawPath.UI
             {
                 if (HubFurnitureView.Instance == null || !HubFurnitureView.Instance.HasPlacedBowl)
                 {
-                    ShowCareMessage(GameText.L("Önce dükkândan mama kabı satın al. Puan için kediyi sev veya bölüm geç.", "Buy a food bowl from the shop first. Pet your cat or finish levels to earn points."));
+                    ShowCareMessage(GameText.L("Önce dükkândan mama kabı satın al. Puan için kediyi sev veya bölüm geç.", "Buy a food bowl from the shop first. Pet your cat or finish levels to earn points.", "Kauf zuerst einen Futternapf im Laden. Streichle deine Katze oder schaffe Level, um Punkte zu sammeln."));
                     CozyAudioManager.Instance?.PlayError();
                     return;
                 }
@@ -109,7 +109,7 @@ namespace PawPath.UI
             {
                 if (HubFurnitureView.Instance == null || !HubFurnitureView.Instance.HasPlacedWater)
                 {
-                    ShowCareMessage(GameText.L("Önce dükkândan su kabı satın al. Puan için kediyi sev veya bölüm geç.", "Buy a water bowl from the shop first. Pet your cat or finish levels to earn points."));
+                    ShowCareMessage(GameText.L("Önce dükkândan su kabı satın al. Puan için kediyi sev veya bölüm geç.", "Buy a water bowl from the shop first. Pet your cat or finish levels to earn points.", "Kauf zuerst einen Wassernapf im Laden. Streichle deine Katze oder schaffe Level, um Punkte zu sammeln."));
                     CozyAudioManager.Instance?.PlayError();
                     return;
                 }

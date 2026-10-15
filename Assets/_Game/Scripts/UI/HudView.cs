@@ -250,8 +250,8 @@ namespace PawPath.UI
                 int total = cameraFollow != null ? cameraFollow.PreparationViewCount : 1;
                 inkLabel.text = LineDraw.Instance.AvailableInkForCurrentView() <= 0.01f &&
                     LineDraw.Instance.InkLeft > 0.01f
-                    ? GameText.L($"Sonraki ekrana geç ▶ · Kalan {LineDraw.Instance.InkLeft:0.0}", $"Go to next screen ▶ · Left {LineDraw.Instance.InkLeft:0.0}")
-                    : GameText.L($"Çizim: {LineDraw.Instance.InkLeft:0.0} · Ekran {view}/{total}", $"Ink: {LineDraw.Instance.InkLeft:0.0} · Screen {view}/{total}");
+                    ? GameText.L($"Sonraki ekrana geç ▶ · Kalan {LineDraw.Instance.InkLeft:0.0}", $"Go to next screen ▶ · Left {LineDraw.Instance.InkLeft:0.0}", $"Zum nächsten Bildschirm ▶ · Übrig {LineDraw.Instance.InkLeft:0.0}")
+                    : GameText.L($"Çizim: {LineDraw.Instance.InkLeft:0.0} · Ekran {view}/{total}", $"Ink: {LineDraw.Instance.InkLeft:0.0} · Screen {view}/{total}", $"Tinte: {LineDraw.Instance.InkLeft:0.0} · Bildschirm {view}/{total}");
             }
             else
                 inkLabel.text = $"{GameText.Ink}: {LineDraw.Instance.InkLeft:0.0}";

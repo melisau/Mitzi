@@ -31,7 +31,7 @@ namespace PawPath.UI
                 levelTitleText.text = GameText.LevelCompletedLabel(completedLevel);
 
             if (rewardText != null)
-                rewardText.text = GameText.L($"Kazandın!  +{reward} Sevgi", $"You won!  +{reward} Love");
+                rewardText.text = GameText.L($"Kazandın!  +{reward} Sevgi", $"You won!  +{reward} Love", $"Gewonnen!  +{reward} Liebe");
 
             if (celebrationImage != null && celebrationFaces != null && celebrationFaces.Length > 0)
             {

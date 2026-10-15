@@ -55,7 +55,7 @@ namespace PawPath.Levels
             if (collision.collider.GetComponent<CatController>() == null)
                 return;
             CozyAudioManager.Instance?.PlayHurt();
-            GameFlow.Instance?.ShowLevelFailure(GameText.L("Uçan kuşa çarptın. Uçuş yüksekliğini izle ve doğru zamanda geç!", "You bumped into a flying bird. Watch its height and pass at the right moment!"));
+            GameFlow.Instance?.ShowLevelFailure(GameText.L("Uçan kuşa çarptın. Uçuş yüksekliğini izle ve doğru zamanda geç!", "You bumped into a flying bird. Watch its height and pass at the right moment!", "Du bist gegen einen Vogel gestoßen. Achte auf seine Flughöhe und lauf im richtigen Moment vorbei!"));
         }
     }
 }

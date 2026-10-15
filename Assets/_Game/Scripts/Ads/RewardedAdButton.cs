@@ -63,19 +63,17 @@ namespace PawPath.Ads
             bool interactable;
             if (ads == null || left == 0)
             {
-                text = GameText.L("Bugünlük reklam bitti", "No more ads today");
+                text = GameText.L("Bugünlük reklam bitti", "No more ads today", "Heute keine Werbung mehr");
                 interactable = false;
             }
             else if (!ads.IsReady)
             {
-                text = GameText.L("Reklam hazırlanıyor…", "Ad loading…");
+                text = GameText.L("Reklam hazırlanıyor…", "Ad loading…", "Werbung lädt…");
                 interactable = false;
             }
             else
             {
-                text = GameText.L(
-                    $"▶ Reklam izle: +{AdsConfig.RewardLovePoints} Sevgi ({left})",
-                    $"▶ Watch ad: +{AdsConfig.RewardLovePoints} Love ({left})");
+                text = GameText.L($"▶ Reklam izle: +{AdsConfig.RewardLovePoints} Sevgi ({left})", $"▶ Watch ad: +{AdsConfig.RewardLovePoints} Love ({left})", $"▶ Werbung ansehen: +{AdsConfig.RewardLovePoints} Liebe ({left})");
                 interactable = true;
             }
 

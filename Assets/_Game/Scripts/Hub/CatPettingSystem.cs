@@ -131,7 +131,7 @@ namespace PawPath.Hub
                     }
                     else if (worldLoveText != null)
                     {
-                        worldLoveText.text = GameText.L("Günlük okşama sınırı doldu", "Daily petting limit reached");
+                        worldLoveText.text = GameText.L("Günlük okşama sınırı doldu", "Daily petting limit reached", "Tägliches Streichellimit erreicht");
                     }
                 }
             }
