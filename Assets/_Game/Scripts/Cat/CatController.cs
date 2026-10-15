@@ -7,6 +7,7 @@ using PawPath.Economy;
 using PawPath.Levels;
 using PawPath.Gameplay;
 using PawPath.Audio;
+using PawPath.Localization;
 
 namespace PawPath.Cat
 {
@@ -527,7 +528,7 @@ namespace PawPath.Cat
                 CozyEconomyManager.Instance.RemoveLove(10, "Kırmızı yola temas");
             yield return new WaitForSeconds(0.35f);
             busy = false;
-            GameFlow.Instance?.ShowLevelFailure("Tehlikeli alana temas ettin. Daha güvenli bir yol dene!");
+            GameFlow.Instance?.ShowLevelFailure(GameText.L("Tehlikeli alana temas ettin. Daha güvenli bir yol dene!", "You touched a danger zone. Try a safer path!"));
         }
 
         public void FlipTowards(Vector2 target)
@@ -556,7 +557,7 @@ namespace PawPath.Cat
             body.velocity = Vector2.zero;
             airTimer = 0f;
             busy = false;
-            GameFlow.Instance?.ShowLevelFailure("Kedi çukura düştü. Zıplama zamanını veya çizdiğin yolu değiştir!");
+            GameFlow.Instance?.ShowLevelFailure(GameText.L("Kedi çukura düştü. Zıplama zamanını veya çizdiğin yolu değiştir!", "Your cat fell into a gap. Change your jump timing or the path you drew!"));
         }
 
         public void BindVisual(Transform vis, SpriteRenderer bubble)

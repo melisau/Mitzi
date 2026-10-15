@@ -2,6 +2,7 @@ using UnityEngine;
 using PawPath.Cat;
 using PawPath.Core;
 using PawPath.Audio;
+using PawPath.Localization;
 
 namespace PawPath.Levels
 {
@@ -54,7 +55,7 @@ namespace PawPath.Levels
             if (collision.collider.GetComponent<CatController>() == null)
                 return;
             CozyAudioManager.Instance?.PlayHurt();
-            GameFlow.Instance?.ShowLevelFailure("Uçan kuşa çarptın. Uçuş yüksekliğini izle ve doğru zamanda geç!");
+            GameFlow.Instance?.ShowLevelFailure(GameText.L("Uçan kuşa çarptın. Uçuş yüksekliğini izle ve doğru zamanda geç!", "You bumped into a flying bird. Watch its height and pass at the right moment!"));
         }
     }
 }
