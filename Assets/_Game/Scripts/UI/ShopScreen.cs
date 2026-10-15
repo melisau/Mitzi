@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using PawPath.Core;
 using PawPath.Data;
 using PawPath.Economy;
+using PawPath.Localization;
 using PawPath.Content; // ShopItemDefinition ve türler için eklendi
 using PawPath.Audio;
 
@@ -170,19 +171,19 @@ namespace PawPath.UI
             // KOYU RENK YAZILAR (Açık Arka Planda Tam Okunabilirlik İçin)
             if (texts.Length > 0)
             {
-                texts[0].text = item.displayName; 
+                texts[0].text = GameText.ItemName(item); 
                 texts[0].fontSize = 24;
                 texts[0].color = new Color(0.2f, 0.15f, 0.1f); 
             }
             if (texts.Length > 1)
             {
-                texts[1].text = item.description; 
+                texts[1].text = GameText.ItemDescription(item); 
                 texts[1].fontSize = 18;
                 texts[1].color = new Color(0.35f, 0.3f, 0.25f); 
             }
             if (texts.Length > 2)
             {
-                texts[2].text = $"{item.lovePointCost} Puan"; 
+                texts[2].text = GameText.L($"{item.lovePointCost} Puan", $"{item.lovePointCost} Points"); 
                 texts[2].fontSize = 20;
                 texts[2].color = new Color(0.65f, 0.25f, 0.15f); 
             }
@@ -212,7 +213,7 @@ namespace PawPath.UI
                 // SAT BUTONU TASARIMI
                 if (label != null)
                 {
-                    label.text = "Sat";
+                    label.text = GameText.L("Sat", "Sell");
                     label.color = Color.white;
                 }
                 
@@ -257,7 +258,7 @@ namespace PawPath.UI
 
                 if (label != null)
                 {
-                    label.text = "Satın Al";
+                    label.text = GameText.L("Satın Al", "Buy");
                     label.color = Color.white;
                 }
 
@@ -441,7 +442,7 @@ namespace PawPath.UI
             var label = button.GetComponentInChildren<Text>();
             if (label != null)
             {
-                label.text = "Kedi Evi";
+                label.text = GameText.House;
                 label.fontSize = 27;
                 label.color = new Color(0.28f, 0.20f, 0.20f);
             }

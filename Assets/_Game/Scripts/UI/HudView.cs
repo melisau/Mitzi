@@ -128,11 +128,6 @@ namespace PawPath.UI
             }
         }
 
-        private void OnShopButtonClicked()
-        {
-            Debug.Log(">>> Dükkan butonuna basıldı! <<<");
-        }
-
         private void OnLevelStarted()
         {
             RefreshLevel();
@@ -255,8 +250,8 @@ namespace PawPath.UI
                 int total = cameraFollow != null ? cameraFollow.PreparationViewCount : 1;
                 inkLabel.text = LineDraw.Instance.AvailableInkForCurrentView() <= 0.01f &&
                     LineDraw.Instance.InkLeft > 0.01f
-                    ? $"Sonraki ekrana geç ▶ · Kalan {LineDraw.Instance.InkLeft:0.0}"
-                    : $"Çizim: {LineDraw.Instance.InkLeft:0.0} · Ekran {view}/{total}";
+                    ? GameText.L($"Sonraki ekrana geç ▶ · Kalan {LineDraw.Instance.InkLeft:0.0}", $"Go to next screen ▶ · Left {LineDraw.Instance.InkLeft:0.0}")
+                    : GameText.L($"Çizim: {LineDraw.Instance.InkLeft:0.0} · Ekran {view}/{total}", $"Ink: {LineDraw.Instance.InkLeft:0.0} · Screen {view}/{total}");
             }
             else
                 inkLabel.text = $"{GameText.Ink}: {LineDraw.Instance.InkLeft:0.0}";
@@ -312,7 +307,7 @@ namespace PawPath.UI
         private void RefreshLove(int total)
         {
             if (loveLabel != null)
-                loveLabel.text = $"Dükkan Bakiyesi: {total}";
+                loveLabel.text = GameText.ShopBalance(total);
         }
 
         private void RefreshCat(CatDefinition cat)
@@ -399,12 +394,6 @@ namespace PawPath.UI
             {
                 playButton.onClick.RemoveListener(OnPlayButtonClicked);
                 playButton.onClick.AddListener(OnPlayButtonClicked);
-            }
-
-            if (shopButton != null)
-            {
-                shopButton.onClick.RemoveListener(OnShopButtonClicked);
-                shopButton.onClick.AddListener(OnShopButtonClicked);
             }
 
             if (directPlayButton != null)
@@ -496,7 +485,7 @@ namespace PawPath.UI
             if (brushTutorial == null || PlayerPrefs.GetInt("PawPath.BrushTutorialSeen.v2", 0) == 1)
                 return false;
 
-            SetTutorialText("YOLU TAMAMLAMA\n\nÖnceki/Sonraki ile bölümün tamamını gezip yolları çiz.\nMürekkebin yarısı sonraki ekranlar için korunur.\nBitince Oyunu Başlat'a bas veya mürekkebi tüket.\n\nSiyah: Yol   Mavi: Zıpla   Beyaz: Buz   Silgi: Sil");
+            SetTutorialText(GameText.TutorialDrawing);
             PlayerPrefs.SetInt("PawPath.BrushTutorialSeen.v2", 1);
             PlayerPrefs.Save();
             PresentTutorial();
@@ -508,7 +497,7 @@ namespace PawPath.UI
             if (brushTutorial == null || PlayerPrefs.GetInt("PawPath.CityTutorialSeen.v1", 0) == 1)
                 return false;
 
-            SetTutorialText("CADDE YOLU\n\nArabaların üzerinden atlamak için zıpla.\nKonteynırların bulunduğu çukurlara düşmemek için zamanında zıpla.\n\nDikkatli ilerle ve yolun sonundaki kapıya ulaş!");
+            SetTutorialText(GameText.TutorialCity);
             PlayerPrefs.SetInt("PawPath.CityTutorialSeen.v1", 1);
             PlayerPrefs.Save();
             PresentTutorial();
