@@ -89,7 +89,7 @@ namespace PawPath.Core
             furnitureSlots[(int)FurnitureSlotType.Wallpaper] = CreateFurnitureSlot("WallpaperSlot", hub.transform, new Vector3(0f, 0f, 0f));
             furnitureSlots[(int)FurnitureSlotType.Poster] = CreateFurnitureSlot("PosterSlot", hub.transform, new Vector3(1.1f, 1.4f, 0f));
             furnitureSlots[(int)FurnitureSlotType.Water] = CreateFurnitureSlot("WaterSlot", hub.transform, new Vector3(0.95f, -1.82f, 0f));
-            furnitureSlots[(int)FurnitureSlotType.Sand] = CreateFurnitureSlot("SandSlot", hub.transform, new Vector3(-1.9f, -0.85f, 0f));
+            furnitureSlots[(int)FurnitureSlotType.Sand] = CreateFurnitureSlot("SandSlot", hub.transform, new Vector3(-1.9f, -0.70f, 0f));
             furnitureSlots[(int)FurnitureSlotType.Tree] = CreateFurnitureSlot("TreeSlot", hub.transform, new Vector3(5.3f, 0.27f, 0f));
             furnitureSlots[(int)FurnitureSlotType.Toy] = CreateFurnitureSlot("ToySlot", hub.transform, new Vector3(1.8f, -2.35f, 0f));
             var furnitureView = hub.AddComponent<HubFurnitureView>();
