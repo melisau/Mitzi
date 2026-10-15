@@ -43,3 +43,18 @@ Project Settings → Player → Android:
 ## 5. Oyun içi dil
 
 Oyun ilk açılışta cihaz dili Türkçeyse Türkçe, değilse İngilizce başlar. Ayarlar → Dil'den değiştirilebilir; değişince sahne yeniden yüklenir. Yeni metin eklerken `GameText.L("Türkçe", "English")` kullan.
+
+## 6. Reklam (AdMob, çocuk kitlesine uygun)
+
+Oyunun hedef kitlesi çocukları da kapsıyor; bu yüzden Google Play **Families politikası** geçerli. Kurulum buna göre yapıldı:
+
+- Yalnızca **ödüllü reklam** var (Kedi Evi → "Reklam izle: +20 Sevgi", günde en fazla 3). Oyunu kesen geçiş veya banner reklamı yok.
+- Tüm istekler çocuğa yönelik işaretli (`TagForChildDirectedTreatment`, `TagForUnderAgeOfConsent`), en fazla **G** içerik, kişiselleştirilmiş reklam yok.
+- `AD_ID` izni manifest'ten çıkarıldı (`Assets/Plugins/Android/AndroidManifest.xml`).
+- Şu an Google'ın **test** kimlikleri kullanılıyor; gelir getirmez. Yayından önce:
+  - [ ] admob.google.com'da hesap aç, Android uygulaması ekle (paket: `com.mitzicat.game`).
+  - [ ] AdMob → Uygulama ayarları → **Çocuklara yönelik** (child-directed) ayarlarını işaretle.
+  - [ ] Uygulama kimliğini Unity'de **Assets → Google Mobile Ads → Settings**'e gir.
+  - [ ] Bir **ödüllü reklam birimi** oluştur, kimliğini `Assets/_Game/Scripts/Ads/AdsConfig.cs` → `ProductionRewardedAndroid` alanına yaz.
+  - [ ] Play Console → Uygulama içeriği → Hedef kitle: çocuk yaş gruplarını + 13 yaş üstünü seç; Reklamlar: "Evet, reklam içeriyor".
+  - [ ] Kendi reklamlarına tıklama (hesap askıya alınabilir); Development Build zaten test reklamı gösterir.
