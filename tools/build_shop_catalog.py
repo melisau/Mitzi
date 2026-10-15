@@ -6,7 +6,7 @@ import os, re, uuid, glob
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ART = "Assets/_Game/Art/Furniture"
 CONTENT = "Assets/_Game/Content"
-SPRITE_META_TEMPLATE = "Assets/_Game/Art/prop_cat_bed.png.meta"
+SPRITE_META_TEMPLATE = "Assets/_Game/Art/Furniture/bed_cocoa.png.meta"
 ITEM_SCRIPT_GUID = "5453fd3994f158f44848f3bb7b9c08e9"
 os.chdir(ROOT)
 
@@ -41,7 +41,7 @@ ITEMS = [
     ("item_cat_bed", "item_cat_bed", "bed_cocoa", 1, 40, "Kakao Kedi Yatağı", "Kıvrılabileceği sıcacık bir yatak.", None),
     ("item_cat_bed_sage", "cat_bed_sage", "bed_sage", 1, 55, "Ada Çayı Kedi Yatağı", "Yeşil kumaşlı, peluş astarlı yumuşak yatak.", "item_cat_bed"),
     ("item_cat_bed_rose", "cat_bed_rose", "bed_rose", 1, 55, "Gül Kurusu Kedi Yatağı", "Gül kurusu kumaşlı, şekerleme için ideal yatak.", "item_cat_bed"),
-    ("item_food_bowl", "food_bowl", "bowl_steel", 2, 20, "Çelik Mama Kabı", "Sağlam, kolay temizlenen klasik mama kabı.", None),
+    ("item_food_bowl", "food_bowl", "bowl_steel", 2, 20, "Gri Taş Mama Kabı", "Taş görünümlü, sağlam ve kolay temizlenen mama kabı.", None),
     ("item_food_bowl_copper", "food_bowl_copper", "bowl_copper", 2, 30, "Bakır Mama Kabı", "Güneşte parlayan sıcak bakır renkli mama kabı.", "item_food_bowl"),
     ("item_food_bowl_cream", "food_bowl_cream", "bowl_cream", 2, 30, "Krem Emaye Mama Kabı", "Krem rengi emaye, ev sıcaklığında bir mama kabı.", "item_food_bowl"),
     ("item_cat_poster", "cat_poster", "poster_mitzi_sofa", 4, 30, "Mitzi Posteri: Kanepe", "Mitzi'nin kanepede poz verdiği çerçeveli fotoğraf.", None),
@@ -50,7 +50,7 @@ ITEMS = [
     ("item_cat_water", "cat_water", "water_cream", 5, 25, "Krem Su Kabı", "Kedilerin su içmek için kullanacağı seramik kap.", None),
     ("item_cat_water_sage", "cat_water_sage", "water_sage", 5, 30, "Ada Çayı Su Kabı", "Ada çayı yeşili seramik su kabı.", "item_cat_water"),
     ("item_cat_water_rose", "cat_water_rose", "water_rose", 5, 30, "Gül Kurusu Su Kabı", "Gül kurusu seramik su kabı.", "item_cat_water"),
-    ("item_cat_sand", "cat_sand", "sand_white", 6, 35, "Kapalı Kum Kabı", "Kediler için temiz ve rahat kapalı kum alanı.", None),
+    ("item_cat_sand", "cat_sand", "sand_cottage", 6, 35, "Kulübe Kum Kabı", "Ahşap kulübe şeklinde, kapılı ve rahat bir kum kabı.", None),
     ("item_cat_tree", "cat_tree", "tree_taupe", 7, 80, "Taupe Kedi Ağacı", "Tırmanmak, dinlenmek ve evi seyretmek için.", None),
     ("item_cat_tree_walnut", "cat_tree_walnut", "tree_walnut", 7, 95, "Ceviz Kedi Ağacı", "Koyu ceviz tonlarında, sisal direkli kedi ağacı.", "item_cat_tree"),
     ("item_cat_tree_cream", "cat_tree_cream", "tree_cream", 7, 95, "Krem Kedi Ağacı", "Açık krem kaplamalı, ferah görünümlü kedi ağacı.", "item_cat_tree"),

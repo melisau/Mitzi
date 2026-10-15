@@ -2,8 +2,8 @@
 Kedi evi eşyalarını odanın (home_background_gemini.jpg) ışığına uydurur ve renk varyantları üretir.
 
 Kullanım (repo kökünden):  python3 tools/harmonize_furniture.py
-Kaynak görseller tools/furniture_src/ altında saklanır (orijinaller); çıktılar Assets/ içine yazılır.
-Yeni AI görselleri gelince kaynağı değiştirip betiği yeniden çalıştırmak yeterli.
+Zemin eşyaları önce tools/render_furniture.py ile render edilir (tools/furniture_src/rendered/);
+posterler Mitzi fotoğraflarından, duvarlar Gemini odasından üretilir. Çıktılar Assets/ içine yazılır.
 """
 import colorsys, os, shutil
 import numpy as np
@@ -125,67 +125,38 @@ def variant(raw, mask, dark, light, strength=0.9, gamma=1.0, **grade):
     return warm_grade(colorize(raw, mask, dark, light, strength, gamma), **grade)
 
 def build():
-    # Yatak: dış kumaş koyu (siyah) -> kakao, ada yeşili, gül kurusu.
-    bed = raw_item("prop_cat_bed.png")
-    v, sat, a = hsv(bed)
-    outer = soften(((v < 0.42) & (a > 0.5)).astype(np.float32), 3)
-    save(contact_shadow(variant(bed, outer, (52, 40, 34), (150, 120, 98), 0.85)), "bed_cocoa")
-    save(contact_shadow(variant(bed, outer, (58, 74, 56), (160, 182, 150))), "bed_sage")
-    save(contact_shadow(variant(bed, outer, (96, 56, 58), (214, 160, 156))), "bed_rose")
+    # Zemin eşyaları: tools/render_furniture.py ile sıfırdan render edilen özgün modeller.
+    # (Eski internet kaynaklı ürün fotoğrafları artık kullanılmıyor.)
+    shadows = {"bed": (0.92, 0.12), "bowl": (0.9, 0.14), "water": (0.9, 0.14), "tree": (0.9, 0.10), "toy": (0.75, 0.16)}
+    for name in ("bed_cocoa", "bed_sage", "bed_rose", "bowl_steel", "bowl_copper", "bowl_cream",
+                 "water_cream", "water_sage", "water_rose", "tree_taupe", "tree_walnut", "tree_cream",
+                 "toy_gray", "toy_cream", "toy_caramel"):
+        im = warm_grade(fit_max(trim(load("rendered/" + name + ".png"))), warmth=0.6, sat=1.0, contrast=0.97, lift=0.02)
+        wr, hr = shadows[name.split("_")[0]]
+        save(contact_shadow(im, wr, hr), name)
+    for name in ("rug_caramel", "rug_terracotta", "rug_sage"):
+        im = warm_grade(fit_max(trim(load("rendered/" + name + ".png"))), warmth=0.6, sat=1.0, contrast=0.97, lift=0.02, side_light=0.04)
+        save(im, name)
 
-    # Halı: zebra deseni -> sıcak tonlarda çizgili halı (kahve/krem, kiremit, ada yeşili).
-    rug = trim(load("prop_cat_rug.png"))
-    rug = fit_max(rug)
-    _, _, a = hsv(rug)
-    full = soften((a > 0.05).astype(np.float32), 1)
-    save(warm_grade(colorize(rug, full, (92, 62, 40), (246, 230, 205)), side_light=0.04), "rug_caramel")
-    save(warm_grade(colorize(rug, full, (128, 62, 40), (240, 206, 176)), side_light=0.04), "rug_terracotta")
-    save(warm_grade(colorize(rug, full, (70, 86, 64), (226, 232, 206)), side_light=0.04), "rug_sage")
-
-    # Mama kabı: çelik -> sıcak çelik, bakır, krem emaye (mama taneleri korunur).
-    bowl = raw_item("prop_cat_bowl.png")
-    v, sat, a = hsv(bowl)
-    metal = soften(((sat < 0.30) & (a > 0.5)).astype(np.float32), 2)
-    save(contact_shadow(warm_grade(bowl, sat=0.95)), "bowl_steel")
-    save(contact_shadow(variant(bowl, metal, (98, 50, 28), (250, 190, 146), 0.95, gamma=0.9)), "bowl_copper")
-    save(contact_shadow(variant(bowl, metal, (156, 134, 110), (253, 246, 232), 0.95, gamma=0.8)), "bowl_cream")
-
-    # Su kabı: seramik krem + ada yeşili + gül kurusu.
-    water = raw_item("cat_water.png")
-    v, sat, a = hsv(water)
-    ceramic = soften(((v > 0.45) & (a > 0.5)).astype(np.float32), 2)
-    save(contact_shadow(warm_grade(water)), "water_cream")
-    save(contact_shadow(variant(water, ceramic, (84, 104, 82), (214, 228, 204), 0.85, gamma=0.9)), "water_sage")
-    save(contact_shadow(variant(water, ceramic, (126, 82, 82), (240, 208, 200), 0.85, gamma=0.9)), "water_rose")
-
-    # Kedi ağacı: gri-bej halı kaplama -> taupe (orijinal), ceviz, krem; sisal ip korunur.
-    tree = raw_item("cat_tree.png")
-    arr = np.asarray(tree).astype(np.float32) / 255
-    a = arr[..., 3]
-    rope = (arr[..., 0] - arr[..., 2]) > 0.10          # sisal ip daha sarı/turuncu
-    carpet = soften(((a > 0.5) & ~rope).astype(np.float32), 1)
-    save(contact_shadow(warm_grade(tree), 0.9, 0.10), "tree_taupe")
-    whole = soften((a > 0.5).astype(np.float32), 1)   # ip dahil: lekesiz, tek tip kaplama
-    save(contact_shadow(variant(tree, carpet, (56, 36, 24), (170, 124, 88), 0.92), 0.9, 0.10), "tree_walnut")
-    save(contact_shadow(variant(tree, whole, (128, 116, 100), (248, 242, 230), 0.95, gamma=0.75), 0.9, 0.10), "tree_cream")
-
-    # Oyuncak fare: gri + krem + karamel (pembe kulak/burun ve göz korunur).
-    toy = raw_item("cat_toy_mouse.png")
-    arr = np.asarray(toy).astype(np.float32) / 255
-    v, sat, a = hsv(toy)
-    pinkish = (arr[..., 0] - arr[..., 2]) > 0.12
-    fur = soften(((v > 0.16) & (a > 0.5) & ~pinkish).astype(np.float32), 2)
-    save(contact_shadow(warm_grade(toy), 0.7, 0.16), "toy_gray")
-    save(contact_shadow(variant(toy, fur, (150, 132, 112), (252, 244, 230), 0.92), 0.7, 0.16), "toy_cream")
-    save(contact_shadow(variant(toy, fur, (104, 60, 32), (236, 182, 122), 0.92), 0.7, 0.16), "toy_caramel")
-
-    # Kum kabı: animasyon kareleri bu modeli içerdiği için tek model; yalnız ışık uyumu.
-    save(contact_shadow(floor_item("sand", "new_cat_sand.png", sat=0.85), 0.9, 0.11), "sand_white")
-
-    # Kum kabı animasyon kareleri kabın kendisini içerir; yerleştirilen kabla aynı ışığı alsınlar.
-    for frame_name in ("cat_sand_out.png", "cat_sand_in.png", "cat_sand_in2.png"):
-        graded = warm_grade(load(frame_name), sat=0.85)
-        graded.save(os.path.join(ROOT, "Assets", frame_name), optimize=True)
+    # Kum kabı (ahşap kulübe) ve animasyon kareleri: aynı kırpma kutusu, aynı ışık ve gölge;
+    # böylece oyunda kap kareye geçerken zıplamaz.
+    frames = ["sand_wood", "cat_sand_out", "cat_sand_in2", "cat_sand_in"]
+    ims = [load("rendered/" + f + ".png") for f in frames]
+    union = None
+    for im in ims:
+        b = trim(im).getbbox()
+        a = np.asarray(im)[:, :, 3] > 8
+        ys, xs = np.where(a)
+        box = (xs.min(), ys.min(), xs.max() + 1, ys.max() + 1)
+        union = box if union is None else (min(union[0], box[0]), min(union[1], box[1]), max(union[2], box[2]), max(union[3], box[3]))
+    pad = 6
+    union = (max(0, union[0] - pad), max(0, union[1] - pad), union[2] + pad, union[3] + pad)
+    for f, im in zip(frames, ims):
+        out = contact_shadow(warm_grade(fit_max(im.crop(union)), warmth=0.6, sat=1.0, contrast=0.97, lift=0.02), 0.82, 0.10)
+        if f == "sand_wood":
+            save(out, "sand_cottage")
+        else:
+            out.save(os.path.join(ROOT, "Assets", f + ".png"), optimize=True)
 
     # Posterler: aynı çerçeveye Mitzi'nin üç farklı fotoğrafı.
     frame = trim(load("cat_poster.png"), pad=0)

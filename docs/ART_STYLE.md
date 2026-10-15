@@ -77,14 +77,14 @@ empty cozy cottage living room, large wooden window on the left looking out to a
 
 ## Lisans
 
-Oyunda kaynağı bilinmeyen görsel kalmamalı. İnternetten bulunmuş ürün/stok fotoğraflarıyla yayınlamak telif şikayeti ve Play'den kaldırılma riski taşır. Aşağıdakilerin kaynağı belirsiz; yukarıdaki promptlarla üretilen kendi görsellerinle değiştirilmeli:
+İnternetten alınmış gibi görünen ürün fotoğrafları (yatak, mama/su kabı, halı, kum kabı, kedi ağacı, oyuncak fare, eski duvar görselleri) **projeden kaldırıldı**. Yerlerine geçen eşyaların tamamı `tools/render_furniture.py` ile **kodla, sıfırdan modellenip render edildi**; dışarıdan hiçbir görsel kullanılmıyor.
 
-| Dosya | Durum |
+| Görsel | Kaynak |
 | --- | --- |
-| `prop_cat_bed.png`, `prop_cat_bowl.png`, `prop_cat_rug.png` | Ürün fotoğrafına benziyor → değiştir |
-| `cat_water.png`, `new_cat_sand.png` (+ `cat_sand_*` kareleri), `cat_tree.png`, `cat_toy_mouse.png` | Ürün fotoğrafına benziyor → değiştir |
-| `Assets/_Game/home_wallpaper.png`, `home_wallpaper2.png`, `shop_wallpaper.png` | Stok fotoğrafına benziyor; oyunda kullanılmıyorsa sil |
-| `home_background_gemini.jpg` | Gemini ile üretildi → kullanılabilir |
-| `cat_poster.png`, `completion_mitzi_*` | Kendi Mitzi fotoğrafların ise sorun yok |
+| Zemin eşyaları (`Assets/_Game/Art/Furniture/*`) ve kum kabı kareleri (`Assets/cat_sand_*.png`) | Özgün 3D render (bu repo) |
+| Posterler | Mitzi'nin kendi fotoğrafları |
+| Oda ve duvar renkleri | `home_background_gemini.jpg` (Gemini ile üretildi) ve ondan türetilen renk varyantları |
 
-AI ile ürettiğin görsellerin kullanım koşullarını (ör. Gemini'nin ticari kullanım şartlarını) da bir kez kontrol et.
+Bir eşyayı değiştirmek için: modeli/rengi `tools/render_furniture.py` içinde düzenle → `python3 tools/render_furniture.py <ad>` → `python3 tools/harmonize_furniture.py` → `python3 tools/build_shop_catalog.py`. Yukarıdaki AI promptlarıyla ürettiğin bir görseli kullanmak istersen `tools/furniture_src/rendered/<ad>.png` olarak koyman yeterli.
+
+AI ile ürettiğin görsellerin kullanım koşullarını (ör. Gemini'nin ticari kullanım şartlarını) bir kez kontrol et.

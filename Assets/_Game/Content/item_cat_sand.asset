@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: item_cat_sand
   m_EditorClassIdentifier: 
   id: cat_sand
-  displayName: "Kapalı Kum Kabı"
-  description: "Kediler için temiz ve rahat kapalı kum alanı."
+  displayName: "Kulübe Kum Kabı"
+  description: "Ahşap kulübe şeklinde, kapılı ve rahat bir kum kabı."
   lovePointCost: 35
-  icon: {fileID: 21300000, guid: 65196d9a6c4649bc8135d2e379a2f11f, type: 3}
-  placedSprite: {fileID: 21300000, guid: 65196d9a6c4649bc8135d2e379a2f11f, type: 3}
+  icon: {fileID: 21300000, guid: 193bc9518a564f1baa6835e34d68e035, type: 3}
+  placedSprite: {fileID: 21300000, guid: 193bc9518a564f1baa6835e34d68e035, type: 3}
   slotType: 6
   interactionType: 5
   interactionAnimation: {fileID: 0}

@@ -166,7 +166,7 @@ namespace PawPath.Hub
                 PawPath.Content.FurnitureSlotType.Bed => 1.55f,
                 PawPath.Content.FurnitureSlotType.Bowl => 0.80f,
                 PawPath.Content.FurnitureSlotType.Water => 0.72f,
-                PawPath.Content.FurnitureSlotType.Sand => 2.55f,
+                PawPath.Content.FurnitureSlotType.Sand => 2.85f,
                 PawPath.Content.FurnitureSlotType.Poster => 2.05f,
                 PawPath.Content.FurnitureSlotType.Tree => 4.40f,
                 PawPath.Content.FurnitureSlotType.Toy => 0.95f,
