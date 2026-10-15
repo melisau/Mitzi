@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using PawPath.Ads;
 using PawPath.Audio;
 using PawPath.Cat;
 using PawPath.Content;
@@ -59,6 +60,7 @@ namespace PawPath.Core
             var root = new GameObject("PawPath");
             var flow = root.AddComponent<GameFlow>();
             root.AddComponent<CozyEconomyManager>();
+            root.AddComponent<RewardedAdService>();
             var audio = root.AddComponent<CozyAudioManager>();
             audio.BindLibrary(catalog);
             var needs = root.AddComponent<CatNeedsSystem>();
@@ -584,6 +586,11 @@ namespace PawPath.Core
             var sleep = Button(content, "SleepButton", GameText.L($"Uyu +{needs.sleepPoints}", $"Sleep +{needs.sleepPoints}"), new Vector2(0.16f, 0f), new Vector2(0f, 90f), new Color(0.75f, 0.69f, 0.86f));
             foreach (var button in new[] { feed, water, sleep })
                 StyleWarmGameButton(button, new Vector2(420f, 88f), 26);
+
+            // İsteğe bağlı ödüllü reklam; bakım butonlarının üstünde, yalnız kedi evinde görünür.
+            var rewardedAd = Button(content, "RewardedAdButton", "", new Vector2(0.16f, 0f), new Vector2(0f, 405f), new Color(0.93f, 0.80f, 0.52f));
+            StyleWarmGameButton(rewardedAd, new Vector2(420f, 88f), 22);
+            rewardedAd.gameObject.AddComponent<RewardedAdButton>();
 
             var daily = Label(content, "DailyPetting", GameText.L("Günlük Okşama", "Daily Petting"), new Vector2(0.84f, 0f), new Vector2(0f, 125f));
             daily.fontSize = 20;
