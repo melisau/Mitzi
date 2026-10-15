@@ -81,27 +81,31 @@ namespace PawPath.Core
             }
 
             var furnitureSlots = new Transform[9];
-            furnitureSlots[(int)FurnitureSlotType.Rug] = CreateFurnitureSlot("RugSlot", hub.transform, new Vector3(0f, -2.05f, 0f));
-            furnitureSlots[(int)FurnitureSlotType.Bed] = CreateFurnitureSlot("BedSlot", hub.transform, new Vector3(3.5f, -1.45f, 0f));
-            furnitureSlots[(int)FurnitureSlotType.Bowl] = CreateFurnitureSlot("BowlSlot", hub.transform, new Vector3(-3.4f, -1.65f, 0f));
+            // Varsayılan yerleşim: zemin çizgisi ~y=-1.25 (eşyalar bunun altında, tahtanın üstünde durur); sol alttaki bakım düğmeleri ve
+            // pencerenin önü boş bırakılır. Oyuncu Evi Düzenle ile her eşyayı taşıyabilir.
+            furnitureSlots[(int)FurnitureSlotType.Rug] = CreateFurnitureSlot("RugSlot", hub.transform, new Vector3(0.9f, -3.0f, 0f));
+            furnitureSlots[(int)FurnitureSlotType.Bed] = CreateFurnitureSlot("BedSlot", hub.transform, new Vector3(2.9f, -1.45f, 0f));
+            furnitureSlots[(int)FurnitureSlotType.Bowl] = CreateFurnitureSlot("BowlSlot", hub.transform, new Vector3(0.0f, -1.72f, 0f));
             furnitureSlots[(int)FurnitureSlotType.Wallpaper] = CreateFurnitureSlot("WallpaperSlot", hub.transform, new Vector3(0f, 0f, 0f));
-            furnitureSlots[(int)FurnitureSlotType.Poster] = CreateFurnitureSlot("PosterSlot", hub.transform, new Vector3(2.2f, 0.65f, 0f));
-            furnitureSlots[(int)FurnitureSlotType.Water] = CreateFurnitureSlot("WaterSlot", hub.transform, new Vector3(-1.8f, -1.65f, 0f));
-            furnitureSlots[(int)FurnitureSlotType.Sand] = CreateFurnitureSlot("SandSlot", hub.transform, new Vector3(1.2f, -1.72f, 0f));
-            furnitureSlots[(int)FurnitureSlotType.Tree] = CreateFurnitureSlot("TreeSlot", hub.transform, new Vector3(4.1f, -1.25f, 0f));
-            furnitureSlots[(int)FurnitureSlotType.Toy] = CreateFurnitureSlot("ToySlot", hub.transform, new Vector3(0.2f, -1.82f, 0f));
+            furnitureSlots[(int)FurnitureSlotType.Poster] = CreateFurnitureSlot("PosterSlot", hub.transform, new Vector3(1.1f, 1.4f, 0f));
+            furnitureSlots[(int)FurnitureSlotType.Water] = CreateFurnitureSlot("WaterSlot", hub.transform, new Vector3(0.95f, -1.82f, 0f));
+            furnitureSlots[(int)FurnitureSlotType.Sand] = CreateFurnitureSlot("SandSlot", hub.transform, new Vector3(-1.9f, -0.85f, 0f));
+            furnitureSlots[(int)FurnitureSlotType.Tree] = CreateFurnitureSlot("TreeSlot", hub.transform, new Vector3(5.3f, 0.27f, 0f));
+            furnitureSlots[(int)FurnitureSlotType.Toy] = CreateFurnitureSlot("ToySlot", hub.transform, new Vector3(1.8f, -2.35f, 0f));
             var furnitureView = hub.AddComponent<HubFurnitureView>();
             furnitureView.Bind(furnitureSlots);
+            furnitureView.BindRoom(hubBg, catalog.homeBackground);
 
             var spots = new Transform[6];
             var spotPositions = new[]
             {
-                new Vector3(-4.25f, -1.55f, 0f),
-                new Vector3(-2.10f, -1.25f, 0f),
-                new Vector3(0.25f, -1.70f, 0f),
-                new Vector3(2.25f, -1.20f, 0f),
-                new Vector3(4.15f, -1.45f, 0f),
-                new Vector3(1.05f, -1.30f, 0f)
+                // Kedilerin dinlendiği noktalar: zeminde, bakım düğmelerinin (sol alt) dışında.
+                new Vector3(-3.10f, -2.05f, 0f),
+                new Vector3(-0.90f, -2.55f, 0f),
+                new Vector3(0.55f, -2.70f, 0f),
+                new Vector3(2.60f, -2.55f, 0f),
+                new Vector3(4.35f, -2.25f, 0f),
+                new Vector3(-2.20f, -2.80f, 0f)
             };
             for (int i = 0; i < spots.Length; i++)
             {

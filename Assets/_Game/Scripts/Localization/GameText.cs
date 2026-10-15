@@ -184,78 +184,123 @@ namespace PawPath.Localization
             IsGerman ? PushNotificationsDe : IsEnglish ? PushNotificationsEn : PushNotificationsTr;
 
         // ---- Katalog metinleri -------------------------------------------------------
-        // Türkçe metin asset'teki alandan gelir; İngilizce ve Almancası id ile bu tablolardan
-        // okunur. Bazı asset'lerde Türkçe alanı İngilizce girilmiş; onlar için düzeltme tablosu var.
-
-        static readonly Dictionary<string, string> ItemNameTrFix = new Dictionary<string, string>
-        {
-            { "food_bowl", "Ahşap Mama Kabı" },
-            { "item_rug", "Kilim" },
-            { "item_cat_bed", "Kedi Yatağı" },
-        };
+        // Türkçe metin asset'teki alandan gelir; İngilizce ve Almancası id ile bu tablolardan okunur.
+        // Yeni mağaza eşyası eklerken bu dört tabloya da satır ekle (tools/build_shop_catalog.py).
 
         static readonly Dictionary<string, string> ItemNameEn = new Dictionary<string, string>
         {
-            { "food_bowl", "Wooden Food Bowl" },
-            { "item_rug", "Rug" },
-            { "item_cat_bed", "Cat Bed" },
-            { "cat_poster", "Cat Poster" },
-            { "cat_sand", "Litter Box" },
-            { "cat_toy_mouse", "Toy Mouse" },
-            { "cat_tree", "Cat Tree" },
-            { "cat_water", "Water Bowl" },
-            { "tree", "Sky-High Climbing Tree" },
-            { "cushion", "Cloud Plush Cushion" },
-            { "wand", "Feather Wand" },
-            { "sweater", "Hand-Knit Cat Sweater" },
+            { "item_rug", "Caramel Rug" },
+            { "rug_terracotta", "Terracotta Rug" },
+            { "rug_sage", "Sage Rug" },
+            { "item_cat_bed", "Cocoa Cat Bed" },
+            { "cat_bed_sage", "Sage Cat Bed" },
+            { "cat_bed_rose", "Dusty Rose Cat Bed" },
+            { "food_bowl", "Steel Food Bowl" },
+            { "food_bowl_copper", "Copper Food Bowl" },
+            { "food_bowl_cream", "Cream Enamel Food Bowl" },
+            { "cat_poster", "Mitzi Poster: Sofa" },
+            { "cat_poster_curious", "Mitzi Poster: Curious" },
+            { "cat_poster_hello", "Mitzi Poster: Hello" },
+            { "cat_water", "Cream Water Bowl" },
+            { "cat_water_sage", "Sage Water Bowl" },
+            { "cat_water_rose", "Dusty Rose Water Bowl" },
+            { "cat_sand", "Covered Litter Box" },
+            { "cat_tree", "Taupe Cat Tree" },
+            { "cat_tree_walnut", "Walnut Cat Tree" },
+            { "cat_tree_cream", "Cream Cat Tree" },
+            { "cat_toy_mouse", "Gray Toy Mouse" },
+            { "cat_toy_mouse_cream", "Cream Toy Mouse" },
+            { "cat_toy_mouse_caramel", "Caramel Toy Mouse" },
+            { "wall_sage", "Sage Walls" },
+            { "wall_rose", "Dusty Rose Walls" },
+            { "wall_sky", "Sky Blue Walls" },
         };
 
         static readonly Dictionary<string, string> ItemNameDe = new Dictionary<string, string>
         {
-            { "food_bowl", "Holz-Futternapf" },
-            { "item_rug", "Teppich" },
-            { "item_cat_bed", "Katzenbett" },
-            { "cat_poster", "Katzenposter" },
-            { "cat_sand", "Katzenklo" },
-            { "cat_toy_mouse", "Spielzeugmaus" },
-            { "cat_tree", "Kratzbaum" },
-            { "cat_water", "Wassernapf" },
-            { "tree", "Himmelhoher Kletterbaum" },
-            { "cushion", "Wolken-Plüschkissen" },
-            { "wand", "Federangel" },
-            { "sweater", "Handgestrickter Katzenpulli" },
+            { "item_rug", "Karamell-Teppich" },
+            { "rug_terracotta", "Terrakotta-Teppich" },
+            { "rug_sage", "Salbei-Teppich" },
+            { "item_cat_bed", "Kakao-Katzenbett" },
+            { "cat_bed_sage", "Salbei-Katzenbett" },
+            { "cat_bed_rose", "Altrosa-Katzenbett" },
+            { "food_bowl", "Edelstahl-Futternapf" },
+            { "food_bowl_copper", "Kupfer-Futternapf" },
+            { "food_bowl_cream", "Creme-Emaille-Futternapf" },
+            { "cat_poster", "Mitzi-Poster: Sofa" },
+            { "cat_poster_curious", "Mitzi-Poster: Neugierig" },
+            { "cat_poster_hello", "Mitzi-Poster: Hallo" },
+            { "cat_water", "Creme-Wassernapf" },
+            { "cat_water_sage", "Salbei-Wassernapf" },
+            { "cat_water_rose", "Altrosa-Wassernapf" },
+            { "cat_sand", "Katzentoilette mit Haube" },
+            { "cat_tree", "Taupe-Kratzbaum" },
+            { "cat_tree_walnut", "Walnuss-Kratzbaum" },
+            { "cat_tree_cream", "Creme-Kratzbaum" },
+            { "cat_toy_mouse", "Graue Spielzeugmaus" },
+            { "cat_toy_mouse_cream", "Creme-Spielzeugmaus" },
+            { "cat_toy_mouse_caramel", "Karamell-Spielzeugmaus" },
+            { "wall_sage", "Salbeigrüne Wände" },
+            { "wall_rose", "Altrosa Wände" },
+            { "wall_sky", "Himmelblaue Wände" },
         };
 
         static readonly Dictionary<string, string> ItemDescriptionEn = new Dictionary<string, string>
         {
-            { "food_bowl", "A stylish, handmade wooden bowl for your cat's favorite food." },
-            { "item_rug", "A super-soft rug for your cat." },
+            { "item_rug", "A soft round rug with cream and caramel stripes." },
+            { "rug_terracotta", "A rug in warm terracotta tones, perfect for sunbathing." },
+            { "rug_sage", "A calm, cool rug with sage green stripes." },
             { "item_cat_bed", "A warm, cozy bed to curl up in." },
-            { "cat_poster", "A cheerful cat poster for the wall." },
-            { "cat_sand", "A clean, comfy litter area for your cats." },
-            { "cat_toy_mouse", "A soft mouse Mitzi can chase and bat around with her paws." },
+            { "cat_bed_sage", "A soft bed with green fabric and a plush lining." },
+            { "cat_bed_rose", "A dusty rose bed, ideal for naps." },
+            { "food_bowl", "A sturdy, easy-to-clean classic food bowl." },
+            { "food_bowl_copper", "A warm copper-colored bowl that shines in the sun." },
+            { "food_bowl_cream", "A homey cream enamel food bowl." },
+            { "cat_poster", "A framed photo of Mitzi posing on the sofa." },
+            { "cat_poster_curious", "Curious Mitzi tilting her head, in a frame." },
+            { "cat_poster_hello", "Mitzi saying hello to the camera, in a frame." },
+            { "cat_water", "A ceramic bowl for your cats to drink from." },
+            { "cat_water_sage", "A sage green ceramic water bowl." },
+            { "cat_water_rose", "A dusty rose ceramic water bowl." },
+            { "cat_sand", "A clean, comfy covered litter area for your cats." },
             { "cat_tree", "For climbing, resting and watching over the house." },
-            { "cat_water", "A water bowl for your cats to drink from." },
-            { "tree", "Layers of wood, rope-wrapped posts and a lookout deck at the top. From here, Mitzi declares the whole house 'mine'." },
-            { "cushion", "Once you sink in, there's no getting out. Pamuk's official nap office. Leaving a hair on it counts as a compliment." },
-            { "wand", "A feather on the tip, patience on the handle. For Tarçın it's not a toy, it's an epic. You swing, she flies." },
-            { "sweater", "Warm wool, tiny paw holes. When Moka wears it, even winter softens. Try taking it off and she'll purr-negotiate." },
+            { "cat_tree_walnut", "A dark walnut cat tree with sisal posts." },
+            { "cat_tree_cream", "A light, airy cat tree with cream covering." },
+            { "cat_toy_mouse", "A soft mouse Mitzi can chase and bat around with her paws." },
+            { "cat_toy_mouse_cream", "A cream plush mouse with pink ears." },
+            { "cat_toy_mouse_caramel", "A caramel mouse that is so much fun to chase." },
+            { "wall_sage", "Paints the room's walls sage green." },
+            { "wall_rose", "Paints the room's walls dusty rose." },
+            { "wall_sky", "Paints the room's walls a light sky blue." },
         };
 
         static readonly Dictionary<string, string> ItemDescriptionDe = new Dictionary<string, string>
         {
-            { "food_bowl", "Ein schicker, handgemachter Holznapf für das Lieblingsfutter deiner Katze." },
-            { "item_rug", "Ein superweicher Teppich für deine Katze." },
+            { "item_rug", "Ein weicher runder Teppich mit Creme- und Karamellstreifen." },
+            { "rug_terracotta", "Ein Teppich in warmen Terrakottatönen, perfekt zum Sonnenbaden." },
+            { "rug_sage", "Ein ruhiger, kühler Teppich mit salbeigrünen Streifen." },
             { "item_cat_bed", "Ein warmes, gemütliches Bett zum Einkuscheln." },
-            { "cat_poster", "Ein fröhliches Katzenposter für die Wand." },
-            { "cat_sand", "Ein sauberes, bequemes Katzenklo für deine Katzen." },
-            { "cat_toy_mouse", "Eine weiche Maus, die Mitzi jagen und mit den Pfoten anstupsen kann." },
+            { "cat_bed_sage", "Ein weiches Bett mit grünem Stoff und Plüschfutter." },
+            { "cat_bed_rose", "Ein altrosa Bett, ideal für ein Nickerchen." },
+            { "food_bowl", "Ein robuster, leicht zu reinigender klassischer Futternapf." },
+            { "food_bowl_copper", "Ein warmer kupferfarbener Napf, der in der Sonne glänzt." },
+            { "food_bowl_cream", "Ein gemütlicher Futternapf aus cremefarbener Emaille." },
+            { "cat_poster", "Ein gerahmtes Foto von Mitzi auf dem Sofa." },
+            { "cat_poster_curious", "Die neugierige Mitzi mit schief gelegtem Kopf, gerahmt." },
+            { "cat_poster_hello", "Mitzi grüßt in die Kamera, gerahmt." },
+            { "cat_water", "Ein Keramiknapf, aus dem deine Katzen trinken können." },
+            { "cat_water_sage", "Ein salbeigrüner Wassernapf aus Keramik." },
+            { "cat_water_rose", "Ein altrosa Wassernapf aus Keramik." },
+            { "cat_sand", "Eine saubere, bequeme Katzentoilette mit Haube." },
             { "cat_tree", "Zum Klettern, Ausruhen und um das ganze Haus im Blick zu haben." },
-            { "cat_water", "Ein Wassernapf, aus dem deine Katzen trinken können." },
-            { "tree", "Holzetagen, mit Seil umwickelte Pfosten und oben eine Aussichtsplattform. Von hier erklärt Mitzi das ganze Haus zu ihrem." },
-            { "cushion", "Wer einmal einsinkt, kommt nicht mehr raus. Pamuks offizielles Schlafbüro. Ein Haar darauf gilt als Kompliment." },
-            { "wand", "Vorne eine Feder, am Griff Geduld. Für Tarçın ist das kein Spielzeug, sondern ein Abenteuer. Du schwingst, sie fliegt." },
-            { "sweater", "Warme Wolle, kleine Pfotenlöcher. Wenn Moka ihn trägt, wird sogar der Winter weich. Ausziehen? Da verhandelt sie schnurrend." },
+            { "cat_tree_walnut", "Ein dunkler Kratzbaum in Walnuss mit Sisalstämmen." },
+            { "cat_tree_cream", "Ein heller, luftiger Kratzbaum mit cremefarbenem Bezug." },
+            { "cat_toy_mouse", "Eine weiche Maus, die Mitzi jagen und mit den Pfoten anstupsen kann." },
+            { "cat_toy_mouse_cream", "Eine cremefarbene Plüschmaus mit rosa Ohren." },
+            { "cat_toy_mouse_caramel", "Eine karamellfarbene Maus, die man herrlich jagen kann." },
+            { "wall_sage", "Streicht die Wände des Zimmers salbeigrün." },
+            { "wall_rose", "Streicht die Wände des Zimmers altrosa." },
+            { "wall_sky", "Streicht die Wände des Zimmers hell himmelblau." },
         };
 
         static readonly Dictionary<string, string> CatBioEn = new Dictionary<string, string>
@@ -306,7 +351,7 @@ namespace PawPath.Localization
             {
                 case GameLanguage.English: return Lookup(ItemNameEn, item.id, item.displayName);
                 case GameLanguage.German: return Lookup(ItemNameDe, item.id, Lookup(ItemNameEn, item.id, item.displayName));
-                default: return Lookup(ItemNameTrFix, item.id, item.displayName);
+                default: return item.displayName;
             }
         }
 
