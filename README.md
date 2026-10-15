@@ -1,6 +1,6 @@
 # Mitzi (Paw Path)
 
-Mitzi is a cozy, side-scrolling 2D cat game built with **Unity 2022.3.50f1** and the Built-in Render Pipeline. Guide a cat across gaps and obstacles, collect rewards, and care for your growing group of cats at home. The project is playable but is still under development and has not been validated on physical devices.
+Mitzi is a cozy, side-scrolling 2D cat game built with **Unity 2022.3.62f3** and the Built-in Render Pipeline. Guide a cat across gaps and obstacles, collect rewards, and care for your growing group of cats at home. The project is playable but is still under development and has not been validated on physical devices.
 
 ## Current gameplay
 
@@ -21,7 +21,7 @@ Mitzi is a cozy, side-scrolling 2D cat game built with **Unity 2022.3.50f1** and
 
 ## Open the project
 
-1. In Unity Hub, add this repository as an **existing project** and open it with Unity **2022.3.50f1**.
+1. In Unity Hub, add this repository as an **existing project** and open it with Unity **2022.3.62f3**.
 2. Open `Assets/Scenes/PawPath.unity` and press **Play**.
 3. If rebuilding a starter scene for a new setup, use **Paw Path > Build Starter Scene**. This regenerates the starter scene and catalog; do not use it casually on a customized project.
 

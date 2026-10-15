@@ -6,7 +6,9 @@ Bu liste, kodda yapılamayan ve Unity Editor / Play Console'da elle yapılması 
 
 Google Play, 31 Ağustos 2026'dan beri yeni uygulama ve güncellemelerde **Android 16 (API 36)** hedefi istiyor. Unity 2022.3'te API 36 hedeflemek için **2022.3.62f1 veya daha yeni** bir 2022.3 LTS sürümü gerekir.
 
-1. Unity Hub → Installs → en yeni **2022.3 LTS** sürümünü **Android Build Support** (OpenJDK + Android SDK & NDK) modülüyle kur.
+Proje **2022.3.62f3** sürümüne yükseltildi (Unity'nin herkese açık son 2022.3 sürümü).
+
+1. Unity Hub → Installs → Install Editor → Archive bölümünden ya da `unityhub://2022.3.62f3/96770f904ca7` bağlantısıyla **2022.3.62f3**'ü **Android Build Support** (OpenJDK + Android SDK & NDK) modülüyle kur.
 2. Projeyi bu sürümle aç (Hub'da sürümü değiştir). Yükseltme uyarısını onayla.
 3. Edit → Preferences → External Tools'ta SDK/NDK/JDK'nın "Installed with Unity" olarak işaretli olduğunu kontrol et. Derlemede `build-tools` hatası alırsan Android Studio SDK Manager'dan **Build-Tools 36** paketini kur.
 

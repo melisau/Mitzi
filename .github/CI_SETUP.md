@@ -39,7 +39,3 @@ Keystore oluşturduktan sonra (bkz. `RELEASE_CHECKLIST.md`) şu secret'ları da 
 | `ANDROID_KEYALIAS_PASS` | Anahtar şifresi |
 
 Bunlar yoksa `.aab` debug imzasıyla üretilir: telefonda test edilebilir ama Play'e yüklenemez.
-
-## Bilinen durum
-
-Android derlemesi hedef API 36 kullanıyor; bu, Unity **2022.3.62f1 veya daha yenisini** gerektirir. Proje yükseltilene kadar Android işi hata verebilir; derleme kontrolü işi bundan etkilenmez.
