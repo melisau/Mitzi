@@ -9,6 +9,7 @@ Mitzi is a cozy, side-scrolling 2D cat game built with **Unity 2022.3.62f3** and
 - The first five levels use introductory layouts. Later levels vary gap and mound placement deterministically by level number, so replaying the same level keeps its layout.
 - Reach the finish gate to advance. Falling or touching a hazard opens a failure screen with a retry option. A new cat can be rescued every five completed levels. The default roster is Mitzi, Pamuk, Kömür, Tarçın, Ada, and Moka.
 - At home, select a cat and tap the floor to send it there, or tap an interactive item such as a food bowl, litter box, or cat tree. Buy, place, move, and flip furniture in the shop and home editor.
+- The game is available in **Turkish, English and German**. The starting language follows the device language (Turkish/German, otherwise English) and can be changed in Settings.
 - Music and sound effects have separate mute controls. Progress is saved locally as versioned JSON in Unity `PlayerPrefs`, with a last-known-good backup. The save includes level progress, Love Points, selected and unlocked cats, owned/placed items, and per-cat care values.
 
 ## Controls

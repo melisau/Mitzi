@@ -299,7 +299,7 @@ namespace PawPath.Core
             StyleWarmGameButton(editHome, new Vector2(128f, 104f), 42);
             StyleWarmGameButton(flipFurniture, new Vector2(128f, 104f), 40);
             flipFurniture.gameObject.SetActive(false);
-            var quitGame = Button(content, "QuitGameButton", GameText.L("Oyundan Çık", "Quit Game"), new Vector2(1f, 1f),
+            var quitGame = Button(content, "QuitGameButton", GameText.L("Oyundan Çık", "Quit Game", "Spiel beenden"), new Vector2(1f, 1f),
                 new Vector2(-960f, -62f), new Color(0.66f, 0.48f, 0.40f));
             StyleWarmGameButton(quitGame, new Vector2(200f, 104f), 25);
             quitGame.onClick.AddListener(() =>
@@ -317,29 +317,35 @@ namespace PawPath.Core
             var settingsPanel = Panel("DisplaySettings", content, Vector2.zero, Vector2.one,
                 new Color(0.12f, 0.08f, 0.06f, 0.86f));
             var settingsContent = SafeContent(settingsPanel.transform);
-            var settingsTitle = Label(settingsContent, "SettingsTitle", GameText.L("Görünüm Boyutu", "Display Size"),
+            var settingsTitle = Label(settingsContent, "SettingsTitle", GameText.L("Görünüm Boyutu", "Display Size", "Anzeigegröße"),
                 new Vector2(0.5f, 0.80f), Vector2.zero);
             settingsTitle.color = Color.white;
             settingsTitle.fontSize = 42;
-            var normalSize = Button(settingsContent, "NormalSize", GameText.L("Normal", "Normal"),
+            var normalSize = Button(settingsContent, "NormalSize", GameText.L("Normal", "Normal", "Normal"),
                 new Vector2(0.5f, 0.66f), new Vector2(-220f, 0f), Color.white);
-            var largeSize = Button(settingsContent, "LargeSize", GameText.L("Büyük", "Large"),
+            var largeSize = Button(settingsContent, "LargeSize", GameText.L("Büyük", "Large", "Groß"),
                 new Vector2(0.5f, 0.66f), new Vector2(220f, 0f), Color.white);
-            var languageTitle = Label(settingsContent, "LanguageTitle", GameText.L("Dil", "Language"),
+            var languageTitle = Label(settingsContent, "LanguageTitle", GameText.L("Dil", "Language", "Sprache"),
                 new Vector2(0.5f, 0.50f), Vector2.zero);
             languageTitle.color = Color.white;
             languageTitle.fontSize = 42;
-            var turkishLanguage = Button(settingsContent, "TurkishLanguage",
-                GameText.Checked("Türkçe", !GameText.IsEnglish),
-                new Vector2(0.5f, 0.36f), new Vector2(-220f, 0f), Color.white);
-            var englishLanguage = Button(settingsContent, "EnglishLanguage",
-                GameText.Checked("English", GameText.IsEnglish),
-                new Vector2(0.5f, 0.36f), new Vector2(220f, 0f), Color.white);
-            StyleWarmGameButton(turkishLanguage, new Vector2(330f, 90f), 30);
-            StyleWarmGameButton(englishLanguage, new Vector2(330f, 90f), 30);
-            // Dil değişince sahne yeniden yüklenir ve tüm arayüz yeni dille kurulur.
-            turkishLanguage.onClick.AddListener(() => GameText.SetLanguage(GameLanguage.Turkish));
-            englishLanguage.onClick.AddListener(() => GameText.SetLanguage(GameLanguage.English));
+            // Her dil kendi adıyla yazılır; seçili olan ✓ ile işaretlenir.
+            var languageOptions = new (GameLanguage lang, string name, string objectName)[]
+            {
+                (GameLanguage.Turkish, "Türkçe", "TurkishLanguage"),
+                (GameLanguage.English, "English", "EnglishLanguage"),
+                (GameLanguage.German, "Deutsch", "GermanLanguage"),
+            };
+            for (int i = 0; i < languageOptions.Length; i++)
+            {
+                var option = languageOptions[i];
+                var languageButton = Button(settingsContent, option.objectName,
+                    GameText.Checked(option.name, GameText.Language == option.lang),
+                    new Vector2(0.5f, 0.36f), new Vector2((i - 1) * 330f, 0f), Color.white);
+                StyleWarmGameButton(languageButton, new Vector2(300f, 90f), 30);
+                // Dil değişince sahne yeniden yüklenir ve tüm arayüz yeni dille kurulur.
+                languageButton.onClick.AddListener(() => GameText.SetLanguage(option.lang));
+            }
             var closeSettings = Button(settingsContent, "CloseSettings", GameText.Close,
                 new Vector2(0.5f, 0.18f), Vector2.zero, Color.white);
             StyleWarmGameButton(normalSize, new Vector2(330f, 90f), 30);
@@ -347,8 +353,8 @@ namespace PawPath.Core
             StyleWarmGameButton(closeSettings, new Vector2(260f, 76f), 25);
             void RefreshSizeLabels()
             {
-                normalSize.GetComponentInChildren<Text>().text = GameText.Checked(GameText.L("Normal", "Normal"), !DisplaySizeSettings.Large);
-                largeSize.GetComponentInChildren<Text>().text = GameText.Checked(GameText.L("Büyük", "Large"), DisplaySizeSettings.Large);
+                normalSize.GetComponentInChildren<Text>().text = GameText.Checked(GameText.L("Normal", "Normal", "Normal"), !DisplaySizeSettings.Large);
+                largeSize.GetComponentInChildren<Text>().text = GameText.Checked(GameText.L("Büyük", "Large", "Groß"), DisplaySizeSettings.Large);
             }
             void SetSize(bool large)
             {
@@ -412,15 +418,15 @@ namespace PawPath.Core
             var modeMenu = new GameObject("PlayModeMenu", typeof(RectTransform));
             modeMenu.transform.SetParent(content, false);
             Stretch(modeMenu.GetComponent<RectTransform>());
-            var drawingPlay = Button(modeMenu.transform, "DrawingPlayButton", GameText.L("Çizerek Oyna", "Draw to Play"), new Vector2(1f, 1f), new Vector2(-150f, -125f), new Color(0.93f, 0.72f, 0.76f));
-            var directPlay = Button(modeMenu.transform, "DirectPlayButton", GameText.L("Tuşlarla Oyna", "Play with Buttons"), new Vector2(1f, 1f), new Vector2(-150f, -195f), new Color(0.72f, 0.82f, 0.94f));
+            var drawingPlay = Button(modeMenu.transform, "DrawingPlayButton", GameText.L("Çizerek Oyna", "Draw to Play", "Zeichnen & Spielen"), new Vector2(1f, 1f), new Vector2(-150f, -125f), new Color(0.93f, 0.72f, 0.76f));
+            var directPlay = Button(modeMenu.transform, "DirectPlayButton", GameText.L("Tuşlarla Oyna", "Play with Buttons", "Mit Tasten spielen"), new Vector2(1f, 1f), new Vector2(-150f, -195f), new Color(0.72f, 0.82f, 0.94f));
             StyleCompactTopButton(drawingPlay, new Vector2(-180f, -180f));
             StyleCompactTopButton(directPlay, new Vector2(-180f, -305f));
-            var easyDifficulty = Button(modeMenu.transform, "EasyDifficulty", GameText.L("Kolay", "Easy"),
+            var easyDifficulty = Button(modeMenu.transform, "EasyDifficulty", GameText.L("Kolay", "Easy", "Leicht"),
                 new Vector2(0.5f, 0.32f), new Vector2(-170f, 0f), new Color(0.52f, 0.70f, 0.55f));
-            var mediumDifficulty = Button(modeMenu.transform, "MediumDifficulty", GameText.L("Orta", "Medium"),
+            var mediumDifficulty = Button(modeMenu.transform, "MediumDifficulty", GameText.L("Orta", "Medium", "Mittel"),
                 new Vector2(0.5f, 0.32f), Vector2.zero, new Color(0.83f, 0.68f, 0.52f));
-            var hardDifficulty = Button(modeMenu.transform, "HardDifficulty", GameText.L("Zor", "Hard"),
+            var hardDifficulty = Button(modeMenu.transform, "HardDifficulty", GameText.L("Zor", "Hard", "Schwer"),
                 new Vector2(0.5f, 0.32f), new Vector2(170f, 0f), new Color(0.72f, 0.48f, 0.34f));
             StyleWarmGameButton(easyDifficulty, new Vector2(145f, 70f), 24);
             StyleWarmGameButton(mediumDifficulty, new Vector2(145f, 70f), 24);
@@ -429,11 +435,11 @@ namespace PawPath.Core
             {
                 var selectedDifficulty = GameDifficulty.Selected;
                 easyDifficulty.GetComponentInChildren<Text>().text =
-                    GameText.Checked(GameText.L("Kolay", "Easy"), selectedDifficulty == DifficultyLevel.Easy);
+                    GameText.Checked(GameText.L("Kolay", "Easy", "Leicht"), selectedDifficulty == DifficultyLevel.Easy);
                 mediumDifficulty.GetComponentInChildren<Text>().text =
-                    GameText.Checked(GameText.L("Orta", "Medium"), selectedDifficulty == DifficultyLevel.Medium);
+                    GameText.Checked(GameText.L("Orta", "Medium", "Mittel"), selectedDifficulty == DifficultyLevel.Medium);
                 hardDifficulty.GetComponentInChildren<Text>().text =
-                    GameText.Checked(GameText.L("Zor", "Hard"), selectedDifficulty == DifficultyLevel.Hard);
+                    GameText.Checked(GameText.L("Zor", "Hard", "Schwer"), selectedDifficulty == DifficultyLevel.Hard);
             }
             easyDifficulty.onClick.AddListener(() => { GameDifficulty.Select(DifficultyLevel.Easy); RefreshDifficultyLabels(); });
             mediumDifficulty.onClick.AddListener(() => { GameDifficulty.Select(DifficultyLevel.Medium); RefreshDifficultyLabels(); });
@@ -495,7 +501,7 @@ namespace PawPath.Core
                     GameEvents.PlayableCatChanged(starterCat);
             });
             resetProgress.gameObject.SetActive(Debug.isDebugBuild || Application.isEditor);
-            var restart = Button(content, "RestartButton", GameText.L("Yeniden", "Retry"), new Vector2(1f, 1f), new Vector2(-125f, -55f), new Color(0.93f, 0.72f, 0.76f));
+            var restart = Button(content, "RestartButton", GameText.L("Yeniden", "Retry", "Nochmal"), new Vector2(1f, 1f), new Vector2(-125f, -55f), new Color(0.93f, 0.72f, 0.76f));
             restart.GetComponent<RectTransform>().sizeDelta = new Vector2(190f, 58f);
             var home = Button(content, "LevelHomeButton", GameText.Continue, new Vector2(0f, 1f), new Vector2(125f, -125f), new Color(0.78f, 0.84f, 0.72f));
             home.GetComponent<RectTransform>().sizeDelta = new Vector2(190f, 58f);
@@ -505,11 +511,11 @@ namespace PawPath.Core
             home.gameObject.SetActive(false);
             var brushes = BuildBrushToolbar(content);
             brushes.SetActive(false);
-            var previousDrawView = Button(content, "PreviousDrawView", GameText.L("◀ Önceki", "◀ Previous"),
+            var previousDrawView = Button(content, "PreviousDrawView", GameText.L("◀ Önceki", "◀ Previous", "◀ Zurück"),
                 new Vector2(0.5f, 1f), new Vector2(-395f, -64f), Color.white);
-            var startDrawingGame = Button(content, "StartDrawingGame", GameText.L("Oyunu Başlat", "Start Game"),
+            var startDrawingGame = Button(content, "StartDrawingGame", GameText.L("Oyunu Başlat", "Start Game", "Spiel starten"),
                 new Vector2(0.5f, 1f), new Vector2(0f, -64f), Color.white);
-            var nextDrawView = Button(content, "NextDrawView", GameText.L("Sonraki ▶", "Next ▶"),
+            var nextDrawView = Button(content, "NextDrawView", GameText.L("Sonraki ▶", "Next ▶", "Weiter ▶"),
                 new Vector2(0.5f, 1f), new Vector2(395f, -64f), Color.white);
             StyleWarmGameButton(previousDrawView, new Vector2(220f, 68f), 22);
             StyleWarmGameButton(startDrawingGame, new Vector2(260f, 68f), 24);
@@ -533,10 +539,10 @@ namespace PawPath.Core
             var panel = new GameObject("ThemeSelector", typeof(RectTransform));
             panel.transform.SetParent(parent, false);
             Stretch(panel.GetComponent<RectTransform>());
-            var street = Button(panel.transform, "StreetTheme", GameText.L("Sokak", "Street"), new Vector2(1f, 1f), new Vector2(-150f, -125f), new Color(0.83f, 0.68f, 0.52f));
-            var forest = Button(panel.transform, "ForestTheme", GameText.L("Orman", "Forest"), new Vector2(1f, 1f), new Vector2(-150f, -195f), new Color(0.52f, 0.70f, 0.55f));
-            var city = Button(panel.transform, "CityTheme", GameText.L("Cadde", "City"), new Vector2(1f, 1f), new Vector2(-150f, -255f), new Color(0.62f, 0.58f, 0.54f));
-            var cyber = Button(panel.transform, "CyberTheme", GameText.L("Neo Teknoloji", "Neo Tech"), new Vector2(1f, 1f), new Vector2(-150f, -315f), new Color(0.35f, 0.28f, 0.55f));
+            var street = Button(panel.transform, "StreetTheme", GameText.L("Sokak", "Street", "Straße"), new Vector2(1f, 1f), new Vector2(-150f, -125f), new Color(0.83f, 0.68f, 0.52f));
+            var forest = Button(panel.transform, "ForestTheme", GameText.L("Orman", "Forest", "Wald"), new Vector2(1f, 1f), new Vector2(-150f, -195f), new Color(0.52f, 0.70f, 0.55f));
+            var city = Button(panel.transform, "CityTheme", GameText.L("Cadde", "City", "Stadt"), new Vector2(1f, 1f), new Vector2(-150f, -255f), new Color(0.62f, 0.58f, 0.54f));
+            var cyber = Button(panel.transform, "CyberTheme", GameText.L("Neo Teknoloji", "Neo Tech", "Neo-Tech"), new Vector2(1f, 1f), new Vector2(-150f, -315f), new Color(0.35f, 0.28f, 0.55f));
             StyleCompactTopButton(street, new Vector2(-180f, -180f));
             StyleCompactTopButton(forest, new Vector2(-180f, -305f));
             StyleCompactTopButton(city, new Vector2(-180f, -430f));
@@ -555,8 +561,8 @@ namespace PawPath.Core
             float far = large ? 414f : 375f;
             AddControlButton(controls.transform, "Left", "◀", new Vector2(0f, 0f), new Vector2(near, 120f), MobileAction.Left);
             AddControlButton(controls.transform, "Right", "▶", new Vector2(0f, 0f), new Vector2(far, 120f), MobileAction.Right);
-            AddControlButton(controls.transform, "Jump", GameText.L("ZIPLA", "JUMP"), new Vector2(1f, 0f), new Vector2(-far, 120f), MobileAction.Jump);
-            AddControlButton(controls.transform, "Crouch", GameText.L("EĞİL", "CROUCH"), new Vector2(1f, 0f), new Vector2(-near, 120f), MobileAction.Crouch);
+            AddControlButton(controls.transform, "Jump", GameText.L("ZIPLA", "JUMP", "SPRING"), new Vector2(1f, 0f), new Vector2(-far, 120f), MobileAction.Jump);
+            AddControlButton(controls.transform, "Crouch", GameText.L("EĞİL", "CROUCH", "DUCKEN"), new Vector2(1f, 0f), new Vector2(-near, 120f), MobileAction.Crouch);
             return controls;
         }
 
@@ -581,9 +587,9 @@ namespace PawPath.Core
             panel.AddComponent<CanvasGroup>();
             var content = SafeContent(panel.transform);
 
-            var feed = Button(content, "FeedButton", GameText.L($"Mama +{needs.foodPoints}", $"Food +{needs.foodPoints}"), new Vector2(0.16f, 0f), new Vector2(0f, 300f), new Color(0.88f, 0.72f, 0.55f));
-            var water = Button(content, "WaterButton", GameText.L($"Su +{needs.waterPoints}", $"Water +{needs.waterPoints}"), new Vector2(0.16f, 0f), new Vector2(0f, 195f), new Color(0.62f, 0.80f, 0.91f));
-            var sleep = Button(content, "SleepButton", GameText.L($"Uyu +{needs.sleepPoints}", $"Sleep +{needs.sleepPoints}"), new Vector2(0.16f, 0f), new Vector2(0f, 90f), new Color(0.75f, 0.69f, 0.86f));
+            var feed = Button(content, "FeedButton", GameText.L($"Mama +{needs.foodPoints}", $"Food +{needs.foodPoints}", $"Futter +{needs.foodPoints}"), new Vector2(0.16f, 0f), new Vector2(0f, 300f), new Color(0.88f, 0.72f, 0.55f));
+            var water = Button(content, "WaterButton", GameText.L($"Su +{needs.waterPoints}", $"Water +{needs.waterPoints}", $"Wasser +{needs.waterPoints}"), new Vector2(0.16f, 0f), new Vector2(0f, 195f), new Color(0.62f, 0.80f, 0.91f));
+            var sleep = Button(content, "SleepButton", GameText.L($"Uyu +{needs.sleepPoints}", $"Sleep +{needs.sleepPoints}", $"Schlafen +{needs.sleepPoints}"), new Vector2(0.16f, 0f), new Vector2(0f, 90f), new Color(0.75f, 0.69f, 0.86f));
             foreach (var button in new[] { feed, water, sleep })
                 StyleWarmGameButton(button, new Vector2(420f, 88f), 26);
 
@@ -592,7 +598,7 @@ namespace PawPath.Core
             StyleWarmGameButton(rewardedAd, new Vector2(420f, 88f), 22);
             rewardedAd.gameObject.AddComponent<RewardedAdButton>();
 
-            var daily = Label(content, "DailyPetting", GameText.L("Günlük Okşama", "Daily Petting"), new Vector2(0.84f, 0f), new Vector2(0f, 125f));
+            var daily = Label(content, "DailyPetting", GameText.L("Günlük Okşama", "Daily Petting", "Tägliches Streicheln"), new Vector2(0.84f, 0f), new Vector2(0f, 125f));
             daily.fontSize = 20;
             daily.fontStyle = FontStyle.Bold;
             daily.color = new Color(0.10f, 0.075f, 0.055f, 1f);
@@ -623,10 +629,10 @@ namespace PawPath.Core
             var rt = toolbar.GetComponent<RectTransform>();
             Stretch(rt);
 
-            AddBrushButton(toolbar.transform, "NormalBrush", GameText.L("Yol", "Path"), -255f, new Color(0.17f, 0.15f, 0.14f), PathSurfaceType.Normal);
-            AddBrushButton(toolbar.transform, "BounceBrush", GameText.L("Zıpla", "Bounce"), -85f, new Color(0.20f, 0.55f, 0.95f), PathSurfaceType.Bounce);
-            AddBrushButton(toolbar.transform, "IceBrush", GameText.L("Buz", "Ice"), 85f, new Color(0.95f, 0.98f, 1f), PathSurfaceType.Ice);
-            var eraser = Button(toolbar.transform, "Eraser", GameText.L("Sil", "Erase"), new Vector2(0.5f, 0f), new Vector2(255f, 68f), new Color(0.72f, 0.68f, 0.65f));
+            AddBrushButton(toolbar.transform, "NormalBrush", GameText.L("Yol", "Path", "Weg"), -255f, new Color(0.17f, 0.15f, 0.14f), PathSurfaceType.Normal);
+            AddBrushButton(toolbar.transform, "BounceBrush", GameText.L("Zıpla", "Bounce", "Sprung"), -85f, new Color(0.20f, 0.55f, 0.95f), PathSurfaceType.Bounce);
+            AddBrushButton(toolbar.transform, "IceBrush", GameText.L("Buz", "Ice", "Eis"), 85f, new Color(0.95f, 0.98f, 1f), PathSurfaceType.Ice);
+            var eraser = Button(toolbar.transform, "Eraser", GameText.L("Sil", "Erase", "Löschen"), new Vector2(0.5f, 0f), new Vector2(255f, 68f), new Color(0.72f, 0.68f, 0.65f));
             eraser.GetComponent<RectTransform>().sizeDelta = new Vector2(150f, 88f);
             StyleWarmGameButton(eraser, new Vector2(150f, 88f), 24);
             eraser.onClick.AddListener(() =>
@@ -711,7 +717,7 @@ namespace PawPath.Core
                     catalog.completionBackground.rect.height;
             }
             var content = SafeContent(panel.transform);
-            var success = Label(content, "Success", GameText.L("BAŞARDIN!", "YOU DID IT!"), new Vector2(0.5f, 0.82f), Vector2.zero);
+            var success = Label(content, "Success", GameText.L("BAŞARDIN!", "YOU DID IT!", "GESCHAFFT!"), new Vector2(0.5f, 0.82f), Vector2.zero);
             success.fontSize = 54;
             success.fontStyle = FontStyle.Bold;
             success.color = new Color(0.54f, 0.30f, 0.22f);
@@ -728,11 +734,11 @@ namespace PawPath.Core
             faceImage.preserveAspect = true;
             faceImage.raycastTarget = false;
 
-            var reward = Label(content, "Reward", GameText.L("+10 Sevgi", "+10 Love"), new Vector2(0.5f, 0.31f), Vector2.zero);
+            var reward = Label(content, "Reward", GameText.L("+10 Sevgi", "+10 Love", "+10 Liebe"), new Vector2(0.5f, 0.31f), Vector2.zero);
             reward.fontSize = 30;
             reward.color = new Color(0.78f, 0.20f, 0.38f);
 
-            var next = Button(content, "NextLevel", GameText.L("Sıradaki Bölüm", "Next Level"), new Vector2(0.5f, 0.19f), Vector2.zero, new Color(0.93f, 0.72f, 0.76f));
+            var next = Button(content, "NextLevel", GameText.L("Sıradaki Bölüm", "Next Level", "Nächstes Level"), new Vector2(0.5f, 0.19f), Vector2.zero, new Color(0.93f, 0.72f, 0.76f));
             next.GetComponent<RectTransform>().sizeDelta = new Vector2(440f, 78f);
             var home = Button(content, "CompletionHome", GameText.BackToCatHouse, new Vector2(0.5f, 0.09f), Vector2.zero, new Color(0.78f, 0.84f, 0.72f));
             home.GetComponent<RectTransform>().sizeDelta = new Vector2(440f, 78f);
@@ -767,17 +773,17 @@ namespace PawPath.Core
             var shade = Panel("FailureShade", panel.transform, Vector2.zero, Vector2.one,
                 new Color(0.08f, 0.01f, 0.01f, 0.34f));
             var content = SafeContent(shade.transform);
-            var heading = Label(content, "FailureTitle", GameText.L("BAŞARISIZ!", "TRY AGAIN!"), new Vector2(0.5f, 0.82f), Vector2.zero);
+            var heading = Label(content, "FailureTitle", GameText.L("BAŞARISIZ!", "TRY AGAIN!", "VERSUCH ES NOCHMAL!"), new Vector2(0.5f, 0.82f), Vector2.zero);
             heading.fontSize = 58;
             heading.fontStyle = FontStyle.Bold;
             heading.color = new Color(1f, 0.84f, 0.72f);
-            var reason = Label(content, "FailureReason", GameText.L("Kedi yolun dışına düştü.", "Your cat fell off the path."),
+            var reason = Label(content, "FailureReason", GameText.L("Kedi yolun dışına düştü.", "Your cat fell off the path.", "Deine Katze ist vom Weg gefallen."),
                 new Vector2(0.5f, 0.70f), Vector2.zero);
             reason.fontSize = 31;
             reason.color = Color.white;
             reason.rectTransform.sizeDelta = new Vector2(900f, 100f);
 
-            var retry = Button(content, "FailureRetry", GameText.L("Yeniden Dene", "Try Again"), new Vector2(0.5f, 0.20f),
+            var retry = Button(content, "FailureRetry", GameText.L("Yeniden Dene", "Try Again", "Nochmal versuchen"), new Vector2(0.5f, 0.20f),
                 Vector2.zero, new Color(0.72f, 0.48f, 0.34f));
             var home = Button(content, "FailureHome", GameText.BackToCatHouse, new Vector2(0.5f, 0.10f),
                 Vector2.zero, new Color(0.70f, 0.62f, 0.52f));
@@ -955,6 +961,10 @@ namespace PawPath.Core
                 label.fontSize = fontSize;
                 label.color = new Color(1f, 0.96f, 0.88f, 1f);
                 label.fontStyle = FontStyle.Bold;
+                // Uzun çeviriler (özellikle Almanca) düğmeye sığmazsa yazı otomatik küçülür.
+                label.resizeTextForBestFit = true;
+                label.resizeTextMaxSize = fontSize;
+                label.resizeTextMinSize = Mathf.Max(12, Mathf.RoundToInt(fontSize * 0.6f));
             }
 
             var colors = button.colors;

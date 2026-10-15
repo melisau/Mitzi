@@ -42,7 +42,7 @@ Project Settings → Player → Android:
 
 ## 5. Oyun içi dil
 
-Oyun ilk açılışta cihaz dili Türkçeyse Türkçe, değilse İngilizce başlar. Ayarlar → Dil'den değiştirilebilir; değişince sahne yeniden yüklenir. Yeni metin eklerken `GameText.L("Türkçe", "English")` kullan.
+Oyun **Türkçe, İngilizce ve Almanca** destekler. İlk açılışta cihaz dili Türkçeyse Türkçe, Almancaysa Almanca, diğer dillerde İngilizce başlar. Ayarlar → Dil'den değiştirilebilir; değişince sahne yeniden yüklenir. Yeni metin eklerken `GameText.L("Türkçe", "English", "Deutsch")` kullan. Play Console mağaza girişini de bu üç dilde hazırla.
 
 ## 6. Reklam (AdMob, çocuk kitlesine uygun)
 

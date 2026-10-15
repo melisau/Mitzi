@@ -183,7 +183,7 @@ namespace PawPath.UI
             }
             if (texts.Length > 2)
             {
-                texts[2].text = GameText.L($"{item.lovePointCost} Puan", $"{item.lovePointCost} Points"); 
+                texts[2].text = GameText.L($"{item.lovePointCost} Puan", $"{item.lovePointCost} Points", $"{item.lovePointCost} Punkte"); 
                 texts[2].fontSize = 20;
                 texts[2].color = new Color(0.65f, 0.25f, 0.15f); 
             }
@@ -213,7 +213,7 @@ namespace PawPath.UI
                 // SAT BUTONU TASARIMI
                 if (label != null)
                 {
-                    label.text = GameText.L("Sat", "Sell");
+                    label.text = GameText.L("Sat", "Sell", "Verkaufen");
                     label.color = Color.white;
                 }
                 
@@ -258,7 +258,7 @@ namespace PawPath.UI
 
                 if (label != null)
                 {
-                    label.text = GameText.L("Satın Al", "Buy");
+                    label.text = GameText.L("Satın Al", "Buy", "Kaufen");
                     label.color = Color.white;
                 }
 
@@ -410,6 +410,9 @@ namespace PawPath.UI
             {
                 label.fontSize = 20;
                 label.fontStyle = FontStyle.Bold;
+                label.resizeTextForBestFit = true;
+                label.resizeTextMaxSize = 20;
+                label.resizeTextMinSize = 12;
                 label.color = new Color(1f, 0.96f, 0.86f);
                 label.rectTransform.sizeDelta = new Vector2(176f, 50f);
             }

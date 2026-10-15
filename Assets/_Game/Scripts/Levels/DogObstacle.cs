@@ -211,7 +211,7 @@ namespace PawPath.Levels
             }
             failed = true;
             CozyAudioManager.Instance?.PlayHurt();
-            GameFlow.Instance?.ShowLevelFailure(GameText.L("Koşan köpeğe yakalandın. Üzerinden zıpla veya ağaca tırman!", "A running dog caught you. Jump over it or climb a tree!"));
+            GameFlow.Instance?.ShowLevelFailure(GameText.L("Koşan köpeğe yakalandın. Üzerinden zıpla veya ağaca tırman!", "A running dog caught you. Jump over it or climb a tree!", "Ein rennender Hund hat dich erwischt. Spring über ihn oder kletter auf einen Baum!"));
         }
 
         bool IsStompFromAbove(Collider2D catCollider)

@@ -157,11 +157,11 @@ namespace PawPath.Cat
         public string TravelStatus()
         {
             var needs = GetNeeds(SelectedCatId);
-            string values = GameText.L($"Mama {needs.hunger} · Su {needs.water} · Sevgi {needs.affection}", $"Food {needs.hunger} · Water {needs.water} · Love {needs.affection}");
+            string values = GameText.L($"Mama {needs.hunger} · Su {needs.water} · Sevgi {needs.affection}", $"Food {needs.hunger} · Water {needs.water} · Love {needs.affection}", $"Futter {needs.hunger} · Wasser {needs.water} · Liebe {needs.affection}");
             bool ready = CatNeedsRules.CanTravel(needs, minimumNeedToPlay);
             return ready
-                ? GameText.L($"Kedin yola hazır\n{values}", $"Your cat is ready to go\n{values}")
-                : GameText.L($"Bakım gerekli (her biri en az {minimumNeedToPlay})\n{values}", $"Needs care (each at least {minimumNeedToPlay})\n{values}");
+                ? GameText.L($"Kedin yola hazır\n{values}", $"Your cat is ready to go\n{values}", $"Deine Katze ist startklar\n{values}")
+                : GameText.L($"Bakım gerekli (her biri en az {minimumNeedToPlay})\n{values}", $"Needs care (each at least {minimumNeedToPlay})\n{values}", $"Braucht Pflege (je mindestens {minimumNeedToPlay})\n{values}");
         }
 
         bool TryDailyCare(string key, int points, string reason)

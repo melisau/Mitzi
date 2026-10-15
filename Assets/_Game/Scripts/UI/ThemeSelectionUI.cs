@@ -70,21 +70,21 @@ namespace PawPath.UI
 
             int selected = GetSelectedTheme(SaveService.Data.highestCompletedLevel + 1);
             if (streetButton != null)
-                SetLabel(streetButton, GameText.Checked(GameText.L("Sokak", "Street"), selected == 0));
+                SetLabel(streetButton, GameText.Checked(GameText.L("Sokak", "Street", "Straße"), selected == 0));
             if (forestButton != null)
             {
                 forestButton.interactable = true;
-                SetLabel(forestButton, GameText.Checked(GameText.L("Orman", "Forest"), selected == 1));
+                SetLabel(forestButton, GameText.Checked(GameText.L("Orman", "Forest", "Wald"), selected == 1));
             }
             if (cityButton != null)
             {
                 cityButton.interactable = true;
-                SetLabel(cityButton, GameText.Checked(GameText.L("Cadde", "City"), selected == 2));
+                SetLabel(cityButton, GameText.Checked(GameText.L("Cadde", "City", "Stadt"), selected == 2));
             }
             if (cyberButton != null)
             {
                 cyberButton.interactable = true;
-                SetLabel(cyberButton, GameText.Checked(GameText.L("Neo Teknoloji", "Neo Tech"), selected == 3));
+                SetLabel(cyberButton, GameText.Checked(GameText.L("Neo Teknoloji", "Neo Tech", "Neo-Tech"), selected == 3));
             }
         }
 

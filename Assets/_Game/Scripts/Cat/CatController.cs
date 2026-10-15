@@ -528,7 +528,7 @@ namespace PawPath.Cat
                 CozyEconomyManager.Instance.RemoveLove(10, "Kırmızı yola temas");
             yield return new WaitForSeconds(0.35f);
             busy = false;
-            GameFlow.Instance?.ShowLevelFailure(GameText.L("Tehlikeli alana temas ettin. Daha güvenli bir yol dene!", "You touched a danger zone. Try a safer path!"));
+            GameFlow.Instance?.ShowLevelFailure(GameText.L("Tehlikeli alana temas ettin. Daha güvenli bir yol dene!", "You touched a danger zone. Try a safer path!", "Du hast eine Gefahrenzone berührt. Versuch einen sichereren Weg!"));
         }
 
         public void FlipTowards(Vector2 target)
@@ -557,7 +557,7 @@ namespace PawPath.Cat
             body.velocity = Vector2.zero;
             airTimer = 0f;
             busy = false;
-            GameFlow.Instance?.ShowLevelFailure(GameText.L("Kedi çukura düştü. Zıplama zamanını veya çizdiğin yolu değiştir!", "Your cat fell into a gap. Change your jump timing or the path you drew!"));
+            GameFlow.Instance?.ShowLevelFailure(GameText.L("Kedi çukura düştü. Zıplama zamanını veya çizdiğin yolu değiştir!", "Your cat fell into a gap. Change your jump timing or the path you drew!", "Deine Katze ist in eine Lücke gefallen. Spring zu einem anderen Zeitpunkt oder ändere deinen Weg!"));
         }
 
         public void BindVisual(Transform vis, SpriteRenderer bubble)
