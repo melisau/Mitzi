@@ -51,7 +51,7 @@ public static class CityThemeBuilder
         catalog.cityVanSprite = AssetDatabase.LoadAssetAtPath<Sprite>(Paths[4]);
         catalog.cityRoadSprite = AssetDatabase.LoadAssetAtPath<Sprite>(Paths[5]);
         EditorUtility.SetDirty(catalog);
-        AssetDatabase.SaveAssets();
+        EditorSave.Save(catalog);
     }
 }
 #endif

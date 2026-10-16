@@ -28,7 +28,7 @@ public static class FailureScreenBuilder
             return;
         catalog.failureBackground = AssetDatabase.LoadAssetAtPath<UnityEngine.Sprite>(ImagePath);
         EditorUtility.SetDirty(catalog);
-        AssetDatabase.SaveAssets();
+        EditorSave.Save(catalog);
     }
 }
 #endif

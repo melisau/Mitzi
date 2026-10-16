@@ -81,7 +81,7 @@ namespace PawPath.EditorTools
             catalogAsset.forestGroundUnderfillSprite = forestUnderfill;
             catalogAsset.finishPortalSprite = finishPortal;
             EditorUtility.SetDirty(catalogAsset);
-            AssetDatabase.SaveAssets();
+            EditorSave.Save(catalogAsset);
             Debug.Log("[PawPath] Ev, mağaza, sokak ve orman tema görselleri güncellendi.");
         }
 
@@ -132,7 +132,7 @@ namespace PawPath.EditorTools
             foreach (var level in catalog.levels)
                 AssetDatabase.AddObjectToAsset(level, catalog);
             EditorUtility.SetDirty(catalog);
-            AssetDatabase.SaveAssets();
+            EditorSave.Save(catalog);
 
             var scene = EditorSceneManager.NewScene(NewSceneSetup.DefaultGameObjects, NewSceneMode.Single);
             var bootstrap = new GameObject("RuntimeBootstrap");

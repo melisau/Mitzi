@@ -34,7 +34,7 @@ public static class BirdAnimationBuilder
         if (catalog == null) return;
         catalog.birdFrames = frames;
         EditorUtility.SetDirty(catalog);
-        AssetDatabase.SaveAssets();
+        EditorSave.Save(catalog);
     }
 }
 #endif
