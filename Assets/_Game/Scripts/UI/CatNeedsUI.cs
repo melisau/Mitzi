@@ -1,34 +1,50 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using PawPath.Cat;
 using PawPath.Core;
-using PawPath.Economy;
 using PawPath.Hub;
 using PawPath.Audio;
+using PawPath.Content;
 
 namespace PawPath.UI
 {
     /// <summary>
-    /// Kedinin Mama, Su ve Uyku butonları ile günlük sevgi bütçesini gösteren UI ekranı.
+    /// Kedi bakım arayüzü. Okuma bilmeyen çocuklar için tamamen görseldir:
+    /// mama kabı, su damlası ve kalp ikonları değer kadar dolar; değer düşünce
+    /// ikon kırmızıya döner, sallanır ve ilgili alt düğme "nefes alır".
+    /// Günlük okşama ilerlemesi dolan patilerle gösterilir.
     /// </summary>
     public class CatNeedsUI : MonoBehaviour
     {
         [Header("Referanslar")]
         [SerializeField] private CatNeedsSystem catNeedsSystem;
 
-        [Header("UI Butonları")]
+        [Header("Bakım düğmeleri")]
         [SerializeField] private Button feedButton;
         [SerializeField] private Button waterButton;
         [SerializeField] private Button sleepButton;
 
-        [Header("Metin ve Göstergeler")]
-        [SerializeField] private Text dailyPettingProgressText;
-        [SerializeField] private Text energyWarningText;
+        [Header("Görsel göstergeler")]
+        [SerializeField] private NeedGauge foodGauge;
+        [SerializeField] private NeedGauge waterGauge;
+        [SerializeField] private NeedGauge loveGauge;
+        [SerializeField] private Image[] pettingPaws;
+
+        [Header("Ebeveyn için kısa bilgi (isteğe bağlı)")]
+        [SerializeField] private Text toastText;
+
+        static readonly Color PawFilled = new Color(0.55f, 0.33f, 0.20f, 1f);
+        static readonly Color PawEmpty = new Color(1f, 1f, 1f, 0.45f);
+
+        UiPulse shopHint;
+        Coroutine toastRoutine;
+        Coroutine shopHintRoutine;
 
         private void Awake()
         {
             if (catNeedsSystem == null)
-                catNeedsSystem = CatNeedsSystem.Instance ?? FindObjectOfType<CatNeedsSystem>();
+                catNeedsSystem = CatNeedsSystem.Instance != null ? CatNeedsSystem.Instance : FindObjectOfType<CatNeedsSystem>();
             WireButtons();
         }
 
@@ -64,102 +80,162 @@ namespace PawPath.UI
         {
             if (catNeedsSystem == null) return;
 
-            SetVisible(GameFlow.Instance == null || GameFlow.Instance.InHub);
+            bool inHub = GameFlow.Instance == null || GameFlow.Instance.InHub;
+            SetVisible(inHub);
 
-            int currentDaily = catNeedsSystem.DailyPettingPoints;
-            if (dailyPettingProgressText != null)
+            var needs = catNeedsSystem.GetNeeds(SelectedCatId());
+            bool newlyLow = false;
+            if (needs != null)
             {
-                dailyPettingProgressText.text = $"Günlük Okşama: {currentDaily} / {catNeedsSystem.maxDailyPettingPoints}";
+                if (foodGauge != null) newlyLow |= foodGauge.SetValue(needs.hunger);
+                if (waterGauge != null) newlyLow |= waterGauge.SetValue(needs.water);
+                if (loveGauge != null) newlyLow |= loveGauge.SetValue(needs.affection);
             }
+            // Bir ihtiyaç yeni azaldıysa kedi miyavlayarak "bana bak" der.
+            if (newlyLow && inHub && CozyAudioManager.Instance != null)
+                CozyAudioManager.Instance.PlayMeow();
 
-            if (energyWarningText != null)
+            UpdatePettingPaws();
+
+            SetPulse(feedButton, foodGauge != null && foodGauge.IsLow);
+            SetPulse(waterButton, waterGauge != null && waterGauge.IsLow);
+            SetButtonAvailable(feedButton, true);
+            SetButtonAvailable(waterButton, true);
+            SetButtonAvailable(sleepButton, catNeedsSystem.CanSleepToday);
+        }
+
+        void UpdatePettingPaws()
+        {
+            if (pettingPaws == null || pettingPaws.Length == 0)
+                return;
+            int max = Mathf.Max(1, catNeedsSystem.maxDailyPettingPoints);
+            float perPaw = max / (float)pettingPaws.Length;
+            int filled = Mathf.Clamp(Mathf.FloorToInt(catNeedsSystem.DailyPettingPoints / perPaw),
+                0, pettingPaws.Length);
+            for (int i = 0; i < pettingPaws.Length; i++)
             {
-                energyWarningText.gameObject.SetActive(true);
-                energyWarningText.text = catNeedsSystem.TravelStatus();
+                if (pettingPaws[i] != null)
+                    pettingPaws[i].color = i < filled ? PawFilled : PawEmpty;
             }
-
-            UpdateCareButton(feedButton, true, catNeedsSystem.CanFeedToday
-                ? $"Mama +{catNeedsSystem.foodPoints}" : "Mama Ver");
-            UpdateCareButton(waterButton, true, catNeedsSystem.CanGiveWaterToday
-                ? $"Su +{catNeedsSystem.waterPoints}" : "Su Ver");
-            UpdateCareButton(sleepButton, catNeedsSystem.CanSleepToday, $"Uyu +{catNeedsSystem.sleepPoints}");
         }
 
         private void OnFeedClicked()
         {
-            if (catNeedsSystem != null)
+            if (catNeedsSystem == null)
+                return;
+            if (HubFurnitureView.Instance == null || !HubFurnitureView.Instance.HasPlacedBowl)
             {
-                if (HubFurnitureView.Instance == null || !HubFurnitureView.Instance.HasPlacedBowl)
-                {
-                    ShowCareMessage("Önce dükkândan mama kabı satın al. Puan için kediyi sev veya bölüm geç.");
-                    CozyAudioManager.Instance?.PlayError();
-                    return;
-                }
-                bool fed = catNeedsSystem.FeedCat();
-                if (fed && CatHouseInteraction.Instance != null)
-                    CatHouseInteraction.Instance.SendSelectedToBowl();
-                UpdateUI();
+                ShowMissingItemHint(feedButton, "Önce dükkândan mama kabı al.");
+                return;
             }
+            // Kedi kabın önüne yürür, yer; mama değeri yemek bitince dolar.
+            if (StartCare(FurnitureSlotType.Bowl, CareAction.Eat))
+                return;
+            bool fed = catNeedsSystem.FeedCat();
+            if (fed && CatHouseInteraction.Instance != null)
+                CatHouseInteraction.Instance.SendSelectedToBowl();
+            UpdateUI();
         }
 
         private void OnWaterClicked()
         {
-            if (catNeedsSystem != null)
+            if (catNeedsSystem == null)
+                return;
+            if (HubFurnitureView.Instance == null || !HubFurnitureView.Instance.HasPlacedWater)
             {
-                if (HubFurnitureView.Instance == null || !HubFurnitureView.Instance.HasPlacedWater)
-                {
-                    ShowCareMessage("Önce dükkândan su kabı satın al. Puan için kediyi sev veya bölüm geç.");
-                    CozyAudioManager.Instance?.PlayError();
-                    return;
-                }
-                bool drank = catNeedsSystem.GiveWater();
-                if (drank && CatHouseInteraction.Instance != null)
-                    CatHouseInteraction.Instance.SendSelectedToWater();
-                UpdateUI();
+                ShowMissingItemHint(waterButton, "Önce dükkândan su kabı al.");
+                return;
             }
+            // Kedi su kabının önüne yürür, içer; su değeri içince dolar.
+            if (StartCare(FurnitureSlotType.Water, CareAction.Drink))
+                return;
+            bool drank = catNeedsSystem.GiveWater();
+            if (drank && CatHouseInteraction.Instance != null)
+                CatHouseInteraction.Instance.SendSelectedToWater();
+            UpdateUI();
         }
 
         private void OnSleepClicked()
         {
-            if (catNeedsSystem != null)
+            if (catNeedsSystem == null)
+                return;
+            // Yatak varsa kedi yatağına yürüyüp kıvrılır; yoksa olduğu yerde uyur.
+            if (StartCare(FurnitureSlotType.Bed, CareAction.Sleep))
             {
-                catNeedsSystem.PutToSleep();
                 UpdateUI();
+                return;
             }
+            catNeedsSystem.PutToSleep();
+            if (CatHouseInteraction.Instance != null)
+                CatHouseInteraction.Instance.SleepSelectedHere(9f);
+            UpdateUI();
+        }
+
+        static bool StartCare(FurnitureSlotType slot, CareAction action)
+        {
+            var view = HubFurnitureView.Instance;
+            var interaction = view != null ? view.PlacedInteraction(slot) : null;
+            return interaction != null && interaction.StartCareAction(action);
         }
 
         /// <summary>
-        /// Yola Çık butonuna basıldığında çağrılır.
+        /// Oyna'ya basıldığında çağrılır. Kedi hazır değilse yazı yerine eksik
+        /// ihtiyacın göstergesi ve düğmesi sallanır, hata sesi çalar.
         /// </summary>
         public bool CheckEnergyAndStartLevel()
         {
-            if (catNeedsSystem != null && !catNeedsSystem.CanStartLevel())
+            if (catNeedsSystem == null || catNeedsSystem.CanStartLevel())
+                return true;
+
+            var needs = catNeedsSystem.GetNeeds(SelectedCatId());
+            int minimum = catNeedsSystem.minimumNeedToPlay;
+            if (needs != null)
             {
-                if (energyWarningText != null)
+                if (needs.hunger < minimum)
                 {
-                    energyWarningText.gameObject.SetActive(true);
-                    energyWarningText.text = catNeedsSystem.TravelStatus();
+                    if (foodGauge != null) foodGauge.Nudge();
+                    Shake(feedButton);
                 }
-                CozyAudioManager.Instance?.PlayError();
-                return false;
+                if (needs.water < minimum)
+                {
+                    if (waterGauge != null) waterGauge.Nudge();
+                    Shake(waterButton);
+                }
+                if (needs.affection < minimum && loveGauge != null)
+                    loveGauge.Nudge();
             }
-
-            if (energyWarningText != null)
-                energyWarningText.gameObject.SetActive(false);
-
-            return true;
+            if (CozyAudioManager.Instance != null)
+                CozyAudioManager.Instance.PlayError();
+            return false;
         }
 
-        public void Bind(CatNeedsSystem needs, Button feed, Button water, Button sleep, Text daily, Text warning)
+        public void Bind(CatNeedsSystem needs, Button feed, Button water, Button sleep,
+            NeedGauge food, NeedGauge drink, NeedGauge love, Image[] paws, Text toast)
         {
             catNeedsSystem = needs;
             feedButton = feed;
             waterButton = water;
             sleepButton = sleep;
-            dailyPettingProgressText = daily;
-            energyWarningText = warning;
+            foodGauge = food;
+            waterGauge = drink;
+            loveGauge = love;
+            pettingPaws = paws;
+            toastText = toast;
+            if (toastText != null)
+                toastText.gameObject.SetActive(false);
             WireButtons();
             UpdateUI();
+        }
+
+        /// <summary>Mama/su kabı yokken dükkân düğmesini kısa süre "nefes aldırmak" için.</summary>
+        public void BindShopHint(Button shopButton)
+        {
+            if (shopButton == null)
+                return;
+            shopHint = shopButton.GetComponent<UiPulse>();
+            if (shopHint == null)
+                shopHint = shopButton.gameObject.AddComponent<UiPulse>();
+            shopHint.Pulsing = false;
         }
 
         void WireButtons()
@@ -181,27 +257,81 @@ namespace PawPath.UI
             }
         }
 
-        void ShowCareMessage(string message)
+        void ShowMissingItemHint(Button careButton, string parentMessage)
         {
-            if (energyWarningText == null)
-                return;
-            energyWarningText.gameObject.SetActive(true);
-            energyWarningText.text = message;
+            Shake(careButton);
+            if (CozyAudioManager.Instance != null)
+                CozyAudioManager.Instance.PlayError();
+            if (shopHint != null)
+            {
+                if (shopHintRoutine != null)
+                    StopCoroutine(shopHintRoutine);
+                shopHintRoutine = StartCoroutine(PulseShopForAWhile());
+            }
+            ShowToast(parentMessage);
         }
 
-        static void UpdateCareButton(Button button, bool available, string availableText)
+        IEnumerator PulseShopForAWhile()
+        {
+            shopHint.Pulsing = true;
+            yield return new WaitForSecondsRealtime(4f);
+            shopHint.Pulsing = false;
+            shopHintRoutine = null;
+        }
+
+        void ShowToast(string message)
+        {
+            if (toastText == null)
+                return;
+            toastText.text = message;
+            toastText.gameObject.SetActive(true);
+            if (toastRoutine != null)
+                StopCoroutine(toastRoutine);
+            toastRoutine = StartCoroutine(HideToastLater());
+        }
+
+        IEnumerator HideToastLater()
+        {
+            yield return new WaitForSecondsRealtime(3f);
+            if (toastText != null)
+                toastText.gameObject.SetActive(false);
+            toastRoutine = null;
+        }
+
+        static void Shake(Button button)
         {
             if (button == null)
                 return;
+            var shake = button.GetComponent<UiShake>();
+            if (shake != null)
+                shake.Play();
+        }
 
-            button.gameObject.SetActive(available);
-            if (!available)
+        static void SetPulse(Button button, bool pulsing)
+        {
+            if (button == null)
                 return;
+            var pulse = button.GetComponent<UiPulse>();
+            if (pulse != null)
+                pulse.Pulsing = pulsing;
+        }
 
-            button.interactable = true;
-            var label = button.GetComponentInChildren<Text>();
-            if (label != null)
-                label.text = availableText;
+        /// <summary>Kullanılamayan düğme kaybolmaz, soluklaşır; yerleşim sabit kalır.</summary>
+        static void SetButtonAvailable(Button button, bool available)
+        {
+            if (button == null)
+                return;
+            button.interactable = available;
+            var group = button.GetComponent<CanvasGroup>();
+            if (group == null)
+                group = button.gameObject.AddComponent<CanvasGroup>();
+            group.alpha = available ? 1f : 0.45f;
+        }
+
+        static string SelectedCatId()
+        {
+            return SaveService.Data != null && !string.IsNullOrEmpty(SaveService.Data.selectedCatId)
+                ? SaveService.Data.selectedCatId : "mitzi";
         }
 
         void OnLoveChanged(int _) => UpdateUI();

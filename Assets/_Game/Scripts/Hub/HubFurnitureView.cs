@@ -21,6 +21,18 @@ namespace PawPath.Hub
             ? slots[(int)PawPath.Content.FurnitureSlotType.Water].position
             : new Vector3(-1.8f, -1.65f, 0f);
 
+        /// <summary>Slotta gerçekten yerleştirilmiş bir eşya varsa onun etkileşimi.</summary>
+        public FurnitureInteraction PlacedInteraction(PawPath.Content.FurnitureSlotType type)
+        {
+            int index = (int)type;
+            if (slots == null || index < 0 || index >= slots.Length || slots[index] == null)
+                return null;
+            var renderer = slots[index].GetComponent<SpriteRenderer>();
+            if (renderer == null || renderer.sprite == null)
+                return null;
+            return slots[index].GetComponent<FurnitureInteraction>();
+        }
+
         public bool HasPlacedWater => SaveService.Data != null &&
             SaveService.Data.placedItemIds != null && SaveService.Data.placedItemIds.Contains("cat_water");
 

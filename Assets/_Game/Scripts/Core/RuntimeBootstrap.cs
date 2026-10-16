@@ -177,6 +177,8 @@ namespace PawPath.Core
             vis.AddComponent<Animator>();
             var controller = catGo.AddComponent<CatController>();
             controller.BindVisual(vis.transform, null);
+            // Yere yansıyan yumuşak gölge: kediyi sahneye oturtur, zıplarken küçülür.
+            SoftShadow.Attach(catGo, sr, true, 9);
 
             var sideScroll = camGo.GetComponent<SideScrollCamera>();
             if (sideScroll == null)
@@ -193,6 +195,8 @@ namespace PawPath.Core
             var levelFailure = BuildLevelFailure(canvasGo.transform, catalog);
             var shop = BuildShop(canvasGo.transform, catalog);
             shop.SetActive(false);
+            // En üstte: ilk açılışta gösterilen, Ayarlar'dan da açılan "Nasıl Oynanır".
+            BuildHowToPlay(canvasGo.transform);
             rescue.SetActive(false);
             levelComplete.SetActive(false);
             levelFailure.SetActive(false);
@@ -203,7 +207,9 @@ namespace PawPath.Core
             {
                 shopBtn.onClick.RemoveAllListeners();
                 shopBtn.onClick.AddListener(() => shop.SetActive(true));
+                care.BindShopHint(shopBtn);
             }
+            ApplyTypeScale(canvasGo.transform);
 
             flow.BindCatalog(catalog);
             flow.BindRoots(hub, levelRoot, hud, rescue, levelComplete, levelFailure);
@@ -273,61 +279,93 @@ namespace PawPath.Core
             var hud = Panel("HUD", canvas, new Vector2(0, 0), new Vector2(0, 0), new Color(1, 1, 1, 0));
             hud.AddComponent<HudView>();
             var content = SafeContent(hud.transform);
-            var love = Label(content, "ShopBalance", "Dükkan Bakiyesi: 0",
-                new Vector2(0f, 1f), new Vector2(215f, -225f));
-            var level = Label(content, "Level", GameText.LevelLabel(1), new Vector2(0.5f, 1f), new Vector2(0, -140));
-            var ink = Label(content, "Ink", "", new Vector2(0f, 1f), new Vector2(265f, -205f));
-            love.fontSize = 27;
+            // ── ÜST ŞERİT ─────────────────────────────────────────────
+            // Sol: sade bakiye sayacı (para ikonu + sayı). Tıklanabilir görünmez.
+            var balanceRoot = new GameObject("ShopBalance", typeof(RectTransform), typeof(Image));
+            balanceRoot.transform.SetParent(content, false);
+            var balanceRt = balanceRoot.GetComponent<RectTransform>();
+            balanceRt.anchorMin = balanceRt.anchorMax = new Vector2(0f, 1f);
+            balanceRt.anchoredPosition = new Vector2(EdgeMargin + 130f, -(EdgeMargin + 44f));
+            balanceRt.sizeDelta = new Vector2(260f, 88f);
+            var balanceBg = balanceRoot.GetComponent<Image>();
+            balanceBg.sprite = CozyIconFactory.Pill();
+            balanceBg.type = Image.Type.Sliced;
+            balanceBg.color = new Color(0.20f, 0.13f, 0.09f, 0.72f);
+            balanceBg.raycastTarget = false;
+            var coinIcon = IconImage(balanceRoot.transform, "Coin", CozyIconFactory.Coin(), Color.white,
+                new Vector2(0f, 0.5f), new Vector2(46f, 0f), 76f);
+            coinIcon.raycastTarget = false;
+            var love = Label(balanceRoot.transform, "Value", "0", new Vector2(0.5f, 0.5f), new Vector2(38f, 0f));
+            love.rectTransform.sizeDelta = new Vector2(170f, 70f);
+            love.fontSize = FontButton;
             love.fontStyle = FontStyle.Bold;
-            love.color = new Color(0.31f, 0.20f, 0.12f);
-            ink.fontSize = 24;
-            love.rectTransform.sizeDelta = new Vector2(390f, 64f);
-            AddTextPanelBackground(love);
+            love.color = new Color(1f, 0.95f, 0.82f);
+            AddTextShadow(love);
+
+            // Orta: bölüm rozeti (havada asılı yazı yerine küçük bir hap).
+            var levelBadge = new GameObject("LevelBadge", typeof(RectTransform), typeof(Image));
+            levelBadge.transform.SetParent(content, false);
+            var levelBadgeRt = levelBadge.GetComponent<RectTransform>();
+            levelBadgeRt.anchorMin = levelBadgeRt.anchorMax = new Vector2(0.5f, 1f);
+            levelBadgeRt.anchoredPosition = new Vector2(0f, -(EdgeMargin + 36f));
+            levelBadgeRt.sizeDelta = new Vector2(250f, 68f);
+            var levelBadgeBg = levelBadge.GetComponent<Image>();
+            levelBadgeBg.sprite = CozyIconFactory.Pill();
+            levelBadgeBg.type = Image.Type.Sliced;
+            levelBadgeBg.color = new Color(0.20f, 0.13f, 0.09f, 0.55f);
+            levelBadgeBg.raycastTarget = false;
+            var level = Label(levelBadge.transform, "Level", GameText.LevelLabel(1), new Vector2(0.5f, 0.5f), Vector2.zero);
+            level.rectTransform.sizeDelta = new Vector2(240f, 60f);
+            level.fontSize = FontBody;
+            level.fontStyle = FontStyle.Bold;
+            level.color = new Color(1f, 0.95f, 0.82f);
+
+            // Bölüm ilerleme çubuğu (yalnızca bölüm içinde görünür).
+            BuildProgressBar(content, -(EdgeMargin + 36f) - 34f - 14f - 26f);
+
+            var ink = Label(content, "Ink", "", new Vector2(0f, 1f), new Vector2(265f, -205f));
+            ink.fontSize = FontBody;
             ink.rectTransform.sizeDelta = new Vector2(460f, 52f);
             var selected = Label(content, "Selected", "", new Vector2(0.5f, 1f), new Vector2(0, -260));
             selected.gameObject.SetActive(false);
-            var play = Button(content, "PlayButton", "Oyna", new Vector2(1f, 1f), new Vector2(-120f, -55f), new Color(0.93f, 0.72f, 0.76f));
-            var shop = Button(content, "ShopButton", GameText.Shop, new Vector2(1f, 1f), new Vector2(-330f, -55f), new Color(0.78f, 0.84f, 0.72f));
-            StyleCompactTopButton(play, new Vector2(-180f, -62f));
-            StyleCompactTopButton(shop, new Vector2(-540f, -62f));
-            var editHome = Button(content, "EditHomeButton", "✎", new Vector2(1f, 1f),
-                new Vector2(-785f, -62f), new Color(0.78f, 0.72f, 0.64f));
-            var flipFurniture = Button(content, "FlipFurnitureButton", "↔", new Vector2(1f, 1f),
-                new Vector2(-785f, -178f), new Color(0.78f, 0.72f, 0.64f));
-            StyleWarmGameButton(editHome, new Vector2(128f, 104f), 42);
-            StyleWarmGameButton(flipFurniture, new Vector2(128f, 104f), 40);
-            flipFurniture.gameObject.SetActive(false);
-            var quitGame = Button(content, "QuitGameButton", "Oyundan Çık", new Vector2(1f, 1f),
-                new Vector2(-960f, -62f), new Color(0.66f, 0.48f, 0.40f));
-            StyleWarmGameButton(quitGame, new Vector2(200f, 104f), 25);
-            quitGame.onClick.AddListener(() =>
-            {
-#if UNITY_EDITOR
-                UnityEditor.EditorApplication.isPlaying = false;
-#else
-                Application.Quit();
-#endif
-            });
 
-            var settingsButton = Button(content, "SettingsButton", "Ayarlar", new Vector2(0f, 1f),
-                new Vector2(140f, -130f), new Color(0.66f, 0.48f, 0.40f));
-            StyleWarmGameButton(settingsButton, new Vector2(190f, 64f), 23);
+            // Sağ: [✎] [Dükkan] [OYNA] [⚙]  — Oyna ana aksiyon: büyük, yeşil, nabızlı.
+            var settingsButton = RoundIconButton(content, "SettingsButton", CozyIconFactory.Gear(),
+                UtilityColor, new Vector2(1f, 1f),
+                new Vector2(-(EdgeMargin + 52f), -(EdgeMargin + 52f)), 104f, 0.62f);
+            // Oyna ve Dükkan, yuvarlak düğmelerle aynı görsel dilde hap düğmeler.
+            var play = Button(content, "PlayButton", "OYNA", new Vector2(1f, 1f), new Vector2(PlayButtonX, -(EdgeMargin + 52f)), Color.white);
+            StylePillButton(play, new Vector2(300f, 104f), PlayColor, CozyIconFactory.Play(), FontTitle, true);
+            var shop = Button(content, "ShopButton", GameText.Shop, new Vector2(1f, 1f), new Vector2(-594f, -(EdgeMargin + 52f)), Color.white);
+            StylePillButton(shop, new Vector2(248f, 104f), UtilityColor, CozyIconFactory.Storefront(), FontButton, false);
+            var editHome = RoundIconButton(content, "EditHomeButton", CozyIconFactory.Pencil(),
+                HudView.EditIdleColor, new Vector2(1f, 1f), new Vector2(-790f, -(EdgeMargin + 52f)), 104f, 0.52f);
+            var flipFurniture = RoundIconButton(content, "FlipFurnitureButton", null,
+                HudView.EditIdleColor, new Vector2(1f, 1f), new Vector2(-790f, -(EdgeMargin + 52f) - 118f), 104f, 0.52f);
+            var flipLabel = Label(flipFurniture.transform, "Text", "↔", new Vector2(0.5f, 0.5f), Vector2.zero);
+            flipLabel.rectTransform.sizeDelta = new Vector2(100f, 100f);
+            flipLabel.fontSize = FontTitle;
+            flipLabel.fontStyle = FontStyle.Bold;
+            flipLabel.color = Color.white;
+            flipFurniture.gameObject.SetActive(false);
+
+            // ── AYARLAR PANELİ (ebeveyn alanı: görünüm, ses, geliştirici) ─────
             var settingsPanel = Panel("DisplaySettings", content, Vector2.zero, Vector2.one,
-                new Color(0.12f, 0.08f, 0.06f, 0.86f));
+                new Color(0.12f, 0.08f, 0.06f, 0.90f));
             var settingsContent = SafeContent(settingsPanel.transform);
-            var settingsTitle = Label(settingsContent, "SettingsTitle", "Görünüm Boyutu",
-                new Vector2(0.5f, 0.70f), Vector2.zero);
+            var settingsTitle = Label(settingsContent, "SettingsTitle", "Ayarlar",
+                new Vector2(0.5f, 0.90f), Vector2.zero);
             settingsTitle.color = Color.white;
-            settingsTitle.fontSize = 42;
+            settingsTitle.fontSize = FontTitle;
+            settingsTitle.fontStyle = FontStyle.Bold;
+
+            SettingsSectionLabel(settingsContent, "SizeSection", "Görünüm Boyutu", 0.79f);
             var normalSize = Button(settingsContent, "NormalSize", "Normal",
-                new Vector2(0.5f, 0.50f), new Vector2(-220f, 0f), Color.white);
+                new Vector2(0.5f, 0.70f), new Vector2(-220f, 0f), Color.white);
             var largeSize = Button(settingsContent, "LargeSize", "Büyük",
-                new Vector2(0.5f, 0.50f), new Vector2(220f, 0f), Color.white);
-            var closeSettings = Button(settingsContent, "CloseSettings", "Kapat",
-                new Vector2(0.5f, 0.30f), Vector2.zero, Color.white);
-            StyleWarmGameButton(normalSize, new Vector2(330f, 90f), 30);
-            StyleWarmGameButton(largeSize, new Vector2(330f, 90f), 30);
-            StyleWarmGameButton(closeSettings, new Vector2(260f, 76f), 25);
+                new Vector2(0.5f, 0.70f), new Vector2(220f, 0f), Color.white);
+            StyleWarmGameButton(normalSize, new Vector2(330f, 96f), FontButton);
+            StyleWarmGameButton(largeSize, new Vector2(330f, 96f), FontButton);
             void RefreshSizeLabels()
             {
                 normalSize.GetComponentInChildren<Text>().text = DisplaySizeSettings.Large ? "Normal" : "✓ Normal";
@@ -337,48 +375,31 @@ namespace PawPath.Core
             {
                 DisplaySizeSettings.SetLarge(large);
                 RefreshSizeLabels();
-                float near = large ? 142f : 125f;
-                float far = large ? 414f : 375f;
                 foreach (var control in hud.GetComponentsInChildren<MobileControlButton>(true))
-                {
-                    var controlRect = control.GetComponent<RectTransform>();
-                    if (control.name == "Left") controlRect.anchoredPosition = new Vector2(near, 120f);
-                    if (control.name == "Right") controlRect.anchoredPosition = new Vector2(far, 120f);
-                    if (control.name == "Jump") controlRect.anchoredPosition = new Vector2(-far, 120f);
-                    if (control.name == "Crouch") controlRect.anchoredPosition = new Vector2(-near, 120f);
-                    controlRect.sizeDelta = large ? new Vector2(230f, 160f) : new Vector2(200f, 140f);
-                    var controlLabel = control.GetComponentInChildren<Text>();
-                    if (controlLabel != null) controlLabel.fontSize = large ? 34 : 30;
-                }
+                    ApplyControlLayout(control.GetComponent<RectTransform>(), control.name, large);
                 if (CatHouseManager.Instance != null)
                     CatHouseManager.Instance.RefreshResidents();
             }
             normalSize.onClick.AddListener(() => SetSize(false));
             largeSize.onClick.AddListener(() => SetSize(true));
-            closeSettings.onClick.AddListener(() => settingsPanel.SetActive(false));
-            settingsButton.onClick.AddListener(() =>
-            {
-                RefreshSizeLabels();
-                settingsPanel.transform.SetAsLastSibling();
-                settingsPanel.SetActive(true);
-            });
-            settingsPanel.SetActive(false);
 
-            var musicMute = Button(content, "MusicMuteButton", "♫", new Vector2(0f, 1f),
-                new Vector2(52f, -44f), new Color(0.68f, 0.57f, 0.44f, 0.94f));
-            var effectsMute = Button(content, "EffectsMuteButton", "SFX", new Vector2(0f, 1f),
-                new Vector2(122f, -44f), new Color(0.68f, 0.57f, 0.44f, 0.94f));
-            StyleWarmGameButton(musicMute, new Vector2(58f, 50f), 23);
-            StyleWarmGameButton(effectsMute, new Vector2(70f, 50f), 15);
+            // Müzik ve efekt düğmeleri artık ayarların içinde.
+            SettingsSectionLabel(settingsContent, "AudioSection", "Ses", 0.58f);
+            var musicMute = Button(settingsContent, "MusicMuteButton", "Müzik",
+                new Vector2(0.5f, 0.49f), new Vector2(-220f, 0f), Color.white);
+            var effectsMute = Button(settingsContent, "EffectsMuteButton", "Efektler",
+                new Vector2(0.5f, 0.49f), new Vector2(220f, 0f), Color.white);
+            StyleWarmGameButton(musicMute, new Vector2(330f, 96f), FontButton);
+            StyleWarmGameButton(effectsMute, new Vector2(330f, 96f), FontButton);
             void RefreshAudioButtons()
             {
                 var audio = CozyAudioManager.Instance;
                 var musicLabel = musicMute.GetComponentInChildren<Text>();
                 var effectsLabel = effectsMute.GetComponentInChildren<Text>();
                 if (musicLabel != null)
-                    musicLabel.text = audio != null && audio.MusicMuted ? "♫×" : "♫";
+                    musicLabel.text = audio != null && audio.MusicMuted ? "♫ Müzik: Kapalı" : "♫ Müzik: Açık";
                 if (effectsLabel != null)
-                    effectsLabel.text = audio != null && audio.EffectsMuted ? "SFX×" : "SFX";
+                    effectsLabel.text = audio != null && audio.EffectsMuted ? "Efektler: Kapalı" : "Efektler: Açık";
             }
             musicMute.onClick.AddListener(() =>
             {
@@ -392,22 +413,103 @@ namespace PawPath.Core
             });
             RefreshAudioButtons();
 
+            // Geliştirici / test düğmeleri: yalnızca editörde ve test derlemesinde.
+            bool developerTools = Debug.isDebugBuild || Application.isEditor;
+            var developerSection = SettingsSectionLabel(settingsContent, "DeveloperSection",
+                "Geliştirici (yalnızca test sürümü)", 0.37f);
+            developerSection.gameObject.SetActive(developerTools);
+            var developerLove = Button(settingsContent, "DeveloperLove", "+100",
+                new Vector2(0.5f, 0.28f), new Vector2(-400f, 0f), Color.white);
+            StyleWarmGameButton(developerLove, new Vector2(220f, 96f), FontButton);
+            developerLove.onClick.AddListener(() =>
+            {
+                if (CozyEconomyManager.Instance != null)
+                    CozyEconomyManager.Instance.AddLove(100, "Geliştirici testi");
+            });
+            developerLove.gameObject.SetActive(developerTools);
+
+            var mitziOnly = Button(settingsContent, "DeveloperMitziOnly", "Sadece Mitzi",
+                new Vector2(0.5f, 0.28f), new Vector2(-60f, 0f), Color.white);
+            StyleWarmGameButton(mitziOnly, new Vector2(330f, 96f), FontBody);
+            void RefreshMitziOnlyLabel()
+            {
+                var label = mitziOnly.GetComponentInChildren<Text>();
+                if (label != null)
+                    label.text = SaveService.DeveloperMitziOnly ? "✓ Sadece Mitzi" : "Tüm Kediler";
+            }
+            RefreshMitziOnlyLabel();
+            mitziOnly.onClick.AddListener(() =>
+            {
+                SaveService.SetDeveloperMitziOnly(!SaveService.DeveloperMitziOnly);
+                RefreshMitziOnlyLabel();
+                if (CatHouseManager.Instance != null)
+                    CatHouseManager.Instance.RefreshResidents();
+                var starterCat = GameFlow.Instance != null ? GameFlow.Instance.Catalog?.StarterCat : null;
+                if (starterCat != null)
+                    GameEvents.PlayableCatChanged(starterCat);
+            });
+            mitziOnly.gameObject.SetActive(developerTools);
+
+            var resetProgress = Button(settingsContent, "DeveloperReset", "Baştan Başla",
+                new Vector2(0.5f, 0.28f), new Vector2(320f, 0f), Color.white);
+            StyleWarmGameButton(resetProgress, new Vector2(290f, 96f), FontBody);
+            var resetImage = resetProgress.GetComponent<Image>();
+            if (resetImage != null)
+                resetImage.color = new Color(1f, 0.72f, 0.70f, 1f);
+            resetProgress.onClick.AddListener(() =>
+            {
+                SaveService.ResetProgressForTesting();
+                SaveService.SetDeveloperMitziOnly(true);
+                RefreshMitziOnlyLabel();
+                if (CozyEconomyManager.Instance != null)
+                    CozyEconomyManager.Instance.RefreshUI();
+                if (GameFlow.Instance != null)
+                    GameFlow.Instance.EnterHub();
+                var starterCat = GameFlow.Instance != null ? GameFlow.Instance.Catalog?.StarterCat : null;
+                if (starterCat != null)
+                    GameEvents.PlayableCatChanged(starterCat);
+            });
+            resetProgress.gameObject.SetActive(developerTools);
+
+            var howToPlay = Button(settingsContent, "HowToPlayButton", "Nasıl Oynanır?",
+                new Vector2(0.5f, 0.11f), new Vector2(-200f, 0f), Color.white);
+            StylePillButton(howToPlay, new Vector2(380f, 104f), WaterColor, CozyIconFactory.HappyCatFace(), FontButton, false);
+            howToPlay.onClick.AddListener(() =>
+            {
+                settingsPanel.SetActive(false);
+                HowToPlayUI.Open();
+            });
+            var closeSettings = Button(settingsContent, "CloseSettings", "Kapat",
+                new Vector2(0.5f, 0.11f), new Vector2(190f, 0f), Color.white);
+            StylePillButton(closeSettings, new Vector2(280f, 104f), UtilityColor, null, FontButton, false);
+            closeSettings.onClick.AddListener(() => settingsPanel.SetActive(false));
+            settingsButton.onClick.AddListener(() =>
+            {
+                RefreshSizeLabels();
+                RefreshAudioButtons();
+                RefreshMitziOnlyLabel();
+                settingsPanel.transform.SetAsLastSibling();
+                settingsPanel.SetActive(true);
+            });
+            settingsPanel.SetActive(false);
+
             var modeMenu = new GameObject("PlayModeMenu", typeof(RectTransform));
             modeMenu.transform.SetParent(content, false);
             Stretch(modeMenu.GetComponent<RectTransform>());
             var drawingPlay = Button(modeMenu.transform, "DrawingPlayButton", "Çizerek Oyna", new Vector2(1f, 1f), new Vector2(-150f, -125f), new Color(0.93f, 0.72f, 0.76f));
             var directPlay = Button(modeMenu.transform, "DirectPlayButton", "Tuşlarla Oyna", new Vector2(1f, 1f), new Vector2(-150f, -195f), new Color(0.72f, 0.82f, 0.94f));
-            StyleCompactTopButton(drawingPlay, new Vector2(-180f, -180f));
-            StyleCompactTopButton(directPlay, new Vector2(-180f, -305f));
+            // Oyna'nın altındaki seçenekler de aynı hap stilinde ve ikonlu.
+            StyleMenuPill(drawingPlay, 0, DrawModeColor, CozyIconFactory.Pencil());
+            StyleMenuPill(directPlay, 1, WaterColor, CozyIconFactory.Gamepad());
             var easyDifficulty = Button(modeMenu.transform, "EasyDifficulty", "Kolay",
-                new Vector2(0.5f, 0.32f), new Vector2(-170f, 0f), new Color(0.52f, 0.70f, 0.55f));
+                new Vector2(0.5f, 0.32f), new Vector2(-190f, 0f), new Color(0.52f, 0.70f, 0.55f));
             var mediumDifficulty = Button(modeMenu.transform, "MediumDifficulty", "Orta",
                 new Vector2(0.5f, 0.32f), Vector2.zero, new Color(0.83f, 0.68f, 0.52f));
             var hardDifficulty = Button(modeMenu.transform, "HardDifficulty", "Zor",
-                new Vector2(0.5f, 0.32f), new Vector2(170f, 0f), new Color(0.72f, 0.48f, 0.34f));
-            StyleWarmGameButton(easyDifficulty, new Vector2(145f, 70f), 24);
-            StyleWarmGameButton(mediumDifficulty, new Vector2(145f, 70f), 24);
-            StyleWarmGameButton(hardDifficulty, new Vector2(145f, 70f), 24);
+                new Vector2(0.5f, 0.32f), new Vector2(190f, 0f), new Color(0.72f, 0.48f, 0.34f));
+            StylePillButton(easyDifficulty, new Vector2(170f, 96f), PlayColor, null, FontBody, false);
+            StylePillButton(mediumDifficulty, new Vector2(170f, 96f), FoodColor, null, FontBody, false);
+            StylePillButton(hardDifficulty, new Vector2(170f, 96f), HardColor, null, FontBody, false);
             void RefreshDifficultyLabels()
             {
                 var selectedDifficulty = GameDifficulty.Selected;
@@ -426,77 +528,23 @@ namespace PawPath.Core
 
             var themeSelectorObject = BuildThemeSelector(content);
             var themeSelector = themeSelectorObject.GetComponent<ThemeSelectionUI>();
-            var developerLove = Button(content, "DeveloperLove", "+100", new Vector2(0f, 0.5f), new Vector2(54f, 0f), new Color(0.55f, 0.45f, 0.70f, 0.82f));
-            developerLove.GetComponent<RectTransform>().sizeDelta = new Vector2(92f, 50f);
-            developerLove.GetComponentInChildren<Text>().fontSize = 18;
-            StyleWarmGameButton(developerLove, new Vector2(110f, 52f), 18);
-            developerLove.onClick.AddListener(() =>
-            {
-                if (CozyEconomyManager.Instance != null)
-                    CozyEconomyManager.Instance.AddLove(100, "Geliştirici testi");
-            });
-            developerLove.gameObject.SetActive(Debug.isDebugBuild || Application.isEditor);
-
-            var mitziOnly = Button(content, "DeveloperMitziOnly", "Sadece Mitzi", new Vector2(0f, 0.5f), new Vector2(105f, -68f), new Color(0.55f, 0.45f, 0.70f, 0.82f));
-            mitziOnly.GetComponent<RectTransform>().sizeDelta = new Vector2(195f, 50f);
-            mitziOnly.GetComponentInChildren<Text>().fontSize = 17;
-            StyleWarmGameButton(mitziOnly, new Vector2(195f, 52f), 17);
-            void RefreshMitziOnlyLabel()
-            {
-                var label = mitziOnly.GetComponentInChildren<Text>();
-                if (label != null)
-                    label.text = SaveService.DeveloperMitziOnly ? "✓ Sadece Mitzi" : "Tüm Kediler";
-            }
-            RefreshMitziOnlyLabel();
-            mitziOnly.onClick.AddListener(() =>
-            {
-                SaveService.SetDeveloperMitziOnly(!SaveService.DeveloperMitziOnly);
-                RefreshMitziOnlyLabel();
-                if (CatHouseManager.Instance != null)
-                    CatHouseManager.Instance.RefreshResidents();
-                var starterCat = GameFlow.Instance != null ? GameFlow.Instance.Catalog?.StarterCat : null;
-                if (starterCat != null)
-                    GameEvents.PlayableCatChanged(starterCat);
-            });
-            mitziOnly.gameObject.SetActive(Debug.isDebugBuild || Application.isEditor);
-
-            var resetProgress = Button(content, "DeveloperReset", "Baştan Başla", new Vector2(0f, 0.5f), new Vector2(105f, -132f), new Color(0.72f, 0.38f, 0.38f, 0.88f));
-            resetProgress.GetComponent<RectTransform>().sizeDelta = new Vector2(195f, 50f);
-            resetProgress.GetComponentInChildren<Text>().fontSize = 17;
-            StyleWarmGameButton(resetProgress, new Vector2(195f, 52f), 17);
-            resetProgress.onClick.AddListener(() =>
-            {
-                SaveService.ResetProgressForTesting();
-                SaveService.SetDeveloperMitziOnly(true);
-                RefreshMitziOnlyLabel();
-                if (CozyEconomyManager.Instance != null)
-                    CozyEconomyManager.Instance.RefreshUI();
-                if (GameFlow.Instance != null)
-                    GameFlow.Instance.EnterHub();
-                var starterCat = GameFlow.Instance != null ? GameFlow.Instance.Catalog?.StarterCat : null;
-                if (starterCat != null)
-                    GameEvents.PlayableCatChanged(starterCat);
-            });
-            resetProgress.gameObject.SetActive(Debug.isDebugBuild || Application.isEditor);
-            var restart = Button(content, "RestartButton", "Yeniden", new Vector2(1f, 1f), new Vector2(-125f, -55f), new Color(0.93f, 0.72f, 0.76f));
-            restart.GetComponent<RectTransform>().sizeDelta = new Vector2(190f, 58f);
-            var home = Button(content, "LevelHomeButton", "Eve Dön", new Vector2(0f, 1f), new Vector2(125f, -125f), new Color(0.78f, 0.84f, 0.72f));
-            home.GetComponent<RectTransform>().sizeDelta = new Vector2(190f, 58f);
-            StyleWarmGameButton(restart, new Vector2(190f, 58f), 20);
-            StyleWarmGameButton(home, new Vector2(190f, 58f), 20);
-            restart.gameObject.SetActive(false);
-            home.gameObject.SetActive(false);
             var brushes = BuildBrushToolbar(content);
             brushes.SetActive(false);
             var previousDrawView = Button(content, "PreviousDrawView", "◀ Önceki",
-                new Vector2(0.5f, 1f), new Vector2(-395f, -64f), Color.white);
+                new Vector2(0.5f, 1f), new Vector2(-390f, -165f), new Color(0.78f, 0.84f, 0.72f));
             var startDrawingGame = Button(content, "StartDrawingGame", "Oyunu Başlat",
-                new Vector2(0.5f, 1f), new Vector2(0f, -64f), Color.white);
+                new Vector2(0.5f, 1f), new Vector2(0f, -165f), new Color(0.93f, 0.72f, 0.76f));
             var nextDrawView = Button(content, "NextDrawView", "Sonraki ▶",
-                new Vector2(0.5f, 1f), new Vector2(395f, -64f), Color.white);
-            StyleWarmGameButton(previousDrawView, new Vector2(220f, 68f), 22);
-            StyleWarmGameButton(startDrawingGame, new Vector2(260f, 68f), 24);
-            StyleWarmGameButton(nextDrawView, new Vector2(220f, 68f), 22);
+                new Vector2(0.5f, 1f), new Vector2(390f, -165f), new Color(0.78f, 0.84f, 0.72f));
+            StyleWarmGameButton(previousDrawView, new Vector2(220f, 96f), FontBody);
+            StyleWarmGameButton(startDrawingGame, new Vector2(270f, 96f), FontButton, true);
+            StyleWarmGameButton(nextDrawView, new Vector2(220f, 96f), FontBody);
+            var nextDrawLabel = nextDrawView.GetComponentInChildren<Text>();
+            if (nextDrawLabel != null)
+            {
+                nextDrawLabel.text = "SONRAKİ  ▶";
+                nextDrawLabel.fontStyle = FontStyle.Bold;
+            }
             previousDrawView.gameObject.SetActive(false);
             startDrawingGame.gameObject.SetActive(false);
             nextDrawView.gameObject.SetActive(false);
@@ -504,11 +552,84 @@ namespace PawPath.Core
             tutorial.SetActive(false);
             var controls = BuildMobileControls(content);
             controls.SetActive(false);
+            BuildPauseMenu(hud, content);
             hud.GetComponent<HudView>().Bind(love, level, ink, selected, play, shop, directPlay,
-                restart, home, careUi, brushes, tutorial, controls, modeMenu, drawingPlay, themeSelector,
+                null, null, careUi, brushes, tutorial, controls, modeMenu, drawingPlay, themeSelector,
                 editHome, flipFurniture, settingsButton, settingsPanel,
-                previousDrawView, nextDrawView, startDrawingGame);
+                previousDrawView, nextDrawView, startDrawingGame, null);
+            hud.GetComponent<HudView>().BindBalanceRoot(balanceRoot);
             return hud;
+        }
+
+        /// <summary>
+        /// "Nasıl Oynanır" ekranı: krem kart, büyük ikonlu çizim alanı, başlık,
+        /// ebeveyn için kısa açıklama, sayfa noktaları ve ileri/geri/başla/atla düğmeleri.
+        /// </summary>
+        static void BuildHowToPlay(Transform canvas)
+        {
+            var holder = new GameObject("HowToPlay", typeof(RectTransform));
+            holder.transform.SetParent(canvas, false);
+            Stretch(holder.GetComponent<RectTransform>());
+
+            var panel = Panel("HowToPlayPanel", holder.transform, Vector2.zero, Vector2.one,
+                new Color(0.10f, 0.07f, 0.05f, 0.82f));
+            var content = SafeContent(panel.transform);
+
+            var card = new GameObject("Card", typeof(RectTransform), typeof(Image));
+            card.transform.SetParent(content, false);
+            var cardRt = card.GetComponent<RectTransform>();
+            cardRt.anchorMin = cardRt.anchorMax = new Vector2(0.5f, 0.5f);
+            cardRt.sizeDelta = new Vector2(1180f, 720f);
+            var cardImage = card.GetComponent<Image>();
+            cardImage.sprite = CozyIconFactory.Pill();
+            cardImage.type = Image.Type.Sliced;
+            cardImage.pixelsPerUnitMultiplier = 0.5f;
+            cardImage.color = new Color(1f, 0.97f, 0.90f, 0.98f);
+            var cardShadow = card.AddComponent<Shadow>();
+            cardShadow.effectColor = new Color(0f, 0f, 0f, 0.30f);
+            cardShadow.effectDistance = new Vector2(0f, -10f);
+
+            var title = Label(card.transform, "Title", "", new Vector2(0.5f, 0.5f), new Vector2(0f, 270f));
+            title.rectTransform.sizeDelta = new Vector2(900f, 80f);
+            title.fontSize = FontTitle;
+            title.fontStyle = FontStyle.Bold;
+            title.color = new Color(0.36f, 0.22f, 0.14f);
+
+            var art = new GameObject("Art", typeof(RectTransform));
+            art.transform.SetParent(card.transform, false);
+            var artRt = art.GetComponent<RectTransform>();
+            artRt.anchorMin = artRt.anchorMax = new Vector2(0.5f, 0.5f);
+            artRt.anchoredPosition = new Vector2(0f, 60f);
+            artRt.sizeDelta = new Vector2(1000f, 240f);
+
+            var body = Label(card.transform, "Body", "", new Vector2(0.5f, 0.5f), new Vector2(0f, -130f));
+            body.rectTransform.sizeDelta = new Vector2(980f, 110f);
+            body.fontSize = FontButton;
+            body.color = new Color(0.30f, 0.22f, 0.17f);
+
+            int pageCount = HowToPlayUI.PageCount;
+            var dots = new Image[pageCount];
+            for (int i = 0; i < pageCount; i++)
+            {
+                dots[i] = IconImage(card.transform, "Dot_" + i, CozyIconFactory.CircleButton(), Color.white,
+                    new Vector2(0.5f, 0.5f), new Vector2((i - (pageCount - 1) * 0.5f) * 40f, -250f), 24f);
+                dots[i].raycastTarget = false;
+            }
+
+            var previous = RoundIconButton(card.transform, "Previous", CozyIconFactory.ArrowLeft(), UtilityColor,
+                new Vector2(0.5f, 0.5f), new Vector2(-470f, -250f), 112f, 0.5f);
+            var next = RoundIconButton(card.transform, "Next", CozyIconFactory.ArrowRight(), PlayColor,
+                new Vector2(0.5f, 0.5f), new Vector2(470f, -250f), 124f, 0.5f);
+            var nextPulse = next.gameObject.AddComponent<UiPulse>();
+            nextPulse.Configure(0.05f, 3.2f);
+            var start = Button(card.transform, "StartPlaying", "Başla!", new Vector2(0.5f, 0.5f),
+                new Vector2(400f, -250f), Color.white);
+            StylePillButton(start, new Vector2(300f, 112f), PlayColor, CozyIconFactory.Play(), FontTitle, true);
+            var skip = Button(card.transform, "Skip", "Atla", new Vector2(0.5f, 0.5f),
+                new Vector2(470f, 290f), Color.white);
+            StylePillButton(skip, new Vector2(160f, 72f), UtilityColor, null, FontBody, false);
+
+            holder.AddComponent<HowToPlayUI>().Bind(panel, title, body, artRt, dots, previous, next, start, skip);
         }
 
         static GameObject BuildThemeSelector(Transform parent)
@@ -520,10 +641,10 @@ namespace PawPath.Core
             var forest = Button(panel.transform, "ForestTheme", "Orman", new Vector2(1f, 1f), new Vector2(-150f, -195f), new Color(0.52f, 0.70f, 0.55f));
             var city = Button(panel.transform, "CityTheme", "Cadde", new Vector2(1f, 1f), new Vector2(-150f, -255f), new Color(0.62f, 0.58f, 0.54f));
             var cyber = Button(panel.transform, "CyberTheme", "Neo Teknoloji", new Vector2(1f, 1f), new Vector2(-150f, -315f), new Color(0.35f, 0.28f, 0.55f));
-            StyleCompactTopButton(street, new Vector2(-180f, -180f));
-            StyleCompactTopButton(forest, new Vector2(-180f, -305f));
-            StyleCompactTopButton(city, new Vector2(-180f, -430f));
-            StyleCompactTopButton(cyber, new Vector2(-180f, -555f));
+            StyleMenuPill(street, 0, StreetColor, CozyIconFactory.House());
+            StyleMenuPill(forest, 1, ForestColor, CozyIconFactory.Tree());
+            StyleMenuPill(city, 2, CityColor, CozyIconFactory.Buildings());
+            StyleMenuPill(cyber, 3, CyberColor, CozyIconFactory.Bolt());
             panel.AddComponent<ThemeSelectionUI>().Bind(street, forest, city, cyber);
             return panel;
         }
@@ -533,29 +654,88 @@ namespace PawPath.Core
             var controls = new GameObject("MobileControls", typeof(RectTransform));
             controls.transform.SetParent(parent, false);
             Stretch(controls.GetComponent<RectTransform>());
-            bool large = DisplaySizeSettings.Large;
-            float near = large ? 142f : 125f;
-            float far = large ? 414f : 375f;
-            AddControlButton(controls.transform, "Left", "◀", new Vector2(0f, 0f), new Vector2(near, 120f), MobileAction.Left);
-            AddControlButton(controls.transform, "Right", "▶", new Vector2(0f, 0f), new Vector2(far, 120f), MobileAction.Right);
-            AddControlButton(controls.transform, "Jump", "ZIPLA", new Vector2(1f, 0f), new Vector2(-far, 120f), MobileAction.Jump);
-            AddControlButton(controls.transform, "Crouch", "EĞİL", new Vector2(1f, 0f), new Vector2(-near, 120f), MobileAction.Crouch);
+            AddControlButton(controls.transform, "Left", CozyIconFactory.ArrowLeft(), new Vector2(0f, 0f), MobileAction.Left);
+            AddControlButton(controls.transform, "Right", CozyIconFactory.ArrowRight(), new Vector2(0f, 0f), MobileAction.Right);
+            AddControlButton(controls.transform, "Jump", CozyIconFactory.ArrowUp(), new Vector2(1f, 0f), MobileAction.Jump);
+            AddControlButton(controls.transform, "Crouch", CozyIconFactory.ArrowDown(), new Vector2(1f, 0f), MobileAction.Crouch);
             return controls;
         }
 
-        static void AddControlButton(Transform parent, string name, string label, Vector2 anchor,
-            Vector2 position, MobileAction action)
+        /// <summary>
+        /// Yuvarlak, yarı saydam kontrol düğmeleri. Zıpla en çok kullanılan tuş olduğu
+        /// için başparmağın doğal durduğu sağ alt köşede ve biraz daha büyük.
+        /// </summary>
+        static void ApplyControlLayout(RectTransform rt, string name, bool large)
         {
-            var button = Button(parent, name, label, anchor, position, new Color(0.18f, 0.20f, 0.25f, 0.82f));
-            var size = DisplaySizeSettings.Large ? new Vector2(230f, 160f) : new Vector2(200f, 140f);
-            StyleWarmGameButton(button, size, DisplaySizeSettings.Large ? 34 : 30);
-            button.gameObject.AddComponent<MobileControlButton>().Configure(action);
-            var text = button.GetComponentInChildren<Text>();
-            if (text != null)
+            if (rt == null)
+                return;
+            float d = large ? 190f : 160f;
+            float jump = large ? 210f : 180f;
+            const float gap = 30f;
+            float size = d;
+            Vector2 position;
+            switch (name)
             {
-                text.fontSize = DisplaySizeSettings.Large ? 34 : 30;
-                text.color = Color.white;
+                case "Left": position = new Vector2(EdgeMargin + d * 0.5f, EdgeMargin + d * 0.5f); break;
+                case "Right": position = new Vector2(EdgeMargin + d * 1.5f + gap, EdgeMargin + d * 0.5f); break;
+                case "Jump":
+                    size = jump;
+                    position = new Vector2(-(EdgeMargin + jump * 0.5f), EdgeMargin + jump * 0.5f);
+                    break;
+                case "Crouch": position = new Vector2(-(EdgeMargin + jump + gap + d * 0.5f), EdgeMargin + d * 0.5f); break;
+                default: return;
             }
+            rt.anchoredPosition = position;
+            rt.sizeDelta = new Vector2(size, size);
+        }
+
+        static readonly Color ControlColor = new Color(0.24f, 0.18f, 0.14f, 0.50f);
+
+        static void AddControlButton(Transform parent, string name, Sprite icon, Vector2 anchor, MobileAction action)
+        {
+            var button = RoundIconButton(parent, name, icon, ControlColor, anchor, Vector2.zero, 160f, 0.50f);
+            ApplyControlLayout(button.GetComponent<RectTransform>(), name, DisplaySizeSettings.Large);
+            // İkon düğme boyutuyla birlikte ölçeklensin.
+            var iconRt = button.transform.Find("Icon") as RectTransform;
+            if (iconRt != null)
+            {
+                iconRt.anchorMin = new Vector2(0.25f, 0.25f);
+                iconRt.anchorMax = new Vector2(0.75f, 0.75f);
+                iconRt.offsetMin = iconRt.offsetMax = Vector2.zero;
+            }
+            var shadow = button.GetComponent<Shadow>();
+            if (shadow != null)
+                shadow.effectColor = new Color(0f, 0f, 0f, 0.15f);
+            button.gameObject.AddComponent<MobileControlButton>().Configure(action);
+        }
+
+        /// <summary>
+        /// Bölüm içi tek duraklat düğmesi + menüsü (devam, yeniden başla, eve dön).
+        /// Eski "Eve Dön", "Yeniden" ve "Oyundan Çık" köşe düğmelerinin yerini alır.
+        /// </summary>
+        static void BuildPauseMenu(GameObject hud, Transform content)
+        {
+            var pauseButton = RoundIconButton(content, "PauseButton", CozyIconFactory.Pause(), UtilityColor,
+                new Vector2(1f, 1f), new Vector2(-(EdgeMargin + 52f), -(EdgeMargin + 52f)), 104f, 0.50f);
+            pauseButton.gameObject.SetActive(false);
+
+            var panel = Panel("PauseMenu", content, Vector2.zero, Vector2.one, new Color(0.10f, 0.07f, 0.05f, 0.72f));
+            var restart = RoundIconButton(panel.transform, "PauseRestart", CozyIconFactory.Restart(), WaterColor,
+                new Vector2(0.5f, 0.5f), new Vector2(-280f, 0f), 170f, 0.52f);
+            var resume = RoundIconButton(panel.transform, "PauseResume", CozyIconFactory.Play(), PlayColor,
+                new Vector2(0.5f, 0.5f), Vector2.zero, 230f, 0.46f);
+            var home = RoundIconButton(panel.transform, "PauseHome", CozyIconFactory.House(), UtilityColor,
+                new Vector2(0.5f, 0.5f), new Vector2(280f, 0f), 170f, 0.52f);
+            // Devam en büyük ve nabızlı: çocuk menüyü açınca en kolay yol oyuna geri dönmek.
+            var resumePulse = resume.gameObject.AddComponent<UiPulse>();
+            resumePulse.Configure(0.05f, 3.2f);
+            // Play üçgeni görsel olarak sağa ağır; ortalamak için hafif sola kaydır.
+            var resumeIcon = resume.transform.Find("Icon") as RectTransform;
+            if (resumeIcon != null)
+                resumeIcon.anchoredPosition = new Vector2(-6f, 2f);
+            panel.SetActive(false);
+
+            hud.AddComponent<PauseMenu>().Bind(pauseButton, panel, resume, restart, home);
         }
 
         static CatNeedsUI BuildCareUi(Transform canvas, CatNeedsSystem needs)
@@ -564,34 +744,111 @@ namespace PawPath.Core
             panel.AddComponent<CanvasGroup>();
             var content = SafeContent(panel.transform);
 
-            var feed = Button(content, "FeedButton", $"Mama +{needs.foodPoints}", new Vector2(0.16f, 0f), new Vector2(0f, 300f), new Color(0.88f, 0.72f, 0.55f));
-            var water = Button(content, "WaterButton", $"Su +{needs.waterPoints}", new Vector2(0.16f, 0f), new Vector2(0f, 195f), new Color(0.62f, 0.80f, 0.91f));
-            var sleep = Button(content, "SleepButton", $"Uyu +{needs.sleepPoints}", new Vector2(0.16f, 0f), new Vector2(0f, 90f), new Color(0.75f, 0.69f, 0.86f));
-            foreach (var button in new[] { feed, water, sleep })
-                StyleWarmGameButton(button, new Vector2(420f, 88f), 26);
+            // ── DUYGU BALONU: seçili kedinin başının üstünde, yazısız ─────────
+            var bubbleGo = new GameObject("CatMoodBubble", typeof(RectTransform), typeof(Image));
+            bubbleGo.transform.SetParent(content, false);
+            var bubbleRt = bubbleGo.GetComponent<RectTransform>();
+            bubbleRt.anchorMin = bubbleRt.anchorMax = new Vector2(0.5f, 0.5f);
+            bubbleRt.pivot = new Vector2(0.5f, 0f);
+            bubbleRt.sizeDelta = new Vector2(124f, 136f);
+            var bubbleImage = bubbleGo.GetComponent<Image>();
+            bubbleImage.sprite = CozyIconFactory.SpeechBubble();
+            bubbleImage.raycastTarget = false;
+            var bubbleShadow = bubbleGo.AddComponent<Shadow>();
+            bubbleShadow.effectColor = new Color(0.25f, 0.15f, 0.08f, 0.30f);
+            bubbleShadow.effectDistance = new Vector2(0f, -5f);
+            var bubbleIcon = IconImage(bubbleGo.transform, "MoodIcon", CozyIconFactory.HappyCatFace(), CatFaceColor,
+                new Vector2(0.5f, 0.5f), new Vector2(0f, 12f), 74f);
+            bubbleIcon.raycastTarget = false;
+            bubbleGo.AddComponent<CatMoodBubble>().Bind(content as RectTransform, bubbleIcon, needs,
+                FoodColor, WaterColor, LoveColor, SleepColor, CatFaceColor);
 
-            var daily = Label(content, "DailyPetting", "Günlük Okşama", new Vector2(0.84f, 0f), new Vector2(0f, 125f));
-            daily.fontSize = 20;
-            daily.fontStyle = FontStyle.Bold;
-            daily.color = new Color(0.10f, 0.075f, 0.055f, 1f);
-            daily.alignment = TextAnchor.MiddleCenter;
-            daily.rectTransform.sizeDelta = new Vector2(350f, 38f);
-            AddTextPanelBackground(daily);
-            var warning = Label(content, "EnergyStatus", "", new Vector2(0.84f, 0f), new Vector2(0f, 65f));
-            warning.fontSize = 19;
-            warning.fontStyle = FontStyle.Bold;
-            warning.color = new Color(0.10f, 0.075f, 0.055f, 1f);
-            warning.alignment = TextAnchor.MiddleCenter;
-            warning.resizeTextForBestFit = true;
-            warning.resizeTextMinSize = 16;
-            warning.resizeTextMaxSize = 19;
-            warning.rectTransform.sizeDelta = new Vector2(430f, 48f);
-            warning.rectTransform.anchoredPosition = new Vector2(0f, 78f);
-            AddTextPanelBackground(warning);
+            // ── ALT ŞERİT: ortalanmış yuvarlak bakım düğmeleri (mama, su, uyku) ──
+            // Çocuk parmağı için geniş dokunma alanı (tipik telefonda ≈60 pt) ve aralarında boşluk.
+            const float careDiameter = 150f;
+            const float careSpacing = 195f;
+            float careY = EdgeMargin + careDiameter * 0.5f;
+            var feed = RoundIconButton(content, "FeedButton", CozyIconFactory.FoodBowl(), FoodColor,
+                new Vector2(0.5f, 0f), new Vector2(-careSpacing, careY), careDiameter, 0.58f);
+            var water = RoundIconButton(content, "WaterButton", CozyIconFactory.WaterDrop(), WaterColor,
+                new Vector2(0.5f, 0f), new Vector2(0f, careY), careDiameter, 0.56f);
+            var sleep = RoundIconButton(content, "SleepButton", CozyIconFactory.Moon(), SleepColor,
+                new Vector2(0.5f, 0f), new Vector2(careSpacing, careY), careDiameter, 0.56f);
+            foreach (var careButton in new[] { feed, water, sleep })
+            {
+                var pulse = careButton.gameObject.AddComponent<UiPulse>();
+                pulse.Configure(0.08f, 4.2f);
+                pulse.Pulsing = false;
+                careButton.gameObject.AddComponent<UiShake>();
+            }
+
+            // ── DURUM KARTI (sol üst, bakiyenin altında) ─────────────────
+            // Yazı ve sayı yok: kaplar dolup boşalır, günlük okşama patilerle dolar.
+            var card = new GameObject("NeedsCard", typeof(RectTransform), typeof(Image));
+            card.transform.SetParent(content, false);
+            var cardRt = card.GetComponent<RectTransform>();
+            cardRt.anchorMin = cardRt.anchorMax = new Vector2(0f, 1f);
+            cardRt.pivot = new Vector2(0f, 1f);
+            cardRt.anchoredPosition = new Vector2(EdgeMargin, -(EdgeMargin + 88f + 16f));
+            cardRt.sizeDelta = new Vector2(330f, 184f);
+            var cardBg = card.GetComponent<Image>();
+            cardBg.sprite = CozyIconFactory.Pill();
+            cardBg.type = Image.Type.Sliced;
+            cardBg.color = new Color(1f, 0.97f, 0.90f, 0.82f);
+            cardBg.raycastTarget = false;
+
+            var foodGauge = NeedGaugeView(card.transform, "FoodGauge", CozyIconFactory.FoodBowl(), FoodColor, new Vector2(60f, -64f));
+            var waterGauge = NeedGaugeView(card.transform, "WaterGauge", CozyIconFactory.WaterDrop(), WaterColor, new Vector2(165f, -64f));
+            var loveGauge = NeedGaugeView(card.transform, "LoveGauge", CozyIconFactory.Heart(), LoveColor, new Vector2(270f, -64f));
+
+            var paws = new Image[5];
+            for (int i = 0; i < paws.Length; i++)
+            {
+                paws[i] = IconImage(card.transform, $"PettingPaw_{i}", CozyIconFactory.Paw(), Color.white,
+                    new Vector2(0f, 1f), new Vector2(165f + (i - 2) * 50f, -148f), 40f);
+                paws[i].raycastTarget = false;
+            }
+
+            // Ebeveyn için kısa, kendiliğinden kaybolan bilgi (ör. "önce mama kabı al").
+            var toast = Label(content, "CareToast", "", new Vector2(0.5f, 0f), new Vector2(0f, careY + careDiameter * 0.5f + 50f));
+            toast.rectTransform.sizeDelta = new Vector2(900f, 60f);
+            toast.fontSize = FontBody;
+            toast.fontStyle = FontStyle.Bold;
+            toast.color = Color.white;
+            var toastOutline = toast.gameObject.AddComponent<Outline>();
+            toastOutline.effectColor = new Color(0.12f, 0.07f, 0.04f, 0.85f);
+            toastOutline.effectDistance = new Vector2(2f, -2f);
 
             var ui = panel.AddComponent<CatNeedsUI>();
-            ui.Bind(needs, feed, water, sleep, daily, warning);
+            ui.Bind(needs, feed, water, sleep, foodGauge, waterGauge, loveGauge, paws, toast);
             return ui;
+        }
+
+        static NeedGauge NeedGaugeView(Transform parent, string name, Sprite icon, Color color, Vector2 position)
+        {
+            const float size = 92f;
+            var go = new GameObject(name, typeof(RectTransform));
+            go.transform.SetParent(parent, false);
+            var rt = go.GetComponent<RectTransform>();
+            rt.anchorMin = rt.anchorMax = new Vector2(0f, 1f);
+            rt.anchoredPosition = position;
+            rt.sizeDelta = new Vector2(size, size);
+
+            // Arkada koyu, yarı saydam "boş kap"; önde değer kadar dolan renkli ikon.
+            var back = IconImage(go.transform, "Empty", icon, new Color(0.25f, 0.18f, 0.13f, 0.30f),
+                new Vector2(0.5f, 0.5f), Vector2.zero, size);
+            back.raycastTarget = false;
+            var fill = IconImage(go.transform, "Fill", icon, color, new Vector2(0.5f, 0.5f), Vector2.zero, size);
+            fill.raycastTarget = false;
+            fill.type = Image.Type.Filled;
+            fill.fillMethod = Image.FillMethod.Vertical;
+            fill.fillOrigin = (int)Image.OriginVertical.Bottom;
+            fill.fillAmount = 1f;
+
+            var shake = go.AddComponent<UiShake>();
+            var gauge = go.AddComponent<NeedGauge>();
+            gauge.Bind(fill, color, shake);
+            return gauge;
         }
 
         static GameObject BuildBrushToolbar(Transform parent)
@@ -659,7 +916,9 @@ namespace PawPath.Core
             title.fontSize = 42;
             var body = Label(content, "Body", "", new Vector2(0.5f, 0.48f), Vector2.zero);
             body.rectTransform.sizeDelta = new Vector2(780, 320);
-            var invite = Button(content, "Invite", GameText.InviteHome, new Vector2(0.5f, 0.22f), Vector2.zero, new Color(0.93f, 0.72f, 0.76f));
+            var invite = Button(content, "Invite", GameText.InviteHome, new Vector2(0.5f, 0.22f), Vector2.zero, Color.white);
+            // Ana aksiyon: kalp ikonlu, nabız atan hap düğme.
+            StylePillButton(invite, new Vector2(440f, 104f), LoveColor, CozyIconFactory.Heart(), FontButton, true);
             var screen = panel.AddComponent<RescueScreen>();
             screen.Bind(title, body, invite);
             return panel;
@@ -710,12 +969,12 @@ namespace PawPath.Core
             reward.fontSize = 30;
             reward.color = new Color(0.78f, 0.20f, 0.38f);
 
-            var next = Button(content, "NextLevel", "Sıradaki Bölüm", new Vector2(0.5f, 0.19f), Vector2.zero, new Color(0.93f, 0.72f, 0.76f));
-            next.GetComponent<RectTransform>().sizeDelta = new Vector2(440f, 78f);
-            var home = Button(content, "CompletionHome", "Kedi Evine Dön", new Vector2(0.5f, 0.09f), Vector2.zero, new Color(0.78f, 0.84f, 0.72f));
-            home.GetComponent<RectTransform>().sizeDelta = new Vector2(440f, 78f);
-            StyleWarmGameButton(next, new Vector2(440f, 78f), 27);
-            StyleWarmGameButton(home, new Vector2(440f, 78f), 27);
+            // Sonuç düğmeleri yan yana ve ikonlu: solda eve dön, sağda büyük ve
+            // nabız atan "devam" (ana aksiyon).
+            var next = Button(content, "NextLevel", "Sıradaki", new Vector2(0.5f, 0.13f), new Vector2(200f, 0f), Color.white);
+            var home = Button(content, "CompletionHome", "Eve Dön", new Vector2(0.5f, 0.13f), new Vector2(-210f, 0f), Color.white);
+            StylePillButton(next, new Vector2(380f, 112f), PlayColor, CozyIconFactory.Play(), FontTitle, true);
+            StylePillButton(home, new Vector2(320f, 104f), UtilityColor, CozyIconFactory.House(), FontButton, false);
 
             var screen = panel.AddComponent<LevelCompleteUI>();
             screen.Bind(title, reward, next, home, faceImage, catalog != null ? catalog.completionFaces : null);
@@ -745,7 +1004,7 @@ namespace PawPath.Core
             var shade = Panel("FailureShade", panel.transform, Vector2.zero, Vector2.one,
                 new Color(0.08f, 0.01f, 0.01f, 0.34f));
             var content = SafeContent(shade.transform);
-            var heading = Label(content, "FailureTitle", "BAŞARISIZ!", new Vector2(0.5f, 0.82f), Vector2.zero);
+            var heading = Label(content, "FailureTitle", "KAYBETTİN!", new Vector2(0.5f, 0.82f), Vector2.zero);
             heading.fontSize = 58;
             heading.fontStyle = FontStyle.Bold;
             heading.color = new Color(1f, 0.84f, 0.72f);
@@ -755,12 +1014,13 @@ namespace PawPath.Core
             reason.color = Color.white;
             reason.rectTransform.sizeDelta = new Vector2(900f, 100f);
 
-            var retry = Button(content, "FailureRetry", "Yeniden Dene", new Vector2(0.5f, 0.20f),
-                Vector2.zero, new Color(0.72f, 0.48f, 0.34f));
-            var home = Button(content, "FailureHome", "Kedi Evine Dön", new Vector2(0.5f, 0.10f),
-                Vector2.zero, new Color(0.70f, 0.62f, 0.52f));
-            StyleWarmGameButton(retry, new Vector2(420f, 76f), 26);
-            StyleWarmGameButton(home, new Vector2(420f, 76f), 26);
+            // Yan yana, ikonlu: solda eve dön, sağda büyük ve nabız atan "tekrar dene".
+            var retry = Button(content, "FailureRetry", "Tekrar Dene", new Vector2(0.5f, 0.13f),
+                new Vector2(200f, 0f), Color.white);
+            var home = Button(content, "FailureHome", "Eve Dön", new Vector2(0.5f, 0.13f),
+                new Vector2(-210f, 0f), Color.white);
+            StylePillButton(retry, new Vector2(380f, 112f), WaterColor, CozyIconFactory.Restart(), FontButton, true);
+            StylePillButton(home, new Vector2(320f, 104f), UtilityColor, CozyIconFactory.House(), FontButton, false);
             var screen = panel.AddComponent<LevelFailureUI>();
             screen.Bind(reason, retry, home);
             return panel;
@@ -867,7 +1127,7 @@ namespace PawPath.Core
             var t = go.AddComponent<Text>();
             t.text = text;
             t.font = UiFont();
-            t.fontSize = 28;
+            t.fontSize = FontBody;
             t.alignment = TextAnchor.MiddleCenter;
             t.color = new Color(0.35f, 0.28f, 0.32f);
             t.raycastTarget = false;
@@ -887,6 +1147,246 @@ namespace PawPath.Core
             var label = Label(go.transform, "Text", text, new Vector2(0.5f, 0.5f), Vector2.zero);
             label.rectTransform.sizeDelta = new Vector2(400, 64);
             return go.GetComponent<Button>();
+        }
+
+        // ── Ortak görünüm sabitleri ─────────────────────────────────
+        // Güvenli alanın (çentik/köşe) içinde ek kenar boşluğu.
+        const float EdgeMargin = 32f;
+        const float PlayButtonX = -306f;
+
+        // Tek yazı tipi ailesi, dört boyut kademesi.
+        public const int FontSmall = 20;
+        public const int FontBody = 26;
+        public const int FontButton = 32;
+        public const int FontTitle = 48;
+
+        // Tek palet: oda ahşabıyla uyumlu, biraz yumuşatılmış doygunluk.
+        static readonly Color FoodColor = new Color(0.90f, 0.69f, 0.33f);   // bal sarısı
+        static readonly Color WaterColor = new Color(0.36f, 0.63f, 0.90f);  // gök mavisi
+        static readonly Color SleepColor = new Color(0.58f, 0.50f, 0.82f);  // lavanta
+        static readonly Color LoveColor = new Color(0.90f, 0.42f, 0.58f);   // gül pembesi
+        static readonly Color PlayColor = new Color(0.45f, 0.72f, 0.38f);   // yaprak yeşili
+        static readonly Color UtilityColor = new Color(0.66f, 0.49f, 0.37f); // karamel
+        static readonly Color CatFaceColor = new Color(0.63f, 0.43f, 0.31f);
+        static readonly Color DrawModeColor = new Color(0.30f, 0.62f, 0.60f);   // deniz yeşili
+        static readonly Color HardColor = new Color(0.84f, 0.47f, 0.42f);       // mercan
+        static readonly Color StreetColor = new Color(0.84f, 0.53f, 0.47f);     // kiremit
+        static readonly Color ForestColor = new Color(0.36f, 0.58f, 0.38f);     // orman yeşili
+        static readonly Color CityColor = new Color(0.47f, 0.54f, 0.66f);       // arduvaz
+        static readonly Color CyberColor = new Color(0.52f, 0.40f, 0.78f);      // neon mor
+
+        /// <summary>Sahnedeki tüm metinleri dört boyut kademesinden en yakınına oturtur.</summary>
+        static void ApplyTypeScale(Transform root)
+        {
+            foreach (var text in root.GetComponentsInChildren<Text>(true))
+            {
+                text.fontSize = SnapFontSize(text.fontSize);
+                if (text.resizeTextForBestFit)
+                    text.resizeTextMaxSize = SnapFontSize(text.resizeTextMaxSize);
+            }
+        }
+
+        static int SnapFontSize(int size)
+        {
+            if (size <= 22) return FontSmall;
+            if (size <= 28) return FontBody;
+            if (size <= 40) return FontButton;
+            return FontTitle;
+        }
+
+        static Image IconImage(Transform parent, string name, Sprite sprite, Color color,
+            Vector2 anchor, Vector2 position, float size)
+        {
+            var go = new GameObject(name, typeof(RectTransform), typeof(Image));
+            go.transform.SetParent(parent, false);
+            var rt = go.GetComponent<RectTransform>();
+            rt.anchorMin = rt.anchorMax = anchor;
+            rt.anchoredPosition = position;
+            rt.sizeDelta = new Vector2(size, size);
+            var image = go.GetComponent<Image>();
+            image.sprite = sprite;
+            image.color = color;
+            image.preserveAspect = true;
+            return image;
+        }
+
+        /// <summary>Yuvarlak, ikonlu, gölgeli düğme. icon null ise üzerine metin eklenebilir.</summary>
+        static Button RoundIconButton(Transform parent, string name, Sprite icon, Color color,
+            Vector2 anchor, Vector2 position, float diameter, float iconScale)
+        {
+            var go = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(Button));
+            go.transform.SetParent(parent, false);
+            go.AddComponent<UiButtonSound>();
+            var rt = go.GetComponent<RectTransform>();
+            rt.anchorMin = rt.anchorMax = anchor;
+            rt.anchoredPosition = position;
+            rt.sizeDelta = new Vector2(diameter, diameter);
+            var background = go.GetComponent<Image>();
+            background.sprite = CozyIconFactory.CircleButton();
+            background.color = color;
+            background.preserveAspect = true;
+            var shadow = go.AddComponent<Shadow>();
+            shadow.effectColor = new Color(0f, 0f, 0f, 0.28f);
+            shadow.effectDistance = new Vector2(0f, -6f);
+
+            if (icon != null)
+            {
+                var iconImage = IconImage(go.transform, "Icon", icon, Color.white,
+                    new Vector2(0.5f, 0.5f), new Vector2(0f, 2f), diameter * iconScale);
+                iconImage.raycastTarget = false;
+                var iconShadow = iconImage.gameObject.AddComponent<Shadow>();
+                iconShadow.effectColor = new Color(0f, 0f, 0f, 0.22f);
+                iconShadow.effectDistance = new Vector2(0f, -3f);
+            }
+
+            var button = go.GetComponent<Button>();
+            button.targetGraphic = background;
+            var colors = button.colors;
+            colors.normalColor = Color.white;
+            colors.highlightedColor = new Color(1f, 0.96f, 0.90f, 1f);
+            colors.pressedColor = new Color(0.80f, 0.80f, 0.80f, 1f);
+            colors.selectedColor = Color.white;
+            // Soluklaştırma CanvasGroup ile yapılır; renk tonu değişmesin.
+            colors.disabledColor = Color.white;
+            button.colors = colors;
+            return button;
+        }
+
+        /// <summary>
+        /// Hap biçimli ikon+yazı düğmesi; yuvarlak düğmelerle aynı halka, degrade ve
+        /// gölgeyi kullanır. pulse=true ana aksiyona hafif nabız animasyonu ekler.
+        /// </summary>
+        static void StylePillButton(Button button, Vector2 size, Color color, Sprite icon, int fontSize, bool pulse)
+        {
+            button.GetComponent<RectTransform>().sizeDelta = size;
+            var image = button.GetComponent<Image>();
+            image.sprite = CozyIconFactory.PillButton();
+            image.type = Image.Type.Sliced;
+            image.color = color;
+            var shadow = button.gameObject.AddComponent<Shadow>();
+            shadow.effectColor = new Color(0f, 0f, 0f, 0.28f);
+            shadow.effectDistance = new Vector2(0f, -6f);
+
+            const float iconSize = 50f;
+            float iconX = -size.x * 0.5f + size.y * 0.5f + 8f;
+            if (icon != null)
+            {
+                var iconImage = IconImage(button.transform, "Icon", icon, Color.white,
+                    new Vector2(0.5f, 0.5f), new Vector2(iconX, 1f), iconSize);
+                iconImage.raycastTarget = false;
+                var iconShadow = iconImage.gameObject.AddComponent<Shadow>();
+                iconShadow.effectColor = new Color(0f, 0f, 0f, 0.22f);
+                iconShadow.effectDistance = new Vector2(0f, -3f);
+            }
+
+            var label = button.GetComponentInChildren<Text>();
+            if (label != null)
+            {
+                float textLeft = icon != null ? iconX + iconSize * 0.5f + 6f : -size.x * 0.5f + 24f;
+                float textRight = size.x * 0.5f - 28f;
+                label.rectTransform.sizeDelta = new Vector2(textRight - textLeft, size.y - 16f);
+                label.rectTransform.anchoredPosition = new Vector2((textLeft + textRight) * 0.5f, 2f);
+                label.fontSize = fontSize;
+                label.fontStyle = FontStyle.Bold;
+                label.color = Color.white;
+                AddTextShadow(label);
+            }
+
+            var colors = button.colors;
+            colors.normalColor = Color.white;
+            colors.highlightedColor = new Color(1f, 0.96f, 0.90f, 1f);
+            colors.pressedColor = new Color(0.80f, 0.80f, 0.80f, 1f);
+            colors.selectedColor = Color.white;
+            button.colors = colors;
+            if (pulse)
+            {
+                var pulseAnim = button.gameObject.AddComponent<UiPulse>();
+                pulseAnim.Configure(0.05f, 3.2f);
+            }
+        }
+
+        static void AddTextShadow(Text text)
+        {
+            var shadow = text.gameObject.AddComponent<Shadow>();
+            shadow.effectColor = new Color(0.10f, 0.06f, 0.03f, 0.55f);
+            shadow.effectDistance = new Vector2(0f, -2f);
+        }
+
+        static Text SettingsSectionLabel(Transform parent, string name, string text, float anchorY)
+        {
+            var label = Label(parent, name, text, new Vector2(0.5f, anchorY), Vector2.zero);
+            label.fontSize = FontBody;
+            label.fontStyle = FontStyle.Bold;
+            label.color = new Color(1f, 0.86f, 0.62f);
+            return label;
+        }
+
+        static void BuildProgressBar(Transform parent, float centerY)
+        {
+            var root = new GameObject("LevelProgress", typeof(RectTransform), typeof(Image));
+            root.transform.SetParent(parent, false);
+            var rootRt = root.GetComponent<RectTransform>();
+            rootRt.anchorMin = rootRt.anchorMax = new Vector2(0.5f, 1f);
+            rootRt.anchoredPosition = new Vector2(0f, centerY);
+            rootRt.sizeDelta = new Vector2(620f, 56f);
+            var rootBg = root.GetComponent<Image>();
+            rootBg.sprite = CozyIconFactory.Pill();
+            rootBg.type = Image.Type.Sliced;
+            rootBg.color = new Color(0.20f, 0.13f, 0.09f, 0.55f);
+            rootBg.raycastTarget = false;
+
+            var track = new GameObject("Track", typeof(RectTransform), typeof(Image));
+            track.transform.SetParent(root.transform, false);
+            var trackRt = track.GetComponent<RectTransform>();
+            trackRt.anchorMin = new Vector2(0f, 0.5f);
+            trackRt.anchorMax = new Vector2(1f, 0.5f);
+            trackRt.offsetMin = new Vector2(40f, -8f);
+            trackRt.offsetMax = new Vector2(-80f, 8f);
+            var trackImage = track.GetComponent<Image>();
+            trackImage.sprite = CozyIconFactory.Pill();
+            trackImage.type = Image.Type.Sliced;
+            trackImage.color = new Color(1f, 1f, 1f, 0.35f);
+            trackImage.raycastTarget = false;
+
+            var fill = new GameObject("Fill", typeof(RectTransform), typeof(Image));
+            fill.transform.SetParent(track.transform, false);
+            var fillRt = fill.GetComponent<RectTransform>();
+            fillRt.anchorMin = fillRt.anchorMax = new Vector2(0f, 0.5f);
+            fillRt.pivot = new Vector2(0f, 0.5f);
+            fillRt.anchoredPosition = Vector2.zero;
+            fillRt.sizeDelta = new Vector2(16f, 16f);
+            var fillImage = fill.GetComponent<Image>();
+            fillImage.sprite = CozyIconFactory.Pill();
+            fillImage.type = Image.Type.Sliced;
+            fillImage.color = PlayColor;
+            fillImage.raycastTarget = false;
+
+            var flag = IconImage(root.transform, "FinishFlag", CozyIconFactory.FinishFlag(), new Color(1f, 0.96f, 0.88f),
+                new Vector2(1f, 0.5f), new Vector2(-44f, 2f), 46f);
+            flag.raycastTarget = false;
+
+            var marker = new GameObject("CatMarker", typeof(RectTransform), typeof(Image));
+            marker.transform.SetParent(track.transform, false);
+            var markerRt = marker.GetComponent<RectTransform>();
+            markerRt.anchorMin = markerRt.anchorMax = new Vector2(0f, 0.5f);
+            markerRt.sizeDelta = new Vector2(54f, 54f);
+            var markerImage = marker.GetComponent<Image>();
+            markerImage.sprite = CozyIconFactory.CircleButton();
+            markerImage.color = new Color(1f, 0.97f, 0.92f);
+            markerImage.raycastTarget = false;
+            var face = IconImage(marker.transform, "Face", CozyIconFactory.HappyCatFace(), CatFaceColor,
+                new Vector2(0.5f, 0.5f), Vector2.zero, 38f);
+            face.raycastTarget = false;
+
+            root.AddComponent<LevelProgressBar>().Bind(trackRt, fillRt, markerRt);
+        }
+
+        /// <summary>Oyna altındaki açılır listenin index'inci satırı: ikonlu hap düğme.</summary>
+        static void StyleMenuPill(Button button, int index, Color color, Sprite icon)
+        {
+            button.GetComponent<RectTransform>().anchoredPosition =
+                new Vector2(PlayButtonX, -(EdgeMargin + 104f) - 64f - index * 112f);
+            StylePillButton(button, new Vector2(340f, 96f), color, icon, FontBody, false);
         }
 
         static void StyleCompactTopButton(Button button, Vector2 position)
@@ -909,7 +1409,7 @@ namespace PawPath.Core
                 menuLabel.color = new Color(0.16f, 0.11f, 0.075f, 1f);
         }
 
-        static void StyleWarmGameButton(Button button, Vector2 size, int fontSize)
+        static void StyleWarmGameButton(Button button, Vector2 size, int fontSize, bool ornate = false)
         {
             if (button == null)
                 return;
@@ -917,7 +1417,8 @@ namespace PawPath.Core
             var image = button.GetComponent<Image>();
             if (image != null)
             {
-                image.sprite = RusticUiSpriteFactory.WoodButton();
+                // Altın yaprak süsü yalnızca ana düğmelerde; diğerleri sade ahşap.
+                image.sprite = ornate ? RusticUiSpriteFactory.WoodButton() : RusticUiSpriteFactory.WoodButtonPlain();
                 image.type = Image.Type.Sliced;
                 image.color = Color.white;
             }

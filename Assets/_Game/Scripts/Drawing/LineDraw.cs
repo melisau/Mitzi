@@ -39,6 +39,8 @@ namespace PawPath.Drawing
         LineRenderer currentShadow;
         LineRenderer currentHighlight;
         EdgeCollider2D currentCollider;
+        GameObject currentStroke;
+        PathSurfaceType currentStrokeType;
         bool drawing;
         float inkLeft;
         float firstHalfInkSpent;
@@ -106,7 +108,7 @@ namespace PawPath.Drawing
                     Destroy(stroke);
             }
             strokes.Clear();
-            EndStroke();
+            EndStroke(false);
         }
 
         public void FinishCurrentStroke() => EndStroke();
@@ -149,6 +151,8 @@ namespace PawPath.Drawing
             go.layer = LayerMask.NameToLayer("Default");
             strokes.Add(go);
             go.AddComponent<PathSurface>().Configure(brushType);
+            currentStroke = go;
+            currentStrokeType = brushType;
 
             currentLine = go.AddComponent<LineRenderer>();
             currentLine.positionCount = 1;
@@ -161,15 +165,19 @@ namespace PawPath.Drawing
             currentLine.alignment = LineAlignment.TransformZ;
             currentLine.sortingOrder = lineSortingOrder;
             currentLine.useWorldSpace = true;
-            currentLine.sharedMaterial = lineMaterial != null ? lineMaterial : SharedSpriteMaterial();
+            // Çizerken pastel boya dokusu; parmak kalkınca StrokeSolidify malzemeye dönüştürür.
+            Material crayon = StrokeStyle.Crayon();
+            currentLine.sharedMaterial = lineMaterial != null ? lineMaterial
+                : crayon != null ? crayon : SharedSpriteMaterial();
             currentLine.startColor = lineColor;
             currentLine.endColor = lineColor;
             ApplyTaper(currentLine, lineWidth);
 
+            // Koyu kenar çizgisi: boyalı arka planla uyumlu, açık zeminde de seçilir.
             currentShadow = CreateVisualLayer(go.transform, "StrokeShadow", lineWidth * 1.34f,
-                new Color(0.05f, 0.04f, 0.04f, 0.38f), lineSortingOrder - 1);
+                StrokeStyle.OutlineColor(brushType), lineSortingOrder - 1);
             currentHighlight = CreateVisualLayer(go.transform, "StrokeHighlight", lineWidth * 0.30f,
-                new Color(1f, 1f, 1f, 0.30f), lineSortingOrder + 1);
+                StrokeStyle.HighlightColor(brushType), lineSortingOrder + 1);
 
             currentCollider = go.AddComponent<EdgeCollider2D>();
             // LineRenderer noktaları çizginin merkezindedir. Fizik yüzeyini
@@ -239,8 +247,14 @@ namespace PawPath.Drawing
             return follow == null || follow.IsSecondPreparationHalf;
         }
 
-        void EndStroke()
+        void EndStroke(bool solidify = true)
         {
+            // Parmak kalkınca çizgi fırçanın malzemesine dönüşür (ışık dalgası + kabarma).
+            if (solidify && currentStroke != null && currentLine != null && currentLine.positionCount >= 2 &&
+                currentStroke.GetComponent<StrokeSolidify>() == null)
+                currentStroke.AddComponent<StrokeSolidify>().Begin(currentLine, currentShadow,
+                    currentHighlight, currentStrokeType);
+            currentStroke = null;
             drawing = false;
             currentLine = null;
             currentShadow = null;
@@ -365,13 +379,8 @@ namespace PawPath.Drawing
         {
             eraserMode = false;
             brushType = type;
-            lineColor = type switch
-            {
-                PathSurfaceType.Bounce => new Color(0.20f, 0.55f, 0.95f, 1f),
-                PathSurfaceType.Hazard => new Color(0.88f, 0.20f, 0.20f, 1f),
-                PathSurfaceType.Ice => new Color(0.95f, 0.98f, 1f, 1f),
-                _ => new Color(0.17f, 0.15f, 0.14f, 1f)
-            };
+            // Renkler oyunun sıcak paletinden: koyu kahve, gök mavisi, buz mavisi, mercan.
+            lineColor = StrokeStyle.CrayonColor(type);
         }
 
         public void SetEraser()

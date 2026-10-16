@@ -1,6 +1,24 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-9097257023413215209
+--- !u!114 &-8623687818870333114
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelNumber: 24
+  season: 1
+  spawnPoint: {x: -6.2, y: -1.15}
+  goalPoint: {x: 6.25, y: 1}
+  inkBudget: 16
+  fallY: -7.5
+--- !u!114 &-8302633049469788424
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -12,65 +30,53 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2ba0a48be16eac847b8231e19fb2dadc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  id: mitzi
-  displayName: Mitzi
-  bio: "Evin ilk patisi. G\xFCne\u015F lekelerini takip etmeyi ve senin \xE7izdi\u011Fin
-    k\xF6pr\xFClerde minik ad\u0131mlar atmay\u0131 sever."
-  encounterDialogue: "Mitzi zaten seninle. Pencerenin \xF6n\xFCnde kuyru\u011Funu
-    k\u0131v\u0131r\u0131p 'hadi yol \xE7iz' diyor."
-  personality: 0
-  unlockAfterLevel: 0
-  isStarterCat: 1
-  furTint: {r: 0.86, g: 0.62, b: 0.38, a: 1}
-  portrait: {fileID: 21300000, guid: 83f41818b273b204e83ad278ce0b267e, type: 3}
-  idleSprite: {fileID: 21300000, guid: 83f41818b273b204e83ad278ce0b267e, type: 3}
-  animator: {fileID: 9100000, guid: 06ebee0f895a2f046a9d821886f34574, type: 2}
-  walkFrames: []
-  idleFrames: []
-  jumpFrames: []
-  sleepFrames:
-  - {fileID: 21300000, guid: d9b6298cb81ad6d47b171c193202dd06, type: 3}
-  - {fileID: 21300000, guid: 46dde9f799a4e8b409741c77c66b1116, type: 3}
-  - {fileID: 21300000, guid: 54ffebdce4c07e44f9f4bc199bf6c620, type: 3}
-  - {fileID: 0}
-  - {fileID: 0}
-  useDetailedHomeAnimations: 1
-  purrClip: {fileID: 8300000, guid: e80123ad28420eb4aad2764e876419db, type: 3}
-  meowClip: {fileID: 0}
---- !u!114 &-8853985181083747102
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2ba0a48be16eac847b8231e19fb2dadc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  id: ada
-  displayName: Ada
-  bio: "\xC7i\xE7ek ta\xE7l\u0131, r\xFCzgar\u0131 seven. Y\xFCksek yerlerden bile
-    sakin bakar."
-  encounterDialogue: "Ada, \xE7itlerin \xFCst\xFCnde r\xFCzgarla dans ediyordu. Seni
-    g\xF6r\xFCnce a\u015Fa\u011F\u0131 atl\u0131yor ve aln\u0131n\u0131 dizine yasl\u0131yor.
-    'Ben de ailenin par\xE7as\u0131 olay\u0131m' diyor sessizce."
-  personality: 2
-  unlockAfterLevel: 20
+  id: pamuk
+  displayName: Pamuk
+  bio: "Bulut gibi, usul usul. En yumu\u015Fak mindere k\u0131vr\u0131l\u0131p m\u0131r\u0131ldan\u0131r."
+  encounterDialogue: "Park\u0131n bank\u0131n\u0131n alt\u0131nda titreyen bir yumak
+    buldun. Pamuk, burnunu parma\u011F\u0131na de\u011Fdirip 'beni de g\xF6t\xFCr\xFCr
+    m\xFCs\xFCn?' diye bak\u0131yor. Evde ona bir g\xFCne\u015F dilimi ay\u0131raca\u011F\u0131z."
+  personality: 1
+  unlockAfterLevel: 5
   isStarterCat: 0
-  furTint: {r: 0.72, g: 0.74, b: 0.78, a: 1}
-  portrait: {fileID: 21300000, guid: d468c46ce2b1403796e4fa680c23f164, type: 3}
-  idleSprite: {fileID: 21300000, guid: d468c46ce2b1403796e4fa680c23f164, type: 3}
-  animator: {fileID: 0}
-  walkFrames: []
-  idleFrames: []
-  jumpFrames: []
-  sleepFrames: []
-  useDetailedHomeAnimations: 0
+  furTint: {r: 0.96, g: 0.95, b: 0.93, a: 1}
+  portrait: {fileID: 21300000, guid: 612968a7842f2004fae14c24c3c7e0c9, type: 3}
+  idleSprite: {fileID: 21300000, guid: 0df5bfe5bfd9b694abd17a0d1be077ee, type: 3}
+  animator: {fileID: 9100000, guid: 54c3dd36107516546a2f94b5b6bdf2e9, type: 2}
+  walkFrames:
+  - {fileID: 21300000, guid: 66fc729a4d1b583428baa7646fb0be66, type: 3}
+  - {fileID: 21300000, guid: 334ed62d28dd9ad419c091b6cc6552d4, type: 3}
+  - {fileID: 21300000, guid: 8fc729780b29a81469f090b6ddc7d0e7, type: 3}
+  - {fileID: 21300000, guid: ee3032442c833b146a92978c7a9afb70, type: 3}
+  - {fileID: 21300000, guid: b2e6f9eb4c792e644b8039e43cd9bf0e, type: 3}
+  - {fileID: 21300000, guid: 9cd9b984d9ce57d45875f1e731fb3dcd, type: 3}
+  - {fileID: 21300000, guid: a280cfc528d9eab4682aafcc2a349341, type: 3}
+  - {fileID: 21300000, guid: a1bd0c8ea57548b4b852623c6bf45f1b, type: 3}
+  - {fileID: 21300000, guid: ab20b2b3b9233ba458c5024fbd3f3186, type: 3}
+  - {fileID: 21300000, guid: 9f80b7cc07e638245955783d4c0cbfa0, type: 3}
+  - {fileID: 21300000, guid: 94e5c7fd8b8c72d4581c408357d94c1d, type: 3}
+  - {fileID: 21300000, guid: f673ec90b3482394796add46c23b5ced, type: 3}
+  - {fileID: 21300000, guid: 3ba14450bdcb2d845b0919a2e7f94d00, type: 3}
+  - {fileID: 21300000, guid: 205646984c25d8643960421ce181a39e, type: 3}
+  - {fileID: 21300000, guid: f06b0a03a39937d44810f840947ccac3, type: 3}
+  - {fileID: 21300000, guid: d3fdacc2f75be0c4c84527895876c9cd, type: 3}
+  - {fileID: 21300000, guid: 9169f9a8ded85d044a38f1f29683151d, type: 3}
+  - {fileID: 21300000, guid: f7a2c98f5b3b8434e9e1fd39303a6bbd, type: 3}
+  idleFrames:
+  - {fileID: 21300000, guid: 0df5bfe5bfd9b694abd17a0d1be077ee, type: 3}
+  - {fileID: 21300000, guid: 71c732dff034b1a4fa925a85aabd713d, type: 3}
+  jumpFrames:
+  - {fileID: 21300000, guid: 56090f400bc1c874e90b9e8ffb2c0a2b, type: 3}
+  - {fileID: 21300000, guid: fc7a740d658a8b44a8288436e1dd7034, type: 3}
+  - {fileID: 21300000, guid: 388e6a5ef7a95224aad547abc72bba7b, type: 3}
+  - {fileID: 21300000, guid: d14105c50da8bf94ebaff95b858293e3, type: 3}
+  sleepFrames:
+  - {fileID: 21300000, guid: 795534a261d41304eb8437eea7c2dbda, type: 3}
+  - {fileID: 21300000, guid: 0dcd84ec05f8f06459619f18c7ca6120, type: 3}
+  useDetailedHomeAnimations: 1
   purrClip: {fileID: 0}
   meowClip: {fileID: 0}
---- !u!114 &-8482091838414750122
+--- !u!114 &-8288212693265537686
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -82,91 +88,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  levelNumber: 1
-  season: 0
-  spawnPoint: {x: -6.2, y: -1.15}
-  goalPoint: {x: 6.25, y: -0.050000012}
-  inkBudget: 17.2
-  fallY: -7.5
---- !u!114 &-8067801577041964489
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  levelNumber: 4
-  season: 0
-  spawnPoint: {x: -6.2, y: -1.15}
-  goalPoint: {x: 6.25, y: 1}
-  inkBudget: 20.8
-  fallY: -7.5
---- !u!114 &-7781508163399049578
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  levelNumber: 19
-  season: 0
-  spawnPoint: {x: -6.2, y: -1.15}
-  goalPoint: {x: 6.25, y: 1}
-  inkBudget: 17.2
-  fallY: -7.5
---- !u!114 &-6913534298414663899
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5453fd3994f158f44848f3bb7b9c08e9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  id: cushion
-  displayName: "Bulut Pelu\u015F Minder"
-  description: "\u0130\xE7ine g\xF6m\xFCld\xFCn m\xFC \xE7\u0131k\u0131lmaz. Pamuk'un
-    resm\xEE uyku ofisi. \xDCzerine bir k\u0131l b\u0131rakmas\u0131 iltifat say\u0131l\u0131r."
-  lovePointCost: 35
-  icon: {fileID: 0}
-  placedSprite: {fileID: 0}
-  slotType: 0
-  interactionType: 0
-  interactionAnimation: {fileID: 0}
-  interactionFrames: []
-  interactionVisualScale: 1
---- !u!114 &-6643478054506200867
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  levelNumber: 12
+  levelNumber: 28
   season: 2
   spawnPoint: {x: -6.2, y: -1.15}
-  goalPoint: {x: 6.25, y: 0.29999998}
-  inkBudget: 16
+  goalPoint: {x: 6.25, y: 0.65}
+  inkBudget: 20.8
   fallY: -7.5
---- !u!114 &-6453923348384391248
+--- !u!114 &-8029718755131968072
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -178,13 +106,49 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  levelNumber: 18
-  season: 0
+  levelNumber: 23
+  season: 1
   spawnPoint: {x: -6.2, y: -1.15}
   goalPoint: {x: 6.25, y: 0.65}
-  inkBudget: 16
+  inkBudget: 22
   fallY: -7.5
---- !u!114 &-5619157559283200535
+--- !u!114 &-7139019451154741518
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelNumber: 22
+  season: 1
+  spawnPoint: {x: -6.2, y: -1.15}
+  goalPoint: {x: 6.25, y: 0.29999998}
+  inkBudget: 20.8
+  fallY: -7.5
+--- !u!114 &-6468411997062980458
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelNumber: 11
+  season: 2
+  spawnPoint: {x: -6.2, y: -1.15}
+  goalPoint: {x: 6.25, y: -0.050000012}
+  inkBudget: 22
+  fallY: -7.5
+--- !u!114 &-4928763653030306913
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -202,7 +166,233 @@ MonoBehaviour:
   goalPoint: {x: 6.25, y: -0.050000012}
   inkBudget: 16
   fallY: -7.5
---- !u!114 &-5557121267762338592
+--- !u!114 &-4859151474741112060
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelNumber: 26
+  season: 2
+  spawnPoint: {x: -6.2, y: -1.15}
+  goalPoint: {x: 6.25, y: -0.050000012}
+  inkBudget: 18.4
+  fallY: -7.5
+--- !u!114 &-4842658224880327068
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ba0a48be16eac847b8231e19fb2dadc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: moka
+  displayName: Moka
+  bio: "\xD6rg\xFC atk\u0131l\u0131, kahve kokulu. \u015E\xF6mineye en yak\u0131n
+    yast\u0131\u011F\u0131 bilir."
+  encounterDialogue: "Moka, k\u0131\u015F penceresinin \xF6n\xFCnde atk\u0131s\u0131
+    kaym\u0131\u015F halde seni bekliyor. Bir ok\u015Famada ipli\u011Fi d\xFCzelir,
+    ikinci ok\u015Famada evinin yolunu \xF6\u011Frenir."
+  personality: 1
+  unlockAfterLevel: 25
+  isStarterCat: 0
+  furTint: {r: 0.45, g: 0.32, b: 0.24, a: 1}
+  portrait: {fileID: 21300000, guid: a6350502b94ac62499ab77cd46cf2eef, type: 3}
+  idleSprite: {fileID: 21300000, guid: ef33693f71bc6c746950f59f9b90c611, type: 3}
+  animator: {fileID: 9100000, guid: 7ce6922b83993d54ea2a908434566dbe, type: 2}
+  walkFrames:
+  - {fileID: 21300000, guid: f67748397fba06d4bbfd83d7d3fdc525, type: 3}
+  - {fileID: 21300000, guid: 1bda25d3b3774a14691fd093955fdfac, type: 3}
+  - {fileID: 21300000, guid: 1f7f0395647daca45a4335c40928c7af, type: 3}
+  - {fileID: 21300000, guid: cc72517c59ab32244ac44cc60f8a41ea, type: 3}
+  - {fileID: 21300000, guid: c9754bc284725be45852c5f420ca70a3, type: 3}
+  - {fileID: 21300000, guid: 7b68eb067e1c3184c952a5ea88c73ad2, type: 3}
+  - {fileID: 21300000, guid: 470d0da4465bb6a43ae0051a3991bd2e, type: 3}
+  - {fileID: 21300000, guid: addabf10efa9e3a42bd4bfab0a304ebb, type: 3}
+  - {fileID: 21300000, guid: a1a7bf098cffdfb4f81abc44da84cac0, type: 3}
+  - {fileID: 21300000, guid: 7be75026c04c7794dab966c684e5aa6e, type: 3}
+  - {fileID: 21300000, guid: b6ad48fd72da3374db67bcef87779f41, type: 3}
+  - {fileID: 21300000, guid: a29b967b99442b649893dce7dd87ccfc, type: 3}
+  - {fileID: 21300000, guid: ddfc71da0f3cdd24d920c8aa549ed8cd, type: 3}
+  - {fileID: 21300000, guid: c0d725589cfc74a40a783af0822e28db, type: 3}
+  - {fileID: 21300000, guid: d585f48681a98e24294808bc23fb0892, type: 3}
+  - {fileID: 21300000, guid: 1944616de49506d4b94212612c65f406, type: 3}
+  - {fileID: 21300000, guid: 30569c6978dd51a458392bdd6088ebc7, type: 3}
+  - {fileID: 21300000, guid: d3662cfe4282be84f88444156b375658, type: 3}
+  idleFrames:
+  - {fileID: 21300000, guid: ef33693f71bc6c746950f59f9b90c611, type: 3}
+  - {fileID: 21300000, guid: ca3a1bfbfb55ebe46884a3a9b9f86918, type: 3}
+  jumpFrames:
+  - {fileID: 21300000, guid: 557b108d5f540cf47ac9ebe00a582388, type: 3}
+  - {fileID: 21300000, guid: 06a125d3576852241a662978af75f0eb, type: 3}
+  - {fileID: 21300000, guid: 37ad507ccc6f6784881333123c6f4a8f, type: 3}
+  - {fileID: 21300000, guid: b5a6662645daa7246841a8d40150a06d, type: 3}
+  sleepFrames:
+  - {fileID: 21300000, guid: 13c8e1acb96b85e4495fa50573e184af, type: 3}
+  - {fileID: 21300000, guid: d459ae8ded3581045952bd61c0547da8, type: 3}
+  useDetailedHomeAnimations: 1
+  purrClip: {fileID: 0}
+  meowClip: {fileID: 0}
+--- !u!114 &-4695060098581317216
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelNumber: 14
+  season: 2
+  spawnPoint: {x: -6.2, y: -1.15}
+  goalPoint: {x: 6.25, y: 1}
+  inkBudget: 18.4
+  fallY: -7.5
+--- !u!114 &-4454218811808859968
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelNumber: 30
+  season: 2
+  spawnPoint: {x: -6.2, y: -1.15}
+  goalPoint: {x: 6.25, y: -0.4}
+  inkBudget: 16
+  fallY: -7.5
+--- !u!114 &-4244430807692624375
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelNumber: 29
+  season: 2
+  spawnPoint: {x: -6.2, y: -1.15}
+  goalPoint: {x: 6.25, y: 1}
+  inkBudget: 22
+  fallY: -7.5
+--- !u!114 &-3616975402496998030
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ba0a48be16eac847b8231e19fb2dadc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: tarcin
+  displayName: "Tar\xE7\u0131n"
+  bio: "\xDC\xE7 renkli, \xFC\xE7 kat merakl\u0131. T\xFCy oltay\u0131 g\xF6r\xFCnce
+    d\xFCnya durur."
+  encounterDialogue: "Tar\xE7\u0131n, d\xFC\u015Fen yapraklar\u0131n aras\u0131nda
+    z\u0131playa z\u0131playa sana geliyor. 'Bu yol biraz e\u011Flenceliydi,' der
+    gibi m\u0131r\u0131ldan\u0131yor. Kap\u0131y\u0131 a\xE7\u0131k b\u0131rak\u0131yoruz."
+  personality: 4
+  unlockAfterLevel: 15
+  isStarterCat: 0
+  furTint: {r: 0.9, g: 0.55, b: 0.32, a: 1}
+  portrait: {fileID: 21300000, guid: da75d6e7179d8a143a891d2e0959d983, type: 3}
+  idleSprite: {fileID: 21300000, guid: 7c4047f4d116af3499b9a50f9725bde9, type: 3}
+  animator: {fileID: 9100000, guid: 4ca9264176d2e394c900b5e6a8ba1023, type: 2}
+  walkFrames:
+  - {fileID: 21300000, guid: 620552ff6857bd54ca9b3127afd398f4, type: 3}
+  - {fileID: 21300000, guid: 616a2ad972924a94c859664171645c06, type: 3}
+  - {fileID: 21300000, guid: 2d34ea31a3e4e5943b8e644daa033a37, type: 3}
+  - {fileID: 21300000, guid: 17d0d4ac05a72224f86edde8b691d4b8, type: 3}
+  - {fileID: 21300000, guid: d70cdfca62e66184e8662febe24193f7, type: 3}
+  - {fileID: 21300000, guid: 8739113afbefc9e4d8495424c8680980, type: 3}
+  - {fileID: 21300000, guid: 2feab9fe0e59eda45b6a1f1102b24106, type: 3}
+  - {fileID: 21300000, guid: 5ac0e188684383d40b98750212659b73, type: 3}
+  - {fileID: 21300000, guid: ff121fce6a81bab499bedf3fb760133d, type: 3}
+  - {fileID: 21300000, guid: 292e9b3f5c2a4534a92447fd442f80c4, type: 3}
+  - {fileID: 21300000, guid: fc87992338d5b09488fed20a268255da, type: 3}
+  - {fileID: 21300000, guid: 63c7acd050ae90246b71c74cea4645a7, type: 3}
+  - {fileID: 21300000, guid: 3a0bcef35e5e01348a120f0936882f3a, type: 3}
+  - {fileID: 21300000, guid: ffe5fdce460802b4b98a410ae6ebda84, type: 3}
+  - {fileID: 21300000, guid: daeefb96e7de72545aa294e59d93f502, type: 3}
+  - {fileID: 21300000, guid: 94ec9736a5f85bf4596e911658e4bf95, type: 3}
+  - {fileID: 21300000, guid: cff0acc37a6b53d428353325f72d0c45, type: 3}
+  - {fileID: 21300000, guid: 411ff6919ab43d8468aab1a4ef53b802, type: 3}
+  idleFrames:
+  - {fileID: 21300000, guid: 7c4047f4d116af3499b9a50f9725bde9, type: 3}
+  - {fileID: 21300000, guid: 53c6721c74ad13248a4d410c4587f1f0, type: 3}
+  jumpFrames:
+  - {fileID: 21300000, guid: 2026b82c28e10fd4fa10bdd8b1bac104, type: 3}
+  - {fileID: 21300000, guid: abd1829456d37104398b792ab914b935, type: 3}
+  - {fileID: 21300000, guid: 09a3bdd5d87689b488a414d32dff387e, type: 3}
+  - {fileID: 21300000, guid: 4232f20fb0d9fdb47950fd807c8d7fa0, type: 3}
+  sleepFrames:
+  - {fileID: 21300000, guid: 6407e80934edf8441b4af53f3a6cda05, type: 3}
+  - {fileID: 21300000, guid: 0dd203f1f6599fc4490d928c98f9ace1, type: 3}
+  useDetailedHomeAnimations: 1
+  purrClip: {fileID: 0}
+  meowClip: {fileID: 0}
+--- !u!114 &-3396289212736379746
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelNumber: 13
+  season: 2
+  spawnPoint: {x: -6.2, y: -1.15}
+  goalPoint: {x: 6.25, y: 0.65}
+  inkBudget: 17.2
+  fallY: -7.5
+--- !u!114 &-3109817009564163494
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelNumber: 17
+  season: 0
+  spawnPoint: {x: -6.2, y: -1.15}
+  goalPoint: {x: 6.25, y: 0.29999998}
+  inkBudget: 22
+  fallY: -7.5
+--- !u!114 &-2678519778766622585
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -225,17 +415,43 @@ MonoBehaviour:
   unlockAfterLevel: 10
   isStarterCat: 0
   furTint: {r: 0.18, g: 0.16, b: 0.2, a: 1}
-  portrait: {fileID: 21300000, guid: b246a24ac0914fd58c1d1466d4a9bd82, type: 3}
-  idleSprite: {fileID: 21300000, guid: b246a24ac0914fd58c1d1466d4a9bd82, type: 3}
-  animator: {fileID: 0}
-  walkFrames: []
-  idleFrames: []
-  jumpFrames: []
-  sleepFrames: []
-  useDetailedHomeAnimations: 0
+  portrait: {fileID: 21300000, guid: 5a3500ee0e9b1ac4a98ace9467a56daf, type: 3}
+  idleSprite: {fileID: 21300000, guid: 3ea7ee3b67615a14883502319d79fca6, type: 3}
+  animator: {fileID: 9100000, guid: 34066e326d584a44a8efbec5f9bfad46, type: 2}
+  walkFrames:
+  - {fileID: 21300000, guid: b3a59b8bef5f4e64988afe7c1ef5179b, type: 3}
+  - {fileID: 21300000, guid: f495a0f97b6c1104a9e564cb4fb9c60d, type: 3}
+  - {fileID: 21300000, guid: d710378fff96b8746856600a99b617f8, type: 3}
+  - {fileID: 21300000, guid: 4b0b7ebd1c3907b49980dd1584ded6c6, type: 3}
+  - {fileID: 21300000, guid: 83e14de160f8725449e38674921699be, type: 3}
+  - {fileID: 21300000, guid: ac3f6bb6fe0430b45bbea42149392601, type: 3}
+  - {fileID: 21300000, guid: 94034331ea12d6d42892e0ed0efb321c, type: 3}
+  - {fileID: 21300000, guid: 4edf51091e982fe4584c1f5f94c3684d, type: 3}
+  - {fileID: 21300000, guid: e43c90162c2739549835af08d6d55a87, type: 3}
+  - {fileID: 21300000, guid: 52a30939c294f8b429914bc1d1b4a3b2, type: 3}
+  - {fileID: 21300000, guid: 8463e5e81ebc3cb42bd982154c741ea2, type: 3}
+  - {fileID: 21300000, guid: 8f5370154f2274149b7ee271b59bff00, type: 3}
+  - {fileID: 21300000, guid: 5a866a91eff432c4596031e720cc2f17, type: 3}
+  - {fileID: 21300000, guid: 188bc1815a395884a8966b23f60c3087, type: 3}
+  - {fileID: 21300000, guid: 454f2ff7bc89db34dbf692ac9fc08be6, type: 3}
+  - {fileID: 21300000, guid: 43a1c51bf8f21654ca507e85211add37, type: 3}
+  - {fileID: 21300000, guid: 0baa015b09c08a2459677c857a053303, type: 3}
+  - {fileID: 21300000, guid: bc07f0bf97f326b47be4bfd1702ccf2b, type: 3}
+  idleFrames:
+  - {fileID: 21300000, guid: 3ea7ee3b67615a14883502319d79fca6, type: 3}
+  - {fileID: 21300000, guid: ec5b56e2d6779da43b8e739c7184219a, type: 3}
+  jumpFrames:
+  - {fileID: 21300000, guid: 5c1e87fdf3b564a448044217799b75ba, type: 3}
+  - {fileID: 21300000, guid: 9fdee9474d565f343b53a486e737d6f7, type: 3}
+  - {fileID: 21300000, guid: ea76f2fbc48971d4fb4b559cdf013df3, type: 3}
+  - {fileID: 21300000, guid: ca24e647d1a795240b7c49f6bfd9df06, type: 3}
+  sleepFrames:
+  - {fileID: 21300000, guid: 71f7c2d81ae6fa34ba4a6b69fa3ae9d2, type: 3}
+  - {fileID: 21300000, guid: 193b9c0d01d97a441b613a69280e7641, type: 3}
+  useDetailedHomeAnimations: 1
   purrClip: {fileID: 0}
   meowClip: {fileID: 0}
---- !u!114 &-5525705555030679784
+--- !u!114 &-1762513318599473081
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -247,13 +463,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  levelNumber: 29
-  season: 2
+  levelNumber: 18
+  season: 0
   spawnPoint: {x: -6.2, y: -1.15}
-  goalPoint: {x: 6.25, y: 1}
-  inkBudget: 22
+  goalPoint: {x: 6.25, y: 0.65}
+  inkBudget: 16
   fallY: -7.5
---- !u!114 &-5360457940912506715
+--- !u!114 &-1694473035441882757
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -265,116 +481,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  levelNumber: 10
-  season: 1
-  spawnPoint: {x: -6.2, y: -1.15}
-  goalPoint: {x: 6.25, y: -0.4}
-  inkBudget: 20.8
-  fallY: -7.5
---- !u!114 &-5048133653491344081
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5453fd3994f158f44848f3bb7b9c08e9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  id: tree
-  displayName: "G\xF6\u011Fe Uzanan T\u0131rmanma A\u011Fac\u0131"
-  description: "Kat kat tahta, ip sar\u0131l\u0131 direkler ve en tepede bir bak\u0131\u015F
-    teras\u0131. Mitzi buradan b\xFCt\xFCn evi 'benim' diye ilan eder."
-  lovePointCost: 80
-  icon: {fileID: 0}
-  placedSprite: {fileID: 0}
-  slotType: 0
-  interactionType: 0
-  interactionAnimation: {fileID: 0}
-  interactionFrames: []
-  interactionVisualScale: 1
---- !u!114 &-4715009435341770624
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  levelNumber: 22
-  season: 1
-  spawnPoint: {x: -6.2, y: -1.15}
-  goalPoint: {x: 6.25, y: 0.29999998}
-  inkBudget: 20.8
-  fallY: -7.5
---- !u!114 &-4672768594276965940
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5453fd3994f158f44848f3bb7b9c08e9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  id: sweater
-  displayName: "El \xD6rg\xFCs\xFC Kedi Kaza\u011F\u0131"
-  description: "Il\u0131k y\xFCn, k\xFC\xE7\xFCk pati delikleri. Moka giyince k\u0131\u015F
-    bile utan\xE7tan yumu\u015Far. \xC7\u0131karmak isteyince m\u0131r\u0131ldanarak
-    pazarl\u0131k eder."
-  lovePointCost: 60
-  icon: {fileID: 0}
-  placedSprite: {fileID: 0}
-  slotType: 0
-  interactionType: 0
-  interactionAnimation: {fileID: 0}
-  interactionFrames: []
-  interactionVisualScale: 1
---- !u!114 &-4426814187468879861
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  levelNumber: 27
+  levelNumber: 12
   season: 2
   spawnPoint: {x: -6.2, y: -1.15}
   goalPoint: {x: 6.25, y: 0.29999998}
-  inkBudget: 19.6
+  inkBudget: 16
   fallY: -7.5
---- !u!114 &-4307353449782549949
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  levelNumber: 11
-  season: 2
-  spawnPoint: {x: -6.2, y: -1.15}
-  goalPoint: {x: 6.25, y: -0.050000012}
-  inkBudget: 22
-  fallY: -7.5
---- !u!114 &-4088506760151601280
+--- !u!114 &-1685522749815609407
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -392,97 +505,7 @@ MonoBehaviour:
   goalPoint: {x: 6.25, y: 0.65}
   inkBudget: 18.4
   fallY: -7.5
---- !u!114 &-3911632010426811968
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  levelNumber: 26
-  season: 2
-  spawnPoint: {x: -6.2, y: -1.15}
-  goalPoint: {x: 6.25, y: -0.050000012}
-  inkBudget: 18.4
-  fallY: -7.5
---- !u!114 &-2740861711815355824
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  levelNumber: 9
-  season: 1
-  spawnPoint: {x: -6.2, y: -1.15}
-  goalPoint: {x: 6.25, y: 1}
-  inkBudget: 19.6
-  fallY: -7.5
---- !u!114 &-2063049178533981654
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  levelNumber: 16
-  season: 0
-  spawnPoint: {x: -6.2, y: -1.15}
-  goalPoint: {x: 6.25, y: -0.050000012}
-  inkBudget: 20.8
-  fallY: -7.5
---- !u!114 &-1819879857243774363
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  levelNumber: 23
-  season: 1
-  spawnPoint: {x: -6.2, y: -1.15}
-  goalPoint: {x: 6.25, y: 0.65}
-  inkBudget: 22
-  fallY: -7.5
---- !u!114 &-1786143255828469152
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  levelNumber: 30
-  season: 2
-  spawnPoint: {x: -6.2, y: -1.15}
-  goalPoint: {x: 6.25, y: -0.4}
-  inkBudget: 16
-  fallY: -7.5
---- !u!114 &-1610005311995454322
+--- !u!114 &-1059568637041675864
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -494,27 +517,54 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2ba0a48be16eac847b8231e19fb2dadc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  id: pamuk
-  displayName: Pamuk
-  bio: "Bulut gibi, usul usul. En yumu\u015Fak mindere k\u0131vr\u0131l\u0131p m\u0131r\u0131ldan\u0131r."
-  encounterDialogue: "Park\u0131n bank\u0131n\u0131n alt\u0131nda titreyen bir yumak
-    buldun. Pamuk, burnunu parma\u011F\u0131na de\u011Fdirip 'beni de g\xF6t\xFCr\xFCr
-    m\xFCs\xFCn?' diye bak\u0131yor. Evde ona bir g\xFCne\u015F dilimi ay\u0131raca\u011F\u0131z."
-  personality: 1
-  unlockAfterLevel: 5
+  id: ada
+  displayName: Ada
+  bio: "\xC7i\xE7ek ta\xE7l\u0131, r\xFCzgar\u0131 seven. Y\xFCksek yerlerden bile
+    sakin bakar."
+  encounterDialogue: "Ada, \xE7itlerin \xFCst\xFCnde r\xFCzgarla dans ediyordu. Seni
+    g\xF6r\xFCnce a\u015Fa\u011F\u0131 atl\u0131yor ve aln\u0131n\u0131 dizine yasl\u0131yor.
+    'Ben de ailenin par\xE7as\u0131 olay\u0131m' diyor sessizce."
+  personality: 2
+  unlockAfterLevel: 20
   isStarterCat: 0
-  furTint: {r: 0.96, g: 0.95, b: 0.93, a: 1}
-  portrait: {fileID: 21300000, guid: a135913f9b3049918e2c246bb0cc51a1, type: 3}
-  idleSprite: {fileID: 21300000, guid: e5f13763bf30a744ba5ce2422cc193f4, type: 3}
-  animator: {fileID: 9100000, guid: ae7c324b2a71d3d469aaf32fd9688dd3, type: 2}
-  walkFrames: []
-  idleFrames: []
-  jumpFrames: []
-  sleepFrames: []
-  useDetailedHomeAnimations: 0
+  furTint: {r: 0.72, g: 0.74, b: 0.78, a: 1}
+  portrait: {fileID: 21300000, guid: 6eaaa780dd07d5e4eac9363175a87e5c, type: 3}
+  idleSprite: {fileID: 21300000, guid: 5b39990115509b14a84b2a64efccc99c, type: 3}
+  animator: {fileID: 9100000, guid: 92c24b036822da0498de317406ac91c2, type: 2}
+  walkFrames:
+  - {fileID: 21300000, guid: 52ef585f97ad9104495bd02511f27756, type: 3}
+  - {fileID: 21300000, guid: eac6b753aa7032f4281816b49ffb0fd2, type: 3}
+  - {fileID: 21300000, guid: d32fd84dcfcde954882e8251d943ec3f, type: 3}
+  - {fileID: 21300000, guid: 3d0330c54829c904e822c0a108eeb60d, type: 3}
+  - {fileID: 21300000, guid: e8f6028aac2feab47a3ff3647fef5c8a, type: 3}
+  - {fileID: 21300000, guid: a7f72cf215d9fcd4b8ac013513575aa3, type: 3}
+  - {fileID: 21300000, guid: ee3d9211f09d33c4ca91601f2650ccfb, type: 3}
+  - {fileID: 21300000, guid: e0827448f1b4f894283527f3440a6c03, type: 3}
+  - {fileID: 21300000, guid: 6ed38ab873de2a04cbba428f000d883d, type: 3}
+  - {fileID: 21300000, guid: 00c54ca93f1688e42b1e112c8f5c8d91, type: 3}
+  - {fileID: 21300000, guid: 83b0c50e735496241a7ddc40d7301be6, type: 3}
+  - {fileID: 21300000, guid: a86e89ab056920444ab62bbcb141671f, type: 3}
+  - {fileID: 21300000, guid: c37ec7755fee1d54ca91b6b0c80f5716, type: 3}
+  - {fileID: 21300000, guid: 0366c8c28e13a4143bbbff239a3e7587, type: 3}
+  - {fileID: 21300000, guid: 1ed3d90e08c08f541b0c54bb45a8c29f, type: 3}
+  - {fileID: 21300000, guid: 01e041e7ba2b4a54786c69a7d4ceb4fb, type: 3}
+  - {fileID: 21300000, guid: 8e1aaecc78cbfb84fbd5a97f037ea569, type: 3}
+  - {fileID: 21300000, guid: f29fd6812f3cd1f4b8ad607b0dbafa0c, type: 3}
+  idleFrames:
+  - {fileID: 21300000, guid: 5b39990115509b14a84b2a64efccc99c, type: 3}
+  - {fileID: 21300000, guid: f14adb083addbe04fb5595bcf613371d, type: 3}
+  jumpFrames:
+  - {fileID: 21300000, guid: 81938ffd0d0ba5d468699c9ca5d6f7f9, type: 3}
+  - {fileID: 21300000, guid: c8f6d7ff9353bb04d877e276203548ce, type: 3}
+  - {fileID: 21300000, guid: 29b465ac131091d4395cc3bf14dd3997, type: 3}
+  - {fileID: 21300000, guid: c7a46423876546943b8768caacdbb53e, type: 3}
+  sleepFrames:
+  - {fileID: 21300000, guid: d31c7979c7468f54da7fd97f5d7f5a39, type: 3}
+  - {fileID: 21300000, guid: a1d7b15b0ef89c2448117af3d6aac48e, type: 3}
+  useDetailedHomeAnimations: 1
   purrClip: {fileID: 0}
   meowClip: {fileID: 0}
---- !u!114 &-242122376908666679
+--- !u!114 &-719104092422898746
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -526,11 +576,87 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  levelNumber: 24
+  levelNumber: 21
   season: 1
   spawnPoint: {x: -6.2, y: -1.15}
-  goalPoint: {x: 6.25, y: 1}
-  inkBudget: 16
+  goalPoint: {x: 6.25, y: -0.050000012}
+  inkBudget: 19.6
+  fallY: -7.5
+--- !u!114 &-658513395329563809
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ba0a48be16eac847b8231e19fb2dadc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: mitzi
+  displayName: Mitzi
+  bio: "Evin ilk patisi. G\xFCne\u015F lekelerini takip etmeyi ve senin \xE7izdi\u011Fin
+    k\xF6pr\xFClerde minik ad\u0131mlar atmay\u0131 sever."
+  encounterDialogue: "Mitzi zaten seninle. Pencerenin \xF6n\xFCnde kuyru\u011Funu
+    k\u0131v\u0131r\u0131p 'hadi yol \xE7iz' diyor."
+  personality: 0
+  unlockAfterLevel: 0
+  isStarterCat: 1
+  furTint: {r: 0.86, g: 0.62, b: 0.38, a: 1}
+  portrait: {fileID: 21300000, guid: fea50ecf103c4dd4b936368dabf7184c, type: 3}
+  idleSprite: {fileID: 21300000, guid: 91fd401493fd07d419ce2e00f3e01ced, type: 3}
+  animator: {fileID: 9100000, guid: 384aae5a2f5ff8145af40b083b479642, type: 2}
+  walkFrames:
+  - {fileID: 21300000, guid: d37060aa6787a164fb85d9d9ac2e8f1e, type: 3}
+  - {fileID: 21300000, guid: ca2237caa39c0484d9168510cfd83bdf, type: 3}
+  - {fileID: 21300000, guid: bd4403b065281574aa9eb008051cb377, type: 3}
+  - {fileID: 21300000, guid: b4976eda184a64446ad821a6b33821ac, type: 3}
+  - {fileID: 21300000, guid: 98e0f312825bb1545a58df9f2c6a7370, type: 3}
+  - {fileID: 21300000, guid: 3e7f8fa11b554184ba9fa403b68f1e50, type: 3}
+  - {fileID: 21300000, guid: 5f4b5087bb9017245b602e1aa06f9e28, type: 3}
+  - {fileID: 21300000, guid: d81c60ef452c4bf438723153aaca35b1, type: 3}
+  - {fileID: 21300000, guid: c864b7f8a4871e94397ed1b807355fc4, type: 3}
+  - {fileID: 21300000, guid: 9f550e8f67770a140ada8ad032dcc25b, type: 3}
+  - {fileID: 21300000, guid: 92270aa498e8bba41b0ef7fa4770a34e, type: 3}
+  - {fileID: 21300000, guid: 7b3c434672691384ba31bc3a76cf2ee1, type: 3}
+  - {fileID: 21300000, guid: e7ff1de27c765c44bb4685c349fe3f1d, type: 3}
+  - {fileID: 21300000, guid: 5223ee4444281e74c93c0b6069c717eb, type: 3}
+  - {fileID: 21300000, guid: 47eba99ee18e6e348ac150c8b6ac5833, type: 3}
+  - {fileID: 21300000, guid: 834ca5264d2dd6a4c8e7d64edd1f0cd9, type: 3}
+  - {fileID: 21300000, guid: b590ffc45746a314fb6e1b1a1c82a83f, type: 3}
+  - {fileID: 21300000, guid: aa13c7796f8d32d4cad70d873bcdc161, type: 3}
+  idleFrames:
+  - {fileID: 21300000, guid: 91fd401493fd07d419ce2e00f3e01ced, type: 3}
+  - {fileID: 21300000, guid: 5d1527a661fbc80469340b32d5006604, type: 3}
+  jumpFrames:
+  - {fileID: 21300000, guid: d2a731fb74a190d45902a2d9c2104553, type: 3}
+  - {fileID: 21300000, guid: 4abef1f34d28e17409326d432f0f88f7, type: 3}
+  - {fileID: 21300000, guid: 48c89ec37d7c0304d8bc872e54aeb058, type: 3}
+  - {fileID: 21300000, guid: ee9c50e62cc95bb479dedcc473921191, type: 3}
+  sleepFrames:
+  - {fileID: 21300000, guid: 69697a44c67f2ec4796a3cedb9ec4781, type: 3}
+  - {fileID: 21300000, guid: 96bf801253c1a8a479cac175795bac93, type: 3}
+  useDetailedHomeAnimations: 1
+  purrClip: {fileID: 0}
+  meowClip: {fileID: 0}
+--- !u!114 &-544254227941828391
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelNumber: 20
+  season: 0
+  spawnPoint: {x: -6.2, y: -1.15}
+  goalPoint: {x: 6.25, y: -0.4}
+  inkBudget: 18.4
   fallY: -7.5
 --- !u!114 &11400000
 MonoBehaviour:
@@ -545,52 +671,53 @@ MonoBehaviour:
   m_Name: PawPathCatalog
   m_EditorClassIdentifier: 
   cats:
-  - {fileID: -9097257023413215209}
-  - {fileID: -1610005311995454322}
-  - {fileID: -5557121267762338592}
-  - {fileID: 4286188871352469987}
-  - {fileID: -8853985181083747102}
-  - {fileID: 7084092341273692735}
+  - {fileID: -658513395329563809}
+  - {fileID: -8302633049469788424}
+  - {fileID: -2678519778766622585}
+  - {fileID: -3616975402496998030}
+  - {fileID: -1059568637041675864}
+  - {fileID: -4842658224880327068}
   shopItems:
-  - {fileID: 11400000, guid: 5b70e6509f4491743bd7035f7538899e, type: 2}
-  - {fileID: 11400000, guid: 31d2370a9afe51743a579f9486c1236b, type: 2}
-  - {fileID: 11400000, guid: 9f8edd8da300d7945ad3d0fd0f2a268e, type: 2}
+  - {fileID: 4792729125991372821}
+  - {fileID: 9200711870523879378}
+  - {fileID: 8950424790964840989}
+  - {fileID: 4914547260741322333}
   - {fileID: 11400000, guid: e00f8a7964bce3a4f95287bb3d28a0ed, type: 2}
   - {fileID: 11400000, guid: aca2f3f7f2c250245ab7f98814a69bb8, type: 2}
   - {fileID: 11400000, guid: 9a48cb692d1dccb4c8ee7fbee51f3beb, type: 2}
   - {fileID: 11400000, guid: 9a8c4a1a5a718df439a09308016d3689, type: 2}
   - {fileID: 11400000, guid: d5c49d6b8a2e4f51b7c39016a8e2f047, type: 2}
   levels:
-  - {fileID: -8482091838414750122}
-  - {fileID: 6013454598846174603}
-  - {fileID: 6544880724860218824}
-  - {fileID: -8067801577041964489}
-  - {fileID: 809415211630189811}
-  - {fileID: -5619157559283200535}
-  - {fileID: 7962687299715179581}
-  - {fileID: -4088506760151601280}
-  - {fileID: -2740861711815355824}
-  - {fileID: -5360457940912506715}
-  - {fileID: -4307353449782549949}
-  - {fileID: -6643478054506200867}
-  - {fileID: 9039703361423145584}
-  - {fileID: 1817470422442163820}
-  - {fileID: 2372156783989666172}
-  - {fileID: -2063049178533981654}
-  - {fileID: 3435145415592124970}
-  - {fileID: -6453923348384391248}
-  - {fileID: -7781508163399049578}
-  - {fileID: 1904401907757716231}
-  - {fileID: 1943687989216050302}
-  - {fileID: -4715009435341770624}
-  - {fileID: -1819879857243774363}
-  - {fileID: -242122376908666679}
-  - {fileID: 6072187793490374621}
-  - {fileID: -3911632010426811968}
-  - {fileID: -4426814187468879861}
-  - {fileID: 6697319454437858831}
-  - {fileID: -5525705555030679784}
-  - {fileID: -1786143255828469152}
+  - {fileID: 6913869129865368676}
+  - {fileID: 548880351502417605}
+  - {fileID: 6332719139100316043}
+  - {fileID: 212939797422698054}
+  - {fileID: 6991131766920660324}
+  - {fileID: -4928763653030306913}
+  - {fileID: 5877414273834315037}
+  - {fileID: -1685522749815609407}
+  - {fileID: 4317415860560671234}
+  - {fileID: 6541332628196176591}
+  - {fileID: -6468411997062980458}
+  - {fileID: -1694473035441882757}
+  - {fileID: -3396289212736379746}
+  - {fileID: -4695060098581317216}
+  - {fileID: 3367618227598389683}
+  - {fileID: 3703454692224845612}
+  - {fileID: -3109817009564163494}
+  - {fileID: -1762513318599473081}
+  - {fileID: 3954551728422869307}
+  - {fileID: -544254227941828391}
+  - {fileID: -719104092422898746}
+  - {fileID: -7139019451154741518}
+  - {fileID: -8029718755131968072}
+  - {fileID: -8623687818870333114}
+  - {fileID: 3135001732076257445}
+  - {fileID: -4859151474741112060}
+  - {fileID: 375621251845965396}
+  - {fileID: -8288212693265537686}
+  - {fileID: -4244430807692624375}
+  - {fileID: -4454218811808859968}
   homeBackground: {fileID: 21300000, guid: 572371efb06d2ba40baf74e72d5374ab, type: 3}
   shopBackground: {fileID: 21300000, guid: 572371efb06d2ba40baf74e72d5374ab, type: 3}
   gameplayBackground: {fileID: 21300000, guid: 7bd18f9a60dd4a45b021337f56a892c2, type: 3}
@@ -648,12 +775,8 @@ MonoBehaviour:
   uiConfirmSfx: {fileID: 8300000, guid: 3c439a066a9eafb44b8fc94859b57f69, type: 3}
   shopBuySfx: {fileID: 8300000, guid: 3a6bbf23fae4b4b46a2dffb5f3972946, type: 3}
   shopSellSfx: {fileID: 8300000, guid: d5cc0a87779a4f34c844720c195acf5d, type: 3}
-  completionFaces:
-  - {fileID: 21300000, guid: 79d36b25a3e14f0f8f354bec59b7de9e, type: 3}
-  - {fileID: 21300000, guid: e1c801ce2e3e413ca4d9a42f2620a84d, type: 3}
-  - {fileID: 21300000, guid: 441e20930a67429184da7f6571b720c0, type: 3}
-  - {fileID: 21300000, guid: f19386a9111d450d97b824d27c676248, type: 3}
-  completionBackground: {fileID: 21300000, guid: fb6cf618bf9dbe44c9d654248a0726dd, type: 3}
+  completionFaces: []
+  completionBackground: {fileID: 0}
   failureBackground: {fileID: 21300000, guid: 053cd80549122ec45af532e8edea9419, type: 3}
   birdFrames:
   - {fileID: 21300000, guid: 746e147c872317a4ead6a70ab1adb73d, type: 3}
@@ -681,7 +804,7 @@ MonoBehaviour:
   - {fileID: 21300000, guid: a95712b8d9f0a714fb2cfafec03959db, type: 3}
   - {fileID: 21300000, guid: f21adc1064dec5746a66310d1eed0bbf, type: 3}
   - {fileID: 21300000, guid: 88903cfcda9805c418742785ea47b58e, type: 3}
---- !u!114 &809415211630189811
+--- !u!114 &212939797422698054
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -693,31 +816,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  levelNumber: 5
+  levelNumber: 4
   season: 0
-  spawnPoint: {x: -6.2, y: -1.15}
-  goalPoint: {x: 6.25, y: -0.4}
-  inkBudget: 22
-  fallY: -7.5
---- !u!114 &1817470422442163820
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  levelNumber: 14
-  season: 2
   spawnPoint: {x: -6.2, y: -1.15}
   goalPoint: {x: 6.25, y: 1}
-  inkBudget: 18.4
+  inkBudget: 20.8
   fallY: -7.5
---- !u!114 &1904401907757716231
+--- !u!114 &375621251845965396
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -729,31 +834,49 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  levelNumber: 20
-  season: 0
+  levelNumber: 27
+  season: 2
   spawnPoint: {x: -6.2, y: -1.15}
-  goalPoint: {x: 6.25, y: -0.4}
-  inkBudget: 18.4
-  fallY: -7.5
---- !u!114 &1943687989216050302
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  levelNumber: 21
-  season: 1
-  spawnPoint: {x: -6.2, y: -1.15}
-  goalPoint: {x: 6.25, y: -0.050000012}
+  goalPoint: {x: 6.25, y: 0.29999998}
   inkBudget: 19.6
   fallY: -7.5
---- !u!114 &2372156783989666172
+--- !u!114 &548880351502417605
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelNumber: 2
+  season: 0
+  spawnPoint: {x: -6.2, y: -1.15}
+  goalPoint: {x: 6.25, y: 0.29999998}
+  inkBudget: 18.4
+  fallY: -7.5
+--- !u!114 &3135001732076257445
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelNumber: 25
+  season: 1
+  spawnPoint: {x: -6.2, y: -1.15}
+  goalPoint: {x: 6.25, y: -0.4}
+  inkBudget: 17.2
+  fallY: -7.5
+--- !u!114 &3367618227598389683
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -771,7 +894,7 @@ MonoBehaviour:
   goalPoint: {x: 6.25, y: -0.4}
   inkBudget: 19.6
   fallY: -7.5
---- !u!114 &3435145415592124970
+--- !u!114 &3703454692224845612
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -783,13 +906,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  levelNumber: 17
+  levelNumber: 16
   season: 0
   spawnPoint: {x: -6.2, y: -1.15}
-  goalPoint: {x: 6.25, y: 0.29999998}
-  inkBudget: 22
+  goalPoint: {x: 6.25, y: -0.050000012}
+  inkBudget: 20.8
   fallY: -7.5
---- !u!114 &4286188871352469987
+--- !u!114 &3954551728422869307
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -798,31 +921,173 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2ba0a48be16eac847b8231e19fb2dadc, type: 3}
+  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  id: tarcin
-  displayName: "Tar\xE7\u0131n"
-  bio: "\xDC\xE7 renkli, \xFC\xE7 kat merakl\u0131. T\xFCy oltay\u0131 g\xF6r\xFCnce
-    d\xFCnya durur."
-  encounterDialogue: "Tar\xE7\u0131n, d\xFC\u015Fen yapraklar\u0131n aras\u0131nda
-    z\u0131playa z\u0131playa sana geliyor. 'Bu yol biraz e\u011Flenceliydi,' der
-    gibi m\u0131r\u0131ldan\u0131yor. Kap\u0131y\u0131 a\xE7\u0131k b\u0131rak\u0131yoruz."
-  personality: 4
-  unlockAfterLevel: 15
-  isStarterCat: 0
-  furTint: {r: 0.9, g: 0.55, b: 0.32, a: 1}
-  portrait: {fileID: 21300000, guid: c357b35bd1a3422f9fd5c72d39be71e3, type: 3}
-  idleSprite: {fileID: 21300000, guid: c357b35bd1a3422f9fd5c72d39be71e3, type: 3}
-  animator: {fileID: 0}
-  walkFrames: []
-  idleFrames: []
-  jumpFrames: []
-  sleepFrames: []
-  useDetailedHomeAnimations: 0
-  purrClip: {fileID: 0}
-  meowClip: {fileID: 0}
---- !u!114 &5239382098774973219
+  levelNumber: 19
+  season: 0
+  spawnPoint: {x: -6.2, y: -1.15}
+  goalPoint: {x: 6.25, y: 1}
+  inkBudget: 17.2
+  fallY: -7.5
+--- !u!114 &4317415860560671234
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelNumber: 9
+  season: 1
+  spawnPoint: {x: -6.2, y: -1.15}
+  goalPoint: {x: 6.25, y: 1}
+  inkBudget: 19.6
+  fallY: -7.5
+--- !u!114 &4792729125991372821
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5453fd3994f158f44848f3bb7b9c08e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: tree
+  displayName: "G\xF6\u011Fe Uzanan T\u0131rmanma A\u011Fac\u0131"
+  description: "Kat kat tahta, ip sar\u0131l\u0131 direkler ve en tepede bir bak\u0131\u015F
+    teras\u0131. Mitzi buradan b\xFCt\xFCn evi 'benim' diye ilan eder."
+  lovePointCost: 80
+  icon: {fileID: 0}
+  placedSprite: {fileID: 0}
+  slotType: 0
+  interactionType: 0
+  interactionAnimation: {fileID: 0}
+  interactionFrames: []
+  interactionVisualScale: 1
+--- !u!114 &4914547260741322333
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5453fd3994f158f44848f3bb7b9c08e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: sweater
+  displayName: "El \xD6rg\xFCs\xFC Kedi Kaza\u011F\u0131"
+  description: "Il\u0131k y\xFCn, k\xFC\xE7\xFCk pati delikleri. Moka giyince k\u0131\u015F
+    bile utan\xE7tan yumu\u015Far. \xC7\u0131karmak isteyince m\u0131r\u0131ldanarak
+    pazarl\u0131k eder."
+  lovePointCost: 60
+  icon: {fileID: 0}
+  placedSprite: {fileID: 0}
+  slotType: 0
+  interactionType: 0
+  interactionAnimation: {fileID: 0}
+  interactionFrames: []
+  interactionVisualScale: 1
+--- !u!114 &5877414273834315037
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelNumber: 7
+  season: 1
+  spawnPoint: {x: -6.2, y: -1.15}
+  goalPoint: {x: 6.25, y: 0.29999998}
+  inkBudget: 17.2
+  fallY: -7.5
+--- !u!114 &6332719139100316043
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelNumber: 3
+  season: 0
+  spawnPoint: {x: -6.2, y: -1.15}
+  goalPoint: {x: 6.25, y: 0.65}
+  inkBudget: 19.6
+  fallY: -7.5
+--- !u!114 &6541332628196176591
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelNumber: 10
+  season: 1
+  spawnPoint: {x: -6.2, y: -1.15}
+  goalPoint: {x: 6.25, y: -0.4}
+  inkBudget: 20.8
+  fallY: -7.5
+--- !u!114 &6913869129865368676
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelNumber: 1
+  season: 0
+  spawnPoint: {x: -6.2, y: -1.15}
+  goalPoint: {x: 6.25, y: -0.050000012}
+  inkBudget: 17.2
+  fallY: -7.5
+--- !u!114 &6991131766920660324
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelNumber: 5
+  season: 0
+  spawnPoint: {x: -6.2, y: -1.15}
+  goalPoint: {x: 6.25, y: -0.4}
+  inkBudget: 22
+  fallY: -7.5
+--- !u!114 &8950424790964840989
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -846,7 +1111,7 @@ MonoBehaviour:
   interactionAnimation: {fileID: 0}
   interactionFrames: []
   interactionVisualScale: 1
---- !u!114 &6013454598846174603
+--- !u!114 &9200711870523879378
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -855,135 +1120,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
+  m_Script: {fileID: 11500000, guid: 5453fd3994f158f44848f3bb7b9c08e9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  levelNumber: 2
-  season: 0
-  spawnPoint: {x: -6.2, y: -1.15}
-  goalPoint: {x: 6.25, y: 0.29999998}
-  inkBudget: 18.4
-  fallY: -7.5
---- !u!114 &6072187793490374621
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  levelNumber: 25
-  season: 1
-  spawnPoint: {x: -6.2, y: -1.15}
-  goalPoint: {x: 6.25, y: -0.4}
-  inkBudget: 17.2
-  fallY: -7.5
---- !u!114 &6544880724860218824
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  levelNumber: 3
-  season: 0
-  spawnPoint: {x: -6.2, y: -1.15}
-  goalPoint: {x: 6.25, y: 0.65}
-  inkBudget: 19.6
-  fallY: -7.5
---- !u!114 &6697319454437858831
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  levelNumber: 28
-  season: 2
-  spawnPoint: {x: -6.2, y: -1.15}
-  goalPoint: {x: 6.25, y: 0.65}
-  inkBudget: 20.8
-  fallY: -7.5
---- !u!114 &7084092341273692735
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2ba0a48be16eac847b8231e19fb2dadc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  id: moka
-  displayName: Moka
-  bio: "\xD6rg\xFC atk\u0131l\u0131, kahve kokulu. \u015E\xF6mineye en yak\u0131n
-    yast\u0131\u011F\u0131 bilir."
-  encounterDialogue: "Moka, k\u0131\u015F penceresinin \xF6n\xFCnde atk\u0131s\u0131
-    kaym\u0131\u015F halde seni bekliyor. Bir ok\u015Famada ipli\u011Fi d\xFCzelir,
-    ikinci ok\u015Famada evinin yolunu \xF6\u011Frenir."
-  personality: 1
-  unlockAfterLevel: 25
-  isStarterCat: 0
-  furTint: {r: 0.45, g: 0.32, b: 0.24, a: 1}
-  portrait: {fileID: 21300000, guid: e579d57df3c24495a7f0dc791d340275, type: 3}
-  idleSprite: {fileID: 21300000, guid: e579d57df3c24495a7f0dc791d340275, type: 3}
-  animator: {fileID: 0}
-  walkFrames: []
-  idleFrames: []
-  jumpFrames: []
-  sleepFrames: []
-  useDetailedHomeAnimations: 0
-  purrClip: {fileID: 0}
-  meowClip: {fileID: 0}
---- !u!114 &7962687299715179581
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  levelNumber: 7
-  season: 1
-  spawnPoint: {x: -6.2, y: -1.15}
-  goalPoint: {x: 6.25, y: 0.29999998}
-  inkBudget: 17.2
-  fallY: -7.5
---- !u!114 &9039703361423145584
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dd123882e5efc42449a02412cd9f3a02, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  levelNumber: 13
-  season: 2
-  spawnPoint: {x: -6.2, y: -1.15}
-  goalPoint: {x: 6.25, y: 0.65}
-  inkBudget: 17.2
-  fallY: -7.5
+  id: cushion
+  displayName: "Bulut Pelu\u015F Minder"
+  description: "\u0130\xE7ine g\xF6m\xFCld\xFCn m\xFC \xE7\u0131k\u0131lmaz. Pamuk'un
+    resm\xEE uyku ofisi. \xDCzerine bir k\u0131l b\u0131rakmas\u0131 iltifat say\u0131l\u0131r."
+  lovePointCost: 35
+  icon: {fileID: 0}
+  placedSprite: {fileID: 0}
+  slotType: 0
+  interactionType: 0
+  interactionAnimation: {fileID: 0}
+  interactionFrames: []
+  interactionVisualScale: 1

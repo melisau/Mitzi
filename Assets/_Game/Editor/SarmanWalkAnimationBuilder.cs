@@ -20,7 +20,10 @@ namespace PawPath.EditorTools
 
         static SarmanWalkAnimationBuilder()
         {
-            EditorApplication.delayCall += BuildOncePerEditorSession;
+            // Yeni kedi kareleri CatBreedAnimationBuilder ile kuruluyor. Bu eski betik
+            // her açılışta sarman karelerini katalogdaki ikinci kediye geri yazıyordu;
+            // otomatik çalışması kapatıldı. Menüden elle çalıştırılabilir.
+            // EditorApplication.delayCall += BuildOncePerEditorSession;
         }
 
         [MenuItem("Paw Path/Rebuild Sarman Walk Animation")]

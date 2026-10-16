@@ -88,6 +88,8 @@ namespace PawPath.Hub
             {
                 if (!petting)
                     BeginPetting();
+                // İmleç yerine kediyi okşayan minik el.
+                PettingHand.Show(world);
 
                 tick += Time.deltaTime;
                 if (tick >= loveTickInterval)
@@ -178,6 +180,7 @@ namespace PawPath.Hub
 
             petting = false;
             tick = 0f;
+            PettingHand.Hide();
             var homeBehaviour = GetComponent<CatHomeBehaviour>();
             if (homeBehaviour != null)
                 homeBehaviour.SetInteracting(false);

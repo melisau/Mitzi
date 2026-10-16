@@ -19,6 +19,8 @@ namespace PawPath.UI
     public class HudView : MonoBehaviour
     {
         [SerializeField] private Text loveLabel;
+        [Tooltip("Para ikonu + sayıdan oluşan bakiye sayacının kök nesnesi.")]
+        [SerializeField] private GameObject balanceRoot;
         [SerializeField] private Text levelLabel;
         [SerializeField] private Text inkLabel;
         [SerializeField] private Text selectedCatLabel;
@@ -27,6 +29,7 @@ namespace PawPath.UI
         [SerializeField] private Button directPlayButton;
         [SerializeField] private Button restartButton;
         [SerializeField] private Button homeButton;
+        [SerializeField] private Button quitGameButton;
         [SerializeField] private CatNeedsUI needsUI;
         [SerializeField] private GameObject brushToolbar;
         [SerializeField] private GameObject brushTutorial;
@@ -41,6 +44,8 @@ namespace PawPath.UI
         [SerializeField] private Button previousDrawViewButton;
         [SerializeField] private Button nextDrawViewButton;
         [SerializeField] private Button startDrawingGameButton;
+        public static readonly Color EditIdleColor = new Color(0.66f, 0.49f, 0.37f, 1f);
+        public static readonly Color EditActiveColor = new Color(0.98f, 0.76f, 0.30f, 1f);
         GameplayPlayMode pendingMode;
         Coroutine selectedNameRoutine;
         Coroutine tutorialRoutine;
@@ -137,10 +142,7 @@ namespace PawPath.UI
         {
             RefreshLevel();
             HideSelectedCatName();
-            if (loveLabel != null)
-                loveLabel.transform.parent.Find("ShopBalanceBackground")?.gameObject.SetActive(false);
-            if (loveLabel != null)
-                loveLabel.gameObject.SetActive(false);
+            SetBalanceVisible(false);
             if (playButton != null)
                 playButton.gameObject.SetActive(false);
             if (shopButton != null)
@@ -174,6 +176,8 @@ namespace PawPath.UI
                 restartButton.gameObject.SetActive(true);
             if (homeButton != null)
                 homeButton.gameObject.SetActive(true);
+            if (quitGameButton != null)
+                quitGameButton.gameObject.SetActive(true);
             bool cityTheme = LevelManager.Instance != null &&
                 ThemeSelectionUI.GetSelectedTheme(LevelManager.Instance.DisplayLevel) == 2;
             bool tutorialShown = cityTheme
@@ -191,12 +195,9 @@ namespace PawPath.UI
         private void OnHubEntered()
         {
             HideSelectedCatName();
+            SetBalanceVisible(true);
             if (loveLabel != null)
-            {
-                loveLabel.gameObject.SetActive(true);
-                loveLabel.transform.parent.Find("ShopBalanceBackground")?.gameObject.SetActive(true);
                 RefreshLove(SaveService.Data.lovePoints);
-            }
             if (playButton != null)
                 playButton.gameObject.SetActive(true);
             if (shopButton != null)
@@ -230,10 +231,17 @@ namespace PawPath.UI
                 restartButton.gameObject.SetActive(false);
             if (homeButton != null)
                 homeButton.gameObject.SetActive(false);
+            if (quitGameButton != null)
+                quitGameButton.gameObject.SetActive(false);
             if (mobileControls != null)
                 mobileControls.SetActive(false);
+            // Mürekkep yazısı yalnızca bölüm içinde çizim yaparken anlamlı;
+            // evde bölümden kalan "Fırça: …" metni görünmesin.
             if (inkLabel != null)
-                inkLabel.gameObject.SetActive(true);
+            {
+                inkLabel.text = "";
+                inkLabel.gameObject.SetActive(false);
+            }
             if (LevelManager.Instance != null)
                 RefreshLevel();
         }
@@ -311,8 +319,25 @@ namespace PawPath.UI
 
         private void RefreshLove(int total)
         {
+            // Sade sayaç: yanında para ikonu olduğu için yazıya gerek yok.
             if (loveLabel != null)
-                loveLabel.text = $"Dükkan Bakiyesi: {total}";
+                loveLabel.text = total.ToString();
+        }
+
+        public void BindBalanceRoot(GameObject root)
+        {
+            balanceRoot = root;
+        }
+
+        void SetBalanceVisible(bool visible)
+        {
+            if (balanceRoot != null)
+            {
+                balanceRoot.SetActive(visible);
+                return;
+            }
+            if (loveLabel != null)
+                loveLabel.gameObject.SetActive(visible);
         }
 
         private void RefreshCat(CatDefinition cat)
@@ -359,7 +384,7 @@ namespace PawPath.UI
             GameObject tutorial, GameObject controls, GameObject modeMenu,
             Button drawingPlay, ThemeSelectionUI themeSelector, Button editButton, Button flipButton,
             Button settings, GameObject settingsRoot, Button previousDrawView,
-            Button nextDrawView, Button startDrawingGame)
+            Button nextDrawView, Button startDrawingGame, Button quitGame)
         {
             loveLabel = love;
             levelLabel = level;
@@ -370,6 +395,7 @@ namespace PawPath.UI
             directPlayButton = directPlay;
             restartButton = restart;
             homeButton = home;
+            quitGameButton = quitGame;
             needsUI = careUI;
             brushToolbar = brushes;
             brushTutorial = tutorial;
@@ -481,6 +507,10 @@ namespace PawPath.UI
             var label = editHomeButton.GetComponentInChildren<Text>();
             if (label != null)
                 label.text = active ? "✓ ✎" : "✎";
+            // İkonlu yuvarlak düğmede düzenleme modu renkle belirtilir.
+            var background = editHomeButton.GetComponent<Image>();
+            if (background != null && label == null)
+                background.color = active ? EditActiveColor : EditIdleColor;
         }
 
         private void RefreshInitialState()

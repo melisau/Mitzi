@@ -204,7 +204,8 @@ namespace PawPath.Levels
                 GetComponent<Collider2D>().enabled = false;
                 cat.BounceAfterDogStomp();
                 CozyAudioManager.Instance?.PlayBubble();
-                SpawnPuff(puffPosition);
+                // Çizgi film "puf"u: köpek ezilip söner, toz bulutu ve yıldızlar.
+                StompEffect.Spawn(puffPosition, renderer);
                 Destroy(gameObject);
                 return;
             }
@@ -222,6 +223,7 @@ namespace PawPath.Levels
                 catCollider.bounds.min.y >= dogCollider.bounds.max.y - 0.22f;
         }
 
+        // Eski parçacık efekti; StompEffect ile değiştirildi, geri dönüş için saklanıyor.
         void SpawnPuff(Vector3 position)
         {
             var puff = new GameObject("DogStompPuff", typeof(ParticleSystem));

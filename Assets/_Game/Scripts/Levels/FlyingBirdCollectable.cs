@@ -12,6 +12,7 @@ namespace PawPath.Levels
         Sprite[] frames;
         float speed, leftBound, baseY, bobPhase, frameTimer, visualWidth;
         int frameIndex;
+        SpriteRenderer glow;
         bool collected;
 
         public void Configure(SpriteRenderer target, Sprite[] animationFrames, float flightSpeed,
@@ -24,6 +25,8 @@ namespace PawPath.Levels
             baseY = transform.position.y;
             bobPhase = phase;
             visualWidth = targetVisualWidth;
+            var glowTransform = transform.Find("Glow");
+            glow = glowTransform != null ? glowTransform.GetComponent<SpriteRenderer>() : null;
             ApplyFrameScale();
         }
 
@@ -36,8 +39,19 @@ namespace PawPath.Levels
                 return;
             }
             var position = transform.position;
-            position.y = baseY + Mathf.Sin(Time.time * 2.2f + bobPhase) * 0.10f;
+            // Belirgin süzülme + nabız atan ışık: "bunu yakala" mesajı.
+            position.y = baseY + Mathf.Sin(Time.time * 2.2f + bobPhase) * 0.18f;
             transform.position = position;
+            if (glow != null)
+            {
+                float pulse = (Mathf.Sin(Time.time * 3.4f + bobPhase) + 1f) * 0.5f;
+                var color = glow.color;
+                color.a = Mathf.Lerp(0.50f, 0.85f, pulse);
+                glow.color = color;
+                float parentScale = Mathf.Max(0.0001f, Mathf.Abs(transform.localScale.x));
+                float size = visualWidth * Mathf.Lerp(0.82f, 0.95f, pulse) / parentScale;
+                glow.transform.localScale = new Vector3(size, size, 1f);
+            }
 
             if (frames == null || frames.Length == 0 || renderer == null) return;
             frameTimer += Time.deltaTime;
@@ -57,6 +71,11 @@ namespace PawPath.Levels
             Transform reward = transform.Find("RewardLabel");
             if (reward != null)
                 reward.localScale = new Vector3(1f / scale, 1f / scale, 1f);
+            if (glow != null)
+            {
+                float size = visualWidth * 0.9f / scale;
+                glow.transform.localScale = new Vector3(size, size, 1f);
+            }
         }
 
         void OnTriggerEnter2D(Collider2D other)

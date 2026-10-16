@@ -16,7 +16,9 @@ namespace PawPath.EditorTools
 
         static MitziPoseAnimationBuilder()
         {
-            EditorApplication.delayCall += BuildOnce;
+            // Yeni Mitzi kareleri CatBreedAnimationBuilder ile kuruluyor; eski poz
+            // betiğinin otomatik çalışması kapatıldı. Menüden elle çalıştırılabilir.
+            // EditorApplication.delayCall += BuildOnce;
         }
 
         [MenuItem("Paw Path/Rebuild Mitzi Sit And Jump Animations")]

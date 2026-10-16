@@ -32,3 +32,9 @@ crashlytics-build.properties
 .env
 .env.*
 !.env.example
+
+# Android upload signing credentials
+*.keystore
+*.jks
+*.p12
+*.pfx

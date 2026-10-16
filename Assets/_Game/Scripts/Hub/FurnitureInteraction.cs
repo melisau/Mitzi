@@ -7,8 +7,12 @@ using PawPath.Core;
 
 namespace PawPath.Hub
 {
+    /// <summary>Alt şeritteki bakım düğmelerinin eşya üzerinde başlattığı eylem.</summary>
+    public enum CareAction { Eat, Drink, Sleep }
+
     public class FurnitureInteraction : MonoBehaviour
     {
+        const float SleepSeconds = 9f;
         ShopItemDefinition item;
         bool running;
         Collider2D hitbox;
@@ -75,6 +79,141 @@ namespace PawPath.Hub
                 }
             }
             StartCoroutine(Interact(nearest));
+        }
+
+        /// <summary>
+        /// Bakım düğmesinden çağrılır: seçili kedi bu eşyaya yürür ve kullanır
+        /// (kabın önünde yer/içer, yatağına kıvrılıp uyur). İhtiyaç değeri
+        /// eylem bittiğinde dolar. Zaten bir eylem sürüyorsa yenisi başlamaz.
+        /// </summary>
+        public bool StartCareAction(CareAction action)
+        {
+            if (running)
+                return true;
+            if (GameFlow.Instance == null || !GameFlow.Instance.InHub || HomeEditMode.Active)
+                return false;
+            var cat = FindSelectedCat();
+            if (cat == null)
+                return false;
+            StartCoroutine(CareRoutine(cat, action));
+            return true;
+        }
+
+        /// <summary>
+        /// Kedinin ayakları kabın tabanıyla aynı zemin çizgisinde, burnu kabın
+        /// üstünde olacak şekilde duracağı nokta. Kabın ve kedinin gerçek görsel
+        /// sınırlarından hesaplanır; böylece kap odada nereye taşınırsa taşınsın
+        /// ve kedi hangi boyda olursa olsun hizalı kalır.
+        /// </summary>
+        Vector2 BowlApproachPoint(CatHomeBehaviour cat)
+        {
+            var bowlRenderer = GetComponent<SpriteRenderer>();
+            var catRenderer = cat.GetComponentInChildren<SpriteRenderer>();
+            Vector2 bowlCenter = transform.position;
+            if (bowlRenderer == null || bowlRenderer.sprite == null || catRenderer == null)
+                return bowlCenter + new Vector2(cat.transform.position.x <= bowlCenter.x ? -0.9f : 0.9f, 0.04f);
+
+            Bounds bowl = bowlRenderer.bounds;
+            Bounds body = catRenderer.bounds;
+            // Kap kedinin sağındaysa kedi sağa bakar (facing = +1).
+            float facing = cat.transform.position.x <= bowl.center.x ? 1f : -1f;
+            // Burun, kabın merkezinin biraz berisinde: baş kabın içine eğilir.
+            float noseX = bowl.center.x - facing * bowl.extents.x * 0.15f;
+            float bodyCenterX = noseX - facing * body.extents.x * 0.92f;
+            // Görselin merkezi pivotun yanında olabilir; kedi döndüğünde bu fark da aynalanır.
+            float currentFacing = Mathf.Sign(catRenderer.transform.lossyScale.x);
+            if (currentFacing == 0f) currentFacing = 1f;
+            float pivotOffsetX = (body.center.x - cat.transform.position.x) * currentFacing;
+            // Ayak çizgisi = kabın tabanı (biraz arkasında ki kap önde görünsün).
+            float feetY = bowl.min.y + 0.06f;
+            float feetOffsetY = body.min.y - cat.transform.position.y;
+            return new Vector2(bodyCenterX - pivotOffsetX * facing, feetY - feetOffsetY);
+        }
+
+        static CatHomeBehaviour FindSelectedCat()
+        {
+            string selectedId = SaveService.Data != null && !string.IsNullOrEmpty(SaveService.Data.selectedCatId)
+                ? SaveService.Data.selectedCatId : "mitzi";
+            var cats = FindObjectsOfType<CatHomeBehaviour>();
+            foreach (var candidate in cats)
+                if (candidate.Definition != null && candidate.Definition.id == selectedId)
+                    return candidate;
+            return cats.Length > 0 ? cats[0] : null;
+        }
+
+        IEnumerator CareRoutine(CatHomeBehaviour cat, CareAction action)
+        {
+            running = true;
+            string catId = cat.Definition != null ? cat.Definition.id : null;
+            Vector2 destination = transform.position;
+
+            if (action == CareAction.Sleep)
+            {
+                // Yatağın ortasına yürür; görsel olarak yatağın üstünde kıvrılır.
+                destination.y += 0.05f;
+                cat.WalkDirectTo(destination, ResidentActivity.Sleeping);
+            }
+            else
+            {
+                // Diğer kediler yer açar; seçili kedinin başı kaba ulaşacak kadar yaklaşır.
+                foreach (var other in FindObjectsOfType<CatHomeBehaviour>())
+                    if (other != cat && Vector2.Distance(other.transform.position, transform.position) < 2.0f)
+                        other.MoveAwayFrom(transform.position, 2.15f);
+                destination = BowlApproachPoint(cat);
+                cat.WalkDirectTo(destination, action == CareAction.Eat
+                    ? ResidentActivity.Eating : ResidentActivity.Drinking, true);
+            }
+
+            float timeout = 22f;
+            while (timeout > 0f && cat != null && cat.CurrentActivity == ResidentActivity.Walking)
+            {
+                timeout -= Time.deltaTime;
+                yield return null;
+            }
+            if (cat == null)
+            {
+                running = false;
+                yield break;
+            }
+            cat.transform.position = new Vector3(destination.x, destination.y, cat.transform.position.z);
+            cat.FaceTowards(transform.position.x);
+
+            if (action == CareAction.Sleep)
+            {
+                cat.SleepFor(SleepSeconds);
+                CatNeedsSystem.Instance?.PutToSleep();
+                nextInteractionTime = Time.unscaledTime + 1f;
+                running = false;
+                yield break;
+            }
+
+            // Su kabının kendi karesi yok; başını eğip yeme kareleri içme için de uygun.
+            Sprite[] frames = action == CareAction.Eat ? item?.interactionFrames : null;
+            if ((frames == null || frames.Length == 0) && GameFlow.Instance != null && GameFlow.Instance.Catalog != null)
+            {
+                var bowl = GameFlow.Instance.Catalog.GetItem("food_bowl");
+                frames = bowl != null ? bowl.interactionFrames : null;
+            }
+            // Yerken/içerken kap kedinin önünde çizilir: baş kabın içine eğilmiş görünür.
+            var bowlRenderer = GetComponent<SpriteRenderer>();
+            var catSprite = cat.GetComponentInChildren<SpriteRenderer>();
+            int bowlOrder = bowlRenderer != null ? bowlRenderer.sortingOrder : 0;
+            if (bowlRenderer != null && catSprite != null)
+                bowlRenderer.sortingOrder = catSprite.sortingOrder + 1;
+            if (frames != null && frames.Length > 0 && cat.Definition != null &&
+                cat.Definition.useDetailedHomeAnimations)
+                yield return PlayInteractionFrames(cat, frames, 2.4f);
+            else
+                yield return new WaitForSeconds(2.4f);
+            if (bowlRenderer != null)
+                bowlRenderer.sortingOrder = bowlOrder;
+
+            if (action == CareAction.Eat)
+                CatNeedsSystem.Instance?.FeedCat(catId);
+            else
+                CatNeedsSystem.Instance?.GiveWater(catId);
+            nextInteractionTime = Time.unscaledTime + 1f;
+            running = false;
         }
 
         static bool PointerOverUi()

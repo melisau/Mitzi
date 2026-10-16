@@ -39,6 +39,14 @@ namespace PawPath.Hub
             selected.WalkTo(ApproachFromSide(HubFurnitureView.Instance.WaterPosition), ResidentActivity.Drinking);
         }
 
+        /// <summary>Yatak yokken uyku düğmesi: kedi olduğu yerde kıvrılır.</summary>
+        public void SleepSelectedHere(float seconds)
+        {
+            EnsureSelectedResident();
+            if (selected != null)
+                selected.SleepFor(seconds);
+        }
+
         Vector2 ApproachFromSide(Vector3 itemPosition)
         {
             float direction = selected.transform.position.x < itemPosition.x ? -1f : 1f;
