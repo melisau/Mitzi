@@ -114,7 +114,16 @@ namespace PawPath.Audio
         public void PlayBrush() => PlayOne(brushSfx);
         public void PlayBubble() => PlayOne(bubbleSfx);
         public void PlayBowl() => PlayOne(bowlSfx);
-        public void PlayMeow() => PlayOne(meowSfx);
+        // Kısa miyavlar: uzun kayıtlar (ör. ~13 sn'lik cat_meow.wav) hiç çalınmaz.
+        const float MaxMeowSeconds = 3f;
+
+        public void PlayMeow()
+        {
+            if (meowSfx != null && meowSfx.length <= MaxMeowSeconds)
+                PlayOne(meowSfx);
+            else
+                PlayRandomMeow();
+        }
         public void PlayStep() => PlayOne(stepSfx, 0.34f);
         public void PlayHurt() => PlayOne(hurtSfx);
         public void PlayFall() => PlayOne(fallSfx);
@@ -129,7 +138,9 @@ namespace PawPath.Audio
         {
             if (meowVariants == null || meowVariants.Length == 0)
             {
-                PlayMeow();
+                // Liste boşsa yalnızca kısa tekil miyav çalınır (PlayMeow'a geri dönülmez).
+                if (meowSfx != null && meowSfx.length <= MaxMeowSeconds)
+                    PlayOne(meowSfx);
                 return;
             }
             PlayOne(meowVariants[Random.Range(0, meowVariants.Length)]);
@@ -198,7 +209,9 @@ namespace PawPath.Audio
             forestMusic = catalog.forestMusic;
             cityMusic = catalog.cityMusic;
             stepSfx = catalog.catStepSfx;
-            meowVariants = catalog.catMeowSfx;
+            meowVariants = catalog.catMeowSfx != null
+                ? System.Array.FindAll(catalog.catMeowSfx, c => c != null && c.length <= MaxMeowSeconds)
+                : null;
             hurtSfx = catalog.catHurtSfx;
             fallSfx = catalog.catFallSfx;
             rescueSfx = catalog.catRescueSfx;

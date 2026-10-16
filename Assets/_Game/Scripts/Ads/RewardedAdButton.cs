@@ -73,7 +73,7 @@ namespace PawPath.Ads
             }
             else
             {
-                text = GameText.L($"▶ Reklam izle: +{AdsConfig.RewardLovePoints} Sevgi ({left})", $"▶ Watch ad: +{AdsConfig.RewardLovePoints} Love ({left})", $"▶ Werbung ansehen: +{AdsConfig.RewardLovePoints} Liebe ({left})");
+                text = GameText.L($"Reklam izle: +{AdsConfig.RewardLovePoints} Sevgi ({left})", $"Watch ad: +{AdsConfig.RewardLovePoints} Love ({left})", $"Werbung ansehen: +{AdsConfig.RewardLovePoints} Liebe ({left})");
                 interactable = true;
             }
 

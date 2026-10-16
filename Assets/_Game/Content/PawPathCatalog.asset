@@ -62,6 +62,12 @@ MonoBehaviour:
   - {fileID: 21300000, guid: d3fdacc2f75be0c4c84527895876c9cd, type: 3}
   - {fileID: 21300000, guid: 9169f9a8ded85d044a38f1f29683151d, type: 3}
   - {fileID: 21300000, guid: f7a2c98f5b3b8434e9e1fd39303a6bbd, type: 3}
+  - {fileID: 21300000, guid: 5f5f099576b33f942a9f31cdb371d28f, type: 3}
+  - {fileID: 21300000, guid: 09069fca0762f8145be3bfe2ff0768bb, type: 3}
+  - {fileID: 21300000, guid: 13deff968088f1a4fb4b053c4af0219a, type: 3}
+  - {fileID: 21300000, guid: 2703d2de7fc7624408c1584b2e8e8ae5, type: 3}
+  - {fileID: 21300000, guid: 5a48d3d6c1ff22342b2a4be43b09c5dc, type: 3}
+  - {fileID: 21300000, guid: 65ffc57906700974bbf7e6aabd40b1e7, type: 3}
   idleFrames:
   - {fileID: 21300000, guid: 0df5bfe5bfd9b694abd17a0d1be077ee, type: 3}
   - {fileID: 21300000, guid: 71c732dff034b1a4fa925a85aabd713d, type: 3}
@@ -73,13 +79,16 @@ MonoBehaviour:
   sleepFrames:
   - {fileID: 21300000, guid: 795534a261d41304eb8437eea7c2dbda, type: 3}
   - {fileID: 21300000, guid: 0dcd84ec05f8f06459619f18c7ca6120, type: 3}
-  eatFrames:
-  - {fileID: 21300000, guid: 02de02bb6b560e944bbf36946aa7847e, type: 3}
   climbFrames:
   - {fileID: 21300000, guid: c80d7b10140ef8e439e349d07e24a357, type: 3}
   - {fileID: 21300000, guid: 1eb08d19bc0e98440bcbf4ea62d08d01, type: 3}
   - {fileID: 21300000, guid: 063a0d1e21bfacb408f8eddc5119e7f9, type: 3}
   - {fileID: 21300000, guid: 35ed531b15d12b5489199ec52ca2c3c2, type: 3}
+  eatFrames:
+  - {fileID: 21300000, guid: ab496462f16ee6f4292c3cc7c4fd8ced, type: 3}
+  - {fileID: 21300000, guid: 71f21698e5d84b949acb46ce4a40d561, type: 3}
+  - {fileID: 21300000, guid: 149a3329bc4997d478af86b167e7f8e8, type: 3}
+  - {fileID: 21300000, guid: 63cbe59745ffbbb448f93b107320a6ef, type: 3}
   litterFrames:
   - {fileID: 21300000, guid: 9239fc50568833222bf25f9e55f3221c, type: 3}
   - {fileID: 21300000, guid: cc990b758b6af638cfd20dd697f0ed35, type: 3}
@@ -240,6 +249,12 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 1944616de49506d4b94212612c65f406, type: 3}
   - {fileID: 21300000, guid: 30569c6978dd51a458392bdd6088ebc7, type: 3}
   - {fileID: 21300000, guid: d3662cfe4282be84f88444156b375658, type: 3}
+  - {fileID: 21300000, guid: d97a0e9d0068d524b928c21b911106c1, type: 3}
+  - {fileID: 21300000, guid: 7e69ff4a0ee6a4045b353237e251614c, type: 3}
+  - {fileID: 21300000, guid: 0879303d3795eee468d8e336f51581f6, type: 3}
+  - {fileID: 21300000, guid: f1503f849cbcd114091c0f0e97b92d34, type: 3}
+  - {fileID: 21300000, guid: cbe0ca5da240dc545b16c6c2c97041e4, type: 3}
+  - {fileID: 21300000, guid: ef2fba57b6498a348bc281a0f2a32372, type: 3}
   idleFrames:
   - {fileID: 21300000, guid: ef33693f71bc6c746950f59f9b90c611, type: 3}
   - {fileID: 21300000, guid: ca3a1bfbfb55ebe46884a3a9b9f86918, type: 3}
@@ -251,13 +266,16 @@ MonoBehaviour:
   sleepFrames:
   - {fileID: 21300000, guid: 13c8e1acb96b85e4495fa50573e184af, type: 3}
   - {fileID: 21300000, guid: d459ae8ded3581045952bd61c0547da8, type: 3}
-  eatFrames:
-  - {fileID: 21300000, guid: 1e29ec41b5daa2a4fbd34e9e4a9d81d9, type: 3}
   climbFrames:
   - {fileID: 21300000, guid: 9e5aa0019d7295440bab400dbf4644c5, type: 3}
   - {fileID: 21300000, guid: 28f60ccda8113294f83519daf0ece8dd, type: 3}
   - {fileID: 21300000, guid: 7129a3da85b53034eaab9d07934be89b, type: 3}
   - {fileID: 21300000, guid: 1b1ec306f6716d54a94708d5813e9de7, type: 3}
+  eatFrames:
+  - {fileID: 21300000, guid: f11ceaaa5a70c0f4f9f1d685440d58a0, type: 3}
+  - {fileID: 21300000, guid: e6d55031d5c281848b869695b07efa32, type: 3}
+  - {fileID: 21300000, guid: 8579ef1f4c46c734ea984f7e6eaffd54, type: 3}
+  - {fileID: 21300000, guid: 5f95939c6ee818b40bc80713712699b9, type: 3}
   litterFrames:
   - {fileID: 21300000, guid: fc96fb9f0041febd7d96cc824eae4a36, type: 3}
   - {fileID: 21300000, guid: 6fe8cd87ba0e24e63be21bdc95449653, type: 3}
@@ -364,6 +382,12 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 94ec9736a5f85bf4596e911658e4bf95, type: 3}
   - {fileID: 21300000, guid: cff0acc37a6b53d428353325f72d0c45, type: 3}
   - {fileID: 21300000, guid: 411ff6919ab43d8468aab1a4ef53b802, type: 3}
+  - {fileID: 21300000, guid: 780669bac86c25341a350db44fa5230f, type: 3}
+  - {fileID: 21300000, guid: 7b6e454fe51e21d459adbaca2d272638, type: 3}
+  - {fileID: 21300000, guid: 7ccf78bf3d2a96848adff22c42af8599, type: 3}
+  - {fileID: 21300000, guid: e482a86d49e3a1c40ae9f05e9cffe3e8, type: 3}
+  - {fileID: 21300000, guid: 2c864c7ab22974d4dbbd2a8795cd7b61, type: 3}
+  - {fileID: 21300000, guid: 92145b2e914badb44a833a041de9fefd, type: 3}
   idleFrames:
   - {fileID: 21300000, guid: 7c4047f4d116af3499b9a50f9725bde9, type: 3}
   - {fileID: 21300000, guid: 53c6721c74ad13248a4d410c4587f1f0, type: 3}
@@ -375,13 +399,16 @@ MonoBehaviour:
   sleepFrames:
   - {fileID: 21300000, guid: 6407e80934edf8441b4af53f3a6cda05, type: 3}
   - {fileID: 21300000, guid: 0dd203f1f6599fc4490d928c98f9ace1, type: 3}
-  eatFrames:
-  - {fileID: 21300000, guid: e5288d4919b0aef488960de914721dca, type: 3}
   climbFrames:
   - {fileID: 21300000, guid: 3d2000bedd94e7640a8aefab442561c1, type: 3}
   - {fileID: 21300000, guid: 0c00c563ea5de734098ac5c2a86d2258, type: 3}
   - {fileID: 21300000, guid: 7e51feaf96659c64ab34cfd487638d61, type: 3}
   - {fileID: 21300000, guid: a4c91ad8e70885549aa394e33ded1f75, type: 3}
+  eatFrames:
+  - {fileID: 21300000, guid: c9e04249138f27b419dbb154b3c540d6, type: 3}
+  - {fileID: 21300000, guid: b275a2c49e50ca44fa208c7efa376662, type: 3}
+  - {fileID: 21300000, guid: e75e71b87eccc004e9a0031973001478, type: 3}
+  - {fileID: 21300000, guid: 348d49ee49f2a564fb0c1e34eff3ddf7, type: 3}
   litterFrames:
   - {fileID: 21300000, guid: 118490aebd761c463704854ac4a84acf, type: 3}
   - {fileID: 21300000, guid: 5bc35a3cb55bd1325aeab84a3827c875, type: 3}
@@ -470,6 +497,12 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 43a1c51bf8f21654ca507e85211add37, type: 3}
   - {fileID: 21300000, guid: 0baa015b09c08a2459677c857a053303, type: 3}
   - {fileID: 21300000, guid: bc07f0bf97f326b47be4bfd1702ccf2b, type: 3}
+  - {fileID: 21300000, guid: c0b4ba4dc70e1304a8c24212fd4d2e89, type: 3}
+  - {fileID: 21300000, guid: 57dd6b50a34bc4a449868e6293ddc79d, type: 3}
+  - {fileID: 21300000, guid: 737179810a787cd4bb55e2bda88ccb6f, type: 3}
+  - {fileID: 21300000, guid: 389d1eb4e8eecdc47ad3e340461e8060, type: 3}
+  - {fileID: 21300000, guid: 0ebd8d11db17f6c4aadc13a535cbf98d, type: 3}
+  - {fileID: 21300000, guid: ae48cea1444210b40a5b40d875734563, type: 3}
   idleFrames:
   - {fileID: 21300000, guid: 3ea7ee3b67615a14883502319d79fca6, type: 3}
   - {fileID: 21300000, guid: ec5b56e2d6779da43b8e739c7184219a, type: 3}
@@ -481,13 +514,16 @@ MonoBehaviour:
   sleepFrames:
   - {fileID: 21300000, guid: 71f7c2d81ae6fa34ba4a6b69fa3ae9d2, type: 3}
   - {fileID: 21300000, guid: 193b9c0d01d97a441b613a69280e7641, type: 3}
-  eatFrames:
-  - {fileID: 21300000, guid: 6b2c741d811de1a4aa0688c5c5e0c393, type: 3}
   climbFrames:
   - {fileID: 21300000, guid: a6ac3bbca233eb6418b1dd2e1ed7ff0c, type: 3}
   - {fileID: 21300000, guid: 37e879d021cda47458dda43f29cbf044, type: 3}
   - {fileID: 21300000, guid: dfcd3b892534904449ca7f172105dd11, type: 3}
   - {fileID: 21300000, guid: 38315827d736fec43ba695b2d0193483, type: 3}
+  eatFrames:
+  - {fileID: 21300000, guid: fefb4d3e570020e4bb439c7ae85f9762, type: 3}
+  - {fileID: 21300000, guid: ba4e15c578bf5294d8f4c7ce490ef3d0, type: 3}
+  - {fileID: 21300000, guid: 607b3faadcc26b344be7f7613ec89e58, type: 3}
+  - {fileID: 21300000, guid: 8a01ed71856c3d046b946b72498e698f, type: 3}
   litterFrames:
   - {fileID: 21300000, guid: d7db2c7c38a65a8caecadeee567b6ba1, type: 3}
   - {fileID: 21300000, guid: 26e56771691c77687ce491fef12ade85, type: 3}
@@ -594,6 +630,12 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 01e041e7ba2b4a54786c69a7d4ceb4fb, type: 3}
   - {fileID: 21300000, guid: 8e1aaecc78cbfb84fbd5a97f037ea569, type: 3}
   - {fileID: 21300000, guid: f29fd6812f3cd1f4b8ad607b0dbafa0c, type: 3}
+  - {fileID: 21300000, guid: 5fc8985b5e43b9a40ae98fef2fdd1a3e, type: 3}
+  - {fileID: 21300000, guid: bede84f3d30939d4fb8ac295978477ea, type: 3}
+  - {fileID: 21300000, guid: c59f984db2a5f944d9c9085de3508d2f, type: 3}
+  - {fileID: 21300000, guid: e22a78eb903b67943a58e4e9574b31b9, type: 3}
+  - {fileID: 21300000, guid: d7d9ef80ecd14bc46a45a00f8edbeeba, type: 3}
+  - {fileID: 21300000, guid: c3f20101aa30b654b969d14abc7b937b, type: 3}
   idleFrames:
   - {fileID: 21300000, guid: 5b39990115509b14a84b2a64efccc99c, type: 3}
   - {fileID: 21300000, guid: f14adb083addbe04fb5595bcf613371d, type: 3}
@@ -605,13 +647,16 @@ MonoBehaviour:
   sleepFrames:
   - {fileID: 21300000, guid: d31c7979c7468f54da7fd97f5d7f5a39, type: 3}
   - {fileID: 21300000, guid: a1d7b15b0ef89c2448117af3d6aac48e, type: 3}
-  eatFrames:
-  - {fileID: 21300000, guid: 00f5146afe631604f92e202c3d0013dd, type: 3}
   climbFrames:
   - {fileID: 21300000, guid: a669c99e488f0eb409b6c61698945052, type: 3}
   - {fileID: 21300000, guid: 1756e12268560514db2aee9fb6c7d958, type: 3}
   - {fileID: 21300000, guid: a370e418ed3274e4c9fa2ee335404e06, type: 3}
   - {fileID: 21300000, guid: 29f7839fd7dbf2b4dbac832c07b7b65c, type: 3}
+  eatFrames:
+  - {fileID: 21300000, guid: a77ce5ce2fa221141b063cffaf0705d1, type: 3}
+  - {fileID: 21300000, guid: 068ec56d838dfcb43bb97ae4c8ce73a1, type: 3}
+  - {fileID: 21300000, guid: 61ea9e15a92e65b46aac4d52bae44b29, type: 3}
+  - {fileID: 21300000, guid: 85ee02e1837c7004dbe97c4533e19c50, type: 3}
   litterFrames:
   - {fileID: 21300000, guid: 6333910c2bc53212e0577de4c549ac93, type: 3}
   - {fileID: 21300000, guid: f6fd70149aae38cb841d597cffe4a4c5, type: 3}
@@ -681,6 +726,12 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 834ca5264d2dd6a4c8e7d64edd1f0cd9, type: 3}
   - {fileID: 21300000, guid: b590ffc45746a314fb6e1b1a1c82a83f, type: 3}
   - {fileID: 21300000, guid: aa13c7796f8d32d4cad70d873bcdc161, type: 3}
+  - {fileID: 21300000, guid: 5f87d0f1ab067954bb8f56c4a7ec7752, type: 3}
+  - {fileID: 21300000, guid: 74518cb05c9955946b3ce087c9e081c6, type: 3}
+  - {fileID: 21300000, guid: f9789f4f90fcf7a43920b06c74e21d6e, type: 3}
+  - {fileID: 21300000, guid: 84fb48a001ba3024ab0213ed96e7dca5, type: 3}
+  - {fileID: 21300000, guid: 0faa7fcf04d10ee4b935bbaaa498e035, type: 3}
+  - {fileID: 21300000, guid: 25080a6139fbb154a83e51edb22b348f, type: 3}
   idleFrames:
   - {fileID: 21300000, guid: 91fd401493fd07d419ce2e00f3e01ced, type: 3}
   - {fileID: 21300000, guid: 5d1527a661fbc80469340b32d5006604, type: 3}
@@ -692,13 +743,12 @@ MonoBehaviour:
   sleepFrames:
   - {fileID: 21300000, guid: 69697a44c67f2ec4796a3cedb9ec4781, type: 3}
   - {fileID: 21300000, guid: 96bf801253c1a8a479cac175795bac93, type: 3}
-  eatFrames:
-  - {fileID: 21300000, guid: e8f2535638e1f5b46bc387bf45ccb736, type: 3}
   climbFrames:
   - {fileID: 21300000, guid: 775b3a70ce319c54b83ab1642dc3905d, type: 3}
   - {fileID: 21300000, guid: 25fe765cab581274cbb63c457b76616c, type: 3}
   - {fileID: 21300000, guid: fb0154b7782f9274b8870b440389221d, type: 3}
   - {fileID: 21300000, guid: 9c31d1581265e684e843131cd8f39505, type: 3}
+  eatFrames: []
   litterFrames:
   - {fileID: 21300000, guid: 6d4b8206f9b005c0dbd09d66cd213ba6, type: 3}
   - {fileID: 21300000, guid: 072c89340704a7b894a97aad02495255, type: 3}
@@ -845,7 +895,6 @@ MonoBehaviour:
   cityMusic: {fileID: 8300000, guid: 9b2f8840c5cc9a4438f238730192e00f, type: 3}
   catStepSfx: {fileID: 8300000, guid: 83b85f0ad60dd2f4c8320a5fd9a33b33, type: 3}
   catMeowSfx:
-  - {fileID: 8300000, guid: c4250ceaf7f340340b55b128c25e7fec, type: 3}
   - {fileID: 8300000, guid: 8ee6684b2920ee2469bb9f8be53d7649, type: 3}
   - {fileID: 8300000, guid: 9bf4cac68b6988a45ab201a795cfbdb2, type: 3}
   - {fileID: 8300000, guid: e9ff62dc6bb098b42b15319ce6fc843f, type: 3}
@@ -858,7 +907,7 @@ MonoBehaviour:
   shopBuySfx: {fileID: 8300000, guid: 3a6bbf23fae4b4b46a2dffb5f3972946, type: 3}
   shopSellSfx: {fileID: 8300000, guid: d5cc0a87779a4f34c844720c195acf5d, type: 3}
   completionFaces: []
-  completionBackground: {fileID: 0}
+  completionBackground: {fileID: 21300000, guid: fb6cf618bf9dbe44c9d654248a0726dd, type: 3}
   failureBackground: {fileID: 21300000, guid: 053cd80549122ec45af532e8edea9419, type: 3}
   birdFrames:
   - {fileID: 21300000, guid: 746e147c872317a4ead6a70ab1adb73d, type: 3}

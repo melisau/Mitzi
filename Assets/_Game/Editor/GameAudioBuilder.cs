@@ -24,8 +24,8 @@ public static class GameAudioBuilder
         catalog.catStepSfx = Clip("cat_step", "wav");
         catalog.catMeowSfx = new[]
         {
-            Clip("cat_meow", "wav"), Clip("cat_meow2", "wav"),
-            Clip("cat_meow3", "wav"), Clip("cat_meow4", "wav")
+            // cat_meow.wav (~13 sn) bilerek dışarıda: oyunda çok uzun sürüyordu.
+            Clip("cat_meow2", "wav"), Clip("cat_meow3", "wav"), Clip("cat_meow4", "wav")
         };
         catalog.catHurtSfx = Clip("cat_hurt", "wav");
         catalog.catFallSfx = Clip("cat_fall", "wav");
