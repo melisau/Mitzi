@@ -21,11 +21,34 @@ namespace PawPath.Hub
             ? slots[(int)PawPath.Content.FurnitureSlotType.Water].position
             : new Vector3(-1.8f, -1.65f, 0f);
 
-        public bool HasPlacedWater => SaveService.Data != null &&
-            SaveService.Data.placedItemIds != null && SaveService.Data.placedItemIds.Contains("cat_water");
+        // Hangi model olursa olsun (çelik, bakır, krem…) o yerde bir eşya varsa yeterli.
+        public bool HasPlacedWater => HasPlacedInSlot(PawPath.Content.FurnitureSlotType.Water);
 
-        public bool HasPlacedBowl => SaveService.Data != null &&
-            SaveService.Data.placedItemIds != null && SaveService.Data.placedItemIds.Contains("food_bowl");
+        public bool HasPlacedBowl => HasPlacedInSlot(PawPath.Content.FurnitureSlotType.Bowl);
+
+        [SerializeField] private SpriteRenderer roomBackground;
+        [SerializeField] private Sprite defaultRoom;
+
+        public bool HasPlacedInSlot(PawPath.Content.FurnitureSlotType slot)
+        {
+            if (SaveService.Data == null || SaveService.Data.placedItemIds == null ||
+                GameFlow.Instance == null || GameFlow.Instance.Catalog == null)
+                return false;
+            foreach (var id in SaveService.Data.placedItemIds)
+            {
+                var item = GameFlow.Instance.Catalog.GetItem(id);
+                if (item != null && item.slotType == slot)
+                    return true;
+            }
+            return false;
+        }
+
+        /// <summary>Duvar rengi eşyaları odanın arka plan görselini değiştirir.</summary>
+        public void BindRoom(SpriteRenderer background, Sprite defaultSprite)
+        {
+            roomBackground = background;
+            defaultRoom = defaultSprite;
+        }
 
         private void OnEnable()
         {
@@ -64,14 +87,26 @@ namespace PawPath.Hub
                 }
             }
 
+            Sprite room = defaultRoom;
+
             if (SaveService.Data == null || SaveService.Data.placedItemIds == null)
+            {
+                ApplyRoom(room);
                 return;
+            }
 
             foreach (var id in SaveService.Data.placedItemIds)
             {
                 var item = GameFlow.Instance.Catalog.GetItem(id);
                 if (item == null)
                     continue;
+
+                if (item.slotType == PawPath.Content.FurnitureSlotType.Wallpaper)
+                {
+                    if (item.placedSprite != null)
+                        room = item.placedSprite;
+                    continue;
+                }
 
                 int slotIndex = (int)item.slotType;
                 if (slotIndex < 0 || slotIndex >= slots.Length)
@@ -99,23 +134,43 @@ namespace PawPath.Hub
                     interaction.Configure(item);
                 }
             }
+            ApplyRoom(room);
+        }
+
+        void ApplyRoom(Sprite sprite)
+        {
+            if (roomBackground == null || sprite == null)
+                return;
+            if (roomBackground.sprite == sprite)
+                return;
+            roomBackground.sprite = sprite;
+            var cam = Camera.main;
+            Vector2 size = sprite.bounds.size;
+            if (cam == null || size.x <= 0f || size.y <= 0f)
+                return;
+            // RuntimeBootstrap.FitSpriteToCamera ile aynı: ekranı kaplayacak kadar büyüt.
+            float height = cam.orthographicSize * 2f;
+            float width = height * cam.aspect;
+            float cover = Mathf.Max(width / size.x, height / size.y) * 1.12f;
+            roomBackground.transform.localScale = new Vector3(cover, cover, 1f);
         }
 
         static void FitItem(SpriteRenderer renderer, PawPath.Content.FurnitureSlotType type)
         {
             if (renderer.sprite == null || renderer.sprite.bounds.size.y <= 0f)
                 return;
+            // Görseller kırpılmış ve zemin gölgeli; ölçüler evdeki kediye (~2.2 birim) göre ayarlandı.
             float targetHeight = type switch
             {
-                PawPath.Content.FurnitureSlotType.Rug => 3.35f,
-                PawPath.Content.FurnitureSlotType.Bed => 3.30f,
-                PawPath.Content.FurnitureSlotType.Bowl => 0.76f,
-                PawPath.Content.FurnitureSlotType.Water => 1.52f,
-                PawPath.Content.FurnitureSlotType.Sand => 3.65f,
-                PawPath.Content.FurnitureSlotType.Poster => 3.10f,
-                PawPath.Content.FurnitureSlotType.Tree => 5.0f,
-                PawPath.Content.FurnitureSlotType.Toy => 1.05f,
-                _ => 5f
+                PawPath.Content.FurnitureSlotType.Rug => 1.35f,
+                PawPath.Content.FurnitureSlotType.Bed => 1.55f,
+                PawPath.Content.FurnitureSlotType.Bowl => 0.80f,
+                PawPath.Content.FurnitureSlotType.Water => 0.72f,
+                PawPath.Content.FurnitureSlotType.Sand => 2.85f,
+                PawPath.Content.FurnitureSlotType.Poster => 2.05f,
+                PawPath.Content.FurnitureSlotType.Tree => 4.40f,
+                PawPath.Content.FurnitureSlotType.Toy => 0.95f,
+                _ => 2f
             };
             float scale = targetHeight / renderer.sprite.bounds.size.y;
             renderer.transform.localScale = new Vector3(scale, scale, 1f);

@@ -193,6 +193,7 @@ namespace PawPath.UI
             {
                 iconImg.sprite = item.placedSprite;
                 iconImg.color = Color.white;
+                iconImg.preserveAspect = true;
             }
 
             var button = row.GetComponentInChildren<Button>();
@@ -208,7 +209,33 @@ namespace PawPath.UI
 
             button.onClick.RemoveAllListeners();
 
-            if (hasStock)
+            if (texts.Length > 2 && isPlaced)
+                texts[2].text = GameText.L("✓ Evde", "✓ In your home", "✓ Im Haus");
+            else if (texts.Length > 2 && isOwned)
+                texts[2].text = GameText.L("Sende (depoda)", "Owned (stored)", "Gekauft (gelagert)");
+
+            if (isOwned && !isPlaced)
+            {
+                // Sahip olunan ama kullanılmayan eşya: aynı yerdeki eşyanın yerine koy.
+                if (label != null)
+                {
+                    label.text = GameText.L("Yerleştir", "Place", "Aufstellen");
+                    label.color = Color.white;
+                }
+                var placeImg = button.GetComponent<Image>();
+                if (placeImg != null)
+                    placeImg.color = new Color(0.86f, 0.95f, 0.84f, 1f);
+                button.interactable = true;
+                var toPlace = item;
+                button.onClick.AddListener(() =>
+                {
+                    button.interactable = false;
+                    if (CozyEconomyManager.Instance != null && CozyEconomyManager.Instance.Place(toPlace))
+                        CozyAudioManager.Instance?.PlayConfirm();
+                    Rebuild();
+                });
+            }
+            else if (hasStock)
             {
                 // SAT BUTONU TASARIMI
                 if (label != null)

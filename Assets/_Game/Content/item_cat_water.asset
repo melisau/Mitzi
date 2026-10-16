@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: item_cat_water
   m_EditorClassIdentifier: 
   id: cat_water
-  displayName: "Su Kab\u0131"
-  description: "Kedilerin su i\xE7mek i\xE7in kullanaca\u011F\u0131 su kab\u0131."
+  displayName: "Krem Su Kabı"
+  description: "Kedilerin su içmek için kullanacağı seramik kap."
   lovePointCost: 25
-  icon: {fileID: 21300000, guid: 7f88172a9a4521b4ab0c67ddc8f51f08, type: 3}
-  placedSprite: {fileID: 21300000, guid: 7f88172a9a4521b4ab0c67ddc8f51f08, type: 3}
+  icon: {fileID: 21300000, guid: 1079fd375f6f43618c22a4f5deaf0232, type: 3}
+  placedSprite: {fileID: 21300000, guid: 1079fd375f6f43618c22a4f5deaf0232, type: 3}
   slotType: 5
   interactionType: 0
   interactionAnimation: {fileID: 0}

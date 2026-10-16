@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: item_cat_tree
   m_EditorClassIdentifier: 
   id: cat_tree
-  displayName: "Kedi A\u011Fac\u0131"
-  description: "T\u0131rmanmak, dinlenmek ve evi seyretmek i\xE7in."
+  displayName: "Taupe Kedi Ağacı"
+  description: "Tırmanmak, dinlenmek ve evi seyretmek için."
   lovePointCost: 80
-  icon: {fileID: 21300000, guid: 0494bb197d1aa914ea64234153e79244, type: 3}
-  placedSprite: {fileID: 21300000, guid: 0494bb197d1aa914ea64234153e79244, type: 3}
+  icon: {fileID: 21300000, guid: ee03b3ab32d544ddbfaa6d913201d4c8, type: 3}
+  placedSprite: {fileID: 21300000, guid: ee03b3ab32d544ddbfaa6d913201d4c8, type: 3}
   slotType: 7
   interactionType: 4
   interactionAnimation: {fileID: 0}
