@@ -24,7 +24,7 @@ Mitzi is a cozy, side-scrolling 2D cat game built with **Unity 2022.3.62f3** and
 
 1. In Unity Hub, add this repository as an **existing project** and open it with Unity **2022.3.62f3**.
 2. Open `Assets/Scenes/PawPath.unity` and press **Play**.
-3. If rebuilding a starter scene for a new setup, use **Paw Path > Build Starter Scene**. This regenerates the starter scene and catalog; do not use it casually on a customized project.
+3. **Paw Path > Build Starter Scene** is only for an empty project: it refuses to run when `PawPathCatalog.asset` or the scene already exists, so it can no longer wipe the shop catalog. To regenerate shop items and art, use `tools/render_furniture.py`, `tools/harmonize_furniture.py` and `tools/build_shop_catalog.py`.
 
 `Assets/Scenes/HubTest.unity` is a separate development scene. **Paw Path > Reset Save Data** deletes local progress for testing.
 

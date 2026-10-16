@@ -189,6 +189,9 @@ namespace PawPath.UI
             }
 
             var iconImg = row.transform.Find("Icon")?.GetComponent<Image>();
+            // Görseli olmayan eşyada beyaz kare göstermek yerine ikonu gizle.
+            if (iconImg != null)
+                iconImg.enabled = item.placedSprite != null;
             if (iconImg != null && item.placedSprite != null)
             {
                 iconImg.sprite = item.placedSprite;

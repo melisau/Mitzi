@@ -37,7 +37,31 @@ namespace PawPath.Core
                 if (staleHud != null)
                     staleHud.gameObject.SetActive(false);
             }
+            if (catalog == null)
+                Debug.LogError("[PawPath] RuntimeBootstrap'a katalog atanmamış; yedek katalog kullanılıyor (dükkan eşyaları görselsiz olur).");
+            else
+                WarnIfCatalogLooksReset(catalog);
             Build(catalog != null ? catalog : CatalogFactory.CreateRuntime());
+        }
+
+        /// <summary>
+        /// "Paw Path > Build Starter Scene" eskiden kataloğu kod içi yedekle değiştiriyordu:
+        /// görselsiz 4 eşya kalıyordu. Böyle bir katalog fark edilirse konsolda açıkça uyar.
+        /// </summary>
+        static void WarnIfCatalogLooksReset(PawPathCatalog value)
+        {
+            int missing = 0, total = 0;
+            if (value.shopItems != null)
+                foreach (var item in value.shopItems)
+                {
+                    if (item == null) continue;
+                    total++;
+                    if (item.placedSprite == null) missing++;
+                }
+            if (total == 0 || missing > 0)
+                Debug.LogError($"[PawPath] Dükkan kataloğu eksik görünüyor ({total} eşya, {missing} tanesi görselsiz). " +
+                    "PawPathCatalog.asset sıfırlanmış olabilir: dosyadaki yerel değişiklikleri geri al (git) veya " +
+                    "'python3 tools/build_shop_catalog.py' çalıştır.");
         }
 
         public static GameFlow Build(PawPathCatalog catalog)
@@ -59,6 +83,9 @@ namespace PawPath.Core
 
             var root = new GameObject("PawPath");
             var flow = root.AddComponent<GameFlow>();
+            // Diğer bileşenler (dükkan, eşyalar) GameFlow.Instance.Catalog'u okur; kurulumun
+            // ortasında bir hata olsa bile yanlış (yedek) katalogda kalınmasın diye ilk iş bağla.
+            flow.BindCatalog(catalog);
             root.AddComponent<CozyEconomyManager>();
             root.AddComponent<RewardedAdService>();
             var audio = root.AddComponent<CozyAudioManager>();
