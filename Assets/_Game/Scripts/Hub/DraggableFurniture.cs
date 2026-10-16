@@ -14,9 +14,9 @@ namespace PawPath.Hub
         bool dragging;
         Vector2 grabOffset;
 
-        string KeyX => $"PawPath.Furniture.{slotType}.X";
-        string KeyY => $"PawPath.Furniture.{slotType}.Y";
-        string KeyFlip => $"PawPath.Furniture.{slotType}.Flip";
+        string KeyX => $"PawPath.Furniture.v2.{slotType}.X";
+        string KeyY => $"PawPath.Furniture.v2.{slotType}.Y";
+        string KeyFlip => $"PawPath.Furniture.v2.{slotType}.Flip";
 
         // Ev eşyaları yalnızca yerleştirme ve tıklama etkileşimi içindir.
         // Kedilerin tıklanan hedefe yürümesini fiziksel ya da rota engeli olarak

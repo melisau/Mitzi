@@ -83,7 +83,7 @@ namespace PawPath.EditorTools
 
             var controller = GetOrCreateController(clip);
             AssignToSecondCat(controller, frames[0]);
-            AssetDatabase.SaveAssets();
+            EditorSave.Save(clip, controller, AssetDatabase.LoadAssetAtPath<PawPathCatalog>(CatalogPath));
 
             if (logSuccess)
             {

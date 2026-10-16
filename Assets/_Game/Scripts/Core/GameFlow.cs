@@ -54,12 +54,18 @@ namespace PawPath.Core
 
             Instance = this;
             SaveService.Load();
-            if (catalog == null)
-                catalog = CatalogFactory.CreateRuntime();
+            // Katalog burada kurulmaz: RuntimeBootstrap bileşeni ekledikten hemen sonra
+            // BindCatalog ile asıl kataloğu verir. (AddComponent, Awake'i hemen çalıştırır.)
         }
 
         void Start()
         {
+            if (catalog == null)
+            {
+                Debug.LogError("[PawPath] Katalog bağlanmadı; içi boş yedek katalog kullanılıyor. " +
+                    "Sahnedeki RuntimeBootstrap'ın 'catalog' alanına Assets/_Game/Content/PawPathCatalog.asset atanmalı.");
+                catalog = CatalogFactory.CreateRuntime();
+            }
             EnterHub();
         }
 

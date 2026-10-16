@@ -1,0 +1,60 @@
+# Mitzi — Google Play yayın listesi
+
+Bu liste, kodda yapılamayan ve Unity Editor / Play Console'da elle yapılması gereken adımları sırayla toplar. Oynanış testleri için [QA_CHECKLIST.md](QA_CHECKLIST.md) dosyasına bak.
+
+## 1. Unity sürümü (zorunlu)
+
+Google Play, 31 Ağustos 2026'dan beri yeni uygulama ve güncellemelerde **Android 16 (API 36)** hedefi istiyor. Unity 2022.3'te API 36 hedeflemek için **2022.3.62f1 veya daha yeni** bir 2022.3 LTS sürümü gerekir.
+
+Proje **2022.3.62f3** sürümüne yükseltildi (Unity'nin herkese açık son 2022.3 sürümü).
+
+1. Unity Hub → Installs → Install Editor → Archive bölümünden ya da `unityhub://2022.3.62f3/96770f904ca7` bağlantısıyla **2022.3.62f3**'ü **Android Build Support** (OpenJDK + Android SDK & NDK) modülüyle kur.
+2. Projeyi bu sürümle aç (Hub'da sürümü değiştir). Yükseltme uyarısını onayla.
+3. Edit → Preferences → External Tools'ta SDK/NDK/JDK'nın "Installed with Unity" olarak işaretli olduğunu kontrol et. Derlemede `build-tools` hatası alırsan Android Studio SDK Manager'dan **Build-Tools 36** paketini kur.
+
+## 2. Player Settings (repoda ayarlandı — kontrol et)
+
+Project Settings → Player → Android:
+
+| Ayar | Değer |
+| --- | --- |
+| Scripting Backend | IL2CPP |
+| Target Architectures | ARMv7 + **ARM64** |
+| Minimum API Level | 23 |
+| Target API Level | 36 |
+| Package Name | `com.mitzicat.game` (Android ve iOS) — **Play'e ilk yüklemeden sonra değiştirilemez.** "Override Default Package Name" açık olmalı; kapalıysa Unity adı Company Name'den türetir. |
+| Version / Bundle Version Code | Her yüklemede Bundle Version Code'u 1 artır. |
+
+## 3. Elle yapılacaklar
+
+- [x] **İkon:** `Assets/_Game/Art/AppIcon/` — varsayılan ikon (`app_icon.png`) ve Android uyarlanabilir ikon katmanları (`app_icon_bg.png` + `app_icon_fg.png`) Player Settings'e atandı. Play mağazası için 512×512 sürümü ayrıca verildi.
+- [x] **İmza anahtarı:** `mitzi-upload.keystore` (alias `mitzi`, RSA 4096, 2054'e kadar geçerli) oluşturuldu. Dosya ve şifre **repoda değil**; güvenli bir yerde sakla. CI, `ANDROID_KEYSTORE_*` secret'larıyla imzalı `.aab` üretir (bkz. `.github/CI_SETUP.md`). Play Console'da **Play App Signing** açık kalsın; bu anahtar yalnız *yükleme anahtarı* olur, kaybolursa Google'dan sıfırlatılabilir.
+- [ ] **Splash:** Unity Personal'da Unity logosu zorunludur; istersen kendi logonu ekleyebilirsin.
+- [ ] **Derleme:** File → Build Settings → Android → **Build App Bundle (Google Play)** işaretli → Build. Çıktı `.aab` olmalı.
+- [ ] Önce **Development Build** ile gerçek telefonda QA listesini çalıştır, ardından işaretsiz release derlemesini al.
+
+## 4. Play Console
+
+- [ ] Geliştirici hesabı (tek seferlik 25 USD). **Kişisel hesaplarda** üretime çıkmadan önce kapalı testte belirli sayıda test kullanıcısının belirli bir süre test etmesi gerekiyor; güncel koşulu Play Console'da kontrol et.
+- [ ] Mağaza girişi (TR + EN): kısa açıklama (80 karakter), uzun açıklama, 512×512 ikon, 1024×500 öne çıkan görsel, en az 2 telefon ekran görüntüsü (yatay).
+- [ ] Gizlilik politikası URL'si.
+- [ ] İçerik derecelendirme anketi, hedef kitle ve içerik, Data Safety formu, reklam beyanı ("Uygulama reklam içeriyor").
+
+## 5. Oyun içi dil
+
+Oyun **Türkçe, İngilizce ve Almanca** destekler. İlk açılışta cihaz dili Türkçeyse Türkçe, Almancaysa Almanca, diğer dillerde İngilizce başlar. Ayarlar → Dil'den değiştirilebilir; değişince sahne yeniden yüklenir. Yeni metin eklerken `GameText.L("Türkçe", "English", "Deutsch")` kullan. Play Console mağaza girişini de bu üç dilde hazırla.
+
+## 6. Reklam (AdMob, çocuk kitlesine uygun)
+
+Oyunun hedef kitlesi çocukları da kapsıyor; bu yüzden Google Play **Families politikası** geçerli. Kurulum buna göre yapıldı:
+
+- Yalnızca **ödüllü reklam** var (Kedi Evi → "Reklam izle: +20 Sevgi", günde en fazla 3). Oyunu kesen geçiş veya banner reklamı yok.
+- Tüm istekler çocuğa yönelik işaretli (`TagForChildDirectedTreatment`, `TagForUnderAgeOfConsent`), en fazla **G** içerik, kişiselleştirilmiş reklam yok.
+- `AD_ID` izni manifest'ten çıkarıldı (`Assets/Plugins/Android/AndroidManifest.xml`).
+- Şu an Google'ın **test** kimlikleri kullanılıyor; gelir getirmez. Yayından önce:
+  - [ ] admob.google.com'da hesap aç, Android uygulaması ekle (paket: `com.mitzicat.game`).
+  - [ ] AdMob → Uygulama ayarları → **Çocuklara yönelik** (child-directed) ayarlarını işaretle.
+  - [ ] Uygulama kimliğini Unity'de **Assets → Google Mobile Ads → Settings**'e gir.
+  - [ ] Bir **ödüllü reklam birimi** oluştur, kimliğini `Assets/_Game/Scripts/Ads/AdsConfig.cs` → `ProductionRewardedAndroid` alanına yaz.
+  - [ ] Play Console → Uygulama içeriği → Hedef kitle: çocuk yaş gruplarını + 13 yaş üstünü seç; Reklamlar: "Evet, reklam içeriyor".
+  - [ ] Kendi reklamlarına tıklama (hesap askıya alınabilir); Development Build zaten test reklamı gösterir.

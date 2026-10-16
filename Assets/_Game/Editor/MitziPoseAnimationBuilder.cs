@@ -69,7 +69,7 @@ namespace PawPath.EditorTools
             if (crouchClip != null)
                 SetStateMotion(stateMachine, "Crouch", crouchClip);
             EditorUtility.SetDirty(controller);
-            AssetDatabase.SaveAssets();
+            EditorSave.Save(controller, sitClip, jumpClip, crouchClip);
 
             if (logSuccess)
                 Debug.Log("Mitzi için dört karelik oturma ve zıplama/düşme animasyonları hazırlandı.");

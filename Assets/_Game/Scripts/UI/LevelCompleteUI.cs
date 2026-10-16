@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using PawPath.Core;
+using PawPath.Localization;
 
 namespace PawPath.UI
 {
@@ -27,10 +28,10 @@ namespace PawPath.UI
             gameObject.SetActive(true);
 
             if (levelTitleText != null)
-                levelTitleText.text = $"Bölüm {completedLevel} Tamamlandı!";
+                levelTitleText.text = GameText.LevelCompletedLabel(completedLevel);
 
             if (rewardText != null)
-                rewardText.text = $"Kazandın!  +{reward} Sevgi";
+                rewardText.text = GameText.L($"Kazandın!  +{reward} Sevgi", $"You won!  +{reward} Love", $"Gewonnen!  +{reward} Liebe");
 
             if (celebrationImage != null && celebrationFaces != null && celebrationFaces.Length > 0)
             {

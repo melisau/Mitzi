@@ -137,7 +137,8 @@ namespace PawPath.EditorTools
             }
 
             EditorUtility.SetDirty(catalog);
-            AssetDatabase.SaveAssets();
+            // Yalnız katalog ve kedi tanımlarını kaydet (paket klasörlerine yazmaya çalışma).
+            EditorSave.Save(catalog.cats.Where(c => c != null).Cast<Object>().Append(catalog).ToArray());
             Debug.Log($"{built}/{CatIds.Length} kedi için yürüme, zıplama, oturma, uyuma, yeme ve tırmanma animasyonları kuruldu.");
             return built;
         }

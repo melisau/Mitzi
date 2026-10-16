@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: item_cat_poster
   m_EditorClassIdentifier: 
   id: cat_poster
-  displayName: Kedi Posteri
-  description: "Duvara as\u0131lan ne\u015Feli kedi posteri."
+  displayName: "Mitzi Posteri: Kanepe"
+  description: "Mitzi'nin kanepede poz verdiği çerçeveli fotoğraf."
   lovePointCost: 30
-  icon: {fileID: 21300000, guid: 14c2f3d22f9461c4b948cca0a084a688, type: 3}
-  placedSprite: {fileID: 21300000, guid: 14c2f3d22f9461c4b948cca0a084a688, type: 3}
+  icon: {fileID: 21300000, guid: 603180df8c4645f1bd459a61a88417f8, type: 3}
+  placedSprite: {fileID: 21300000, guid: 603180df8c4645f1bd459a61a88417f8, type: 3}
   slotType: 4
   interactionType: 0
   interactionAnimation: {fileID: 0}

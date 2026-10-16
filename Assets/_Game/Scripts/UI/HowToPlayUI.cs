@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using PawPath.Core;
+using PawPath.Localization;
 
 namespace PawPath.UI
 {
@@ -201,8 +202,8 @@ namespace PawPath.UI
             {
                 new Page
                 {
-                    title = "Hoş geldin!",
-                    body = "Kedine bak, onu sev ve onunla maceraya çık.",
+                    title = GameText.L("Hoş geldin!", "Welcome!", "Willkommen!"),
+                    body = GameText.L("Kedine bak, onu sev ve onunla maceraya çık.", "Care for your cat, love it and go on adventures together.", "Kümmere dich um deine Katze, hab sie lieb und erlebe Abenteuer mit ihr."),
                     art = new[]
                     {
                         Tinted(CozyIconFactory.HappyCatFace(), Brown, Cream),
@@ -212,8 +213,8 @@ namespace PawPath.UI
                 },
                 new Page
                 {
-                    title = "Kediyi sev",
-                    body = "Parmağını kedinin üstünde gezdir. Kedi mırlar, sevgisi artar.",
+                    title = GameText.L("Kediyi sev", "Pet your cat", "Streichle deine Katze"),
+                    body = GameText.L("Parmağını kedinin üstünde gezdir. Kedi mırlar, sevgisi artar.", "Slide your finger over the cat. It purrs and its love grows.", "Fahr mit dem Finger über die Katze. Sie schnurrt und hat dich lieber."),
                     art = new[]
                     {
                         Tinted(CozyIconFactory.PettingHand(), Color.white, Cream),
@@ -222,8 +223,8 @@ namespace PawPath.UI
                 },
                 new Page
                 {
-                    title = "Kedine bak",
-                    body = "Mama, su ve uyku düğmelerine bas. Bir kap kırmızıya dönüp sallanırsa kedin onu istiyor.",
+                    title = GameText.L("Kedine bak", "Look after your cat", "Versorge deine Katze"),
+                    body = GameText.L("Mama, su ve uyku düğmelerine bas. Bir kap kırmızıya dönüp sallanırsa kedin onu istiyor.", "Tap the food, water and sleep buttons. If a bowl turns red and wiggles, your cat needs it.", "Tippe auf Futter, Wasser und Schlafen. Wird ein Napf rot und wackelt, braucht deine Katze ihn."),
                     art = new[]
                     {
                         OnCircle(CozyIconFactory.FoodBowl(), Food),
@@ -233,8 +234,8 @@ namespace PawPath.UI
                 },
                 new Page
                 {
-                    title = "Maceraya çık",
-                    body = "Yeşil OYNA düğmesine bas. Sonra nasıl oynayacağını ve nereye gideceğini seç.",
+                    title = GameText.L("Maceraya çık", "Go on an adventure", "Auf ins Abenteuer"),
+                    body = GameText.L("Yeşil OYNA düğmesine bas. Sonra nasıl oynayacağını ve nereye gideceğini seç.", "Tap the green PLAY button. Then choose how to play and where to go.", "Tippe auf den grünen SPIELEN-Knopf. Dann wähle, wie du spielst und wohin es geht."),
                     art = new[]
                     {
                         OnCircle(CozyIconFactory.Play(), Play),
@@ -244,8 +245,8 @@ namespace PawPath.UI
                 },
                 new Page
                 {
-                    title = "Çizerek oyna",
-                    body = "Boşluklara parmağınla yol çiz, kedi üstünden geçsin. Mavi yol zıplatır, buz kaydırır.",
+                    title = GameText.L("Çizerek oyna", "Draw to play", "Zeichnen & spielen"),
+                    body = GameText.L("Boşluklara parmağınla yol çiz, kedi üstünden geçsin. Mavi yol zıplatır, buz kaydırır.", "Draw paths over the gaps with your finger so the cat can cross. Blue paths bounce, ice slides.", "Zeichne mit dem Finger Wege über die Lücken, damit die Katze hinüberkommt. Blau federt, Eis rutscht."),
                     art = new[]
                     {
                         OnCircle(CozyIconFactory.Pencil(), DrawMode),
@@ -255,8 +256,8 @@ namespace PawPath.UI
                 },
                 new Page
                 {
-                    title = "Tuşlarla oyna",
-                    body = "Oklarla yürü, yukarı okla zıpla. Köpeklerin üstüne zıpla ya da ağaca tırman!",
+                    title = GameText.L("Tuşlarla oyna", "Play with buttons", "Mit Tasten spielen"),
+                    body = GameText.L("Oklarla yürü, yukarı okla zıpla. Köpeklerin üstüne zıpla ya da ağaca tırman!", "Walk with the arrows, jump with the up arrow. Jump on dogs or climb a tree!", "Lauf mit den Pfeilen, spring mit dem Pfeil nach oben. Spring auf Hunde oder kletter auf einen Baum!"),
                     art = new[]
                     {
                         OnCircle(CozyIconFactory.ArrowLeft(), Control),
@@ -266,8 +267,8 @@ namespace PawPath.UI
                 },
                 new Page
                 {
-                    title = "Topla ve süsle",
-                    body = "Uçan kuşları yakala, para kazan. Dükkândan evine eşya al. Her 5 bölümde yeni bir kedi kurtar!",
+                    title = GameText.L("Topla ve süsle", "Collect and decorate", "Sammeln und einrichten"),
+                    body = GameText.L("Uçan kuşları yakala, para kazan. Dükkândan evine eşya al. Her 5 bölümde yeni bir kedi kurtar!", "Catch flying birds to earn coins. Buy things for your home in the shop. Rescue a new cat every 5 levels!", "Fang fliegende Vögel und verdiene Münzen. Kauf Sachen fürs Haus im Laden. Rette alle 5 Level eine neue Katze!"),
                     art = new[]
                     {
                         Tinted(CozyIconFactory.Coin(), Color.white, Cream),

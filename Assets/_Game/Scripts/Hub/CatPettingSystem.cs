@@ -133,7 +133,7 @@ namespace PawPath.Hub
                     }
                     else if (worldLoveText != null)
                     {
-                        worldLoveText.text = "Günlük okşama sınırı doldu";
+                        worldLoveText.text = GameText.L("Günlük okşama sınırı doldu", "Daily petting limit reached", "Tägliches Streichellimit erreicht");
                     }
                 }
             }
@@ -202,7 +202,7 @@ namespace PawPath.Hub
             if (loveText == null || cat == null || CatNeedsSystem.Instance == null)
                 return;
             int affection = CatNeedsSystem.Instance.GetNeeds(cat.id).affection;
-            loveText.text = $"💖 {cat.displayName} sevgisi: {affection}/100";
+            loveText.text = "💖 " + GameText.AffectionLabel(cat, affection);
         }
 
         void EnsureWorldLoveText()
@@ -234,7 +234,7 @@ namespace PawPath.Hub
             if (worldLoveText == null || cat == null || CatNeedsSystem.Instance == null)
                 return;
             int affection = CatNeedsSystem.Instance.GetNeeds(cat.id).affection;
-            worldLoveText.text = $"{cat.displayName} sevgisi: {affection}/100";
+            worldLoveText.text = GameText.AffectionLabel(cat, affection);
         }
 
         void SpawnFloatingText()

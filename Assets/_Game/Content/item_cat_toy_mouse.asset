@@ -13,12 +13,11 @@ MonoBehaviour:
   m_Name: item_cat_toy_mouse
   m_EditorClassIdentifier: 
   id: cat_toy_mouse
-  displayName: Oyuncak Fare
-  description: "Mitzi'nin pe\u015Finden ko\u015Fup patileriyle oynayabilece\u011Fi
-    yumu\u015Fak fare."
+  displayName: "Gri Oyuncak Fare"
+  description: "Mitzi'nin peşinden koşup patileriyle oynayabileceği yumuşak fare."
   lovePointCost: 30
-  icon: {fileID: 21300000, guid: 6794b708a8026854f9048d1b9d080ef6, type: 3}
-  placedSprite: {fileID: 21300000, guid: 6794b708a8026854f9048d1b9d080ef6, type: 3}
+  icon: {fileID: 21300000, guid: 154617c1dcb9498fb4566336e4ecc486, type: 3}
+  placedSprite: {fileID: 21300000, guid: 154617c1dcb9498fb4566336e4ecc486, type: 3}
   slotType: 8
   interactionType: 2
   interactionAnimation: {fileID: 0}

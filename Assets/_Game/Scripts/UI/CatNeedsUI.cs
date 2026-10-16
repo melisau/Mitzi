@@ -6,6 +6,7 @@ using PawPath.Core;
 using PawPath.Hub;
 using PawPath.Audio;
 using PawPath.Content;
+using PawPath.Localization;
 
 namespace PawPath.UI
 {
@@ -125,7 +126,7 @@ namespace PawPath.UI
                 return;
             if (HubFurnitureView.Instance == null || !HubFurnitureView.Instance.HasPlacedBowl)
             {
-                ShowMissingItemHint(feedButton, "Önce dükkândan mama kabı al.");
+                ShowMissingItemHint(feedButton, GameText.L("Önce dükkândan mama kabı al.", "Buy a food bowl from the shop first.", "Kauf zuerst einen Futternapf im Laden."));
                 return;
             }
             // Kedi kabın önüne yürür, yer; mama değeri yemek bitince dolar.
@@ -143,7 +144,7 @@ namespace PawPath.UI
                 return;
             if (HubFurnitureView.Instance == null || !HubFurnitureView.Instance.HasPlacedWater)
             {
-                ShowMissingItemHint(waterButton, "Önce dükkândan su kabı al.");
+                ShowMissingItemHint(waterButton, GameText.L("Önce dükkândan su kabı al.", "Buy a water bowl from the shop first.", "Kauf zuerst einen Wassernapf im Laden."));
                 return;
             }
             // Kedi su kabının önüne yürür, içer; su değeri içince dolar.

@@ -7,6 +7,7 @@ using PawPath.Economy;
 using PawPath.Levels;
 using PawPath.Gameplay;
 using PawPath.Audio;
+using PawPath.Localization;
 
 namespace PawPath.Cat
 {
@@ -39,6 +40,8 @@ namespace PawPath.Cat
         CircleCollider2D bodyCollider;
         SpriteRenderer sprite;
         Animator animator;
+        // Kontrolcüsü olmayan Animator'a Play/speed göndermek konsolu uyarıyla doldurur.
+        bool HasAnimator => animator != null && animator.runtimeAnimatorController != null;
         Vector3 spawnPosition;
         bool busy;
         float airTimer;
@@ -338,7 +341,7 @@ namespace PawPath.Cat
                 airTimer = 0f;
                 float speed = surface == PathSurfaceType.Ice ? moveSpeed * iceSpeedMultiplier : moveSpeed;
                 body.velocity = new Vector2(facing * speed, body.velocity.y);
-                if (animator != null)
+                if (HasAnimator)
                     animator.speed = walkAnimationSpeed;
             }
             else
@@ -349,7 +352,7 @@ namespace PawPath.Cat
                 // tepede asılı kalıyordu; havadayken de ileri momentumunu sürdürüyor.
                 float airSpeed = surface == PathSurfaceType.Ice ? moveSpeed * iceSpeedMultiplier : moveSpeed;
                 body.velocity = new Vector2(facing * airSpeed, body.velocity.y);
-                if (animator != null)
+                if (HasAnimator)
                     animator.speed = jumpAnimationPlaying ? 1f : 0f;
             }
 
@@ -401,7 +404,7 @@ namespace PawPath.Cat
             if (shouldCrouch != crouching)
             {
                 crouching = shouldCrouch;
-                if (animator != null)
+                if (HasAnimator)
                 {
                     if (crouching && grounded && animator.HasState(0, CrouchState))
                     {
@@ -424,7 +427,7 @@ namespace PawPath.Cat
                 }
             }
 
-            if (animator != null)
+            if (HasAnimator)
                 animator.speed = crouching && grounded
                     ? 0f
                     : !grounded && jumpAnimationPlaying
@@ -460,7 +463,7 @@ namespace PawPath.Cat
 
         void UpdateJumpAnimation(bool grounded)
         {
-            if (animator == null)
+            if (!HasAnimator)
                 return;
 
             if (!grounded && !jumpAnimationPlaying && animator.HasState(0, JumpState))
@@ -527,7 +530,7 @@ namespace PawPath.Cat
                 CozyEconomyManager.Instance.RemoveLove(10, "Kırmızı yola temas");
             yield return new WaitForSeconds(0.35f);
             busy = false;
-            GameFlow.Instance?.ShowLevelFailure("Tehlikeli alana temas ettin. Daha güvenli bir yol dene!");
+            GameFlow.Instance?.ShowLevelFailure(GameText.L("Tehlikeli alana temas ettin. Daha güvenli bir yol dene!", "You touched a danger zone. Try a safer path!", "Du hast eine Gefahrenzone berührt. Versuch einen sichereren Weg!"));
         }
 
         public void FlipTowards(Vector2 target)
@@ -556,7 +559,7 @@ namespace PawPath.Cat
             body.velocity = Vector2.zero;
             airTimer = 0f;
             busy = false;
-            GameFlow.Instance?.ShowLevelFailure("Kedi çukura düştü. Zıplama zamanını veya çizdiğin yolu değiştir!");
+            GameFlow.Instance?.ShowLevelFailure(GameText.L("Kedi çukura düştü. Zıplama zamanını veya çizdiğin yolu değiştir!", "Your cat fell into a gap. Change your jump timing or the path you drew!", "Deine Katze ist in eine Lücke gefallen. Spring zu einem anderen Zeitpunkt oder ändere deinen Weg!"));
         }
 
         public void BindVisual(Transform vis, SpriteRenderer bubble)

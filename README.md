@@ -1,6 +1,6 @@
 # Mitzi (Paw Path)
 
-Mitzi is a cozy, side-scrolling 2D cat game built with **Unity 2022.3.50f1** and the Built-in Render Pipeline. Guide a cat across gaps and obstacles, collect rewards, and care for your growing group of cats at home. The project is playable but is still under development and has not been validated on physical devices.
+Mitzi is a cozy, side-scrolling 2D cat game built with **Unity 2022.3.62f3** and the Built-in Render Pipeline. Guide a cat across gaps and obstacles, collect rewards, and care for your growing group of cats at home. The project is playable but is still under development and has not been validated on physical devices.
 
 ## Current gameplay
 
@@ -9,6 +9,7 @@ Mitzi is a cozy, side-scrolling 2D cat game built with **Unity 2022.3.50f1** and
 - The first five levels use introductory layouts. Later levels vary gap and mound placement deterministically by level number, so replaying the same level keeps its layout.
 - Reach the finish gate to advance. Falling or touching a hazard opens a failure screen with a retry option. A new cat can be rescued every five completed levels. The default roster is Mitzi, Pamuk, Kömür, Tarçın, Ada, and Moka.
 - At home, select a cat and tap the floor to send it there, or tap an interactive item such as a food bowl, litter box, or cat tree. Buy, place, move, and flip furniture in the shop and home editor.
+- The game is available in **Turkish, English and German**. The starting language follows the device language (Turkish/German, otherwise English) and can be changed in Settings.
 - Music and sound effects have separate mute controls. Progress is saved locally as versioned JSON in Unity `PlayerPrefs`, with a last-known-good backup. The save includes level progress, Love Points, selected and unlocked cats, owned/placed items, and per-cat care values.
 
 ## Controls
@@ -21,9 +22,9 @@ Mitzi is a cozy, side-scrolling 2D cat game built with **Unity 2022.3.50f1** and
 
 ## Open the project
 
-1. In Unity Hub, add this repository as an **existing project** and open it with Unity **2022.3.50f1**.
+1. In Unity Hub, add this repository as an **existing project** and open it with Unity **2022.3.62f3**.
 2. Open `Assets/Scenes/PawPath.unity` and press **Play**.
-3. If rebuilding a starter scene for a new setup, use **Paw Path > Build Starter Scene**. This regenerates the starter scene and catalog; do not use it casually on a customized project.
+3. **Paw Path > Build Starter Scene** is only for an empty project: it refuses to run when `PawPathCatalog.asset` or the scene already exists, so it can no longer wipe the shop catalog. To regenerate shop items and art, use `tools/render_furniture.py`, `tools/harmonize_furniture.py` and `tools/build_shop_catalog.py`.
 
 `Assets/Scenes/HubTest.unity` is a separate development scene. **Paw Path > Reset Save Data** deletes local progress for testing.
 

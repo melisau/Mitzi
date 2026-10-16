@@ -81,7 +81,7 @@ namespace PawPath.EditorTools
             catalogAsset.forestGroundUnderfillSprite = forestUnderfill;
             catalogAsset.finishPortalSprite = finishPortal;
             EditorUtility.SetDirty(catalogAsset);
-            AssetDatabase.SaveAssets();
+            EditorSave.Save(catalogAsset);
             Debug.Log("[PawPath] Ev, mağaza, sokak ve orman tema görselleri güncellendi.");
         }
 
@@ -110,8 +110,20 @@ namespace PawPath.EditorTools
             if (!AssetDatabase.IsValidFolder("Assets/Scenes"))
                 AssetDatabase.CreateFolder("Assets", "Scenes");
 
-            var catalog = CatalogFactory.CreateRuntime();
             var catalogPath = ContentDir + "/PawPathCatalog.asset";
+            // Proje zaten kurulu: mevcut katalog (25 dükkan eşyası, kediler, görseller) ve
+            // sahne asla yedek içerikle ezilmez. Bu komut yalnız boş bir projeyi ilk kez kurar.
+            if (AssetDatabase.LoadAssetAtPath<PawPathCatalog>(catalogPath) != null ||
+                AssetDatabase.LoadAssetAtPath<SceneAsset>(ScenePath) != null)
+            {
+                EditorUtility.DisplayDialog("Paw Path",
+                    "Proje zaten kurulu. Bu komut mevcut kataloğu ve sahneyi silerdi; bu yüzden hiçbir şey değiştirilmedi.\n\n" +
+                    "Oyunu başlatmak için " + ScenePath + " sahnesini açıp Play'e bas.",
+                    "Tamam");
+                return;
+            }
+
+            var catalog = CatalogFactory.CreateRuntime();
             AssetDatabase.CreateAsset(catalog, catalogPath);
             foreach (var cat in catalog.cats)
                 AssetDatabase.AddObjectToAsset(cat, catalog);
@@ -120,7 +132,7 @@ namespace PawPath.EditorTools
             foreach (var level in catalog.levels)
                 AssetDatabase.AddObjectToAsset(level, catalog);
             EditorUtility.SetDirty(catalog);
-            AssetDatabase.SaveAssets();
+            EditorSave.Save(catalog);
 
             var scene = EditorSceneManager.NewScene(NewSceneSetup.DefaultGameObjects, NewSceneMode.Single);
             var bootstrap = new GameObject("RuntimeBootstrap");

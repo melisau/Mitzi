@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using PawPath.Core;
 using System;
+using PawPath.Localization;
 
 namespace PawPath.UI
 {
@@ -69,21 +70,21 @@ namespace PawPath.UI
 
             int selected = GetSelectedTheme(SaveService.Data.highestCompletedLevel + 1);
             if (streetButton != null)
-                SetLabel(streetButton, selected == 0 ? "✓ Sokak" : "Sokak");
+                SetLabel(streetButton, GameText.Checked(GameText.L("Sokak", "Street", "Straße"), selected == 0));
             if (forestButton != null)
             {
                 forestButton.interactable = true;
-                SetLabel(forestButton, selected == 1 ? "✓ Orman" : "Orman");
+                SetLabel(forestButton, GameText.Checked(GameText.L("Orman", "Forest", "Wald"), selected == 1));
             }
             if (cityButton != null)
             {
                 cityButton.interactable = true;
-                SetLabel(cityButton, selected == 2 ? "✓ Cadde" : "Cadde");
+                SetLabel(cityButton, GameText.Checked(GameText.L("Cadde", "City", "Stadt"), selected == 2));
             }
             if (cyberButton != null)
             {
                 cyberButton.interactable = true;
-                SetLabel(cyberButton, selected == 3 ? "✓ Neo Teknoloji" : "Neo Teknoloji");
+                SetLabel(cyberButton, GameText.Checked(GameText.L("Neo Teknoloji", "Neo Tech", "Neo-Tech"), selected == 3));
             }
         }
 
