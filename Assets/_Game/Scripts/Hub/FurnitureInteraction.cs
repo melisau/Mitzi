@@ -189,6 +189,9 @@ namespace PawPath.Hub
 
             // Su kabının kendi karesi yok; başını eğip yeme kareleri içme için de uygun.
             Sprite[] frames = action == CareAction.Eat ? item?.interactionFrames : null;
+            // Kedinin kendi rengindeki yeme karesi varsa ortak (gri) karelerin yerine onu kullan.
+            if (HasFrames(cat.Definition != null ? cat.Definition.eatFrames : null))
+                frames = cat.Definition.eatFrames;
             if ((frames == null || frames.Length == 0) && GameFlow.Instance != null && GameFlow.Instance.Catalog != null)
             {
                 var bowl = GameFlow.Instance.Catalog.GetItem("food_bowl");
@@ -293,7 +296,7 @@ namespace PawPath.Hub
             {
                 // Coroutine zorla kesilmez; son kareden sonra sprite, ölçek ve
                 // Animator her durumda normal haline geri döner.
-                yield return PlayInteractionFrames(cat, item.interactionFrames, 2.4f);
+                yield return PlayInteractionFrames(cat, OwnOrShared(cat.Definition.eatFrames, item.interactionFrames), 2.4f);
                 CatNeedsSystem.Instance?.FeedCat(cat.Definition.id);
                 running = false;
                 yield break;
@@ -301,16 +304,20 @@ namespace PawPath.Hub
             if (item.interactionType == ItemInteractionType.Climbing)
             {
                 Sprite[] climbFrames = cat.Definition != null && cat.Definition.useDetailedHomeAnimations
-                    ? item.interactionFrames : null;
+                    ? OwnOrShared(cat.Definition.climbFrames, item.interactionFrames) : null;
                 yield return PlaySmallHomeClimb(cat, climbFrames);
                 CatNeedsSystem.Instance?.RewardInteraction(3, "Kedi ağacına tırmanma");
                 running = false;
                 yield break;
             }
+            Sprite[] ownLitter = cat.Definition != null ? cat.Definition.litterFrames : null;
+            bool hasOwnLitter = ownLitter != null && ownLitter.Length >= 3 &&
+                ownLitter[0] != null && ownLitter[1] != null && ownLitter[2] != null;
             if (item.interactionType == ItemInteractionType.Toileting &&
-                item.interactionFrames != null && item.interactionFrames.Length >= 3)
+                (hasOwnLitter || (item.interactionFrames != null && item.interactionFrames.Length >= 3)))
             {
-                yield return PlayLitterBoxSequence(cat, item.interactionFrames);
+                // Kum kabı kareleri kediyi de içerir; her kedi kendi rengindeki kareleri oynatır.
+                yield return PlayLitterBoxSequence(cat, hasOwnLitter ? ownLitter : item.interactionFrames, hasOwnLitter);
                 CatNeedsSystem.Instance?.RewardInteraction(2, "Kedi kumu kullanımı");
                 // Aynı dokunuşun mouse/touch olayları veya hemen ardından gelen
                 // ikinci tıklama animasyonu yeniden başlatmasın.
@@ -439,7 +446,7 @@ namespace PawPath.Hub
             if (sleepAnimator != null) sleepAnimator.SetExternalAnimation(false);
         }
 
-        IEnumerator PlayLitterBoxSequence(CatHomeBehaviour cat, Sprite[] frames)
+        IEnumerator PlayLitterBoxSequence(CatHomeBehaviour cat, Sprite[] frames, bool framesAreOrdered = false)
         {
             var furnitureRenderer = GetComponent<SpriteRenderer>();
             var catRenderer = cat.GetComponentInChildren<SpriteRenderer>();
@@ -460,12 +467,15 @@ namespace PawPath.Hub
 
             // Inspector/yeniden import sırasında array sırası değişse bile
             // giriş ve çıkış karelerinin oynatma sırası sabit kalır.
-            Sprite[] orderedFrames =
-            {
-                FindFrame(frames, "cat_sand_out"),
-                FindFrame(frames, "cat_sand_in2"),
-                FindFrame(frames, "cat_sand_in")
-            };
+            // Kedinin kendi kareleri zaten sıralıdır: giriş, içeride, kumda.
+            Sprite[] orderedFrames = framesAreOrdered
+                ? new[] { frames[0], frames[1], frames[2] }
+                : new[]
+                {
+                    FindFrame(frames, "cat_sand_out"),
+                    FindFrame(frames, "cat_sand_in2"),
+                    FindFrame(frames, "cat_sand_in")
+                };
             float[] frameDurations = { 0.72f, 0.62f, 1.35f };
             // One-shot: kareler yalnızca bir defa ilerler; modulo veya tekrar yoktur.
             for (int i = 0; i < orderedFrames.Length; i++)
@@ -494,6 +504,16 @@ namespace PawPath.Hub
             if (animator != null) animator.enabled = animatorWasEnabled;
             if (sleepAnimator != null) sleepAnimator.SetExternalAnimation(false);
         }
+
+        static bool HasFrames(Sprite[] frames)
+        {
+            if (frames == null || frames.Length == 0) return false;
+            foreach (var f in frames)
+                if (f == null) return false;
+            return true;
+        }
+
+        static Sprite[] OwnOrShared(Sprite[] own, Sprite[] shared) => HasFrames(own) ? own : shared;
 
         static Sprite FindFrame(Sprite[] frames, string exactName)
         {
