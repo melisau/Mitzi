@@ -40,6 +40,8 @@ namespace PawPath.Cat
         CircleCollider2D bodyCollider;
         SpriteRenderer sprite;
         Animator animator;
+        // Kontrolcüsü olmayan Animator'a Play/speed göndermek konsolu uyarıyla doldurur.
+        bool HasAnimator => animator != null && animator.runtimeAnimatorController != null;
         Vector3 spawnPosition;
         bool busy;
         float airTimer;
@@ -339,7 +341,7 @@ namespace PawPath.Cat
                 airTimer = 0f;
                 float speed = surface == PathSurfaceType.Ice ? moveSpeed * iceSpeedMultiplier : moveSpeed;
                 body.velocity = new Vector2(facing * speed, body.velocity.y);
-                if (animator != null)
+                if (HasAnimator)
                     animator.speed = walkAnimationSpeed;
             }
             else
@@ -350,7 +352,7 @@ namespace PawPath.Cat
                 // tepede asılı kalıyordu; havadayken de ileri momentumunu sürdürüyor.
                 float airSpeed = surface == PathSurfaceType.Ice ? moveSpeed * iceSpeedMultiplier : moveSpeed;
                 body.velocity = new Vector2(facing * airSpeed, body.velocity.y);
-                if (animator != null)
+                if (HasAnimator)
                     animator.speed = jumpAnimationPlaying ? 1f : 0f;
             }
 
@@ -402,7 +404,7 @@ namespace PawPath.Cat
             if (shouldCrouch != crouching)
             {
                 crouching = shouldCrouch;
-                if (animator != null)
+                if (HasAnimator)
                 {
                     if (crouching && grounded && animator.HasState(0, CrouchState))
                     {
@@ -425,7 +427,7 @@ namespace PawPath.Cat
                 }
             }
 
-            if (animator != null)
+            if (HasAnimator)
                 animator.speed = crouching && grounded
                     ? 0f
                     : !grounded && jumpAnimationPlaying
@@ -461,7 +463,7 @@ namespace PawPath.Cat
 
         void UpdateJumpAnimation(bool grounded)
         {
-            if (animator == null)
+            if (!HasAnimator)
                 return;
 
             if (!grounded && !jumpAnimationPlaying && animator.HasState(0, JumpState))

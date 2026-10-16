@@ -53,7 +53,7 @@ public static class MitziSleepAnimationBuilder
             return;   // değişiklik yoksa kataloğu kirletme
         mitzi.sleepFrames = newFrames;
         EditorUtility.SetDirty(mitzi);
-        AssetDatabase.SaveAssets();
+        EditorSave.Save(mitzi, catalog);
     }
 }
 #endif

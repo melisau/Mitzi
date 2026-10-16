@@ -36,7 +36,7 @@ public static class GameAudioBuilder
         catalog.shopBuySfx = Clip("ui_shop_buy", "wav");
         catalog.shopSellSfx = Clip("ui_shop_sell", "wav");
         EditorUtility.SetDirty(catalog);
-        AssetDatabase.SaveAssets();
+        EditorSave.Save(catalog);
     }
 
     static AudioClip Clip(string fileName, string preferredExtension)

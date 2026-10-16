@@ -43,7 +43,7 @@ public static class GameplayMechanicsAssetBuilder
         }
 
         EditorUtility.SetDirty(catalog);
-        AssetDatabase.SaveAssets();
+        EditorSave.Save(catalog, food);
         Debug.Log("Köpek koşusu, robotik köpek/kuş, Neo Teknoloji zemini ve etkileşim kareleri bağlandı.");
     }
 
