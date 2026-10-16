@@ -6,19 +6,23 @@ namespace PawPath.UI
     public static class RusticUiSpriteFactory
     {
         static Sprite wood;
+        static Sprite woodPlain;
         static Sprite parchment;
 
-        public static Sprite WoodButton() => wood != null ? wood : wood = Build(true);
-        public static Sprite ParchmentPanel() => parchment != null ? parchment : parchment = Build(false);
+        /// <summary>Altın yaprak süslemeli ahşap: yalnızca öne çıkması gereken ana düğmelerde.</summary>
+        public static Sprite WoodButton() => wood != null ? wood : wood = Build(true, true);
+        /// <summary>Süslemesiz ahşap: ikincil düğmeler için sade görünüm.</summary>
+        public static Sprite WoodButtonPlain() => woodPlain != null ? woodPlain : woodPlain = Build(true, false);
+        public static Sprite ParchmentPanel() => parchment != null ? parchment : parchment = Build(false, false);
 
-        static Sprite Build(bool wooden)
+        static Sprite Build(bool wooden, bool leaves)
         {
             const int width = 256;
             const int height = 72;
             const int radius = 14;
             var texture = new Texture2D(width, height, TextureFormat.RGBA32, false)
             {
-                name = wooden ? "RusticWoodButton" : "RusticParchmentPanel",
+                name = wooden ? (leaves ? "RusticWoodButton" : "RusticWoodButtonPlain") : "RusticParchmentPanel",
                 filterMode = FilterMode.Bilinear,
                 wrapMode = TextureWrapMode.Clamp
             };
@@ -48,7 +52,7 @@ namespace PawPath.UI
                 texture.SetPixel(x, y, baseColor);
             }
 
-            if (wooden)
+            if (wooden && leaves)
             {
                 DrawLeaf(texture, 31, 36, false);
                 DrawLeaf(texture, width - 31, 36, true);

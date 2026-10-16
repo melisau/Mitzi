@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using PawPath.Hub;
 using PawPath.Gameplay;
+using PawPath.UI;
 
 namespace PawPath.Levels
 {
@@ -21,6 +22,12 @@ namespace PawPath.Levels
         static readonly Color RoadColor = new Color(0.72f, 0.54f, 0.38f, 1f);
         static readonly Color ObstacleColor = new Color(0.61f, 0.42f, 0.29f, 1f);
         static readonly Color CityRoadFillColor = new Color(0.70f, 0.66f, 0.60f, 1f);
+        // İnce platform: yalnızca üstteki taş sırası ve biraz toprak görünür;
+        // altı sıcak bir karanlığa döner, çukurlar "düşülecek yer" olarak okunur.
+        const float SlabDepth = 1.25f;
+        const float AbyssBottom = -8f;
+        static readonly Color AbyssColor = new Color(0.10f, 0.067f, 0.047f, 1f);
+        Sprite slabSprite;
 
         Transform generatedRoot;
         Sprite gapSprite;
@@ -148,6 +155,9 @@ namespace PawPath.Levels
             }
             generatedRoot = new GameObject("GeneratedCourse").transform;
             generatedRoot.SetParent(transform, false);
+            slabSprite = null;
+            if (UsesThinSlabs)
+                CreateAbyss();
 
             // Cadde asfaltı bütün bölüm boyunca tek görseldir. Parça parça çizmek
             // şeritlerin her kaldırım ve konteynır altında yeniden başlamasına yol açıyordu.
@@ -353,8 +363,16 @@ namespace PawPath.Levels
             }
         }
 
+        bool UsesThinSlabs => !cyberTheme && roadSprite != null &&
+            (roadSprite.name.Contains("new_road_terracot") || roadSprite.name.Contains("forest_ground_underfill"));
+
         void CreateFullDepthRoad(RoadSpan span)
         {
+            if (UsesThinSlabs)
+            {
+                CreateThinSlab(span);
+                return;
+            }
             const float bottomY = -5.35f;
             float height = span.Top - bottomY;
             var go = new GameObject("RoadVisualFullDepth");
@@ -369,6 +387,88 @@ namespace PawPath.Levels
             // Tam derinlikli görsel çukurun içine taşmamalı.
             renderer.size = new Vector2(span.Width, height);
             ApplyRoundedTopCornerMask(go.transform, renderer, span.CenterX, span.Width, height);
+        }
+
+        /// <summary>
+        /// Platform görselinin yalnızca üst kısmını (taş sırası + biraz toprak) çizer.
+        /// Fizik collider'ı değişmez; yalnızca görünüm incelir. Alt kenar dalgalı
+        /// ve köşeleri yuvarlak kesilir, altına yumuşak bir gölge düşer.
+        /// </summary>
+        void CreateThinSlab(RoadSpan span)
+        {
+            if (slabSprite == null)
+            {
+                Rect source = roadSprite.rect;
+                float ppu = roadSprite.pixelsPerUnit;
+                float cropPixels = Mathf.Min(source.height, SlabDepth * ppu);
+                slabSprite = Sprite.Create(roadSprite.texture,
+                    new Rect(source.x, source.y + source.height - cropPixels, source.width, cropPixels),
+                    new Vector2(0.5f, 0.5f), ppu, 0, SpriteMeshType.FullRect);
+                slabSprite.name = "ThinRoadSlab";
+                generatedRuntimeAssets.Add(slabSprite);
+            }
+
+            float height = slabSprite.bounds.size.y;
+            var go = new GameObject("RoadVisualSlab");
+            go.transform.SetParent(generatedRoot, false);
+            go.transform.position = new Vector2(span.CenterX, span.Top - height * 0.5f);
+            var renderer = go.AddComponent<SpriteRenderer>();
+            renderer.sprite = slabSprite;
+            renderer.color = Color.white;
+            renderer.sortingOrder = 1;
+            renderer.drawMode = SpriteDrawMode.Tiled;
+            renderer.tileMode = SpriteTileMode.Continuous;
+            renderer.size = new Vector2(span.Width, height);
+            ApplyRoundedTopCornerMask(go.transform, renderer, span.CenterX, span.Width, height, true);
+
+            var shadowGo = new GameObject("RoadSlabShadow");
+            shadowGo.transform.SetParent(generatedRoot, false);
+            shadowGo.transform.position = new Vector2(span.CenterX, span.Top - height - 0.02f);
+            shadowGo.transform.localScale = new Vector3(span.Width * 1.05f, 0.65f, 1f);
+            var shadow = shadowGo.AddComponent<SpriteRenderer>();
+            shadow.sprite = CozyIconFactory.SoftEllipse();
+            shadow.color = new Color(0f, 0f, 0f, 0.55f);
+            shadow.sortingOrder = 0;
+        }
+
+        /// <summary>Yol çizgisinin altını üstten alta koyulaşan sıcak bir karanlıkla örter.</summary>
+        void CreateAbyss()
+        {
+            const int texHeight = 128;
+            var texture = new Texture2D(2, texHeight, TextureFormat.RGBA32, false)
+            {
+                name = "AbyssGradient",
+                filterMode = FilterMode.Bilinear,
+                wrapMode = TextureWrapMode.Clamp
+            };
+            var pixels = new Color[2 * texHeight];
+            for (int y = 0; y < texHeight; y++)
+            {
+                float depth = 1f - y / (float)(texHeight - 1); // 0 üstte, 1 altta
+                var color = AbyssColor;
+                color.a = Mathf.Lerp(0.62f, 0.98f, Mathf.Pow(depth, 0.7f));
+                pixels[y * 2] = color;
+                pixels[y * 2 + 1] = color;
+            }
+            texture.SetPixels(pixels);
+            texture.Apply();
+            var sprite = Sprite.Create(texture, new Rect(0f, 0f, 2f, texHeight), new Vector2(0.5f, 0.5f),
+                texHeight, 0, SpriteMeshType.FullRect);
+            sprite.name = "AbyssGradient";
+            generatedRuntimeAssets.Add(texture);
+            generatedRuntimeAssets.Add(sprite);
+
+            float roadTop = RoadCenterY + RoadHeight * 0.5f;
+            float top = roadTop - 0.02f;
+            float height = top - AbyssBottom;
+            float width = CourseRight - CourseLeft + 40f;
+            var go = new GameObject("Abyss");
+            go.transform.SetParent(generatedRoot, false);
+            go.transform.position = new Vector2((CourseLeft + CourseRight) * 0.5f, AbyssBottom + height * 0.5f);
+            go.transform.localScale = new Vector3(width / sprite.bounds.size.x, height / sprite.bounds.size.y, 1f);
+            var renderer = go.AddComponent<SpriteRenderer>();
+            renderer.sprite = sprite;
+            renderer.sortingOrder = -1;
         }
 
         void CreateCyberRoad(RoadSpan span)
@@ -401,7 +501,7 @@ namespace PawPath.Levels
         }
 
         void ApplyRoundedTopCornerMask(Transform roadTransform, SpriteRenderer roadRenderer,
-            float centerX, float width, float height)
+            float centerX, float width, float height, bool wavyBottom = false)
         {
             const int textureSize = 512;
             // Bölüm ve yol konumu aynı kaldıkça şekil sabittir; her parçada ve
@@ -443,6 +543,22 @@ namespace PawPath.Levels
                         float dy = (y - (textureSize - rightRadiusY)) / rightRadiusY;
                         float irregularity = 0.035f * Mathf.Sin(y * 0.09f + rightPhase);
                         visible = dx * dx + dy * dy <= 1f + irregularity;
+                    }
+                    if (visible && wavyBottom)
+                    {
+                        // İnce platformun alt kenarı düz kesik değil, aşınmış toprak gibi dalgalı.
+                        float worldX = (x + 0.5f) / textureSize * width;
+                        float worldY = (y + 0.5f) / textureSize * height;
+                        float cut = 0.10f + 0.045f * Mathf.Sin(worldX * 2.7f + leftPhase) +
+                            0.03f * Mathf.Sin(worldX * 7.1f + rightPhase);
+                        const float bottomRadius = 0.22f;
+                        float fromSide = Mathf.Min(worldX, width - worldX);
+                        if (fromSide < bottomRadius)
+                        {
+                            float d = bottomRadius - fromSide;
+                            cut += bottomRadius - Mathf.Sqrt(Mathf.Max(0f, bottomRadius * bottomRadius - d * d));
+                        }
+                        visible = worldY >= cut;
                     }
                     pixels[y * textureSize + x] = visible
                         ? new Color32(255, 255, 255, 255)
@@ -756,6 +872,10 @@ namespace PawPath.Levels
         {
             GapSpan gap = ResolvePhysicalGapBounds(centerX, width);
             gaps.Add(gap);
+            // İnce platformlarda çukur zaten karanlık boşluk; derine sarkan kenar
+            // parçaları karanlığın içinde asılı sütun gibi görünürdü.
+            if (UsesThinSlabs)
+                return;
             if (streetGapLeftSprite != null && streetGapRightSprite != null)
             {
                 CreateStreetGapEdges(gap);
@@ -905,7 +1025,8 @@ namespace PawPath.Levels
                     NextRange(random, 0.4f, 1.8f);
                 float height = roadTop + NextRange(random, 1.25f, 2.85f);
                 float speed = NextRange(random, 0.72f, 1.48f);
-                float width = NextRange(random, 1.00f, 1.38f);
+                // Toplanabilir kuş daha büyük: çocuk onu kolayca fark edip yakalasın.
+                float width = NextRange(random, 1.00f, 1.38f) * 1.45f;
                 CreateFlyingBird(i + 1, new Vector2(spawnX, height), -9.5f,
                     speed, width, NextRange(random, 0f, 6.28f));
             }
@@ -940,18 +1061,48 @@ namespace PawPath.Levels
             go.AddComponent<FlyingBirdCollectable>().Configure(renderer, birdFrames, speed,
                 leftBound, phase, targetWidth);
 
+            // Arkada yumuşak, nabız atan sarı ışık: "bunu al" mesajı.
+            var glowGo = new GameObject("Glow");
+            glowGo.transform.SetParent(go.transform, false);
+            var glow = glowGo.AddComponent<SpriteRenderer>();
+            glow.sprite = CozyIconFactory.SoftGlow();
+            glow.color = new Color(1f, 0.86f, 0.42f, 0.75f);
+            glow.sortingOrder = 7;
+
+            // Ödül rozeti: koyu hap üzerinde para ikonu + "+3" (dünya biriminde).
             var rewardGo = new GameObject("RewardLabel");
             rewardGo.transform.SetParent(go.transform, false);
-            rewardGo.transform.localPosition = new Vector3(0f, firstFrame.bounds.extents.y + 0.22f, 0f);
+            rewardGo.transform.localPosition = new Vector3(0f, firstFrame.bounds.extents.y * 0.80f, 0f);
             rewardGo.transform.localScale = new Vector3(1f / scale, 1f / scale, 1f);
-            var reward = rewardGo.AddComponent<TextMesh>();
-            reward.text = "♥ +3";
+
+            var backing = new GameObject("Backing").AddComponent<SpriteRenderer>();
+            backing.transform.SetParent(rewardGo.transform, false);
+            backing.sprite = CozyIconFactory.Pill();
+            backing.drawMode = SpriteDrawMode.Sliced;
+            backing.size = new Vector2(1.10f, 0.60f);
+            backing.color = new Color(0.20f, 0.13f, 0.09f, 0.80f);
+            backing.sortingOrder = 10;
+
+            var coin = new GameObject("Coin").AddComponent<SpriteRenderer>();
+            coin.transform.SetParent(rewardGo.transform, false);
+            coin.sprite = CozyIconFactory.Coin();
+            coin.transform.localPosition = new Vector3(-0.27f, 0f, 0f);
+            float coinScale = 0.40f / Mathf.Max(0.01f, coin.sprite.bounds.size.x);
+            coin.transform.localScale = new Vector3(coinScale, coinScale, 1f);
+            coin.sortingOrder = 11;
+
+            var amountGo = new GameObject("Amount");
+            amountGo.transform.SetParent(rewardGo.transform, false);
+            amountGo.transform.localPosition = new Vector3(0.16f, 0.01f, 0f);
+            var reward = amountGo.AddComponent<TextMesh>();
+            reward.text = "+3";
             reward.anchor = TextAnchor.MiddleCenter;
             reward.alignment = TextAlignment.Center;
-            reward.fontSize = 44;
-            reward.characterSize = 0.035f;
-            reward.color = new Color(1f, 0.82f, 0.16f, 1f);
-            rewardGo.GetComponent<MeshRenderer>().sortingOrder = 10;
+            reward.fontSize = 64;
+            reward.fontStyle = FontStyle.Bold;
+            reward.characterSize = 0.05f;
+            reward.color = new Color(1f, 0.95f, 0.82f, 1f);
+            amountGo.GetComponent<MeshRenderer>().sortingOrder = 11;
         }
 
         void BuildDogAndTreeChallenge(int levelNumber)

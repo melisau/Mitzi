@@ -41,6 +41,8 @@ Mitzi is a cozy, side-scrolling 2D cat game built with **Unity 2022.3.62f3** and
 
 ## Verification and current limitations
 
+- Android release configuration and signed AAB build instructions are in [ANDROID_RELEASE.md](ANDROID_RELEASE.md). ARM64, IL2CPP and target API 36 are configured; the current editor/toolchain and signing credentials still need preparation before a release package can be built and verified.
+
 - Use **Mitzi > Validate Course Geometry** in the Unity Editor to check road, gap, and mound bounds for levels 1–100. This is a geometry validation command, **not** a full automated gameplay test suite.
 - Use **Mitzi > Validate Save Format** to check legacy migration, malformed JSON rejection, backup readability, and newer-version protection without changing the live save. Export/import JSON APIs exist for future device transfer, but there is no in-game transfer interface yet.
 - Follow the [QA checklist](QA_CHECKLIST.md) for falling, reaching the goal, cat/item interactions, save loading, screen ratios, and real-device checks. Android and iOS device results have not yet been recorded.

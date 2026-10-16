@@ -165,13 +165,16 @@ namespace PawPath.Hub
             PlanPathToFinal();
         }
 
-        public void WalkDirectTo(Vector2 worldPoint, ResidentActivity whenArrived = ResidentActivity.Standing)
+        public void WalkDirectTo(Vector2 worldPoint, ResidentActivity whenArrived = ResidentActivity.Standing,
+            bool exactHeight = false)
         {
             directedMovement = true;
             finalPosition = new Vector2(
                 // Kenara yerleştirilen mama kabı/kedi ağacı da erişilebilir olsun.
                 Mathf.Clamp(worldPoint.x, roomX.x - 1.20f, roomX.y + 1.20f),
-                Mathf.Clamp(worldPoint.y, roomY.x, roomY.y));
+                // Eşyaya giderken yükseklik eşyanın zeminine göre hesaplanır;
+                // oda bandına sıkıştırmak kediyi kabın altında bırakıyordu.
+                exactHeight ? worldPoint.y : Mathf.Clamp(worldPoint.y, roomY.x, roomY.y));
             targetPosition = finalPosition;
             arrivalActivity = whenArrived;
             navigatingDetour = false;
@@ -298,6 +301,15 @@ namespace PawPath.Hub
         }
 
         public void FaceTowards(float x) => Face(x);
+
+        /// <summary>Uyku düğmesi: kedi olduğu yerde (ör. yatağında) kıvrılıp bir süre uyur.</summary>
+        public void SleepFor(float seconds)
+        {
+            directedMovement = false;
+            arrivalActivity = ResidentActivity.Standing;
+            CurrentActivity = ResidentActivity.Sleeping;
+            stateTimer = seconds;
+        }
 
         void UpdateDepthOrder()
         {

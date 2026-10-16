@@ -40,7 +40,7 @@ namespace PawPath.UI
         {
             if (pointsText != null)
             {
-                pointsText.text = $"💖 {points}";
+                pointsText.text = points.ToString();
             }
         }
 
@@ -139,29 +139,42 @@ namespace PawPath.UI
                 rt.anchorMax = new Vector2(1f, 1f);
                 rt.pivot = new Vector2(1f, 1f);
                 
-                // Küçük ve kibar rozet boyutları
-                rt.anchoredPosition = new Vector2(-60, -20);
-                rt.sizeDelta = new Vector2(180, 48);
+                // Ev ekranındaki bakiye sayacıyla aynı: koyu hap, para ikonu + sayı.
+                rt.anchoredPosition = new Vector2(-60, -24);
+                rt.sizeDelta = new Vector2(230, 76);
 
-                // Renksiz / Şeffaf - Hafif Siyah Transparan Zemin
                 var bgImage = headerGo.AddComponent<Image>();
-                bgImage.color = new Color(0f, 0f, 0f, 0.25f); 
+                bgImage.sprite = CozyIconFactory.Pill();
+                bgImage.type = Image.Type.Sliced;
+                bgImage.color = new Color(0.20f, 0.13f, 0.09f, 0.72f);
+                bgImage.raycastTarget = false;
 
-                var txt = CreateText(headerGo.transform, "PointsText", 22);
+                var coinGo = new GameObject("Coin", typeof(RectTransform), typeof(Image));
+                coinGo.transform.SetParent(headerGo.transform, false);
+                var coinRt = coinGo.GetComponent<RectTransform>();
+                coinRt.anchorMin = coinRt.anchorMax = new Vector2(0f, 0.5f);
+                coinRt.anchoredPosition = new Vector2(42f, 0f);
+                coinRt.sizeDelta = new Vector2(62f, 62f);
+                var coinImage = coinGo.GetComponent<Image>();
+                coinImage.sprite = CozyIconFactory.Coin();
+                coinImage.preserveAspect = true;
+                coinImage.raycastTarget = false;
+
+                var txt = CreateText(headerGo.transform, "PointsText", 32);
                 txt.fontStyle = FontStyle.Bold;
-                txt.color = new Color(0.25f, 0.18f, 0.15f); // Koyu Sıcak Kahve Yazı Renk
+                txt.color = new Color(1f, 0.95f, 0.82f);
                 
                 var txtRt = txt.rectTransform;
                 txtRt.anchorMin = Vector2.zero;
                 txtRt.anchorMax = Vector2.one;
-                txtRt.sizeDelta = Vector2.zero;
-                txtRt.anchoredPosition = Vector2.zero;
+                txtRt.offsetMin = new Vector2(76f, 0f);
+                txtRt.offsetMax = new Vector2(-14f, 0f);
                 txt.alignment = TextAnchor.MiddleCenter;
 
                 pointsText = txt;
             }
 
-            pointsText.text = $"💖 {points}";
+            pointsText.text = points.ToString();
         }
 
         void WireRow(GameObject row, ShopItemDefinition item)
@@ -242,16 +255,11 @@ namespace PawPath.UI
             {
                 // SAT BUTONU TASARIMI
                 if (label != null)
-                {
                     label.text = GameText.L("Sat", "Sell", "Verkaufen");
-                    label.color = Color.white;
-                }
-                
+
                 var btnImg = button.GetComponent<Image>();
                 if (btnImg != null)
-                {
-                    btnImg.color = Color.white;
-                }
+                    btnImg.color = SellColor;
 
                 button.interactable = true;
 
@@ -287,18 +295,16 @@ namespace PawPath.UI
                 bool canAfford = CozyEconomyManager.Instance != null && CozyEconomyManager.Instance.LovePoints >= item.lovePointCost;
 
                 if (label != null)
-                {
                     label.text = GameText.L("Satın Al", "Buy", "Kaufen");
-                    label.color = Color.white;
-                }
 
+                // Parası yetmiyorsa soluk gri; yazıya gerek kalmadan "şimdilik alamazsın".
                 var btnImg = button.GetComponent<Image>();
                 if (btnImg != null)
-                {
-                    btnImg.color = canAfford
-                        ? Color.white
-                        : new Color(0.62f, 0.60f, 0.56f, 0.72f);
-                }
+                    btnImg.color = canAfford ? BuyColor : UnaffordableColor;
+                var group = button.GetComponent<CanvasGroup>();
+                if (group == null)
+                    group = button.gameObject.AddComponent<CanvasGroup>();
+                group.alpha = canAfford ? 1f : 0.6f;
 
                 button.interactable = canAfford;
 
@@ -364,7 +370,7 @@ namespace PawPath.UI
             var cost = CreateText(go.transform, "Cost", 20);
             cost.fontStyle = FontStyle.Bold;
             cost.color = new Color(0.65f, 0.25f, 0.15f); 
-            cost.rectTransform.anchoredPosition = new Vector2(0, -105);
+            cost.rectTransform.anchoredPosition = new Vector2(0, -98);
             cost.rectTransform.sizeDelta = new Vector2(275, 32);
 
             // 4. KÜÇÜLTÜLMÜŞ BUTON
@@ -413,72 +419,106 @@ namespace PawPath.UI
             }
         }
 
+        // Ev ekranıyla aynı palet: yaprak yeşili (al), karamel (sat/eve dön).
+        static readonly Color BuyColor = new Color(0.45f, 0.72f, 0.38f);
+        static readonly Color SellColor = new Color(0.66f, 0.49f, 0.37f);
+        static readonly Color UnaffordableColor = new Color(0.66f, 0.63f, 0.59f);
+
         static void StyleWoodButton(Button button, Text label)
         {
-            var rt = button.GetComponent<RectTransform>();
-            rt.sizeDelta = new Vector2(182f, 54f);
-
-            var image = button.GetComponent<Image>();
-            if (image != null)
-            {
-                image.sprite = RusticUiSpriteFactory.WoodButton();
-                image.type = Image.Type.Sliced;
-                image.color = Color.white;
-            }
-
-            if (button.GetComponent<Outline>() == null)
-            {
-                var goldBorder = button.gameObject.AddComponent<Outline>();
-                goldBorder.effectColor = new Color(0.88f, 0.69f, 0.30f, 0.95f);
-                goldBorder.effectDistance = new Vector2(3f, -3f);
-                var softShadow = button.gameObject.AddComponent<Shadow>();
-                softShadow.effectColor = new Color(0.10f, 0.06f, 0.03f, 0.55f);
-                softShadow.effectDistance = new Vector2(0f, -4f);
-            }
-
-            if (label != null)
-            {
-                label.fontSize = 20;
-                label.fontStyle = FontStyle.Bold;
-                label.resizeTextForBestFit = true;
-                label.resizeTextMaxSize = 20;
-                label.resizeTextMinSize = 12;
-                label.color = new Color(1f, 0.96f, 0.86f);
-                label.rectTransform.sizeDelta = new Vector2(176f, 50f);
-            }
-
-            var colors = button.colors;
-            colors.normalColor = Color.white;
-            colors.highlightedColor = new Color(1.12f, 1.06f, 0.92f);
-            colors.pressedColor = new Color(0.82f, 0.72f, 0.60f);
-            colors.disabledColor = new Color(0.58f, 0.55f, 0.50f, 0.72f);
-            button.colors = colors;
+            // Ad korunuyor (eski çağrılar için); görünüm artık ikonlu hap düğme.
+            StylePill(button, label, new Vector2(212f, 64f), CozyIconFactory.Coin(), 22, true);
         }
 
         static void StyleHomeButton(Button button)
         {
+            var label = button.GetComponentInChildren<Text>();
+            StylePill(button, label, new Vector2(300f, 104f), CozyIconFactory.House(), 32, false);
+            var image = button.GetComponent<Image>();
+            if (image != null)
+                image.color = SellColor;
+            if (label != null)
+                label.text = GameText.House;
+        }
+
+        /// <summary>
+        /// Ev ekranındaki hap düğmelerle aynı görünüm: koyu halka, degrade, gölge,
+        /// solda ikon, beyaz kalın yazı. Renk Image.color ile verilir.
+        /// </summary>
+        static void StylePill(Button button, Text label, Vector2 size, Sprite icon, int fontSize, bool coloredIcon)
+        {
             var rt = button.GetComponent<RectTransform>();
-            rt.sizeDelta = new Vector2(440f, 72f);
+            rt.sizeDelta = size;
+            if (button.name == "BuyButton")
+                rt.anchoredPosition = new Vector2(0f, -142f);
+
             var image = button.GetComponent<Image>();
             if (image != null)
             {
-                image.sprite = RusticUiSpriteFactory.ParchmentPanel();
+                image.sprite = CozyIconFactory.PillButton();
                 image.type = Image.Type.Sliced;
-                image.color = new Color(0.94f, 0.88f, 1f, 0.95f);
+                // Hap köşeleri yükseklik ne olursa olsun tam yuvarlak kalsın.
+                image.pixelsPerUnitMultiplier = 104f / Mathf.Max(1f, size.y);
+                image.color = Color.white;
             }
-            if (button.GetComponent<Outline>() == null)
+            if (button.GetComponent<Shadow>() == null)
             {
-                var border = button.gameObject.AddComponent<Outline>();
-                border.effectColor = new Color(0.35f, 0.24f, 0.19f, 0.72f);
-                border.effectDistance = new Vector2(4f, -4f);
+                var shadow = button.gameObject.AddComponent<Shadow>();
+                shadow.effectColor = new Color(0f, 0f, 0f, 0.28f);
+                shadow.effectDistance = new Vector2(0f, -5f);
             }
-            var label = button.GetComponentInChildren<Text>();
+
+            float iconSize = size.y * 0.56f;
+            float iconX = -size.x * 0.5f + size.y * 0.5f + 4f;
+            if (icon != null && button.transform.Find("Icon") == null)
+            {
+                var iconGo = new GameObject("Icon", typeof(RectTransform), typeof(Image));
+                iconGo.transform.SetParent(button.transform, false);
+                var iconRt = iconGo.GetComponent<RectTransform>();
+                iconRt.anchorMin = iconRt.anchorMax = new Vector2(0.5f, 0.5f);
+                iconRt.anchoredPosition = new Vector2(iconX, 1f);
+                iconRt.sizeDelta = new Vector2(iconSize, iconSize);
+                var iconImage = iconGo.GetComponent<Image>();
+                iconImage.sprite = icon;
+                iconImage.color = Color.white;
+                iconImage.preserveAspect = true;
+                iconImage.raycastTarget = false;
+                if (!coloredIcon)
+                {
+                    var iconShadow = iconGo.AddComponent<Shadow>();
+                    iconShadow.effectColor = new Color(0f, 0f, 0f, 0.22f);
+                    iconShadow.effectDistance = new Vector2(0f, -3f);
+                }
+            }
+
             if (label != null)
             {
-                label.text = GameText.House;
-                label.fontSize = 27;
-                label.color = new Color(0.28f, 0.20f, 0.20f);
+                float left = icon != null ? iconX + iconSize * 0.5f + 4f : -size.x * 0.5f + 18f;
+                float right = size.x * 0.5f - size.y * 0.35f;
+                label.rectTransform.anchorMin = label.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+                label.rectTransform.sizeDelta = new Vector2(right - left, size.y - 12f);
+                label.rectTransform.anchoredPosition = new Vector2((left + right) * 0.5f, 1f);
+                label.fontSize = fontSize;
+                label.fontStyle = FontStyle.Bold;
+                label.color = Color.white;
+                label.resizeTextForBestFit = true;
+                label.resizeTextMinSize = 14;
+                label.resizeTextMaxSize = fontSize;
+                if (label.GetComponent<Shadow>() == null)
+                {
+                    var textShadow = label.gameObject.AddComponent<Shadow>();
+                    textShadow.effectColor = new Color(0.10f, 0.06f, 0.03f, 0.55f);
+                    textShadow.effectDistance = new Vector2(0f, -2f);
+                }
             }
+
+            var colors = button.colors;
+            colors.normalColor = Color.white;
+            colors.highlightedColor = new Color(1f, 0.96f, 0.90f, 1f);
+            colors.pressedColor = new Color(0.80f, 0.80f, 0.80f, 1f);
+            colors.selectedColor = Color.white;
+            colors.disabledColor = Color.white;
+            button.colors = colors;
         }
 
         void ReturnToCatHouse()

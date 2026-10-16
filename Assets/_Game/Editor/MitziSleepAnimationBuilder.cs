@@ -8,7 +8,10 @@ public static class MitziSleepAnimationBuilder
 {
     const string Folder = "Assets/_Game/Art/MitziSleep";
     const string CatalogPath = "Assets/_Game/Content/PawPathCatalog.asset";
-    static MitziSleepAnimationBuilder() => EditorApplication.delayCall += Apply;
+    // Uyku kareleri artık CatBreedAnimationBuilder ile bütün kedilere atanıyor;
+    // bu eski betik her açılışta Mitzi'nin karelerini geri yazmasın diye otomatik
+    // çalışması kapatıldı. Menüden elle çalıştırılabilir.
+    static MitziSleepAnimationBuilder() { }
 
     [MenuItem("PawPath/İçerik/Mitzi Uyku Animasyonunu Uygula")]
     public static void Apply()

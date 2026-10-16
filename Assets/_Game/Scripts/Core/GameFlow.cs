@@ -141,6 +141,28 @@ namespace PawPath.Core
                 ? GameFlowState.DrawingPreparation : GameFlowState.Gameplay);
         }
 
+        GameFlowState stateBeforePause = GameFlowState.Gameplay;
+
+        /// <summary>Duraklat düğmesi: o anki durumu hatırlar, zamanı durdurur.</summary>
+        public void PauseGame()
+        {
+            // Bilgi kartı açıkken duraklatılmaz; kart kendi zamanlayıcısıyla kapanır.
+            if (InHub || State == GameFlowState.Pause || State == GameFlowState.InfoOverlay ||
+                State == GameFlowState.Victory ||
+                State == GameFlowState.GameOver || State == GameFlowState.Rescue)
+                return;
+            stateBeforePause = State;
+            TransitionTo(GameFlowState.Pause);
+        }
+
+        /// <summary>Devam: duraklatmadan önceki duruma (oyun, çizim hazırlığı vb.) döner.</summary>
+        public void ResumeGame()
+        {
+            if (State != GameFlowState.Pause)
+                return;
+            TransitionTo(stateBeforePause);
+        }
+
         public void BeginDrawingPreparation()
         {
             if (!InHub)

@@ -26,6 +26,9 @@ namespace PawPath.Levels
 
         public LevelDefinition Current { get; private set; }
         public int DisplayLevel => SaveService.Data.highestCompletedLevel + 1;
+        /// <summary>İlerleme çubuğu için bölümün başlangıç ve bitiş noktaları.</summary>
+        public Vector2 SpawnPosition => spawnMarker != null ? (Vector2)spawnMarker.position : Vector2.zero;
+        public Vector2 GoalPosition => goalMarker != null ? (Vector2)goalMarker.position : Vector2.right;
 
         void Awake()
         {
