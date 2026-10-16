@@ -38,3 +38,5 @@ crashlytics-build.properties
 *.jks
 *.p12
 *.pfx
+
+__pycache__/

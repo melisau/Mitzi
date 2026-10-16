@@ -136,6 +136,12 @@ namespace PawPath.EditorTools
                 cat.eatFrames = Enumerable.Range(1, 4)
                     .Select(i => ImportSprite($"{folder}/{id}_eatanim_{i:00}.png", new Vector2(0.5f, 0.5f)))
                     .Where(sp => sp != null).ToArray();
+                // Kum kabı kareleri tools/build_litter_frames.py ile üretilir (giriş, içeride, kumda).
+                var litter = new[] { "litter_out", "litter_in2", "litter_in" }
+                    .Select(f => AssetDatabase.LoadAssetAtPath<Sprite>($"{folder}/{id}_{f}.png"))
+                    .ToArray();
+                if (litter.All(sp => sp != null))
+                    cat.litterFrames = litter;
                 // Evde uyuma (yatma -> uyuma) geçişini bütün kediler için aç.
                 cat.useDetailedHomeAnimations = true;
                 EditorUtility.SetDirty(cat);

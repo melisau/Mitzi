@@ -89,6 +89,10 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 71f21698e5d84b949acb46ce4a40d561, type: 3}
   - {fileID: 21300000, guid: 149a3329bc4997d478af86b167e7f8e8, type: 3}
   - {fileID: 21300000, guid: 63cbe59745ffbbb448f93b107320a6ef, type: 3}
+  litterFrames:
+  - {fileID: 21300000, guid: 9239fc50568833222bf25f9e55f3221c, type: 3}
+  - {fileID: 21300000, guid: cc990b758b6af638cfd20dd697f0ed35, type: 3}
+  - {fileID: 21300000, guid: eca2c895315e7c24a7fdc89ce1461e1f, type: 3}
   useDetailedHomeAnimations: 1
   purrClip: {fileID: 0}
   meowClip: {fileID: 0}
@@ -272,6 +276,10 @@ MonoBehaviour:
   - {fileID: 21300000, guid: e6d55031d5c281848b869695b07efa32, type: 3}
   - {fileID: 21300000, guid: 8579ef1f4c46c734ea984f7e6eaffd54, type: 3}
   - {fileID: 21300000, guid: 5f95939c6ee818b40bc80713712699b9, type: 3}
+  litterFrames:
+  - {fileID: 21300000, guid: fc96fb9f0041febd7d96cc824eae4a36, type: 3}
+  - {fileID: 21300000, guid: 6fe8cd87ba0e24e63be21bdc95449653, type: 3}
+  - {fileID: 21300000, guid: 66a88242a06e4898024e3fc6a96268bd, type: 3}
   useDetailedHomeAnimations: 1
   purrClip: {fileID: 0}
   meowClip: {fileID: 0}
@@ -401,6 +409,10 @@ MonoBehaviour:
   - {fileID: 21300000, guid: b275a2c49e50ca44fa208c7efa376662, type: 3}
   - {fileID: 21300000, guid: e75e71b87eccc004e9a0031973001478, type: 3}
   - {fileID: 21300000, guid: 348d49ee49f2a564fb0c1e34eff3ddf7, type: 3}
+  litterFrames:
+  - {fileID: 21300000, guid: 118490aebd761c463704854ac4a84acf, type: 3}
+  - {fileID: 21300000, guid: 5bc35a3cb55bd1325aeab84a3827c875, type: 3}
+  - {fileID: 21300000, guid: cecfd73a339fddf1daa577163c718399, type: 3}
   useDetailedHomeAnimations: 1
   purrClip: {fileID: 0}
   meowClip: {fileID: 0}
@@ -512,6 +524,10 @@ MonoBehaviour:
   - {fileID: 21300000, guid: ba4e15c578bf5294d8f4c7ce490ef3d0, type: 3}
   - {fileID: 21300000, guid: 607b3faadcc26b344be7f7613ec89e58, type: 3}
   - {fileID: 21300000, guid: 8a01ed71856c3d046b946b72498e698f, type: 3}
+  litterFrames:
+  - {fileID: 21300000, guid: d7db2c7c38a65a8caecadeee567b6ba1, type: 3}
+  - {fileID: 21300000, guid: 26e56771691c77687ce491fef12ade85, type: 3}
+  - {fileID: 21300000, guid: 7993a5e0e3a82f2a8b045db65b05b002, type: 3}
   useDetailedHomeAnimations: 1
   purrClip: {fileID: 0}
   meowClip: {fileID: 0}
@@ -641,6 +657,10 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 068ec56d838dfcb43bb97ae4c8ce73a1, type: 3}
   - {fileID: 21300000, guid: 61ea9e15a92e65b46aac4d52bae44b29, type: 3}
   - {fileID: 21300000, guid: 85ee02e1837c7004dbe97c4533e19c50, type: 3}
+  litterFrames:
+  - {fileID: 21300000, guid: 6333910c2bc53212e0577de4c549ac93, type: 3}
+  - {fileID: 21300000, guid: f6fd70149aae38cb841d597cffe4a4c5, type: 3}
+  - {fileID: 21300000, guid: c84865b49250101920671964bf5ab7fe, type: 3}
   useDetailedHomeAnimations: 1
   purrClip: {fileID: 0}
   meowClip: {fileID: 0}
@@ -729,6 +749,10 @@ MonoBehaviour:
   - {fileID: 21300000, guid: fb0154b7782f9274b8870b440389221d, type: 3}
   - {fileID: 21300000, guid: 9c31d1581265e684e843131cd8f39505, type: 3}
   eatFrames: []
+  litterFrames:
+  - {fileID: 21300000, guid: 6d4b8206f9b005c0dbd09d66cd213ba6, type: 3}
+  - {fileID: 21300000, guid: 072c89340704a7b894a97aad02495255, type: 3}
+  - {fileID: 21300000, guid: 4fb7106908640bce33d07b9ce1cced4d, type: 3}
   useDetailedHomeAnimations: 1
   purrClip: {fileID: 0}
   meowClip: {fileID: 0}

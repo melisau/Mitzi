@@ -34,10 +34,13 @@ namespace PawPath.Data
         public Sprite[] idleFrames;
         public Sprite[] jumpFrames;
         public Sprite[] sleepFrames;
-        [Tooltip("Bu kedinin kendi renginde tırmanma kareleri. Boşsa ortak kareler kullanılır.")]
-        public Sprite[] climbFrames;
-        [Tooltip("Bu kedinin kendi renginde mama yeme kareleri. Boşsa mama kabının kareleri kullanılır.")]
+        [Header("Evdeki Etkileşim Kareleri (kedinin kendi rengi)")]
+        [Tooltip("Mama kabında yeme. Boşsa eşyanın ortak (gri) kareleri kullanılır.")]
         public Sprite[] eatFrames;
+        [Tooltip("Kedi ağacına ve bölümdeki ağaca tırmanma. Boşsa ortak kareler kullanılır.")]
+        public Sprite[] climbFrames;
+        [Tooltip("Kum kabı: sırasıyla giriş (out), içeride (in2), kumda (in). Kum kabının kendisini de içerir.")]
+        public Sprite[] litterFrames;
         [Tooltip("Bu kedi evde yemek, tırmanma ve uyku geçiş karelerini destekler.")]
         public bool useDetailedHomeAnimations;
         public AudioClip purrClip;
