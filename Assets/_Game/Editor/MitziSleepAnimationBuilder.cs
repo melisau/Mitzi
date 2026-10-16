@@ -17,9 +17,7 @@ public static class MitziSleepAnimationBuilder
         {
             "mitzi_sleep_01.png",
             "mitzi_sleep_02.png",
-            "mitzi_sleep_03.png",
-            "mitzi_sleep_05.png",
-            "mitzi_sleep_06.png"
+            "mitzi_sleep_03.png"
         };
         var frames = new Sprite[names.Length];
         for (int i = 0; i < frames.Length; i++)
@@ -43,7 +41,8 @@ public static class MitziSleepAnimationBuilder
         var mitzi = catalog != null ? catalog.cats.Find(cat => cat != null && cat.id == "mitzi") : null;
         if (mitzi == null)
             return;
-        mitzi.sleepFrames = frames;
+        // Eksik görsel varsa animasyona boş kare yazma.
+        mitzi.sleepFrames = System.Array.FindAll(frames, f => f != null);
         EditorUtility.SetDirty(mitzi);
         AssetDatabase.SaveAssets();
     }
