@@ -44,7 +44,7 @@ public static class MitziSleepAnimationBuilder
         // Eksik görsel varsa animasyona boş kare yazma.
         mitzi.sleepFrames = System.Array.FindAll(frames, f => f != null);
         EditorUtility.SetDirty(mitzi);
-        AssetDatabase.SaveAssets();
+        EditorSave.Save(mitzi, catalog);
     }
 }
 #endif

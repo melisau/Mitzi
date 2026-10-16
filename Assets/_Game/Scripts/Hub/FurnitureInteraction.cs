@@ -146,7 +146,7 @@ namespace PawPath.Hub
             if (item.interactionAnimation != null)
             {
                 var animator = cat.GetComponentInChildren<Animator>();
-                if (animator != null) animator.Play(item.interactionAnimation.name, 0, 0f);
+                if (animator != null && animator.runtimeAnimatorController != null) animator.Play(item.interactionAnimation.name, 0, 0f);
             }
             if (item.interactionType == ItemInteractionType.Eating &&
                 cat.Definition != null && cat.Definition.useDetailedHomeAnimations &&

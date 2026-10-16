@@ -43,7 +43,7 @@ public static class RealisticHomeBackgroundBuilder
         catalog.homeBackground = background;
         catalog.shopBackground = background;
         EditorUtility.SetDirty(catalog);
-        AssetDatabase.SaveAssets();
+        EditorSave.Save(catalog);
         Debug.Log("Gerçekçi kedi evi arka planı uygulandı.");
     }
 }

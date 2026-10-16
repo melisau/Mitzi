@@ -41,6 +41,8 @@ namespace PawPath.Hub
         ResidentActivity arrivalActivity = ResidentActivity.Standing;
         Transform visual;
         Animator animator;
+        // Kontrolcüsü olmayan Animator'a Play/speed göndermek konsolu uyarıyla doldurur.
+        bool HasAnimator => animator != null && animator.runtimeAnimatorController != null;
         ResidentActivity animatedActivity = (ResidentActivity)(-1);
         Vector2 lastProgressPosition;
         float stuckTimer;
@@ -67,7 +69,7 @@ namespace PawPath.Hub
                 var target = new Vector3(targetPosition.x, targetPosition.y, transform.position.z);
                 float speed = directedMovement ? walkSpeed * directedSpeedMultiplier :
                     interacting ? walkSpeed * 0.72f : walkSpeed;
-                if (animator != null)
+                if (HasAnimator)
                     animator.speed = directedMovement ? directedAnimationSpeed : 0.92f;
                 transform.position = Vector3.MoveTowards(transform.position, target, speed * Time.deltaTime);
                 if (Vector2.Distance(transform.position, lastProgressPosition) >= 0.025f)
@@ -114,7 +116,7 @@ namespace PawPath.Hub
 
         void UpdateAnimation()
         {
-            if (animator == null || animatedActivity == CurrentActivity)
+            if (!HasAnimator || animatedActivity == CurrentActivity)
                 return;
 
             animatedActivity = CurrentActivity;
