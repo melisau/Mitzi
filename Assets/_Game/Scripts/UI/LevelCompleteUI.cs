@@ -33,10 +33,25 @@ namespace PawPath.UI
             if (rewardText != null)
                 rewardText.text = GameText.L($"Kazandın!  +{reward} Sevgi", $"You won!  +{reward} Love", $"Gewonnen!  +{reward} Liebe");
 
-            if (celebrationImage != null && celebrationFaces != null && celebrationFaces.Length > 0)
+            if (celebrationImage != null)
             {
-                celebrationImage.sprite = celebrationFaces[Random.Range(0, celebrationFaces.Length)];
-                celebrationImage.enabled = celebrationImage.sprite != null;
+                // Öncelik: oyuncunun seçili kedisinin portresi (kendi renginde). Yoksa
+                // katalogdaki kutlama görsellerinden biri. Hiçbiri yoksa boş beyaz kutu
+                // göstermek yerine görsel gizlenir.
+                Sprite face = null;
+                var catalog = GameFlow.Instance != null ? GameFlow.Instance.Catalog : null;
+                if (catalog != null && catalog.cats != null)
+                {
+                    string id = SaveService.Data != null ? SaveService.Data.selectedCatId : null;
+                    var cat = catalog.cats.Find(c => c != null && c.id == id)
+                              ?? catalog.cats.Find(c => c != null && c.isStarterCat);
+                    if (cat != null)
+                        face = cat.portrait != null ? cat.portrait : cat.idleSprite;
+                }
+                if (face == null && celebrationFaces != null && celebrationFaces.Length > 0)
+                    face = celebrationFaces[Random.Range(0, celebrationFaces.Length)];
+                celebrationImage.sprite = face;
+                celebrationImage.enabled = face != null;
             }
         }
 

@@ -188,7 +188,10 @@ namespace PawPath.Hub
             }
 
             // Su kabının kendi karesi yok; başını eğip yeme kareleri içme için de uygun.
-            Sprite[] frames = action == CareAction.Eat ? item?.interactionFrames : null;
+            // Önce kedinin kendi renginde yeme kareleri; yoksa kabın kareleri.
+            Sprite[] frames = cat.Definition != null && cat.Definition.eatFrames != null && cat.Definition.eatFrames.Length > 0
+                ? cat.Definition.eatFrames
+                : action == CareAction.Eat ? item?.interactionFrames : null;
             if ((frames == null || frames.Length == 0) && GameFlow.Instance != null && GameFlow.Instance.Catalog != null)
             {
                 var bowl = GameFlow.Instance.Catalog.GetItem("food_bowl");
@@ -293,7 +296,9 @@ namespace PawPath.Hub
             {
                 // Coroutine zorla kesilmez; son kareden sonra sprite, ölçek ve
                 // Animator her durumda normal haline geri döner.
-                yield return PlayInteractionFrames(cat, item.interactionFrames, 2.4f);
+                var eatFrames = cat.Definition.eatFrames != null && cat.Definition.eatFrames.Length > 0
+                    ? cat.Definition.eatFrames : item.interactionFrames;
+                yield return PlayInteractionFrames(cat, eatFrames, 2.4f);
                 CatNeedsSystem.Instance?.FeedCat(cat.Definition.id);
                 running = false;
                 yield break;
@@ -301,7 +306,9 @@ namespace PawPath.Hub
             if (item.interactionType == ItemInteractionType.Climbing)
             {
                 Sprite[] climbFrames = cat.Definition != null && cat.Definition.useDetailedHomeAnimations
-                    ? item.interactionFrames : null;
+                    ? (cat.Definition.climbFrames != null && cat.Definition.climbFrames.Length > 0
+                        ? cat.Definition.climbFrames : item.interactionFrames)
+                    : null;
                 yield return PlaySmallHomeClimb(cat, climbFrames);
                 CatNeedsSystem.Instance?.RewardInteraction(3, "Kedi ağacına tırmanma");
                 running = false;

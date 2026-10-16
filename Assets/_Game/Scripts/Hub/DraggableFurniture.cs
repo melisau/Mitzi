@@ -56,6 +56,9 @@ namespace PawPath.Hub
 
             if (movable && PlayerPrefs.HasKey(KeyX))
                 transform.position = new Vector3(PlayerPrefs.GetFloat(KeyX), PlayerPrefs.GetFloat(KeyY), transform.position.z);
+            // Eski kayıtlarda duvara çıkmış eşyalar ilk karede zemine çekilir
+            // (ölçek ayarı Configure'dan sonra yapıldığı için bir kare beklenir).
+            needsClamp = movable;
             if (movable && sprite != null)
             {
                 var scale = sprite.transform.localScale;
@@ -71,6 +74,29 @@ namespace PawPath.Hub
                 hitbox = GetComponent<Collider2D>();
             if (hitbox != null)
                 hitbox.enabled = false;
+        }
+
+        bool needsClamp;
+
+        void LateUpdate()
+        {
+            if (!needsClamp)
+                return;
+            needsClamp = false;
+            GetVerticalBounds(out float minY, out float maxY);
+            GetHorizontalBounds(out float minX, out float maxX);
+            var p = transform.position;
+            var clamped = new Vector3(Mathf.Clamp(p.x, minX, maxX), Mathf.Clamp(p.y, minY, maxY), p.z);
+            if ((clamped - p).sqrMagnitude > 1e-6f)
+            {
+                transform.position = clamped;
+                if (PlayerPrefs.HasKey(KeyX))
+                {
+                    PlayerPrefs.SetFloat(KeyX, clamped.x);
+                    PlayerPrefs.SetFloat(KeyY, clamped.y);
+                    PlayerPrefs.Save();
+                }
+            }
         }
 
         void Update()
@@ -142,36 +168,70 @@ namespace PawPath.Hub
                 minX = maxX = (screenLeft + screenRight) * 0.5f;
         }
 
+        // Zeminin arka kenarı (süpürgelik hizası). Kedilerin yürüyebildiği en üst
+        // nokta da budur (CatHomeBehaviour.roomY). Yere konan hiçbir eşyanın tabanı
+        // bunun üstüne çıkamaz; aksi halde duvara tırmanmış gibi görünür.
+        const float FloorBackY = -1.10f;
+        const float BottomPadding = 0.10f;
+
         void GetVerticalBounds(out float minY, out float maxY)
         {
+            if (slotType == FurnitureSlotType.Poster)
+            {
+                // Poster yalnızca duvarın üst bölümüne asılabilir.
+                minY = 0.65f;
+                maxY = 1.55f;
+                return;
+            }
+
+            // Sınırlar görselin gerçek alt/üst kenarına göre hesaplanır (eşyaların
+            // boyları ve pivotları farklı olduğu için sabit pivot sınırı yetmez).
+            float pos = transform.position.y;
+            float bottomOffset = -0.5f, topOffset = 0.5f;
+            if (sprite != null && sprite.sprite != null)
+            {
+                Bounds b = sprite.bounds;
+                bottomOffset = b.min.y - pos;
+                topOffset = b.max.y - pos;
+            }
+
+            float screenBottom = -4.45f;
+            var cam = Camera.main;
+            if (cam != null)
+            {
+                float depth = Mathf.Abs(transform.position.z - cam.transform.position.z);
+                screenBottom = cam.ViewportToWorldPoint(new Vector3(0.5f, 0f, depth)).y;
+            }
+
+            // Ön sınır: eşyanın alt kenarı ekranın altına kadar inebilir.
+            minY = screenBottom + BottomPadding - bottomOffset;
+
             switch (slotType)
             {
-                case FurnitureSlotType.Poster:
-                    // Poster yalnızca duvarın üst bölümüne asılabilir.
-                    minY = 0.65f;
-                    maxY = 1.55f;
-                    break;
                 case FurnitureSlotType.Rug:
-                case FurnitureSlotType.Sand:
-                    minY = -2.35f;
-                    maxY = -1.55f;
+                    // Halı yere yatık durur: arka kenarı süpürgeliği geçemez.
+                    maxY = FloorBackY + 0.05f - topOffset;
+                    break;
+                case FurnitureSlotType.Bed:
+                    // Yatağın tabanı zeminin içinde, süpürgeliğin biraz önünde kalır.
+                    maxY = FloorBackY - 0.25f - bottomOffset;
                     break;
                 case FurnitureSlotType.Bowl:
                 case FurnitureSlotType.Water:
                 case FurnitureSlotType.Toy:
-                    minY = -2.65f;
-                    maxY = -1.25f;
+                    maxY = FloorBackY - 0.15f - bottomOffset;
                     break;
-                case FurnitureSlotType.Bed:
-                case FurnitureSlotType.Tree:
-                    minY = -2.05f;
-                    maxY = -0.85f;
+                case FurnitureSlotType.Sand:
+                    maxY = FloorBackY - 0.15f - bottomOffset;
                     break;
                 default:
-                    minY = -2.05f;
-                    maxY = -0.75f;
+                    // Kedi ağacı ve diğer büyük eşyalar duvara yaslanabilir.
+                    maxY = FloorBackY - 0.05f - bottomOffset;
                     break;
             }
+
+            if (maxY < minY)
+                maxY = minY;
         }
 
         static bool PointerOverUi()

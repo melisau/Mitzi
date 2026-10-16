@@ -12,7 +12,8 @@ namespace PawPath.Hub
         Sleeping,
         Eating,
         Drinking,
-        Playing
+        Playing,
+        Lying       // uyanık uzanma (boşta bekleme çeşitlemesi)
     }
 
     /// <summary>
@@ -49,12 +50,16 @@ namespace PawPath.Hub
 
         static readonly int WalkState = Animator.StringToHash("Walk");
         static readonly int SitState = Animator.StringToHash("Sit");
+        static readonly int IdleState = Animator.StringToHash("Idle");
+        static readonly int LieState = Animator.StringToHash("Lie");
 
         void Awake()
         {
             visual = transform.Find("Visual");
             animator = visual != null ? visual.GetComponent<Animator>() : GetComponentInChildren<Animator>();
             BeginRest();
+            // Kediler aynı anda kalkıp yürümeye başlamasın.
+            stateTimer += Random.Range(0f, 3f);
         }
 
         void Update()
@@ -129,7 +134,19 @@ namespace PawPath.Hub
             else if (CurrentActivity == ResidentActivity.Sitting && animator.HasState(0, SitState))
             {
                 animator.Play(SitState, 0, 0f);
+                animator.speed = Random.Range(0.85f, 1.15f);
+            }
+            else if (CurrentActivity == ResidentActivity.Lying && animator.HasState(0, LieState))
+            {
+                animator.Play(LieState, 0, 0f);
                 animator.speed = 1f;
+            }
+            else if (CurrentActivity == ResidentActivity.Standing && animator.HasState(0, IdleState))
+            {
+                // Ayakta bekleme: nefes alan duruş. Her kedi döngünün farklı yerinden ve
+                // biraz farklı hızda başlar, böylece hepsi aynı anda aynı pozda olmaz.
+                animator.Play(IdleState, 0, Random.value);
+                animator.speed = Random.Range(0.75f, 1.25f);
             }
             else
             {
@@ -282,13 +299,18 @@ namespace PawPath.Hub
 
         void BeginRest()
         {
+            // Boşta bekleme: ayakta, oturma, uzanma veya uyuma rastgele seçilir;
+            // süre ve bakılan yön de her kedi için farklıdır.
             float roll = Random.value;
-            CurrentActivity = roll < 0.45f
-                ? ResidentActivity.Standing
-                : roll < 0.78f ? ResidentActivity.Sitting : ResidentActivity.Sleeping;
-            stateTimer = CurrentActivity == ResidentActivity.Sleeping
-                ? Random.Range(5f, 9f)
-                : Random.Range(2f, 5f);
+            CurrentActivity = roll < 0.30f ? ResidentActivity.Standing
+                : roll < 0.58f ? ResidentActivity.Sitting
+                : roll < 0.80f ? ResidentActivity.Lying
+                : ResidentActivity.Sleeping;
+            stateTimer = CurrentActivity == ResidentActivity.Sleeping ? Random.Range(6f, 12f)
+                : CurrentActivity == ResidentActivity.Lying ? Random.Range(4f, 9f)
+                : Random.Range(2.5f, 6f);
+            if (Random.value < 0.4f && visual != null)
+                Face(transform.position.x + (visual.localScale.x >= 0f ? -1f : 1f));
         }
 
         void Face(float x)

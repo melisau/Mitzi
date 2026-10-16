@@ -179,7 +179,9 @@ namespace PawPath.Cat
             keyboardJumpQueued = false;
             climbing = true;
             perched = false;
-            climbFrames = frames;
+            // Her kedi kendi renginde tırmanır; tanımda kare yoksa ağacın ortak kareleri.
+            climbFrames = definition != null && definition.climbFrames != null && definition.climbFrames.Length > 0
+                ? definition.climbFrames : frames;
             climbFrameIndex = 0;
             climbFrameTimer = 0f;
             climbTopPoseApplied = false;

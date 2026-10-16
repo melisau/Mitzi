@@ -22,7 +22,7 @@ namespace PawPath.EditorTools
     {
         const string CatalogPath = "Assets/_Game/Content/PawPathCatalog.asset";
         const string Root = "Assets/_Game/Art/Cats";
-        const string SessionKey = "PawPath.CatBreedAnimationBuilder.v5";
+        const string SessionKey = "PawPath.CatBreedAnimationBuilder.v8";
         // Zemin karelerinin tuvali 1120 px yüksek; diğer oyun kareleriyle aynı 11.5 birim.
         const float PixelsPerUnit = 1120f / 11.5f;
         // Zemin/hava karelerinde patiler tuvalin altından %4.5 yukarıda. Pivotu, eski
@@ -32,18 +32,18 @@ namespace PawPath.EditorTools
 
         static readonly string[] CatIds = { "mitzi", "pamuk", "komur", "tarcin", "moka", "ada" };
 
-        // Yürüme: 18 kare, 24 fps (0.75 sn'lik döngü). Ara kareler hareket miktarına
-        // göre dağıtıldığı için adımlar eşit hızda akar, takılma/aksama olmaz.
+        // Yürüme: 24 kare, 30 fps (0.8 sn'lik döngü). Dört bacak sırayla, eklemli adım atar;
+        // yerdeki pati zeminde sabit kalır, öne savrulan pati kalkar.
         static readonly string[] WalkFrames =
-            Enumerable.Range(1, 18).Select(i => $"walk_{i:00}").ToArray();
+            Enumerable.Range(1, 24).Select(i => $"walk_{i:00}").ToArray();
 
         // durum adı -> (kareler, fps, döngü)
         static readonly (string state, string[] frames, float fps, bool loop)[] States =
         {
-            ("Walk",   WalkFrames, 24f, true),
+            ("Walk",   WalkFrames, 30f, true),
             ("Idle",   new[] { "idle_01", "idle_02" }, 1.5f, true),
             ("Jump",   new[] { "jump_01", "jump_02", "jump_03", "jump_04_land" }, 7f, false),
-            ("Crouch", new[] { "jump_01" }, 1f, false),
+            ("Crouch", new[] { "crouch_01" }, 1f, false),   // gövde yere yaklaşır, bacaklar bükülür
             ("Sit",    new[] { "sit_01", "sit_02" }, 4f, false),
             ("Lie",    new[] { "lie_01" }, 1f, false),
             ("Sleep",  new[] { "sleep_01" }, 1f, false),
@@ -130,10 +130,35 @@ namespace PawPath.EditorTools
                 cat.walkFrames = Frames(sprites, WalkFrames);
                 cat.idleFrames = Frames(sprites, "idle_01", "idle_02");
                 cat.jumpFrames = Frames(sprites, "jump_01", "jump_02", "jump_03", "jump_04_land");
+                // Tırmanma: her kedi kendi renginde (ağaçta ve evdeki kedi ağacında).
+                cat.climbFrames = Frames(sprites, "climb_01", "climb_02", "climb_03", "climb_04");
+                // Mama yeme: kedinin kendi renginde 4 kare (yoksa mama kabının kareleri kullanılır).
+                cat.eatFrames = Enumerable.Range(1, 4)
+                    .Select(i => ImportSprite($"{folder}/{id}_eatanim_{i:00}.png", new Vector2(0.5f, 0.5f)))
+                    .Where(sp => sp != null).ToArray();
                 // Evde uyuma (yatma -> uyuma) geçişini bütün kediler için aç.
                 cat.useDetailedHomeAnimations = true;
                 EditorUtility.SetDirty(cat);
                 built++;
+            }
+
+            // Kazanma ekranı arka planı boşsa proje kökündeki görseli bağla.
+            if (catalog.completionBackground == null)
+            {
+                const string completionPath = "Assets/complete_screen.jpg";
+                var bg = AssetDatabase.LoadAssetAtPath<Sprite>(completionPath);
+                if (bg == null)
+                {
+                    var importer = AssetImporter.GetAtPath(completionPath) as TextureImporter;
+                    if (importer != null)
+                    {
+                        importer.textureType = TextureImporterType.Sprite;
+                        importer.spriteImportMode = SpriteImportMode.Single;
+                        importer.SaveAndReimport();
+                        bg = AssetDatabase.LoadAssetAtPath<Sprite>(completionPath);
+                    }
+                }
+                catalog.completionBackground = bg;
             }
 
             EditorUtility.SetDirty(catalog);
