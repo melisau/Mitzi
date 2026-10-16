@@ -47,7 +47,7 @@ Görseli üretince bana yükle; arka planı temizleyip, ışığı odaya uydurup
 - `water_rose` — dusty rose ceramic cat water fountain bowl filled with clear water, [stil]
 
 ### Kum kabı (`sand_*`)
-> Kum kabı animasyon kareleri (`cat_sand_in`, `cat_sand_in2`, `cat_sand_out`) kabın kendisini içerir. Yeni kum kabı modeli eklemek için o üç karenin de aynı kapla yeniden üretilmesi gerekir; bu yüzden şimdilik tek model var.
+> Kum kabı animasyon kareleri kabın kendisini ve kediyi içerir. Her kedinin kendi rengindeki kareleri `Assets/_Game/Art/Cats/<kedi>/<kedi>_litter_{out,in2,in}.png` dosyalarındadır ve `python3 tools/build_litter_frames.py` ile kedinin kendi görsellerinden üretilir (yeni kedi eklersen bu betiği çalıştır). `Assets/cat_sand_*.png` yalnız yedek olarak kalır. Yeni kum kabı modeli eklemek için bu karelerin de aynı kapla yeniden üretilmesi gerekir; bu yüzden şimdilik tek model var.
 - `sand_wood` — covered wooden cat litter box shaped like a small cottage with a round door opening, light oak wood, [stil]
   - Kareler: aynı kum kabı, (1) gri tabby kedi kapıdan içeri giriyor, (2) kedi içeride oturuyor, (3) kedi kapıdan çıkıyor — her biri ayrı görsel.
 

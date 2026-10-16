@@ -130,6 +130,15 @@ namespace PawPath.EditorTools
                 cat.walkFrames = Frames(sprites, WalkFrames);
                 cat.idleFrames = Frames(sprites, "idle_01", "idle_02");
                 cat.jumpFrames = Frames(sprites, "jump_01", "jump_02", "jump_03", "jump_04_land");
+                // Evdeki etkileşimlerde ortak gri kareler yerine kedinin kendi rengi görünsün.
+                cat.eatFrames = Frames(sprites, "eat_01");
+                cat.climbFrames = Frames(sprites, "climb_01", "climb_02", "climb_03", "climb_04");
+                // Kum kabı kareleri tools/build_litter_frames.py ile üretilir (giriş, içeride, kumda).
+                var litter = new[] { "litter_out", "litter_in2", "litter_in" }
+                    .Select(f => AssetDatabase.LoadAssetAtPath<Sprite>($"{folder}/{id}_{f}.png"))
+                    .ToArray();
+                if (litter.All(sp => sp != null))
+                    cat.litterFrames = litter;
                 // Evde uyuma (yatma -> uyuma) geçişini bütün kediler için aç.
                 cat.useDetailedHomeAnimations = true;
                 EditorUtility.SetDirty(cat);

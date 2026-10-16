@@ -30,7 +30,9 @@ namespace PawPath.Levels
 
             if (mobileUp)
                 MobileControlState.ConsumeJump();
-            nearbyCat.BeginClimb(perch.position, climbingFrames, 2.8f);
+            // Seçili kedinin kendi tırmanma kareleri varsa onları kullan (yoksa ortak kareler).
+            var own = nearbyCat.Definition != null ? nearbyCat.Definition.climbFrames : null;
+            nearbyCat.BeginClimb(perch.position, own != null && own.Length > 0 ? own : climbingFrames, 2.8f);
         }
 
         void OnTriggerEnter2D(Collider2D other)
