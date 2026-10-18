@@ -8,7 +8,18 @@ public sealed class ReleaseReadinessGuard : IPreprocessBuildWithReport
     public void OnPreprocessBuild(BuildReport report)
     {
         if(report.summary.platform==BuildTarget.Android && (report.summary.options&BuildOptions.Development)==0 && !PawPath.Editor.AndroidReleaseBuilder.IsDeviceTestBuild)
-            PawPath.Editor.AndroidReleaseBuilder.RequireProductionConfiguration();
+            ValidateAndroidConfiguration(EditorUserBuildSettings.buildAppBundle, EditorUserBuildSettings.exportAsGoogleAndroidProject);
+    }
+
+    public static void ValidateAndroidConfiguration(bool appBundle, bool exportProject)
+    {
+        var config = PawPath.Core.ReleaseConfiguration.Current;
+        if (!appBundle && !exportProject && config != null && !config.advertisingEnabled)
+        {
+            UnityEngine.Debug.Log("Device-test APK: live advertisements are disabled. Store readiness checks still apply to AAB/export builds.");
+            return;
+        }
+        PawPath.Editor.AndroidReleaseBuilder.RequireProductionConfiguration();
     }
 }
 #endif

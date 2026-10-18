@@ -44,6 +44,9 @@ namespace PawPath.Editor
         [MenuItem("Mitzi/Android/Build Signed AAB")]
         public static void Build() => BuildPackage(false,false);
 
+        [MenuItem("Mitzi/Android/Build Signed Device Test APK")]
+        public static void BuildCandidateApk() => BuildPackage(true,true);
+
         [MenuItem("Mitzi/Android/Build Signed Device Test Packages")]
         public static void BuildCandidatePackages()
         {
@@ -109,7 +112,9 @@ namespace PawPath.Editor
             if(config==null || !config.privacyPolicyReviewed || !Uri.TryCreate(config.privacyPolicyUrl,UriKind.Absolute,out var uri) || uri.Scheme!="https")
                 throw new BuildFailedException("Review the privacy policy and configure its public HTTPS URL in Resources/ReleaseConfiguration before a store build.");
             bool ValidId(string id,string separator)=>!string.IsNullOrWhiteSpace(id) && !id.Contains("3940256099942544") && System.Text.RegularExpressions.Regex.IsMatch(id,"^ca-app-pub-[0-9]{16}"+separator+"[0-9]{10}$");
-            if(!config.advertisingEnabled || !ValidId(config.androidAppId,"~") || !ValidId(config.androidRewardedAdUnitId,"/"))
+            if(!config.advertisingEnabled)
+                throw new BuildFailedException("Live advertisements are disabled. For phone testing, build an APK with Build App Bundle unchecked, or use Mitzi > Android > Build Signed Device Test APK. Store AAB builds require the completed production configuration.");
+            if(!ValidId(config.androidAppId,"~") || !ValidId(config.androidRewardedAdUnitId,"/"))
                 throw new BuildFailedException("Real Android AdMob app and rewarded ad unit IDs are required. Device test packages remain available without live ads.");
             var settings=AssetDatabase.LoadMainAssetAtPath("Assets/GoogleMobileAds/Resources/GoogleMobileAdsSettings.asset");
             if(settings==null)throw new BuildFailedException("Google Mobile Ads settings missing.");

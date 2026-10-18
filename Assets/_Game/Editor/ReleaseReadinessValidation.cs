@@ -23,6 +23,22 @@ public static class ReleaseReadinessValidation
             bool blocked=false;
             try{PawPath.Editor.AndroidReleaseBuilder.RequireProductionConfiguration();}catch(BuildFailedException){blocked=true;}
             Check(blocked,"Store build accepted missing production settings");
+            ReleaseReadinessGuard.ValidateAndroidConfiguration(false,false);
+            foreach(var destination in new[]{new[]{true,false},new[]{false,true}})
+            {
+                blocked=false;
+                try{ReleaseReadinessGuard.ValidateAndroidConfiguration(destination[0],destination[1]);}catch(BuildFailedException){blocked=true;}
+                Check(blocked,"Store AAB/export accepted disabled production ads");
+            }
+            string savedAdUnit=config.androidRewardedAdUnitId;
+            try
+            {
+                config.advertisingEnabled=true;config.androidRewardedAdUnitId="";blocked=false;
+                try{ReleaseReadinessGuard.ValidateAndroidConfiguration(false,false);}catch(BuildFailedException){blocked=true;}
+                Check(blocked,"Live-ad APK accepted missing ad unit ID");
+            }
+            finally{config.advertisingEnabled=false;config.androidRewardedAdUnitId=savedAdUnit;}
+            Debug.Log("ANDROID_APK_STORE_GUARD_VALIDATION_PASS");
             var flow=GameFlow.Instance;var buttons=flow.GetComponentsInChildren<Button>(true);
             buttons.First(b=>b.name=="SettingsButton").onClick.Invoke();buttons.First(b=>b.name=="PrivacyPolicyButton").onClick.Invoke();
             var close=buttons.First(b=>b.name=="ClosePrivacyPolicy");

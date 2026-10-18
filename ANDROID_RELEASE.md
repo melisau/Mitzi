@@ -58,3 +58,9 @@ References: [Google Play target API](https://support.google.com/googleplay/andro
 The latest signed AAB/APK and verification report are in `Builds/Android/PrivacyUpdate/`. The privacy text identifies the app as Mitzi and omits the developer's personal name, retaining the supplied contact email. The AAB was additionally converted with bundletool to a universal APK to confirm all four native libraries remain compressed; that verification APK uses the local debug certificate and is not the signed device-release APK. Only the signed device-test APK was installed. Public policy hosting is complete at https://melisau.github.io/Mitzi/privacy.html; production AdMob IDs have been configured; account/app approval, live-ad enablement and Play declarations remain pending.
 
 CI Android store builds remain disabled until repository variable `MITZI_STORE_BUILD_READY=true` is explicitly configured after real ad IDs, policy review and signing-secret verification. The compile job still runs on main pushes. Existing remote signing secrets have not been replaced; check they match the chosen upload certificate before enabling store CI.
+
+## Phone APK builds with advertisements disabled
+
+For Unity Build Settings > Build / Build And Run, uncheck **Build App Bundle (Google Play)** and **Export Project**. A non-development APK is allowed while `ReleaseConfiguration.advertisingEnabled=false`; there is no need to enable live ads or Development Build for this test. AAB/export builds, and APKs with live ads enabled, retain production validation. The error distinguishes disabled ads from missing ad IDs.
+
+Use **Mitzi > Android > Build Signed Device Test APK** for an APK signed with the configured upload-key environment. The local helper supports `-ApkOnly`. A freshly signed APK with the Egyptian Mau paw icon is generated under `Builds/Android/DeviceTestFix/`; previous artifacts are preserved.

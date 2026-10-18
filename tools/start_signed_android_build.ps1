@@ -2,6 +2,7 @@ param(
     [Parameter(Mandatory=$true)][string]$ProjectPath,
     [Parameter(Mandatory=$true)][string]$OutputDirectory,
     [Parameter(Mandatory=$true)][string]$LogPath,
+    [switch]$ApkOnly,
     [string]$UnityPath="C:/Program Files/Unity/Hub/Editor/2022.3.62f3/Editor/Unity.exe",
     [string]$CredentialPath=(Join-Path $env:USERPROFILE '.mitzi-signing/signing.credentials.xml')
 )
@@ -16,7 +17,8 @@ try {
     $env:MITZI_ANDROID_KEYSTORE_PASSWORD=[pscredential]::new('upload',$signing.StorePassword).GetNetworkCredential().Password
     $env:MITZI_ANDROID_KEY_PASSWORD=[pscredential]::new('upload',$signing.KeyPassword).GetNetworkCredential().Password
     $env:MITZI_ANDROID_OUTPUT_DIR=[IO.Path]::GetFullPath($OutputDirectory)
-    $arguments=@('-batchmode','-quit','-buildTarget','Android','-projectPath',('"'+$projectRoot+'"'),'-executeMethod','PawPath.Editor.AndroidReleaseBuilder.BuildCandidatePackages','-logFile',('"'+[IO.Path]::GetFullPath($LogPath)+'"'))
+    $buildMethod=if($ApkOnly){'PawPath.Editor.AndroidReleaseBuilder.BuildCandidateApk'}else{'PawPath.Editor.AndroidReleaseBuilder.BuildCandidatePackages'}
+    $arguments=@('-batchmode','-quit','-buildTarget','Android','-projectPath',('"'+$projectRoot+'"'),'-executeMethod',$buildMethod,'-logFile',('"'+[IO.Path]::GetFullPath($LogPath)+'"'))
     $buildProcess=Start-Process -WindowStyle Hidden -FilePath $UnityPath -ArgumentList $arguments -PassThru
     Write-Output ('Android build PID: '+$buildProcess.Id)
 } finally {
