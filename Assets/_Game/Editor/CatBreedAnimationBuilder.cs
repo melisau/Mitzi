@@ -16,7 +16,7 @@ namespace PawPath.EditorTools
     {
         const string CatalogPath = "Assets/_Game/Content/PawPathCatalog.asset";
         const string PackRoot = "Assets/_Game/Art/AnimalsRealistic/Cats";
-        const string SessionKey = "PawPath.CatBreedAnimationBuilder.realistic.v10.jumpapex";
+        const string SessionKey = "PawPath.CatBreedAnimationBuilder.realistic.v11.bodyproportions";
         // Common canvas and PPU keep scale stable between poses.
         const float PixelsPerUnit = 100f;
         // Extraction registers paws at 92% of the canvas height.
@@ -249,7 +249,54 @@ namespace PawPath.EditorTools
                 .Select(key => BodyHeightPixels($"{folder}/{key}.png")).Where(h => h > 0f).OrderBy(h => h).ToArray();
             if (standing <= 0f || heights.Length == 0) return PixelsPerUnit;
             float median = (heights[(heights.Length - 1) / 2] + heights[heights.Length / 2]) * 0.5f;
-            return PixelsPerUnit * Mathf.Clamp(median / standing, 0.65f, 1.35f);
+            // A lowered head during a stride must not enlarge the entire torso.
+            // Keep the stronger of the head-height and torso-thickness constraints,
+            // with a single import scale for the whole loop (no per-frame pulsing).
+            float torso = TorsoThicknessPixels($"{folder}/idle_01.png");
+            var thicknesses = WalkKeys(System.IO.Path.GetFileName(folder))
+                .Select(key => TorsoThicknessPixels($"{folder}/{key}.png"))
+                .Where(h => h > 0f).OrderBy(h => h).ToArray();
+            float ratio = median / standing;
+            if (torso > 0f && thicknesses.Length > 0)
+            {
+                float walkingTorso = (thicknesses[(thicknesses.Length - 1) / 2] + thicknesses[thicknesses.Length / 2]) * .5f;
+                ratio = Mathf.Max(ratio, walkingTorso / torso);
+            }
+            return PixelsPerUnit * Mathf.Clamp(ratio, 0.65f, 1.35f);
+        }
+
+        static float TorsoThicknessPixels(string path)
+        {
+            var texture = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+            try
+            {
+                if (!texture.LoadImage(System.IO.File.ReadAllBytes(path))) return 0f;
+                var pixels = texture.GetPixels32();
+                int left = texture.width, right = -1;
+                for (int y = 0; y < texture.height; y++)
+                for (int x = 0; x < texture.width; x++)
+                    if (pixels[y * texture.width + x].a > 96)
+                    { left = Mathf.Min(left, x); right = Mathf.Max(right, x); }
+                if (right <= left) return 0f;
+                var thicknesses = new List<int>();
+                // Mid-body columns exclude head and tail. The longest solid run
+                // ignores detached paws and the tail without counting empty pixels.
+                for (int x = Mathf.FloorToInt(left + (right - left) * .35f);
+                    x < Mathf.FloorToInt(left + (right - left) * .60f); x++)
+                {
+                    int run = 0, longest = 0;
+                    for (int y = 0; y < texture.height; y++)
+                    {
+                        run = pixels[y * texture.width + x].a > 96 ? run + 1 : 0;
+                        longest = Mathf.Max(longest, run);
+                    }
+                    if (longest > 0) thicknesses.Add(longest);
+                }
+                thicknesses.Sort();
+                return thicknesses.Count == 0 ? 0f :
+                    (thicknesses[(thicknesses.Count - 1) / 2] + thicknesses[thicknesses.Count / 2]) * .5f;
+            }
+            finally { Object.DestroyImmediate(texture); }
         }
 
         static float BodyHeightPixels(string path)

@@ -5,24 +5,23 @@ using PawPath.Economy;
 namespace PawPath.Levels
 {
     /// <summary>
-    /// Her 10 tamamlanan bölümde henüz açılmamış bir kediyi koleksiyona yazar.
+    /// Belirlenen kurtarma bölümlerinde henüz açılmamış bir kediyi koleksiyona yazar.
     /// </summary>
     public static class CatUnlockService
     {
-        public const int Interval = 10;
 
         public static CatDefinition WaitingAtLevel(int level)
         {
-            if(level<=0 || level%Interval!=0)return null;
+            if(level<=0)return null;
             var catalog=GameFlow.Instance != null ? GameFlow.Instance.Catalog : null;
             if(catalog==null)return null;
-            return catalog.cats.Find(cat=>cat!=null && cat.unlockAfterLevel==level && !SaveService.HasCat(cat.id));
+            return catalog.cats.Find(cat=>cat!=null && cat.unlockAfterLevel>0 && cat.unlockAfterLevel<=level && !SaveService.HasCat(cat.id));
         }
 
         public static bool TryUnlockAfterLevel(int completedLevel, out CatDefinition unlocked)
         {
             unlocked = null;
-            if (completedLevel <= 0 || completedLevel % Interval != 0)
+            if (completedLevel <= 0)
                 return false;
 
             var catalog = GameFlow.Instance != null ? GameFlow.Instance.Catalog : null;
@@ -33,7 +32,7 @@ namespace PawPath.Levels
             {
                 if (cat == null)
                     continue;
-                if (cat.unlockAfterLevel != completedLevel)
+                if (cat.unlockAfterLevel <= 0 || cat.unlockAfterLevel > completedLevel)
                     continue;
                 if (SaveService.HasCat(cat.id))
                     continue;

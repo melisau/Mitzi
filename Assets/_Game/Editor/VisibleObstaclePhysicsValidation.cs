@@ -23,6 +23,9 @@ public static class VisibleObstaclePhysicsValidation
             var course=GameFlow.Instance.GetComponentInChildren<LevelCourseBuilder>(true);
             var level=GameFlow.Instance.GetComponent<LevelManager>();
             int testedTrees=0;
+            foreach(var difficulty in new[]{DifficultyLevel.Easy,DifficultyLevel.Medium,DifficultyLevel.Hard})
+            {
+            GameDifficulty.Select(difficulty);
             for(int theme=0;theme<4;theme++)
             {
                 PlayerPrefs.SetInt("PawPath.SelectedTheme",theme);Call(level,"ApplyLevelTheme",171);
@@ -39,6 +42,8 @@ public static class VisibleObstaclePhysicsValidation
                     }
                 }
             }
+            }
+            GameDifficulty.SelectAutomatic();
             Check(testedTrees>0,"Tree separation test exercised no trees");
             // Conservative ice-speed jump from the highest allowed perch.
             float gravity=9.81f*2.4f, first=7.344f, second=8.784f;

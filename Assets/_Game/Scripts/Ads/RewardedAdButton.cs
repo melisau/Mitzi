@@ -1,4 +1,4 @@
-﻿using PawPath.Audio;
+using PawPath.Audio;
 using PawPath.Economy;
 using PawPath.Localization;
 using UnityEngine;
@@ -63,7 +63,12 @@ namespace PawPath.Ads
 
             string text;
             bool interactable;
-            if (ads == null || left == 0)
+            if (!AdsConfig.RuntimeAdvertisingEnabled)
+            {
+                text = GameText.L("Reklamlar kapalı", "Ads are disabled", "Werbung deaktiviert");
+                interactable = false;
+            }
+            else if (ads == null || left == 0)
             {
                 text = GameText.L("Bugünlük reklam bitti", "No more ads today", "Heute keine Werbung mehr");
                 interactable = false;

@@ -9,11 +9,12 @@ public static class RescueMilestoneBuilder
     {
         var catalog=AssetDatabase.LoadAssetAtPath<PawPathCatalog>("Assets/_Game/Content/PawPathCatalog.asset");if(catalog==null)return;
         string[] ids={"pamuk","komur","tarcin","ada","moka"};
+        int[] milestones={7,20,30,40,50};
         for(int i=0;i<ids.Length;i++)
         {
             var cat=catalog.GetCat(ids[i]);if(cat==null)continue;
-            if(cat.unlockAfterLevel==(i+1)*10)continue;
-            cat.unlockAfterLevel=(i+1)*10;EditorUtility.SetDirty(cat);
+            if(cat.unlockAfterLevel==milestones[i])continue;
+            cat.unlockAfterLevel=milestones[i];EditorUtility.SetDirty(cat);
         }
         EditorSave.Save(catalog);
     }

@@ -161,7 +161,7 @@ namespace PawPath.UI
             {
                 bool drawing = GameplayMode.IsDrawing;
                 foreach (Transform control in mobileControls.transform)
-                    control.gameObject.SetActive(!drawing || control.name == "Jump");
+                    control.gameObject.SetActive(!drawing || control.name == "Jump" || control.name == "Crouch");
                 mobileControls.SetActive(!drawing);
             }
             if (inkLabel != null)

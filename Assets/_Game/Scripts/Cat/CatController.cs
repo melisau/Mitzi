@@ -62,6 +62,7 @@ namespace PawPath.Cat
         float stepTimer;
         bool climbing;
         bool perched;
+        bool perchJump;
         float climbUntil;
         float climbFrameTimer;
         int climbFrameIndex;
@@ -85,6 +86,7 @@ namespace PawPath.Cat
         public bool IsBusy => busy;
         public CatDefinition Definition => definition;
         public bool IsClimbing => climbing || perched;
+        public bool CanStartClimb => !IsClimbing && !intentionalJump && body != null && IsGrounded(out _);
 
         public void BounceAfterDogStomp()
         {
@@ -260,7 +262,7 @@ namespace PawPath.Cat
 
         public void BeginClimb(Vector2 perchPosition, Sprite[] frames, float duration)
         {
-            if (climbing || perched || body == null) return;
+            if (climbing || perched || intentionalJump || body == null || perchPosition.y <= transform.position.y + .25f) return;
             keyboardJumpQueued = false;
             climbing = true;
             perched = false;
@@ -280,7 +282,7 @@ namespace PawPath.Cat
             // Kedi ağacın üzerinde dikey yükselir. Hedef ağacın tepesidir fakat
             // bozuk bir pivot olması halinde tek tırmanışta aşırı yükselmez.
             climbTargetPosition = new Vector2(perchPosition.x - facing * 0.35f,
-                Mathf.Clamp(perchPosition.y, climbStartPosition.y + 2.0f, climbStartPosition.y + 5.2f));
+                Mathf.Min(perchPosition.y, climbStartPosition.y + 5.2f));
             if (animator != null) animator.enabled = false;
             if (sprite != null && climbFrames != null && climbFrames.Length > 0 && climbFrames[0] != null)
             {
@@ -291,6 +293,8 @@ namespace PawPath.Cat
 
         void UpdateClimbing()
         {
+            // Taps made while mounting must not queue another ascent at the top.
+            MobileControlState.ConsumeJump();
             body.velocity = Vector2.zero;
             float elapsed = Time.time - climbStartTime;
             if (elapsed < ClimbAlignDuration)
@@ -364,14 +368,21 @@ namespace PawPath.Cat
 
             if (jumpRequested)
                 MobileControlState.ConsumeJump();
+            float horizontal = MobileControlState.Horizontal;
+            if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) horizontal -= 1f;
+            if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) horizontal += 1f;
+            if (Mathf.Abs(horizontal) > .01f) facing = horizontal > 0f ? 1 : -1;
             perched = false;
             body.gravityScale = normalGravityScale;
             if (animator != null)
                 animator.enabled = animator.runtimeAnimatorController != null;
             if (jumpRequested)
             {
-                intentionalJump = true; jumpLeftGround = false;
-                body.velocity = new Vector2(0f, bounceForce * 0.75f);
+                perchJump = true;
+                jumpsRemaining = 2;
+                keyboardJumpQueued = true;
+                body.velocity = new Vector2(facing * moveSpeed, 0f);
+                TryJump();
             }
             keyboardJumpQueued = false;
         }
@@ -381,6 +392,7 @@ namespace PawPath.Cat
             intentionalJump = false; jumpLeftGround = false; jumpAnimationPlaying = false;
             climbing = false;
             perched = false;
+            perchJump = false;
             facing = 1;
             if (body != null)
                 body.gravityScale = normalGravityScale;
@@ -428,14 +440,18 @@ namespace PawPath.Cat
             bool grounded = IsGrounded(out var surface);
             UpdateJumpAnimation(grounded);
             if (GameplayMode.IsDrawing)
-                SetCrouching(grounded && CrouchPassage.NeedsCrouch(this,.45f), grounded);
+                SetCrouching(grounded && (MobileControlState.CrouchHeld || Input.GetKey(KeyCode.S) ||
+                    Input.GetKey(KeyCode.DownArrow) || CrouchPassage.NeedsCrouch(this,.45f)), grounded);
             if (!GameplayMode.IsDrawing)
             {
                 UpdateDirectControl(grounded, surface);
                 return;
             }
             if (grounded && body.velocity.y <= 0.15f)
+            {
                 jumpsRemaining = 2;
+                perchJump = false;
+            }
             TryJump();
             if (grounded)
             {
@@ -527,12 +543,16 @@ namespace PawPath.Cat
 void UpdateDirectControl(bool grounded, PathSurfaceType surface)
         {
             if (grounded && body.velocity.y <= 0.15f)
+            {
                 jumpsRemaining = 2;
+                perchJump = false;
+            }
 
             float keyboardHorizontal = 0f;
             if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) keyboardHorizontal -= 1f;
             if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) keyboardHorizontal += 1f;
             float horizontal = Mathf.Clamp(MobileControlState.Horizontal + keyboardHorizontal, -1f, 1f);
+            if (perchJump && !grounded && Mathf.Abs(horizontal) < .01f) horizontal = facing;
             float speed = surface == PathSurfaceType.Ice ? moveSpeed * iceSpeedMultiplier : moveSpeed;
             body.velocity = new Vector2(horizontal * speed, body.velocity.y);
 
@@ -650,7 +670,7 @@ void UpdateDirectControl(bool grounded, PathSurfaceType surface)
                 groundedProbe, groundMask);
             for (int i = 0; i < hits.Length; i++)
             {
-                if (hits[i].collider == null)
+                if (hits[i].collider == null || hits[i].collider.isTrigger)
                     continue;
                 if (hits[i].collider.transform == transform || hits[i].collider.transform.IsChildOf(transform))
                     continue;

@@ -15,7 +15,7 @@ namespace PawPath.Core
         const string CorruptPrimaryKey = "PawPath.Save.v1.corrupt";
         const string CorruptBackupKey = "PawPath.Save.v1.backup.corrupt";
         const string MitziOnlyKey = "PawPath.Developer.MitziOnly";
-        public const int CurrentSchemaVersion = 4;
+        public const int CurrentSchemaVersion = 5;
 
         [Serializable]
         public class FurnitureCopy
@@ -52,8 +52,9 @@ namespace PawPath.Core
         public class SaveData
         {
             public int schemaVersion = CurrentSchemaVersion;
-            public int lovePoints = 0;
+            public int lovePoints = 50;
             public int highestCompletedLevel = 0;
+            public int[] themeCompletedLevels = new int[4];
             public string selectedCatId = "mitzi";
             public List<string> unlockedCatIds = new List<string> { "mitzi" };
             public List<string> ownedItemIds = new List<string>();
@@ -216,6 +217,13 @@ namespace PawPath.Core
             data.schemaVersion = CurrentSchemaVersion;
             data.lovePoints = Mathf.Max(0, data.lovePoints);
             data.highestCompletedLevel = Mathf.Max(0, data.highestCompletedLevel);
+            if (data.themeCompletedLevels == null || data.themeCompletedLevels.Length != 4)
+            {
+                var counts = new int[4];
+                if (data.themeCompletedLevels != null) Array.Copy(data.themeCompletedLevels, counts, Math.Min(4,data.themeCompletedLevels.Length));
+                data.themeCompletedLevels = counts;
+            }
+            for (int i=0;i<4;i++) data.themeCompletedLevels[i] = Mathf.Max(0,data.themeCompletedLevels[i]);
             if (data.unlockedCatIds == null)
                 data.unlockedCatIds = new List<string>();
             if (!data.unlockedCatIds.Contains("mitzi"))

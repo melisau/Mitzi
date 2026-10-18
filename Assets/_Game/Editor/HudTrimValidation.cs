@@ -28,6 +28,26 @@ public static class HudTrimValidation
             var ink=(Text)typeof(HudView).GetField("inkLabel",Private).GetValue(hud);
             GameplayMode.Select(GameplayPlayMode.Drawing);flow.StartNextLevel();Call(hud,"OnLevelStarted");Call(hud,"Update");
             if(!ink.gameObject.activeSelf)throw new Exception("Drawing preparation lost its ink meter");
+            flow.StartGameplayFromDrawing(true);Call(hud,"Update");
+            var controls=(GameObject)typeof(HudView).GetField("mobileControls",Private).GetValue(hud);
+            if(!controls.activeSelf || !controls.transform.Find("Jump").gameObject.activeSelf || !controls.transform.Find("Crouch").gameObject.activeSelf || controls.transform.Find("Left").gameObject.activeSelf)
+                throw new Exception("Drawing mode must expose jump and crouch controls only");
+            var crouchButton=controls.transform.Find("Crouch").GetComponent<MobileControlButton>();
+            crouchButton.OnPointerDown(null);
+            if(!MobileControlState.CrouchHeld)throw new Exception("Drawing crouch button did not hold");
+            var playable=flow.GetComponentInChildren<PawPath.Cat.CatController>(true);
+            Call(playable,"Awake");playable.ApplyCat(catalog.StarterCat);
+            var ground=new GameObject("DrawingCrouchGround");ground.transform.position=new Vector3(1000,-.5f,0);
+            ground.AddComponent<BoxCollider2D>().size=new Vector2(10,1);
+            playable.PlaceAtSpawn(new Vector2(1000,.336f));Physics2D.SyncTransforms();
+            Call(playable,"FixedUpdate");
+            if(!(bool)typeof(PawPath.Cat.CatController).GetField("crouching",Private).GetValue(playable))throw new Exception("Drawing down button did not crouch cat on clear floor");
+            crouchButton.OnPointerUp(null);
+            if(MobileControlState.CrouchHeld)throw new Exception("Drawing crouch stuck after release");
+            Physics2D.SyncTransforms();Call(playable,"FixedUpdate");
+            if((bool)typeof(PawPath.Cat.CatController).GetField("crouching",Private).GetValue(playable))throw new Exception("Drawing cat did not stand after release");
+            UnityEngine.Object.DestroyImmediate(ground);
+            Debug.Log("DRAWING_CROUCH_CONTROL_VALIDATION_PASS");
             GameplayMode.Select(GameplayPlayMode.DirectControl);flow.StartNextLevel();Call(hud,"OnLevelStarted");
             ink.gameObject.SetActive(true);Call(hud,"Update");
             if(ink.gameObject.activeSelf)throw new Exception("Direct controls still show drawing meter");

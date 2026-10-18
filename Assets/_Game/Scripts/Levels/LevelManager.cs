@@ -12,7 +12,7 @@ using PawPath.Gameplay;
 namespace PawPath.Levels
 {
     /// <summary>
-    /// Bölüm ilerlemesi, spawn/hedef yerleştirme ve her 10. bölümde kedi kurtarma.
+    /// Bölüm ilerlemesi, spawn/hedef yerleştirme ve belirlenen bölümlerde kedi kurtarma.
     /// </summary>
     public class LevelManager : MonoBehaviour
     {
@@ -26,6 +26,8 @@ namespace PawPath.Levels
         GameObject waitingRescueCat;
 
         public LevelDefinition Current { get; private set; }
+        public int CurrentTheme { get; private set; }
+        public DifficultyLevel CurrentDifficulty { get; private set; }
         public int DisplayLevel => SaveService.Data.highestCompletedLevel + 1;
         /// <summary>İlerleme çubuğu için bölümün başlangıç ve bitiş noktaları.</summary>
         public Vector2 SpawnPosition => spawnMarker != null ? (Vector2)spawnMarker.position : Vector2.zero;
@@ -70,7 +72,7 @@ namespace PawPath.Levels
             }
 
             if (LineDraw.Instance != null)
-                LineDraw.Instance.ResetInk(Current.inkBudget * 2f);
+                LineDraw.Instance.ResetInk(Current.inkBudget * 2f * (CurrentDifficulty == DifficultyLevel.Easy ? 1.2f : CurrentDifficulty == DifficultyLevel.Hard ? .9f : 1f));
 
             // Hazırlık kilidi HUD olayına bağlı olmamalı; kedi ve fizik ilk kareden
             // itibaren, mürekkep bitene kadar burada bekletilir.
@@ -90,6 +92,8 @@ namespace PawPath.Levels
                 return;
 
             int selectedTheme = ThemeSelectionUI.GetSelectedTheme(levelNumber);
+            CurrentTheme = selectedTheme;
+            CurrentDifficulty = GameDifficulty.ForTheme(selectedTheme);
             bool forestTheme = selectedTheme == 1;
             bool cityTheme = selectedTheme == 2;
             bool cyberTheme = selectedTheme == 3;
@@ -142,10 +146,12 @@ namespace PawPath.Levels
             completionHandled = true;
 
             const int completionReward = 5;
-            int completedLevel = DisplayLevel;
+            int completedLevel = Current != null ? Current.levelNumber : DisplayLevel;
             if (LineDraw.Instance != null)
                 LineDraw.Instance.CanDraw = false;
 
+            if (completedLevel > SaveService.Data.highestCompletedLevel)
+                GameDifficulty.RecordCompletion(CurrentTheme);
             SaveService.Data.highestCompletedLevel = Mathf.Max(SaveService.Data.highestCompletedLevel, completedLevel);
             SaveService.Persist();
             if (CozyEconomyManager.Instance != null)

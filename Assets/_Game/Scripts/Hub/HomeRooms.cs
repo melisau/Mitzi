@@ -12,8 +12,10 @@ namespace PawPath.Hub
         public static HomeRooms Instance { get; private set; }
         public int ActiveRoom => SaveService.Data.activeHomeRoom;
         public float RoomWidth { get; private set; } = 16f;
-        public const float FloorMinY = -2.75f;
-        public const float FloorMaxY = -2.10f;
+        // Furniture bases use actual sprite bounds; cat roots include paw-canvas padding.
+        public const float FurnitureBackY = -1.95f;
+        public const float FloorMinY = -3.40f;
+        public const float FloorMaxY = -2.85f;
         SpriteRenderer[] backgrounds;
         Camera camera;
         GameObject controls;

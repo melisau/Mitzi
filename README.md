@@ -4,22 +4,24 @@ Unity **2022.3.62f3**, Built-in Render Pipeline ile geliştirilen, yatay ilerlem
 
 ## Oynanış
 
-- **Çizerek Oyna:** normal, zıplatıcı, tehlikeli ve buzlu yollar çizin; silgiyi kullanın.
+- **Çizerek Oyna:** normal, zıplatıcı, tehlikeli ve buzlu yollar çizin; silgiyi kullanın. Koşu sırasında yukarı okla zıplayın, aşağı oku basılı tutarak eğilin.
 - **Tuşlarla Oyna:** ekrandaki yön, zıplama ve eğilme düğmeleri; Editor'da klavye desteği.
 - Cadde, orman, şehir ve neo teknoloji mekanları; çukurlar, tümsekler, ağaçlar ve eğilerek geçilen engeller. Şehirde asfalt yol ve açık servis kanalları kullanılır.
 - Köpeğe temas kaybettirir; üstüne zıplayarak köpeği uzaklaştırabilirsiniz. Kuş toplamak alışveriş puanı kazandırır.
-- Mitzi başlangıç kedisidir. Pamuk, Kömür, Tarçın, Ada ve Moka sırasıyla 10, 20, 30, 40 ve 50. bölüm sonunda kurtarılır. Kurtarılacak kedi bitiş kapısının yanında bekler.
+- Mitzi başlangıç kedisidir. Pamuk, Kömür, Tarçın, Ada ve Moka sırasıyla 7, 20, 30, 40 ve 50. bölüm sonunda kurtarılır. Kurtarılacak kedi bitiş kapısının yanında bekler.
 - İlk oynayışta her kontrol biçimi için kısa yazılı, animasyonlu öğretici gösterilir. Türkçe, İngilizce ve Almanca desteklenir.
+
+Otomatik zorluk her mekânda ayrı ilerler: ilk 10 bölüm kolay, 11–20 orta, 21. bölümden itibaren zor. Köpek sayısı/hızı, çukur ve tümsek yoğunluğu ile çizim bütçesi buna göre değişir. Oyna menüsünden Otomatik, Kolay, Orta veya Zor seçilebilir; elle seçilen seviye değiştirilene kadar korunur. Eski kayıtlarda mekân geçmişi tutulmadığından yeni mekân sayaçları sıfırdan başlar; genel ilerleme, bütçe ve kurtarılan kediler korunur.
 
 ## Kedi evi ve ekonomi
 
 İki oda arasında geçiş yapın. Kediler bağımsız dolaşır; bir kediyi seçip yere veya etkileşimli eşyaya dokunarak yönlendirebilirsiniz. Mama, su, uyku, sevme/mırlama, kum kabı ve kedi ağacı etkileşimleri bulunur.
 
-Dükkandan aynı üründen birden fazla alınabilir; yerleştirme, taşıma, çevirme, depolama ve satış desteklenir. Her başarılı alımdan sonra aynı ürünün sonraki fiyatı **×3** artar (40 → 120 → 360). Satış fiyat geçmişini sıfırlamaz. Duvar kağıdı, dükkanın açıldığı odaya uygulanır; odalar farklı görünebilir. Yeni kayıtta mavi oda varsayılandır. Alışveriş sonrasında liste konumu korunur.
+Dükkandan aynı üründen birden fazla alınabilir; yerleştirme, taşıma, çevirme, depolama ve satış desteklenir. Her başarılı alımdan sonra aynı ürünün sonraki fiyatı **×3** artar (40 → 120 → 360). Satış fiyat geçmişini sıfırlamaz. Duvar kağıdı, dükkanın açıldığı odaya uygulanır; odalar farklı görünebilir. Yeni kayıtta mavi oda varsayılandır. Alışveriş sonrasında liste konumu korunur. Eşyalar zemin/duvar sınırları içinde tutulur; yeni eşyalar boş yerlere ayrık yerleşir, oda doluysa depoda saklanır.
 
 Alışveriş puanı ve kedinin sevgi ihtiyacı ayrıdır. Bölüm ödülü 5, kuş ödülü 3, yeni kedi ödülü 10 puandır. Tamamlanan ödüllü reklam 5 alışveriş puanı verir; günlük sınır 3'tür. Bakım ve sevme ödülleri günlük sınırlandırılmıştır. Test bütçesi ve tüm kedileri açma düğmeleri kaldırılmıştır.
 
-İlerleme, envanter, satın alma geçmişi, oda düzeni ve kedi ihtiyaçları `PlayerPrefs` içinde sürümlü JSON (şema 4) ve son sağlam yedekle tutulur. Açlık, su ve sevgi zamanla azalır; çevrimdışı ihtiyaç hesabı sekiz saatle sınırlıdır.
+İlerleme, envanter, satın alma geçmişi, oda düzeni ve kedi ihtiyaçları `PlayerPrefs` içinde sürümlü JSON (şema 5) ve son sağlam yedekle tutulur. Açlık, su ve sevgi zamanla azalır; çevrimdışı ihtiyaç hesabı sekiz saatle sınırlıdır.
 
 ## Projeyi açma
 
@@ -31,7 +33,7 @@ Ayarlar; görünüm boyutu, müzik/efekt, dil, öğretici ve oyundan çıkış i
 
 ### İlk oynayışı test etme
 
-**Ayarlar > İlk Oynayış Testi > Sıfırla ve Başlat** ile ilk kurulum deneyimine dönün. Onay ekranında Vazgeç hiçbir veriyi silmez. Onay; bu uygulamanın tüm `PlayerPrefs` verisini, ilerlemeyi, puanları, eşyaları, günlük limitleri, ayarları ve öğretici geçmişini siler; sahneyi yeniden açar. Yalnızca Mitzi ve sıfır bütçe ile başlanır; iki oyun biçiminin öğreticileri yeniden gösterilir.
+**Ayarlar > İlk Oynayış Testi > Sıfırla ve Başlat** ile ilk kurulum deneyimine dönün. Onay ekranında Vazgeç hiçbir veriyi silmez. Onay; bu uygulamanın tüm `PlayerPrefs` verisini, ilerlemeyi, puanları, eşyaları, günlük limitleri, ayarları ve öğretici geçmişini siler; sahneyi yeniden açar. Yalnızca Mitzi ve 50 alışveriş puanı ile başlanır; iki oyun biçiminin öğreticileri yeniden gösterilir.
 
 Bu geçici düğme yalnızca **Unity Editor veya Development Build** sürümlerinde derlenir; normal yayın sürümünde görünmez. Kullanılınca mevcut test ilerlemesi kalıcı olarak silinir.
 
@@ -56,4 +58,4 @@ Eski kullanılmayan piksel hayvanlar ve referanssız varlıklar temizlenmiştir.
 
 Editor doğrulamalarını gerçek oyuncu kaydında çalıştırmayın; bazıları test verisi oluşturur veya siler. Ayrı proje kopyası ve `MitziValidation` ürün adı kullanın. Bunlar fiziksel cihaz testinin yerine geçmez. [QA_CHECKLIST.md](QA_CHECKLIST.md) cihaz ve oynanış kontrollerini içerir.
 
-Android paket hazırlığı için [ANDROID_RELEASE.md](ANDROID_RELEASE.md). İmzalı AAB ve gerçek cihaz doğrulaması henüz tamamlanmadı. Reklamlar test kimlikleri kullanıyor; üretim reklam kimlikleri, gizlilik/veri güvenliği ve çocuklara yönelik mağaza ayarları yayın öncesinde tamamlanmalıdır.
+Android paket hazırlığı için [ANDROID_RELEASE.md](ANDROID_RELEASE.md). İmzalı cihaz testi AAB/APK paketleri üretildi; imza, ARM64/API 36, yerel kütüphane hizalaması ve APK paket hizalama kontrolleri geçti. Gerçek Android telefona kurulum ve ilk bölüm öğreticisinin açılış kontrolü başarılı; kapsamlı oynanış ve 16 KB cihaz testi bekliyor. Pati simgesi ve oyun içi gizlilik metni eklendi. Cihaz testi paketinde reklamlar kapalıdır; üretim AdMob kimlikleri, herkese açık gizlilik bağlantısı, veri güvenliği ve çocuklara yönelik mağaza beyanları yayın öncesinde tamamlanmalıdır. [Gizlilik politikası](https://melisau.github.io/Mitzi/privacy.html) yayımlandı; gerçek reklam kimlikleri henüz tanımlı değil.

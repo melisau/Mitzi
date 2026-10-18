@@ -37,7 +37,7 @@ MonoBehaviour:
     buldun. Pamuk, burnunu parma\u011F\u0131na de\u011Fdirip 'beni de g\xF6t\xFCr\xFCr
     m\xFCs\xFCn?' diye bak\u0131yor. Evde ona bir g\xFCne\u015F dilimi ay\u0131raca\u011F\u0131z."
   personality: 1
-  unlockAfterLevel: 10
+  unlockAfterLevel: 7
   isStarterCat: 0
   furTint: {r: 0.96, g: 0.95, b: 0.93, a: 1}
   portrait: {fileID: 21300000, guid: 46d651d9b169ae443b6e05ad1d78505d, type: 3}

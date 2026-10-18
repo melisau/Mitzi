@@ -136,10 +136,13 @@ namespace PawPath.Levels
             return source;
         }
 
+        public DifficultyLevel CurrentDifficulty { get; private set; }
+
         public void Build(int levelNumber)
         {
             ClearGenerated();
             currentLevelNumber = levelNumber;
+            CurrentDifficulty = GameDifficulty.ForTheme(ThemeSelectionUI.GetSelectedTheme(levelNumber));
             layoutRandom = new System.Random(unchecked(levelNumber * 48611 + 919));
             roads.Clear();
             gaps.Clear();
@@ -177,7 +180,7 @@ namespace PawPath.Levels
                     CourseRight - CourseLeft + 4f, cityRoadHeight);
             }
 
-            if (levelNumber <= IntroLevelCount)
+            if (levelNumber <= IntroLevelCount && CurrentDifficulty == DifficultyLevel.Easy)
             {
                 int pattern = Mathf.Abs(levelNumber - 1) % 5;
                 Road(-8.25f, 2.2f);
@@ -206,7 +209,7 @@ namespace PawPath.Levels
             float[] gapLanes = { -2.7f, 1.5f, 5.8f, 10.2f, 14.8f,
                 19.4f, 24.2f, 29.4f, 35.2f, 41.1f };
             var selected = new List<int> { layoutRandom.Next(0, 3), layoutRandom.Next(6, 10) };
-            int gapCount = 4 + layoutRandom.Next(0, 3);
+            int gapCount = (CurrentDifficulty == DifficultyLevel.Easy ? 3 : CurrentDifficulty == DifficultyLevel.Medium ? 4 : 5) + layoutRandom.Next(0, 2);
             while (selected.Count < gapCount)
             {
                 int lane = layoutRandom.Next(gapLanes.Length);
@@ -216,7 +219,7 @@ namespace PawPath.Levels
             selected.Sort();
 
             var gaps = new List<Vector2>(selected.Count);
-            float maxGapWidth = Mathf.Min(1.52f, 1.22f + (levelNumber - IntroLevelCount) * 0.012f);
+            float maxGapWidth = CurrentDifficulty == DifficultyLevel.Easy ? 1.15f : CurrentDifficulty == DifficultyLevel.Medium ? 1.35f : 1.52f;
             foreach (int lane in selected)
             {
                 float center = gapLanes[lane] + NextRange(layoutRandom, -0.62f, 0.62f);
@@ -238,7 +241,7 @@ namespace PawPath.Levels
 
             // Tümsek yalnız geniş platformlarda oluşur; giriş, bitiş ve çukur
             // kenarları boş kalır. İki tümsek arasında da yürüme payı bulunur.
-            int moundCount = 2 + layoutRandom.Next(0, 3);
+            int moundCount = (CurrentDifficulty == DifficultyLevel.Easy ? 1 : CurrentDifficulty == DifficultyLevel.Medium ? 2 : 3) + layoutRandom.Next(0, 2);
             var moundPositions = new List<float>();
             for (int i = 0; i < moundCount; i++)
             {
@@ -1199,7 +1202,7 @@ namespace PawPath.Levels
                 var dogRandom = new System.Random(levelNumber * 32531 + 211);
                 bool first = TryChooseDogSpawnX(dogRandom, 15f, 25f, out float firstX);
                 bool second = TryChooseDogSpawnX(dogRandom, 33f, 42f, out float secondX);
-                DifficultyLevel difficulty = GameDifficulty.Selected;
+                DifficultyLevel difficulty = CurrentDifficulty;
                 float speed = difficulty == DifficultyLevel.Easy
                     ? 1.05f + levelNumber % 4 * 0.08f
                     : difficulty == DifficultyLevel.Hard

@@ -76,12 +76,32 @@ public static class HomeSettingsValidation
             PlayerPrefs.SetInt(GameplayTutorialUI.DirectSeenKey, 1);
             PlayerPrefs.SetInt("PawPath.HowToPlaySeen.v1", 1);
             SaveService.ResetFirstPlayForTesting();
-            Check(SaveService.Data.highestCompletedLevel == 0 && SaveService.Data.lovePoints == 0, "First play progress not reset");
+            Check(SaveService.Data.highestCompletedLevel == 0 && SaveService.Data.lovePoints == 50, "First play progress not reset");
             Check(SaveService.Data.unlockedCatIds.SequenceEqual(new[] { "mitzi" }) && SaveService.Data.furniture.Count == 0 && SaveService.Data.itemPurchases.Count == 0, "First play inventory not reset");
             Check(!GameplayTutorialUI.HasSeen(PawPath.Gameplay.GameplayPlayMode.Drawing) && !GameplayTutorialUI.HasSeen(PawPath.Gameplay.GameplayPlayMode.DirectControl), "Lessons were not reset");
             Check(!PlayerPrefs.HasKey("PawPath.HowToPlaySeen.v1"), "First play flag remains");
             typeof(SaveService).GetField("cache", BindingFlags.Static | BindingFlags.NonPublic).SetValue(null, null);
-            Check(SaveService.Data.lovePoints == 0 && SaveService.Data.unlockedCatIds.Count == 1, "Fresh save did not persist");
+            Check(SaveService.Data.lovePoints == 50 && SaveService.Data.unlockedCatIds.Count == 1, "Fresh save did not persist");
+            settings.SetActive(false);
+            flow.EnterHub();
+            furniture.Refresh();
+            var house = flow.GetComponentInChildren<CatHouseManager>(true);
+            house.RefreshResidents();
+            var resident = house.GetComponentsInChildren<CatHomeBehaviour>().Single();
+            Check(resident.transform.position.y >= HomeRooms.FloorMinY && resident.transform.position.y <= HomeRooms.FloorMaxY, "Starter cat outside lowered floor band");
+            var residentAnimator = resident.GetComponentInChildren<Animator>();
+            if (residentAnimator != null && residentAnimator.runtimeAnimatorController != null)
+            {
+                residentAnimator.Play("Sit", 0, 0f);
+                residentAnimator.Update(0f);
+            }
+            Canvas.ForceUpdateCanvases();
+            target = new RenderTexture(1280, 720, 24); cam.targetTexture = target; cam.Render(); RenderTexture.active = target;
+            image = new Texture2D(1280,720,TextureFormat.RGB24,false); image.ReadPixels(new Rect(0,0,1280,720),0,0); image.Apply();
+            File.WriteAllBytes("AnimalArtSources-20261018/first-play-floor-preview.png",image.EncodeToPNG());
+            RenderTexture.active = null; cam.targetTexture = null;
+            UnityEngine.Object.DestroyImmediate(image); UnityEngine.Object.DestroyImmediate(target);
+            Debug.Log("FIRST_PLAY_FLOOR_VALIDATION_PASS");
             Debug.Log("FIRST_PLAY_RESET_VALIDATION_PASS");
             Debug.Log("HOME_SETTINGS_VALIDATION_PASS");
         }

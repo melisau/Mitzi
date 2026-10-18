@@ -15,6 +15,7 @@ dependencies {
 // Android Resolver Exclusions Start
 android {
   packagingOptions {
+      jniLibs { useLegacyPackaging = true }
       exclude ('/lib/armeabi/*' + '*')
       exclude ('/lib/mips/*' + '*')
       exclude ('/lib/mips64/*' + '*')

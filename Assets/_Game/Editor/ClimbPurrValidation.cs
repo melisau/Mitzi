@@ -67,6 +67,35 @@ public static class ClimbPurrValidation
             Set(cat,"climbStartTime",Time.time-2.7f); Call(cat,"UpdateClimbing");
             Check(renderer.sprite==catalog.StarterCat.idleSprite,"Climb cycle restarted on top");
 
+            Set(cat,"climbUntil",Time.time-1f); Call(cat,"UpdateClimbing");
+            Vector2 top = root.transform.position;
+            Check(cat.IsClimbing,"Cat did not settle on the perch");
+            PawPath.Gameplay.MobileControlState.Set(PawPath.Gameplay.MobileAction.Jump,true);
+            Call(cat,"UpdatePerched");
+            var body = root.GetComponent<Rigidbody2D>();
+            Check(!cat.IsClimbing && body.gravityScale>0f && body.velocity.y>0f && body.velocity.x>0f,"Perch jump did not launch sideways with gravity");
+            Check(Get<int>(cat,"jumpsRemaining")==1,"Perch jump did not consume first jump");
+            var staleTree = new GameObject("StaleTree").AddComponent<PawPath.Levels.ClimbableTree>();
+            var fixedPerch = new GameObject("FixedPerch").transform;fixedPerch.position=new Vector3(0,4.8f,0);
+            staleTree.Configure(catalog.climbingCatFrames,fixedPerch);Set(staleTree,"nearbyCat",cat);
+            for(int press=0;press<5;press++)
+            {
+                PawPath.Gameplay.MobileControlState.Set(PawPath.Gameplay.MobileAction.Jump,true);
+                Call(staleTree,"Update");
+                Check(!cat.IsClimbing && PawPath.Gameplay.MobileControlState.JumpQueued,"Stale tree stole an airborne jump");
+                cat.BeginClimb(fixedPerch.position,catalog.climbingCatFrames,2.8f);
+                Check(!cat.IsClimbing,"Jump remounted tree in midair");
+                Call(cat,"TryJump");
+            }
+            Check(Get<int>(cat,"jumpsRemaining")==0 && Vector2.Distance(root.transform.position,top)<.001f,"Repeated taps created a new ascent or jump budget");
+            PawPath.Gameplay.MobileControlState.Reset();
+            cat.PlaceAtSpawn(new Vector2(0,5f));cat.BeginClimb(new Vector2(0,4.8f),catalog.climbingCatFrames,2.8f);
+            Check(!cat.IsClimbing,"A tree target below the cat created a higher climb");
+            UnityEngine.Object.DestroyImmediate(staleTree.gameObject);UnityEngine.Object.DestroyImmediate(fixedPerch.gameObject);
+            Debug.Log("TREE_PERCH_JUMP_VALIDATION_PASS");
+            cat.PlaceAtSpawn(new Vector2(-1f,0f));cat.BeginClimb(new Vector2(0,4.8f),catalog.climbingCatFrames,2.8f);
+            Set(cat,"climbStartTime",Time.time-2.7f);Set(cat,"climbUntil",Time.time+1f);Call(cat,"UpdateClimbing");
+
             var camera=new GameObject("ClimbPreviewCamera").AddComponent<Camera>();
             camera.orthographic=true; camera.orthographicSize=4.45f;
             camera.transform.position=new Vector3(0f,0f,-10f);

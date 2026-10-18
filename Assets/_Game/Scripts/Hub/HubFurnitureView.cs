@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 using PawPath.Core;
 using PawPath.Content;
@@ -54,7 +54,8 @@ namespace PawPath.Hub
                 ApplyRoom(style > 0 && options != null && style <= options.Length ? options[style - 1] : defaultRoom, room);
             }
             var alive=new HashSet<string>();
-            var ordinals=new Dictionary<string,int>();
+            var positioned = new List<DraggableFurniture>();
+            var pending = new List<DraggableFurniture>();
             foreach (var copy in SaveService.Data.furniture)
             {
                 if (!copy.placed) continue;
@@ -65,13 +66,10 @@ namespace PawPath.Hub
                 {
                     go=new GameObject("Furniture_"+copy.instanceId); go.transform.SetParent(transform,false); copies[copy.instanceId]=go;
                 }
-                string key=copy.roomId+":"+item.slotType;
-                ordinals.TryGetValue(key,out int ordinal); ordinals[key]=ordinal+1;
                 var anchor=(int)item.slotType<slots.Length ? slots[(int)item.slotType] : null;
                 Vector3 position=anchor!=null ? anchor.position : new Vector3(0f,-2f,0f);
                 position.x += HomeRooms.Instance!=null ? HomeRooms.Instance.Offset(copy.roomId) : copy.roomId*16f;
-                position.x += ordinal%4 * (item.slotType==FurnitureSlotType.Poster ? 1.7f : 1.3f);
-                position.y -= ordinal/4 * 0.4f;
+                go.SetActive(true);
                 go.transform.position=position;
                 var sr=go.GetComponent<SpriteRenderer>();
                 if(sr==null) sr=go.AddComponent<SpriteRenderer>();
@@ -81,6 +79,11 @@ namespace PawPath.Hub
                 var drag=go.GetComponent<DraggableFurniture>();
                 if(drag==null) drag=go.AddComponent<DraggableFurniture>();
                 drag.Configure(item.slotType,sr,copy);
+                bool fresh = drag.NeedsInitialPlacement;
+                bool clamped = drag.ClampPlacement();
+                // Saved arrangements reserve their space before any new purchase.
+                // Old wall-level placements are rehomed using the same layout search.
+                if (fresh || clamped) pending.Add(drag); else positioned.Add(drag);
                 var interaction=go.GetComponent<FurnitureInteraction>();
                 if(interaction==null) interaction=go.AddComponent<FurnitureInteraction>();
                 interaction.Configure(item);
@@ -88,6 +91,11 @@ namespace PawPath.Hub
             var removed=new List<string>();
             foreach(var pair in copies) if(!alive.Contains(pair.Key)) { if(pair.Value!=null) { pair.Value.SetActive(false); Destroy(pair.Value); } removed.Add(pair.Key); }
             foreach(string id in removed) copies.Remove(id);
+            foreach (var drag in pending)
+            {
+                if (drag.TryPlaceApart(positioned)) positioned.Add(drag);
+                else drag.StoreWhenRoomFull();
+            }
         }
 
         void ApplyRoom(Sprite sprite, int room)

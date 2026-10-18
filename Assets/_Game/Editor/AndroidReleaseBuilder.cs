@@ -11,6 +11,7 @@ namespace PawPath.Editor
     public static class AndroidReleaseBuilder
     {
         const int TargetApi = 36;
+        public static bool IsDeviceTestBuild => SessionState.GetBool("Mitzi.Android.DeviceTestBuild",false);
 
         [MenuItem("Mitzi/Android/Prepare Release Settings")]
         public static void Prepare()
@@ -26,7 +27,7 @@ namespace PawPath.Editor
             EditorUserBuildSettings.development = false;
             EditorUserBuildSettings.allowDebugging = false;
             EditorUserBuildSettings.connectProfiler = false;
-            AssetDatabase.SaveAssets();
+            AppIconBuilder.Apply();
             Debug.Log("Android release settings applied: ARM64, IL2CPP, API 36, non-development AAB.");
         }
 
@@ -36,24 +37,35 @@ namespace PawPath.Editor
             Prepare();
             ValidateToolchain();
             RequireSigningEnvironment();
+            RequireProductionConfiguration();
             Debug.Log("Android release prerequisites passed. The generated AAB still needs bundletool and device validation.");
         }
 
         [MenuItem("Mitzi/Android/Build Signed AAB")]
-        public static void Build()
-        {
-            Prepare();
-            ValidateToolchain();
-            RequireSigningEnvironment();
-            var scenes = EditorBuildSettings.scenes.Where(scene => scene.enabled)
-                .Select(scene => scene.path).ToArray();
-            if (scenes.Length == 0 || scenes.Any(scene => !File.Exists(scene)))
-                throw new BuildFailedException("Enable valid release scenes in Build Settings.");
+        public static void Build() => BuildPackage(false,false);
 
-            string output = Path.GetFullPath(Path.Combine("Builds", "Android",
-                $"Mitzi-{PlayerSettings.bundleVersion}-{PlayerSettings.Android.bundleVersionCode}.aab"));
-            if (File.Exists(output))
-                throw new BuildFailedException("An AAB with this version already exists. Move it or increment the version code before building.");
+        [MenuItem("Mitzi/Android/Build Signed Device Test Packages")]
+        public static void BuildCandidatePackages()
+        {
+            BuildPackage(true,false);
+            BuildPackage(true,true);
+        }
+
+        static void BuildPackage(bool candidate, bool apk)
+        {
+            Prepare();ValidateToolchain();RequireSigningEnvironment();
+            if (!candidate) RequireProductionConfiguration();
+            else
+            {
+                var config=Resources.Load<PawPath.Core.ReleaseConfiguration>("ReleaseConfiguration");
+                if(config!=null){config.advertisingEnabled=false;EditorUtility.SetDirty(config);EditorSave.Save(config);}
+            }
+            EditorUserBuildSettings.buildAppBundle=!apk;
+            var scenes=EditorBuildSettings.scenes.Where(scene=>scene.enabled).Select(scene=>scene.path).ToArray();
+            if(scenes.Length==0 || scenes.Any(scene=>!File.Exists(scene)))throw new BuildFailedException("Enable valid release scenes in Build Settings.");
+            string folder=Environment.GetEnvironmentVariable("MITZI_ANDROID_OUTPUT_DIR") ?? Path.Combine("Builds","Android");
+            string output=Path.GetFullPath(Path.Combine(folder,$"Mitzi-{PlayerSettings.bundleVersion}-{PlayerSettings.Android.bundleVersionCode}{(candidate?"-device-test":"")}.{(apk?"apk":"aab")}"));
+            if(File.Exists(output))throw new BuildFailedException("Output already exists. Move it or increment the version code; existing packages are preserved.");
 
             bool previousCustomSigning = PlayerSettings.Android.useCustomKeystore;
             string previousKeystore = PlayerSettings.Android.keystoreName;
@@ -62,6 +74,7 @@ namespace PawPath.Editor
             string previousKeyPassword = PlayerSettings.Android.keyaliasPass;
             try
             {
+                SessionState.SetBool("Mitzi.Android.DeviceTestBuild",candidate);
                 PlayerSettings.Android.useCustomKeystore = true;
                 PlayerSettings.Android.keystoreName = Environment.GetEnvironmentVariable("MITZI_ANDROID_KEYSTORE_PATH");
                 PlayerSettings.Android.keyaliasName = Environment.GetEnvironmentVariable("MITZI_ANDROID_KEY_ALIAS");
@@ -77,16 +90,30 @@ namespace PawPath.Editor
                 });
                 if (report.summary.result != BuildResult.Succeeded || !File.Exists(output))
                     throw new BuildFailedException("Android AAB build failed. See the Unity build log.");
-                Debug.Log($"Signed Android AAB created: {output}. Validate its manifest, native libraries and signature before uploading.");
+                Debug.Log($"Signed Android package created: {output}. Candidate={candidate}. Verify bundle, ELF alignment, signature and real device behavior before publishing.");
             }
             finally
             {
+                SessionState.SetBool("Mitzi.Android.DeviceTestBuild",false);
                 PlayerSettings.Android.keystorePass = previousStorePassword;
                 PlayerSettings.Android.keyaliasPass = previousKeyPassword;
                 PlayerSettings.Android.keystoreName = previousKeystore;
                 PlayerSettings.Android.keyaliasName = previousAlias;
                 PlayerSettings.Android.useCustomKeystore = previousCustomSigning;
             }
+        }
+
+        public static void RequireProductionConfiguration()
+        {
+            var config=Resources.Load<PawPath.Core.ReleaseConfiguration>("ReleaseConfiguration");
+            if(config==null || !config.privacyPolicyReviewed || !Uri.TryCreate(config.privacyPolicyUrl,UriKind.Absolute,out var uri) || uri.Scheme!="https")
+                throw new BuildFailedException("Review the privacy policy and configure its public HTTPS URL in Resources/ReleaseConfiguration before a store build.");
+            bool ValidId(string id,string separator)=>!string.IsNullOrWhiteSpace(id) && !id.Contains("3940256099942544") && System.Text.RegularExpressions.Regex.IsMatch(id,"^ca-app-pub-[0-9]{16}"+separator+"[0-9]{10}$");
+            if(!config.advertisingEnabled || !ValidId(config.androidAppId,"~") || !ValidId(config.androidRewardedAdUnitId,"/"))
+                throw new BuildFailedException("Real Android AdMob app and rewarded ad unit IDs are required. Device test packages remain available without live ads.");
+            var settings=AssetDatabase.LoadMainAssetAtPath("Assets/GoogleMobileAds/Resources/GoogleMobileAdsSettings.asset");
+            if(settings==null)throw new BuildFailedException("Google Mobile Ads settings missing.");
+            var serialized=new SerializedObject(settings);serialized.FindProperty("adMobAndroidAppId").stringValue=config.androidAppId;serialized.ApplyModifiedPropertiesWithoutUndo();EditorSave.Save(settings);
         }
 
         static void ValidateToolchain()

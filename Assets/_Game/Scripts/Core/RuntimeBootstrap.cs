@@ -129,12 +129,12 @@ namespace PawPath.Core
             var spotPositions = new[]
             {
                 // Kedilerin dinlendiği noktalar: zeminde, alt ortadaki bakım düğmelerinin üstünde.
-                new Vector3(-3.10f, -1.95f, 0f),
-                new Vector3(-0.90f, -2.20f, 0f),
-                new Vector3(0.55f, -2.30f, 0f),
-                new Vector3(2.60f, -2.25f, 0f),
-                new Vector3(4.35f, -2.05f, 0f),
-                new Vector3(-2.20f, -2.30f, 0f)
+                new Vector3(-3.10f, -2.95f, 0f),
+                new Vector3(-0.90f, -3.20f, 0f),
+                new Vector3(0.55f, -3.30f, 0f),
+                new Vector3(2.60f, -3.25f, 0f),
+                new Vector3(4.35f, -3.05f, 0f),
+                new Vector3(-2.20f, -3.30f, 0f)
             };
             for (int i = 0; i < spots.Length; i++)
             {
@@ -513,10 +513,17 @@ namespace PawPath.Core
                 Application.Quit();
 #endif
             });
+            var privacyPanel = BuildPrivacyDialog(content);
+            var privacyButton = Button(settingsContent,"PrivacyPolicyButton",GameText.L("Gizlilik", "Privacy", "Datenschutz"),
+                new Vector2(.5f,.23f),Vector2.zero,Color.white);
+            StylePillButton(privacyButton,new Vector2(410f,82f),UtilityColor,null,FontButton,false);
+            privacyButton.onClick.AddListener(()=>{settingsPanel.SetActive(false);privacyPanel.transform.SetAsLastSibling();privacyPanel.SetActive(true);});
+            privacyPanel.transform.Find("ClosePrivacyPolicy").GetComponent<Button>().onClick.AddListener(()=>{privacyPanel.SetActive(false);settingsPanel.SetActive(true);settingsPanel.transform.SetAsLastSibling();});
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
+            privacyButton.GetComponent<RectTransform>().anchoredPosition=new Vector2(-245f,0f);
             var resetFirstPlay = Button(settingsContent, "ResetFirstPlay",
                 GameText.L("İlk Oynayış Testi", "Test First Play", "Ersten Start testen"),
-                new Vector2(0.5f, 0.23f), Vector2.zero, Color.white);
+                new Vector2(0.5f, 0.23f), new Vector2(245f,0f), Color.white);
             StylePillButton(resetFirstPlay, new Vector2(410f, 82f), UtilityColor, null, FontButton, false);
             var resetConfirm = Panel("ResetFirstPlayConfirmation", settingsPanel.transform,
                 Vector2.zero, Vector2.one, new Color(.10f, .07f, .05f, .96f));
@@ -568,25 +575,39 @@ namespace PawPath.Core
             // Oyna'nın altındaki seçenekler de aynı hap stilinde ve ikonlu.
             StyleMenuPill(drawingPlay, 0, DrawModeColor, CozyIconFactory.Pencil());
             StyleMenuPill(directPlay, 1, WaterColor, CozyIconFactory.Gamepad());
+            var automaticDifficulty = Button(modeMenu.transform, "AutomaticDifficulty", GameText.L("Otomatik", "Auto", "Automatisch"),
+                new Vector2(.5f,.32f), new Vector2(-315f,0),Color.white);
+            StylePillButton(automaticDifficulty,new Vector2(200f,96f),WaterColor,null,FontBody,false);
+            var difficultyHint = Label(modeMenu.transform,"DifficultyHint",
+                GameText.L("Her mekân: 1–10 kolay · 11–20 orta · 21+ zor", "Each setting: 1–10 easy · 11–20 medium · 21+ hard", "Je Umgebung: 1–10 leicht · 11–20 mittel · ab 21 schwer"),
+                new Vector2(.5f,.23f),Vector2.zero);
+            difficultyHint.fontSize=25;
             var easyDifficulty = Button(modeMenu.transform, "EasyDifficulty", GameText.L("Kolay", "Easy", "Leicht"),
-                new Vector2(0.5f, 0.32f), new Vector2(-190f, 0f), new Color(0.52f, 0.70f, 0.55f));
+                new Vector2(0.5f, 0.32f), new Vector2(-105f, 0f), new Color(0.52f, 0.70f, 0.55f));
             var mediumDifficulty = Button(modeMenu.transform, "MediumDifficulty", GameText.L("Orta", "Medium", "Mittel"),
-                new Vector2(0.5f, 0.32f), Vector2.zero, new Color(0.83f, 0.68f, 0.52f));
+                new Vector2(0.5f, 0.32f), new Vector2(105f,0f), new Color(0.83f, 0.68f, 0.52f));
             var hardDifficulty = Button(modeMenu.transform, "HardDifficulty", GameText.L("Zor", "Hard", "Schwer"),
-                new Vector2(0.5f, 0.32f), new Vector2(190f, 0f), new Color(0.72f, 0.48f, 0.34f));
-            StylePillButton(easyDifficulty, new Vector2(170f, 96f), PlayColor, null, FontBody, false);
-            StylePillButton(mediumDifficulty, new Vector2(170f, 96f), FoodColor, null, FontBody, false);
-            StylePillButton(hardDifficulty, new Vector2(170f, 96f), HardColor, null, FontBody, false);
+                new Vector2(0.5f, 0.32f), new Vector2(315f, 0f), new Color(0.72f, 0.48f, 0.34f));
+            StylePillButton(easyDifficulty, new Vector2(200f, 96f), PlayColor, null, FontBody, false);
+            StylePillButton(mediumDifficulty, new Vector2(200f, 96f), FoodColor, null, FontBody, false);
+            StylePillButton(hardDifficulty, new Vector2(200f, 96f), HardColor, null, FontBody, false);
             void RefreshDifficultyLabels()
             {
                 var selectedDifficulty = GameDifficulty.Selected;
+                bool automatic = GameDifficulty.IsAutomatic;
+                difficultyHint.text = automatic
+                    ? GameText.L("Her mekân: 1–10 kolay · 11–20 orta · 21+ zor", "Each setting: 1–10 easy · 11–20 medium · 21+ hard", "Je Umgebung: 1–10 leicht · 11–20 mittel · ab 21 schwer")
+                    : GameText.L("Seçtiğin zorluk sabit kalır.", "Your chosen difficulty stays fixed.", "Die gewählte Schwierigkeit bleibt gleich.");
+                automaticDifficulty.GetComponentInChildren<Text>().text=GameText.Checked(GameText.L("Otomatik", "Auto", "Automatisch"),automatic);
                 easyDifficulty.GetComponentInChildren<Text>().text =
-                    GameText.Checked(GameText.L("Kolay", "Easy", "Leicht"), selectedDifficulty == DifficultyLevel.Easy);
+                    GameText.Checked(GameText.L("Kolay", "Easy", "Leicht"), !automatic && selectedDifficulty == DifficultyLevel.Easy);
                 mediumDifficulty.GetComponentInChildren<Text>().text =
-                    GameText.Checked(GameText.L("Orta", "Medium", "Mittel"), selectedDifficulty == DifficultyLevel.Medium);
+                    GameText.Checked(GameText.L("Orta", "Medium", "Mittel"), !automatic && selectedDifficulty == DifficultyLevel.Medium);
                 hardDifficulty.GetComponentInChildren<Text>().text =
-                    GameText.Checked(GameText.L("Zor", "Hard", "Schwer"), selectedDifficulty == DifficultyLevel.Hard);
+                    GameText.Checked(GameText.L("Zor", "Hard", "Schwer"), !automatic && selectedDifficulty == DifficultyLevel.Hard);
             }
+            automaticDifficulty.onClick.AddListener(() => { GameDifficulty.SelectAutomatic(); RefreshDifficultyLabels(); });
+            play.onClick.AddListener(RefreshDifficultyLabels);
             easyDifficulty.onClick.AddListener(() => { GameDifficulty.Select(DifficultyLevel.Easy); RefreshDifficultyLabels(); });
             mediumDifficulty.onClick.AddListener(() => { GameDifficulty.Select(DifficultyLevel.Medium); RefreshDifficultyLabels(); });
             hardDifficulty.onClick.AddListener(() => { GameDifficulty.Select(DifficultyLevel.Hard); RefreshDifficultyLabels(); });
@@ -707,6 +728,25 @@ namespace PawPath.Core
             StyleMenuPill(cyber, 3, CyberColor, CozyIconFactory.Bolt());
             panel.AddComponent<ThemeSelectionUI>().Bind(street, forest, city, cyber);
             return panel;
+        }
+
+        static GameObject BuildPrivacyDialog(Transform parent)
+        {
+            var panel=Panel("PrivacyPolicyPanel",parent,Vector2.zero,Vector2.one,new Color(.98f,.96f,.90f,1f));
+            var title=Label(panel.transform,"PrivacyTitle",GameText.L("Gizlilik Politikası", "Privacy Policy", "Datenschutzerklärung"),new Vector2(.5f,.89f),Vector2.zero);
+            title.fontSize=44;title.fontStyle=FontStyle.Bold;
+            var viewport=new GameObject("PolicyViewport",typeof(RectTransform),typeof(Image),typeof(Mask));viewport.transform.SetParent(panel.transform,false);
+            var rect=viewport.GetComponent<RectTransform>();rect.anchorMin=new Vector2(.08f,.20f);rect.anchorMax=new Vector2(.92f,.80f);rect.offsetMin=rect.offsetMax=Vector2.zero;
+            viewport.GetComponent<Image>().color=Color.white;viewport.GetComponent<Mask>().showMaskGraphic=true;
+            var textObject=new GameObject("PolicyText",typeof(RectTransform),typeof(Text),typeof(ContentSizeFitter));textObject.transform.SetParent(viewport.transform,false);
+            var textRect=textObject.GetComponent<RectTransform>();textRect.anchorMin=new Vector2(0,1);textRect.anchorMax=Vector2.one;textRect.pivot=new Vector2(.5f,1);textRect.anchoredPosition=Vector2.zero;textRect.sizeDelta=new Vector2(-48,0);
+            var text=textObject.GetComponent<Text>();text.font=UiFont();text.fontSize=28;text.lineSpacing=1.15f;text.alignment=TextAnchor.UpperLeft;text.color=new Color(.16f,.22f,.22f);text.horizontalOverflow=HorizontalWrapMode.Wrap;text.verticalOverflow=VerticalWrapMode.Overflow;
+            text.text=Resources.Load<TextAsset>("PrivacyPolicy")?.text ?? "Melisa Uyar — melisauyar5225@gmail.com";
+            textObject.GetComponent<ContentSizeFitter>().verticalFit=ContentSizeFitter.FitMode.PreferredSize;
+            var scroll=panel.AddComponent<ScrollRect>();scroll.viewport=rect;scroll.content=textRect;scroll.horizontal=false;scroll.movementType=ScrollRect.MovementType.Clamped;scroll.scrollSensitivity=35;
+            var close=Button(panel.transform,"ClosePrivacyPolicy",GameText.Close,new Vector2(.5f,.09f),Vector2.zero,Color.white);
+            StylePillButton(close,new Vector2(300f,100f),UtilityColor,null,FontButton,false);
+            panel.SetActive(false);return panel;
         }
 
         static GameObject BuildMobileControls(Transform parent)

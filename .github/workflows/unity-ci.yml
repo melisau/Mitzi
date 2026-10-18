@@ -3,8 +3,8 @@
 # compile : Her PR'da ve main'e her push'ta çalışır. Proje Unity'de açılır, tüm
 #           editör + oyun scriptleri derlenir ve hızlı bir Linux oyuncu derlemesi
 #           alınır. Derleme hatası varsa PR'da kırmızı ✗ görünür.
-# android : Elle (Actions → Unity CI → Run workflow) veya main'e push'ta çalışır.
-#           Google Play'e yüklenecek .aab dosyasını üretir ve indirilebilir bırakır.
+# android : MITZI_STORE_BUILD_READY repo değişkeni true olduğunda elle veya push'ta çalışır.
+#           Gerçek reklam/politika/imzalama ayarları tamamlanmadan yayın paketi üretmez.
 #
 # Gerekli repo secret'ları (Settings → Secrets and variables → Actions):
 #   UNITY_LICENSE   Unity_lic.ulf dosyasının tüm içeriği
@@ -74,7 +74,7 @@ jobs:
   android:
     name: Android App Bundle (.aab)
     needs: compile
-    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.android)
+    if: vars.MITZI_STORE_BUILD_READY == 'true' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.android))
     runs-on: ubuntu-24.04
     timeout-minutes: 120
     steps:

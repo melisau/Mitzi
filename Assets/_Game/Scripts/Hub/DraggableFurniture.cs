@@ -16,6 +16,53 @@ namespace PawPath.Hub
         Vector2 grabOffset;
         SaveService.FurnitureCopy copy;
         public string InstanceId => copy != null ? copy.instanceId : null;
+        public int RoomId => copy != null ? copy.roomId : 0;
+        public FurnitureSlotType SlotType => slotType;
+        public Bounds PlacementBounds => sprite != null ? sprite.bounds : new Bounds(transform.position, Vector3.zero);
+        public bool NeedsInitialPlacement => copy != null && !copy.hasPosition;
+
+        public bool SharesPlacementLayer(DraggableFurniture other) => other != null && RoomId == other.RoomId &&
+            (slotType == FurnitureSlotType.Poster) == (other.slotType == FurnitureSlotType.Poster) &&
+            (slotType == FurnitureSlotType.Rug) == (other.slotType == FurnitureSlotType.Rug);
+
+        public void StoreWhenRoomFull()
+        {
+            if (copy != null) { copy.placed = false; copy.hasPosition = false; }
+            gameObject.SetActive(false);
+            SaveService.Persist();
+        }
+
+        public bool TryPlaceApart(System.Collections.Generic.List<DraggableFurniture> occupied)
+        {
+            GetVerticalBounds(out float minY, out float maxY);
+            GetHorizontalBounds(out float minX, out float maxX);
+            float preferredX = Mathf.Clamp(transform.position.x, minX, maxX);
+            var columns = new System.Collections.Generic.List<float> { preferredX, minX, maxX };
+            for (float x = minX; x <= maxX; x += .20f) columns.Add(x);
+            columns.Sort((a,b) => Mathf.Abs(a - preferredX).CompareTo(Mathf.Abs(b - preferredX)));
+            int rows = Mathf.Max(1, Mathf.CeilToInt((maxY - minY) / .25f));
+            for (int row = 0; row <= rows; row++)
+            foreach (float x in columns)
+            {
+                transform.position = new Vector3(x, Mathf.Lerp(maxY, minY, (float)row / rows), transform.position.z);
+                Bounds candidate = PlacementBounds;
+                bool free = true;
+                foreach (var other in occupied)
+                {
+                    if (!SharesPlacementLayer(other)) continue;
+                    Bounds bounds = other.PlacementBounds;
+                    const float gap = .18f;
+                    if (candidate.min.x < bounds.max.x + gap && candidate.max.x > bounds.min.x - gap &&
+                        candidate.min.y < bounds.max.y + gap && candidate.max.y > bounds.min.y - gap)
+                    { free = false; break; }
+                }
+                if (!free) continue;
+                needsClamp = false;
+                SavePlacement();
+                return true;
+            }
+            return false;
+        }
 
         string KeyX => $"PawPath.Furniture.v2.{slotType}.X";
         string KeyY => $"PawPath.Furniture.v2.{slotType}.Y";
@@ -88,25 +135,20 @@ namespace PawPath.Hub
 
         void LateUpdate()
         {
-            if (!needsClamp)
-                return;
+            if (needsClamp) ClampPlacement();
+        }
+
+        public bool ClampPlacement()
+        {
             needsClamp = false;
             GetVerticalBounds(out float minY, out float maxY);
             GetHorizontalBounds(out float minX, out float maxX);
             var p = transform.position;
             var clamped = new Vector3(Mathf.Clamp(p.x, minX, maxX), Mathf.Clamp(p.y, minY, maxY), p.z);
-            if ((clamped - p).sqrMagnitude > 1e-6f)
-            {
-                transform.position = clamped;
-                if (copy != null) SavePlacement();
-                if (copy == null && PlayerPrefs.HasKey(KeyX))
-                {
-                    PlayerPrefs.SetFloat(KeyX, clamped.x);
-                    PlayerPrefs.SetFloat(KeyY, clamped.y);
-                    PlayerPrefs.Save();
-                }
-            }
-            if (copy != null && !copy.hasPosition) SavePlacement();
+            bool changed = (clamped - p).sqrMagnitude > 1e-6f;
+            transform.position = clamped;
+            if (changed || copy != null && !copy.hasPosition) SavePlacement();
+            return changed;
         }
 
         void Update()
@@ -205,9 +247,7 @@ namespace PawPath.Hub
                 var bounds = HomeRooms.Instance.RoomBounds(copy.roomId);
                 screenLeft = bounds.x; screenRight = bounds.y;
             }
-            float halfWidth = sprite != null && sprite.sprite != null
-                ? sprite.sprite.bounds.extents.x * Mathf.Abs(transform.localScale.x)
-                : 0f;
+            float halfWidth = sprite != null && sprite.sprite != null ? sprite.bounds.extents.x : 0f;
             const float edgePadding = 0.12f;
             minX = screenLeft + halfWidth + edgePadding;
             maxX = screenRight - halfWidth - edgePadding;
@@ -217,10 +257,9 @@ namespace PawPath.Hub
                 minX = maxX = (screenLeft + screenRight) * 0.5f;
         }
 
-        // Zeminin arka kenarı (süpürgelik hizası). Kedilerin yürüyebildiği en üst
-        // nokta da budur (CatHomeBehaviour.roomY). Yere konan hiçbir eşyanın tabanı
-        // bunun üstüne çıkamaz; aksi halde duvara tırmanmış gibi görünür.
-        const float FloorBackY = -1.10f;
+        // Visible furniture bases stay in front of the skirting. Cat root limits
+        // are separate because the animal canvases include padding below the paws.
+        const float FloorBackY = HomeRooms.FurnitureBackY;
         const float BottomPadding = 0.10f;
 
         void GetVerticalBounds(out float minY, out float maxY)

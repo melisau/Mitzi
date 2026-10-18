@@ -88,16 +88,23 @@ public static class GroundedObstacleValidation
             }
             UnityEngine.Object.DestroyImmediate(hill);UnityEngine.Object.DestroyImmediate(root);
             data.unlockedCatIds=new System.Collections.Generic.List<string>{"mitzi"};
-            Check(CatUnlockService.WaitingAtLevel(5)==null && CatUnlockService.WaitingAtLevel(10)?.id=="pamuk","Wrong rescue cadence");
-            Check(!CatUnlockService.TryUnlockAfterLevel(5,out _) && CatUnlockService.TryUnlockAfterLevel(10,out var rescued) && rescued.id=="pamuk","Rescue does not occur at ten");
-            Check(CatUnlockService.WaitingAtLevel(10)==null && !CatUnlockService.TryUnlockAfterLevel(10,out _),"Same cat rescued twice");
-            Check(CatUnlockService.WaitingAtLevel(20)?.id=="komur" && CatUnlockService.WaitingAtLevel(30)?.id=="tarcin" && CatUnlockService.WaitingAtLevel(40)?.id=="ada" && CatUnlockService.WaitingAtLevel(50)?.id=="moka","Later rescue milestones wrong");
+            Check(CatUnlockService.WaitingAtLevel(5)==null && CatUnlockService.WaitingAtLevel(7)?.id=="pamuk","Wrong rescue cadence");
+            Check(!CatUnlockService.TryUnlockAfterLevel(5,out _) && CatUnlockService.TryUnlockAfterLevel(7,out var rescued) && rescued.id=="pamuk","Rescue does not occur at seven");
+            Check(CatUnlockService.WaitingAtLevel(7)==null && !CatUnlockService.TryUnlockAfterLevel(7,out _),"Same cat rescued twice");
+            int[] milestones={20,30,40,50};string[] rescueIds={"komur","tarcin","ada","moka"};
+            for(int i=0;i<milestones.Length;i++)
+            {
+                Check(CatUnlockService.WaitingAtLevel(milestones[i])?.id==rescueIds[i],"Later rescue milestone wrong");
+                Check(CatUnlockService.TryUnlockAfterLevel(milestones[i],out var next)&&next.id==rescueIds[i],"Later rescue failed");
+            }
+            data.unlockedCatIds=new System.Collections.Generic.List<string>{"mitzi","pamuk"};
             var level=GameFlow.Instance.GetComponent<LevelManager>();
             Call(level,"PlaceWaitingRescueCat",20);
             var waiting=(GameObject)typeof(LevelManager).GetField("waitingRescueCat",Private).GetValue(level);
             Check(waiting!=null && waiting.name=="WaitingRescueCat_komur","Rescue cat absent at gate");
             var marker=(Transform)typeof(LevelManager).GetField("goalMarker",Private).GetValue(level);
             Check(Mathf.Abs(waiting.transform.position.x-marker.position.x+1.1f)<.01f && waiting.GetComponent<Collider2D>()==null,"Waiting cat blocks gate or is misplaced");
+            Check(CatUnlockService.TryUnlockAfterLevel(20,out _),"Gate rescue did not complete");
             Call(level,"PlaceWaitingRescueCat",21);
             Check(typeof(LevelManager).GetField("waitingRescueCat",Private).GetValue(level)==null,"Rescue cat persists in ordinary level");
             Debug.Log("GROUNDED_OBSTACLE_VALIDATION_PASS");

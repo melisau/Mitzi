@@ -15,8 +15,8 @@ namespace PawPath.Ads
         const string TestRewardedIos = "ca-app-pub-3940256099942544/1712485313";
 
         // TODO(yayın): AdMob'daki gerçek ödüllü reklam birimi kimlikleri.
-        const string ProductionRewardedAndroid = "";
-        const string ProductionRewardedIos = "";
+        static string ProductionRewardedAndroid => PawPath.Core.ReleaseConfiguration.Current?.androidRewardedAdUnitId ?? "";
+        static string ProductionRewardedIos => PawPath.Core.ReleaseConfiguration.Current?.iosRewardedAdUnitId ?? "";
 
         /// <summary>Bir tamamlanan reklamın verdiği alışveriş puanı.</summary>
         public const int RewardShoppingPoints = 5;
@@ -38,10 +38,14 @@ namespace PawPath.Ads
             }
         }
 
+        public static bool RuntimeAdvertisingEnabled => UnityEngine.Debug.isDebugBuild ||
+            (PawPath.Core.ReleaseConfiguration.Current != null && PawPath.Core.ReleaseConfiguration.Current.advertisingEnabled &&
+             PawPath.Core.ReleaseConfiguration.Current.privacyPolicyReviewed && !string.IsNullOrWhiteSpace(RewardedAdUnitId));
+
         public static bool UsingTestAds =>
             UnityEngine.Debug.isDebugBuild || RewardedAdUnitId.Contains("3940256099942544");
 
         static string Pick(string production, string test) =>
-            UnityEngine.Debug.isDebugBuild || string.IsNullOrEmpty(production) ? test : production;
+            UnityEngine.Debug.isDebugBuild ? test : production;
     }
 }

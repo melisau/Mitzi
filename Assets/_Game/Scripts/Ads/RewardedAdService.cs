@@ -56,6 +56,7 @@ namespace PawPath.Ads
 
         void Start()
         {
+            if (!AdsConfig.RuntimeAdvertisingEnabled) { StateChanged?.Invoke(); return; }
             // Families politikası: tüm istekler çocuğa yönelik (çocuk yönelimli + rıza yaşı altı
             // işaretlerinin yeni karşılığı) ve en fazla G içerik.
             MobileAds.SetRequestConfiguration(new RequestConfiguration

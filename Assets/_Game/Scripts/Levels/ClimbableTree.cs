@@ -20,7 +20,8 @@ namespace PawPath.Levels
 
         void Update()
         {
-            if (nearbyCat == null || nearbyCat.IsClimbing || perch == null)
+            if (nearbyCat == null || nearbyCat.IsClimbing || !nearbyCat.CanStartClimb || perch == null ||
+                nearbyCat.transform.position.y >= perch.position.y - .25f)
                 return;
 
             bool keyboardUp = Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.W);
@@ -50,7 +51,7 @@ namespace PawPath.Levels
         void OnTriggerExit2D(Collider2D other)
         {
             var cat = other.GetComponentInParent<CatController>();
-            if (cat != null && cat == nearbyCat && !cat.IsClimbing)
+            if (cat != null && cat == nearbyCat)
                 nearbyCat = null;
         }
     }
