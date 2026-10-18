@@ -1,6 +1,8 @@
 #if UNITY_EDITOR
 using UnityEditor;
+#if UNITY_ANDROID
 using UnityEditor.Android;
+#endif
 using UnityEngine;
 [InitializeOnLoad]
 // Silver Egyptian Mau paw artwork with black pads; shared by all launcher icon formats.
@@ -16,6 +18,7 @@ public static class AppIconBuilder
         { importer.textureType=TextureImporterType.Default;importer.maxTextureSize=2048;importer.mipmapEnabled=false;importer.textureCompression=TextureImporterCompression.Uncompressed;importer.SaveAndReimport(); }
         var texture=AssetDatabase.LoadAssetAtPath<Texture2D>(path);
         PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.Unknown,new[]{texture});
+#if UNITY_ANDROID
         foreach(var kind in new[]{AndroidPlatformIconKind.Legacy,AndroidPlatformIconKind.Round,AndroidPlatformIconKind.Adaptive})
         {
             var icons=PlayerSettings.GetPlatformIcons(BuildTargetGroup.Android,kind);
@@ -25,6 +28,7 @@ public static class AppIconBuilder
             }
             PlayerSettings.SetPlatformIcons(BuildTargetGroup.Android,kind,icons);
         }
+#endif
     }
 }
 #endif

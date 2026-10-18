@@ -9,7 +9,7 @@
 - Oyun kaydı ve ayarlar cihazdaki PlayerPrefs içinde; işletim sistemi yedekleri ayrı yönetilir.
 - Google Mobile Ads Unity 11.6.0; Android Maven bağımlılığı `com.google.android.gms:play-services-ads:25.5.0`; UMP 4.0.0. Mediation adaptörü yok. Families listesi/sürümleri son paket için ayrıca kontrol edilir.
 - GMA Child yaş işlemi + G reklam içeriği; AD_ID izni manifestten çıkarılır. Reklam kimliği izninin çıkarılması bütün cihaz tanımlayıcılarını veya SDK veri işlemesini ortadan kaldırmaz.
-- Gerçek reklam hesabı/kimlikleri henüz yok. İmzalı cihaz test adayı gerçek reklamları kapalı tutar. Son paket üzerinde ağ davranışı cihazla doğrulanmadan 'veri toplanmıyor' seçeneği kullanılmamalıdır.
+- Gerçek Android uygulama ve ödüllü reklam kimlikleri kullanıcı tarafından sağlandı ve projeye eklendi. İmzalı cihaz test adayı gerçek reklamları kapalı tutar. Son paket üzerinde ağ davranışı cihazla doğrulanmadan 'veri toplanmıyor' seçeneği kullanılmamalıdır.
 
 ## Veri türleri — son reklam yapılandırmasıyla doğrulanacak
 

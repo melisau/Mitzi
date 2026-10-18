@@ -1,10 +1,8 @@
 namespace PawPath.Ads
 {
     /// <summary>
-    /// AdMob kimlikleri. Şu an Google'ın herkese açık TEST kimlikleri kullanılıyor:
-    /// test reklamı gösterir, gelir getirmez. AdMob hesabı açılınca:
-    ///  1. Uygulama kimliğini (ca-app-pub-XXXX~YYYY) Assets > Google Mobile Ads > Settings'e gir.
-    ///  2. Ödüllü reklam birimi kimliğini (ca-app-pub-XXXX/ZZZZ) aşağıdaki ProductionRewarded alanlarına yaz.
+    /// Gerçek AdMob kimlikleri Resources/ReleaseConfiguration üzerinden okunur.
+    /// Canlı reklamlar aynı yapılandırmadaki Advertising Enabled alanıyla açılır.
     /// Development Build'lerde her zaman test kimlikleri kullanılır; böylece kendi reklamına
     /// tıklayıp hesabın askıya alınma riski olmaz.
     /// </summary>
@@ -14,7 +12,7 @@ namespace PawPath.Ads
         const string TestRewardedAndroid = "ca-app-pub-3940256099942544/5224354917";
         const string TestRewardedIos = "ca-app-pub-3940256099942544/1712485313";
 
-        // TODO(yayın): AdMob'daki gerçek ödüllü reklam birimi kimlikleri.
+        // Normal sürümde platforma ait gerçek reklam birimi; eksikse test kimliğine dönülmez.
         static string ProductionRewardedAndroid => PawPath.Core.ReleaseConfiguration.Current?.androidRewardedAdUnitId ?? "";
         static string ProductionRewardedIos => PawPath.Core.ReleaseConfiguration.Current?.iosRewardedAdUnitId ?? "";
 

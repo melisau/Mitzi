@@ -32,7 +32,7 @@ Kod bütün reklam isteklerinde Child yaş işlemi ve G içerik sınırlaması k
 
 Gizlilik bağlantısı hazır: https://melisau.github.io/Mitzi/privacy.html . Bu GitHub Pages sitesinin gh-pages dalında yalnız gizlilik sayfası bulunur. Kaynak güncellenirse yayımlanan kopya da güncellenmelidir.
 
-app-ads.txt için AdMob'un verdiği yayıncı satırı gerekir. Google, geliştirici web sitesinin alan adı kökünü tarar; proje altındaki `/Mitzi/app-ads.txt` tek başına yeterli değildir. Yayıncı kimliği alınınca kök adreste barındırma ayrıca tamamlanacaktır; şu an bu doğrulama yapılmış sayılmaz.
+app-ads.txt için AdMob'un verdiği yayıncı satırı gerekir. Google, geliştirici web sitesinin alan adı kökünü tarar; proje altındaki `/Mitzi/app-ads.txt` tek başına yeterli değildir. Yayıncı kimliğiyle dosya https://melisau.github.io/app-ads.txt adresinde yayımlandı ve HTTP 200 ile doğrulandı. Play Console geliştirici web sitesi alanı https://melisau.github.io/ olmalıdır. AdMob taraması/onayı henüz doğrulanmadı.
 
 ## Play Console için mevcut uygulamaya göre hazırlık
 
@@ -45,3 +45,5 @@ app-ads.txt için AdMob'un verdiği yayıncı satırı gerekir. Google, gelişti
 - Bu notlar form hazırlığıdır; Play Console'da gönderim yapılmamıştır.
 
 Kaynaklar: [AdMob kayıt ve ödeme profili](https://support.google.com/admob/answer/7356219), [Play kayıt ücreti](https://support.google.com/googleplay/android-developer/answer/6112435).
+
+Android uygulama kimliği ve ödüllü reklam birimi kullanıcıdan alınıp ReleaseConfiguration ve Google Mobile Ads uygulama ayarına eklendi. Reklamlar hesap/uygulama incelemesi ve son çocuk/veri güvenliği kontrolü tamamlanana kadar kapalıdır. Kimlikler reklam yayını veya gelir onayı değildir.
