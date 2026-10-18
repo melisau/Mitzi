@@ -19,6 +19,8 @@ namespace PawPath.Levels
             float minX, float phase, float targetVisualWidth)
         {
             renderer = target;
+            // Source bird frames face right; this bird travels left.
+            if (renderer != null) renderer.flipX = true;
             frames = animationFrames;
             speed = flightSpeed;
             leftBound = minX;
@@ -55,9 +57,11 @@ namespace PawPath.Levels
 
             if (frames == null || frames.Length == 0 || renderer == null) return;
             frameTimer += Time.deltaTime;
-            if (frameTimer < 0.11f) return;
-            frameTimer = 0f;
-            frameIndex = (frameIndex + 1) % frames.Length;
+            const float frameInterval = 1f / 24f;
+            if (frameTimer < frameInterval) return;
+            int advance = Mathf.FloorToInt(frameTimer / frameInterval);
+            frameTimer -= advance * frameInterval;
+            frameIndex = (frameIndex + advance) % frames.Length;
             renderer.sprite = frames[frameIndex];
             ApplyFrameScale();
         }
@@ -80,7 +84,7 @@ namespace PawPath.Levels
 
         void OnTriggerEnter2D(Collider2D other)
         {
-            if (collected || other.GetComponent<CatController>() == null) return;
+            if (collected || other.GetComponentInParent<CatController>() == null) return;
             collected = true;
             CozyEconomyManager.Instance?.AddLove(3, "Kuş ödülü");
             CozyAudioManager.Instance?.PlayConfirm();

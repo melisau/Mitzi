@@ -13,8 +13,9 @@ MonoBehaviour:
   m_Name: item_food_bowl
   m_EditorClassIdentifier: 
   id: food_bowl
-  displayName: "Gri Taş Mama Kabı"
-  description: "Taş görünümlü, sağlam ve kolay temizlenen mama kabı."
+  displayName: "Gri Ta\u015F Mama Kab\u0131"
+  description: "Ta\u015F g\xF6r\xFCn\xFCml\xFC, sa\u011Flam ve kolay temizlenen mama
+    kab\u0131."
   lovePointCost: 20
   icon: {fileID: 21300000, guid: 64a764865a4144dd89c6fb536b9843a4, type: 3}
   placedSprite: {fileID: 21300000, guid: 64a764865a4144dd89c6fb536b9843a4, type: 3}
@@ -22,8 +23,8 @@ MonoBehaviour:
   interactionType: 1
   interactionAnimation: {fileID: 0}
   interactionFrames:
-  - {fileID: 21300000, guid: 3eb98447dfd05ce4d97f1ee194e56f40, type: 3}
-  - {fileID: 21300000, guid: 93553d0a8c702f14aaa5e6cdd2459740, type: 3}
-  - {fileID: 21300000, guid: 49c50a49b97260d4286109a32fefd84a, type: 3}
-  - {fileID: 21300000, guid: 530c6e118bd0cb346aac10a4368dad57, type: 3}
+  - {fileID: 21300000, guid: 3469225a35feac1429e6c55aec8d9d7f, type: 3}
+  - {fileID: 21300000, guid: f31e3c608d87efb40a57120f239ccd7d, type: 3}
+  - {fileID: 21300000, guid: e5fcc1fe7d249174a95697fd93dad617, type: 3}
+  - {fileID: 21300000, guid: 41e0e8023c7f76a4db8e528c8aa0b246, type: 3}
   interactionVisualScale: 1

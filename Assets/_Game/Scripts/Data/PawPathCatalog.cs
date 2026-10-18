@@ -17,10 +17,18 @@ namespace PawPath.Data
         public List<LevelDefinition> levels = new List<LevelDefinition>();
         [Header("Arka Planlar")]
         public Sprite homeBackground;
+        public Sprite[] homeRoomOptions;
         public Sprite shopBackground;
         public Sprite gameplayBackground;
         public Sprite forestBackground;
         [Header("Bölüm Engelleri")]
+        public Sprite streetCrouchObstacle;
+        public Sprite forestCrouchObstacle;
+        public Sprite cityCrouchObstacle;
+        public Sprite cyberCrouchObstacle;
+        public Sprite[] crouchUpperObstacles;
+        public Sprite CrouchUpperForTheme(int theme) => crouchUpperObstacles != null && theme >= 0 && theme < crouchUpperObstacles.Length ? crouchUpperObstacles[theme] : null;
+        public Sprite CrouchObstacleForTheme(int theme) => theme==1 ? forestCrouchObstacle : theme==2 ? cityCrouchObstacle : theme==3 ? cyberCrouchObstacle : streetCrouchObstacle;
         public Sprite roadGapSprite;
         public Sprite streetGapLeftSprite;
         public Sprite streetGapRightSprite;
@@ -44,6 +52,8 @@ namespace PawPath.Data
         public Sprite[] cyberObstacleSprites;
         public Sprite roboticBird;
         public Sprite[] roboticDogWalkFrames;
+        public Sprite dogIdleSprite;
+        public Sprite roboticDogIdleSprite;
         public Sprite finishPortalSprite;
         [Header("Sesler")]
         public AudioClip homeMusic;
@@ -51,6 +61,7 @@ namespace PawPath.Data
         public AudioClip forestMusic;
         public AudioClip cityMusic;
         public AudioClip catStepSfx;
+        public AudioClip catPurrSfx;
         public AudioClip[] catMeowSfx;
         public AudioClip catHurtSfx;
         public AudioClip catFallSfx;
@@ -65,6 +76,7 @@ namespace PawPath.Data
         public Sprite completionBackground;
         public Sprite failureBackground;
         public Sprite[] birdFrames;
+        public Sprite[] roboticBirdFrames;
         [Header("Köpek ve Tırmanma")]
         public Sprite[] dogRunFrames;
         public Sprite climbTreeSprite;

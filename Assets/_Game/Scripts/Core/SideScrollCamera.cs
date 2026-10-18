@@ -17,6 +17,9 @@ namespace PawPath.Core
 
         float startY;
         float velocityX;
+        float velocityY;
+        PawPath.Cat.CatController followedCat;
+        SpriteRenderer catVisual;
         int preparationViewIndex;
 
         float PreparationStep
@@ -49,6 +52,14 @@ namespace PawPath.Core
 
         void LateUpdate()
         {
+            if (GameFlow.Instance != null && GameFlow.Instance.InHub && PawPath.Hub.HomeRooms.Instance != null)
+            {
+                var homePosition = transform.position;
+                homePosition.y = startY;
+                transform.position = homePosition;
+                velocityY = 0f;
+                return;
+            }
             float desiredX = minX;
             bool preparing = GameFlow.Instance != null &&
                 GameFlow.Instance.State == GameFlowState.DrawingPreparation;
@@ -59,7 +70,10 @@ namespace PawPath.Core
 
             float x = Mathf.SmoothDamp(transform.position.x, desiredX, ref velocityX,
                 smoothTime, Mathf.Infinity, preparing ? Time.unscaledDeltaTime : Time.deltaTime);
-            transform.position = new Vector3(x, startY, transform.position.z);
+            float desiredY = ClimbingViewY(preparing);
+            float y = Mathf.SmoothDamp(transform.position.y, desiredY, ref velocityY,
+                smoothTime, Mathf.Infinity, preparing ? Time.unscaledDeltaTime : Time.deltaTime);
+            transform.position = new Vector3(x, y, transform.position.z);
 
             if (backdropLayers == null)
                 return;
@@ -73,9 +87,19 @@ namespace PawPath.Core
             }
         }
 
+        float ClimbingViewY(bool preparing)
+        {
+            var view = GetComponent<Camera>();
+            if (!preparing && followedCat != null && followedCat.IsClimbing && catVisual != null && view != null)
+                return startY + Mathf.Max(0f, catVisual.bounds.max.y - (startY + view.orthographicSize * 0.65f));
+            return startY;
+        }
+
         public void Bind(Transform followTarget, params Transform[] backgrounds)
         {
             target = followTarget;
+            followedCat = target != null ? target.GetComponent<PawPath.Cat.CatController>() : null;
+            catVisual = target != null ? target.GetComponentInChildren<SpriteRenderer>() : null;
             backdropLayers = backgrounds;
         }
 
@@ -83,6 +107,7 @@ namespace PawPath.Core
         {
             preparationViewIndex = 0;
             velocityX = 0f;
+            velocityY = 0f;
             transform.position = new Vector3(minX, startY, transform.position.z);
         }
 

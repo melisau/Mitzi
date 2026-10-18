@@ -22,6 +22,7 @@ namespace PawPath.Levels
             float minX, float maxX, float phase)
         {
             renderer = target;
+            if (renderer != null) renderer.flipX = true;
             frames = animationFrames;
             speed = flightSpeed;
             leftBound = minX;
@@ -42,17 +43,19 @@ namespace PawPath.Levels
             if (frames == null || frames.Length == 0 || renderer == null)
                 return;
             frameTimer += Time.deltaTime;
-            if (frameTimer >= 0.11f)
+            const float frameInterval = 1f / 24f;
+            if (frameTimer >= frameInterval)
             {
-                frameTimer = 0f;
-                frameIndex = (frameIndex + 1) % frames.Length;
+                int advance = Mathf.FloorToInt(frameTimer / frameInterval);
+                frameTimer -= advance * frameInterval;
+                frameIndex = (frameIndex + advance) % frames.Length;
                 renderer.sprite = frames[frameIndex];
             }
         }
 
         void OnCollisionEnter2D(Collision2D collision)
         {
-            if (collision.collider.GetComponent<CatController>() == null)
+            if (collision.collider.GetComponentInParent<CatController>() == null)
                 return;
             CozyAudioManager.Instance?.PlayHurt();
             GameFlow.Instance?.ShowLevelFailure(GameText.L("Uçan kuşa çarptın. Uçuş yüksekliğini izle ve doğru zamanda geç!", "You bumped into a flying bird. Watch its height and pass at the right moment!", "Du bist gegen einen Vogel gestoßen. Achte auf seine Flughöhe und lauf im richtigen Moment vorbei!"));

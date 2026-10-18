@@ -14,6 +14,8 @@ namespace PawPath.Core
         SpriteRenderer centerRenderer;
         float startCameraX;
         float startLayerX;
+        float startCameraY;
+        float startLayerY;
 
         public void Bind(Camera cameraToFollow, SpriteRenderer source, float factor = 0.32f)
         {
@@ -22,6 +24,8 @@ namespace PawPath.Core
             followFactor = Mathf.Clamp01(factor);
             startCameraX = targetCamera != null ? targetCamera.transform.position.x : 0f;
             startLayerX = transform.position.x;
+            startCameraY = targetCamera != null ? targetCamera.transform.position.y : 0f;
+            startLayerY = transform.position.y;
             BuildSideTiles();
         }
 
@@ -32,6 +36,8 @@ namespace PawPath.Core
             float cameraTravel = targetCamera.transform.position.x - startCameraX;
             var position = transform.position;
             position.x = startLayerX + cameraTravel * followFactor;
+            // Keep the backdrop covering the view during a higher tree climb.
+            position.y = startLayerY + targetCamera.transform.position.y - startCameraY;
             transform.position = position;
         }
 

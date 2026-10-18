@@ -1,12 +1,10 @@
 # Android release
 
-The project defaults to ARM64, IL2CPP, target API 36, version `1.0.0`, and Android version code `1`. Keep code `1` only if no previous Play upload has used it. Increment the version code before each new upload; update the visible version when releasing a new version.
+The release preparation command selects ARM64 and IL2CPP, target API 36, version `1.0.0`, and Android version code `1`. Keep code `1` only if no previous Play upload has used it. Increment the version code before each new upload; update the visible version when releasing a new version.
 
 ## Required toolchain
 
-The checked-in project uses Unity **2022.3.50f1**. This editor predates Android 16 KB support and is not a release-ready toolchain. Upgrade to a compatible patched Unity editor (at least 2022.3.56f1 for 16 KB native-library support), install Android Build Support with SDK/NDK Tools and OpenJDK, and test the migration. API 36 support and current Play compatibility must also be checked for the chosen patch. Do not migrate directly to Unity 6 without testing the project and its packages.
-
-Install Android SDK Platform 36 in the SDK configured under Unity Preferences > External Tools. The locally inspected 2022.3.50f1 SDK currently contains platforms 33, 34 and 35 only.
+The checked-in project uses Unity **2022.3.62f3**. Install Android Build Support with SDK/NDK Tools and OpenJDK. Confirm Android SDK Platform 36 is installed in the SDK selected under Unity Preferences > External Tools. Validate the actual release bundle's native libraries for 16 KB page support; the editor version alone is not sufficient.
 
 ## Upload signing
 
@@ -33,10 +31,10 @@ For CI, invoke Unity with `-batchmode -quit -buildTarget Android -projectPath <p
 ## Verify the actual AAB before upload
 
 - Run `bundletool validate --bundle=<file.aab>` using the bundletool JAR from the chosen Unity Android tools, and `jarsigner -verify <file.aab>` from its OpenJDK.
-- Use `bundletool dump manifest --bundle=<file.aab> --module=base` to confirm package `com.MelisaUyar.Mitzi`, target SDK 36, intended version name/code, and that the app is not debuggable.
+- Use `bundletool dump manifest --bundle=<file.aab> --module=base` to confirm package `com.mitzicat.game`, target SDK 36, intended version name/code, and that the app is not debuggable.
 - Inspect `base/lib/arm64-v8a` inside the AAB. Verify all native libraries support 16 KB pages, including Unity, IL2CPP, Burst and any plugins. The editor version check alone does not prove this.
 - Upload to Play internal testing and review App Bundle Explorer/device compatibility. Install the generated release on a real ARM64 phone and a 16 KB emulator/device; follow `QA_CHECKLIST.md`.
 
-No signed AAB has been produced or verified yet: the installed project editor is too old, API 36 is missing, and upload-key credentials have not been supplied. Do not treat the settings changes as confirmation of Play approval.
+No signed AAB has been produced or verified yet. Upload signing credentials and actual build/device validation are still required. Do not treat the settings changes as confirmation of Play approval.
 
 References: [Google Play target API](https://support.google.com/googleplay/android-developer/answer/11926878?hl=en), [Android 16 KB page support](https://developer.android.com/guide/practices/page-sizes), [Unity 16 KB support](https://discussions.unity.com/t/android-unity-engine-support-for-16-kb-memory-page-sizes-android-15/1589588).

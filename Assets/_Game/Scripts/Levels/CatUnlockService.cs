@@ -5,11 +5,19 @@ using PawPath.Economy;
 namespace PawPath.Levels
 {
     /// <summary>
-    /// Her 5 tamamlanan bölümde henüz açılmamış bir kediyi koleksiyona yazar.
+    /// Her 10 tamamlanan bölümde henüz açılmamış bir kediyi koleksiyona yazar.
     /// </summary>
     public static class CatUnlockService
     {
-        public const int Interval = 5;
+        public const int Interval = 10;
+
+        public static CatDefinition WaitingAtLevel(int level)
+        {
+            if(level<=0 || level%Interval!=0)return null;
+            var catalog=GameFlow.Instance != null ? GameFlow.Instance.Catalog : null;
+            if(catalog==null)return null;
+            return catalog.cats.Find(cat=>cat!=null && cat.unlockAfterLevel==level && !SaveService.HasCat(cat.id));
+        }
 
         public static bool TryUnlockAfterLevel(int completedLevel, out CatDefinition unlocked)
         {
@@ -32,7 +40,7 @@ namespace PawPath.Levels
 
                 SaveService.UnlockCat(cat.id);
                 if (CozyEconomyManager.Instance != null)
-                    CozyEconomyManager.Instance.AddLove(40, "Yeni kedi keşfi");
+                    CozyEconomyManager.Instance.AddShoppingPoints(10, "Yeni kedi keşfi");
                 unlocked = cat;
                 GameEvents.CatUnlocked(cat);
                 return true;

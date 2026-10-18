@@ -37,42 +37,70 @@ MonoBehaviour:
     buldun. Pamuk, burnunu parma\u011F\u0131na de\u011Fdirip 'beni de g\xF6t\xFCr\xFCr
     m\xFCs\xFCn?' diye bak\u0131yor. Evde ona bir g\xFCne\u015F dilimi ay\u0131raca\u011F\u0131z."
   personality: 1
-  unlockAfterLevel: 5
+  unlockAfterLevel: 10
   isStarterCat: 0
   furTint: {r: 0.96, g: 0.95, b: 0.93, a: 1}
-  portrait: {fileID: 21300000, guid: 612968a7842f2004fae14c24c3c7e0c9, type: 3}
-  idleSprite: {fileID: 21300000, guid: 0df5bfe5bfd9b694abd17a0d1be077ee, type: 3}
-  animator: {fileID: 9100000, guid: 54c3dd36107516546a2f94b5b6bdf2e9, type: 2}
+  portrait: {fileID: 21300000, guid: 46d651d9b169ae443b6e05ad1d78505d, type: 3}
+  idleSprite: {fileID: 21300000, guid: 4dc00ffafd2f1d74295e14f6ab399c1f, type: 3}
+  animator: {fileID: 9100000, guid: bf53d92feed6eda4cb82bc293180d3a5, type: 2}
   walkFrames:
-  - {fileID: 21300000, guid: 66fc729a4d1b583428baa7646fb0be66, type: 3}
-  - {fileID: 21300000, guid: 334ed62d28dd9ad419c091b6cc6552d4, type: 3}
-  - {fileID: 21300000, guid: 8fc729780b29a81469f090b6ddc7d0e7, type: 3}
-  - {fileID: 21300000, guid: ee3032442c833b146a92978c7a9afb70, type: 3}
-  - {fileID: 21300000, guid: b2e6f9eb4c792e644b8039e43cd9bf0e, type: 3}
-  - {fileID: 21300000, guid: 9cd9b984d9ce57d45875f1e731fb3dcd, type: 3}
-  - {fileID: 21300000, guid: a280cfc528d9eab4682aafcc2a349341, type: 3}
-  - {fileID: 21300000, guid: a1bd0c8ea57548b4b852623c6bf45f1b, type: 3}
-  - {fileID: 21300000, guid: ab20b2b3b9233ba458c5024fbd3f3186, type: 3}
-  - {fileID: 21300000, guid: 9f80b7cc07e638245955783d4c0cbfa0, type: 3}
-  - {fileID: 21300000, guid: 94e5c7fd8b8c72d4581c408357d94c1d, type: 3}
-  - {fileID: 21300000, guid: f673ec90b3482394796add46c23b5ced, type: 3}
-  - {fileID: 21300000, guid: 3ba14450bdcb2d845b0919a2e7f94d00, type: 3}
-  - {fileID: 21300000, guid: 205646984c25d8643960421ce181a39e, type: 3}
-  - {fileID: 21300000, guid: f06b0a03a39937d44810f840947ccac3, type: 3}
-  - {fileID: 21300000, guid: d3fdacc2f75be0c4c84527895876c9cd, type: 3}
-  - {fileID: 21300000, guid: 9169f9a8ded85d044a38f1f29683151d, type: 3}
-  - {fileID: 21300000, guid: f7a2c98f5b3b8434e9e1fd39303a6bbd, type: 3}
+  - {fileID: 21300000, guid: 000a7fe9e287cfc49b219bc2bdc02546, type: 3}
+  - {fileID: 21300000, guid: 599c95156db512049992cd10c8da1afc, type: 3}
+  - {fileID: 21300000, guid: 08864c362ad4d144d9d791bd423e7be5, type: 3}
+  - {fileID: 21300000, guid: e1f8dbd594fb98143ac8164888c9ba6d, type: 3}
+  - {fileID: 21300000, guid: de860eb1a8fe82a499a995a7b7964fd8, type: 3}
+  - {fileID: 21300000, guid: 367f8b4350a3c80489cf309410c2bebc, type: 3}
+  - {fileID: 21300000, guid: 9eda2ae9cecfb054cb76058d579050f3, type: 3}
+  - {fileID: 21300000, guid: 115b52eb277a1644c9d06fe6dbe41485, type: 3}
+  - {fileID: 21300000, guid: 5420da971ba18ac4cac6294e37c17659, type: 3}
+  - {fileID: 21300000, guid: 8a648dc051efe684cb58579c48af3549, type: 3}
+  - {fileID: 21300000, guid: 87c4ca7a7f0e90149b901efcb7b2d5ba, type: 3}
+  - {fileID: 21300000, guid: ebb3306693daa8c4eaf3a548d16c0021, type: 3}
+  crouchWalkFrames:
+  - {fileID: 21300000, guid: 5dc1216255f4cfd49a2a4198ba16ffc5, type: 3}
+  - {fileID: 21300000, guid: 9caa356fe5341b34eb7aedac0eb4d242, type: 3}
+  - {fileID: 21300000, guid: c9ea5c22fe2ece94ca6382f267546a36, type: 3}
+  - {fileID: 21300000, guid: 6bd37c5a7cff75c4288c7fe3f0465b0d, type: 3}
   idleFrames:
-  - {fileID: 21300000, guid: 0df5bfe5bfd9b694abd17a0d1be077ee, type: 3}
-  - {fileID: 21300000, guid: 71c732dff034b1a4fa925a85aabd713d, type: 3}
+  - {fileID: 21300000, guid: 4dc00ffafd2f1d74295e14f6ab399c1f, type: 3}
+  - {fileID: 21300000, guid: 96c1ddce3625ed54f8669b312abf57c7, type: 3}
+  - {fileID: 21300000, guid: 1406f8a1c2914cd42ba9b14da97514a7, type: 3}
+  - {fileID: 21300000, guid: e29a436d9d8b3f74b824f899113cd04b, type: 3}
   jumpFrames:
-  - {fileID: 21300000, guid: 56090f400bc1c874e90b9e8ffb2c0a2b, type: 3}
-  - {fileID: 21300000, guid: fc7a740d658a8b44a8288436e1dd7034, type: 3}
-  - {fileID: 21300000, guid: 388e6a5ef7a95224aad547abc72bba7b, type: 3}
-  - {fileID: 21300000, guid: d14105c50da8bf94ebaff95b858293e3, type: 3}
+  - {fileID: 21300000, guid: 7acb052730f08be4899c0923c678b17f, type: 3}
+  - {fileID: 21300000, guid: 0e3d078cd1d35ce418aaed154be6b229, type: 3}
+  - {fileID: 21300000, guid: 05e973416d885bf4687c5c03b0f4a654, type: 3}
+  - {fileID: 21300000, guid: 51401ab949d490c41a9628cc6d274237, type: 3}
+  jumpApexSprite: {fileID: 21300000, guid: 099198318ecc76945a2d81f1a41c3e2f, type: 3}
   sleepFrames:
-  - {fileID: 21300000, guid: 795534a261d41304eb8437eea7c2dbda, type: 3}
-  - {fileID: 21300000, guid: 0dcd84ec05f8f06459619f18c7ca6120, type: 3}
+  - {fileID: 21300000, guid: 138a33c1be166cc4698f4ad32d1aa563, type: 3}
+  - {fileID: 21300000, guid: 9911e37aa87a8eb4284a2cfa0c42ecfb, type: 3}
+  - {fileID: 21300000, guid: 70f835ea7b19e6e45ba1172ce4a4e35e, type: 3}
+  - {fileID: 21300000, guid: aaa03097880de0046a76e3a46bcc5f07, type: 3}
+  - {fileID: 21300000, guid: 17997efc2ff5590438843c2e901adfd6, type: 3}
+  climbFrames:
+  - {fileID: 21300000, guid: 08e7685481dddd04da44d997d6761422, type: 3}
+  - {fileID: 21300000, guid: 831fd7e0d9f0c274b8da28298ac3b3d3, type: 3}
+  - {fileID: 21300000, guid: 8d13e8bd69f328643bcff7c5e4df2532, type: 3}
+  - {fileID: 21300000, guid: 79159b9bbf8f6534487d701f3fc256d6, type: 3}
+  - {fileID: 21300000, guid: d47f5b552188b3443bc08b970a98a687, type: 3}
+  - {fileID: 21300000, guid: ac137f6f025409d4da388ad2615cd52f, type: 3}
+  - {fileID: 21300000, guid: df7c2b03466e5b145a057a5d5ed93603, type: 3}
+  - {fileID: 21300000, guid: 12f76224aab2fcb459ca4ed7439cbf15, type: 3}
+  - {fileID: 21300000, guid: a6e32a2c995981445946ffe8be3b560f, type: 3}
+  - {fileID: 21300000, guid: 088a0ffa5020d16469db8af68526fe4c, type: 3}
+  - {fileID: 21300000, guid: 01c295083d8acf5448f422aebf83664e, type: 3}
+  - {fileID: 21300000, guid: 906b1fa3fef7ca7478137fe365c73e5c, type: 3}
+  eatFrames:
+  - {fileID: 21300000, guid: 3a22812a798768c409fbb918e26cdf64, type: 3}
+  - {fileID: 21300000, guid: 048e28db405880844aa1b6f833213d5a, type: 3}
+  - {fileID: 21300000, guid: b2fd5c125235b454ca3829e3b2c066b1, type: 3}
+  - {fileID: 21300000, guid: 7427d92a2c530d04397a6f47cf7d8453, type: 3}
+  drinkFrames:
+  - {fileID: 21300000, guid: eb4db8e4afc3592499bec57022164c1d, type: 3}
+  - {fileID: 21300000, guid: 20154cdd94fef134ab1ea7827628543a, type: 3}
+  - {fileID: 21300000, guid: af5145c5d167af340bd5841970e9816f, type: 3}
+  - {fileID: 21300000, guid: d8dc649901d431a41a48fa810596d2f5, type: 3}
   useDetailedHomeAnimations: 1
   purrClip: {fileID: 0}
   meowClip: {fileID: 0}
@@ -204,42 +232,70 @@ MonoBehaviour:
     kaym\u0131\u015F halde seni bekliyor. Bir ok\u015Famada ipli\u011Fi d\xFCzelir,
     ikinci ok\u015Famada evinin yolunu \xF6\u011Frenir."
   personality: 1
-  unlockAfterLevel: 25
+  unlockAfterLevel: 50
   isStarterCat: 0
   furTint: {r: 0.45, g: 0.32, b: 0.24, a: 1}
-  portrait: {fileID: 21300000, guid: a6350502b94ac62499ab77cd46cf2eef, type: 3}
-  idleSprite: {fileID: 21300000, guid: ef33693f71bc6c746950f59f9b90c611, type: 3}
-  animator: {fileID: 9100000, guid: 7ce6922b83993d54ea2a908434566dbe, type: 2}
+  portrait: {fileID: 21300000, guid: 2d7923b8a1e9e304b9ca22219bbd4a8c, type: 3}
+  idleSprite: {fileID: 21300000, guid: a8022b4b23adc9945b3b5f9a4205efa1, type: 3}
+  animator: {fileID: 9100000, guid: e119a53e51349ef43aacec0394b79c99, type: 2}
   walkFrames:
-  - {fileID: 21300000, guid: f67748397fba06d4bbfd83d7d3fdc525, type: 3}
-  - {fileID: 21300000, guid: 1bda25d3b3774a14691fd093955fdfac, type: 3}
-  - {fileID: 21300000, guid: 1f7f0395647daca45a4335c40928c7af, type: 3}
-  - {fileID: 21300000, guid: cc72517c59ab32244ac44cc60f8a41ea, type: 3}
-  - {fileID: 21300000, guid: c9754bc284725be45852c5f420ca70a3, type: 3}
-  - {fileID: 21300000, guid: 7b68eb067e1c3184c952a5ea88c73ad2, type: 3}
-  - {fileID: 21300000, guid: 470d0da4465bb6a43ae0051a3991bd2e, type: 3}
-  - {fileID: 21300000, guid: addabf10efa9e3a42bd4bfab0a304ebb, type: 3}
-  - {fileID: 21300000, guid: a1a7bf098cffdfb4f81abc44da84cac0, type: 3}
-  - {fileID: 21300000, guid: 7be75026c04c7794dab966c684e5aa6e, type: 3}
-  - {fileID: 21300000, guid: b6ad48fd72da3374db67bcef87779f41, type: 3}
-  - {fileID: 21300000, guid: a29b967b99442b649893dce7dd87ccfc, type: 3}
-  - {fileID: 21300000, guid: ddfc71da0f3cdd24d920c8aa549ed8cd, type: 3}
-  - {fileID: 21300000, guid: c0d725589cfc74a40a783af0822e28db, type: 3}
-  - {fileID: 21300000, guid: d585f48681a98e24294808bc23fb0892, type: 3}
-  - {fileID: 21300000, guid: 1944616de49506d4b94212612c65f406, type: 3}
-  - {fileID: 21300000, guid: 30569c6978dd51a458392bdd6088ebc7, type: 3}
-  - {fileID: 21300000, guid: d3662cfe4282be84f88444156b375658, type: 3}
+  - {fileID: 21300000, guid: 181e0330e3438ac4dbe7b2d5e6c50fc2, type: 3}
+  - {fileID: 21300000, guid: e64d1ce3987e1f44b8360f0beca8373f, type: 3}
+  - {fileID: 21300000, guid: 247f5dae88956d34aa94d5ed05f21619, type: 3}
+  - {fileID: 21300000, guid: cc80363b74f8a6b4ca97dffc01b0b94f, type: 3}
+  - {fileID: 21300000, guid: 8e6b5f6d38c825e4482d72102d965642, type: 3}
+  - {fileID: 21300000, guid: 8f118af84f6adcc4b86dc84731ebc206, type: 3}
+  - {fileID: 21300000, guid: 8f57dbfb0be91cf4a9e23c22bf771704, type: 3}
+  - {fileID: 21300000, guid: bf1cd0f3b237465498c3bc8053c641ac, type: 3}
+  - {fileID: 21300000, guid: 6a9ed5023f8744a41a239464a007c47a, type: 3}
+  - {fileID: 21300000, guid: 3565c79d3feddd34a802a485dc2ee9df, type: 3}
+  - {fileID: 21300000, guid: 93a1df906a2529e4bb5bf172ca6b3412, type: 3}
+  - {fileID: 21300000, guid: 0e929c65c68473d42a8e6b2cefdd40b1, type: 3}
+  crouchWalkFrames:
+  - {fileID: 21300000, guid: deba804f407cea54db165f763a2683ba, type: 3}
+  - {fileID: 21300000, guid: 181f913ba8d00ca46a135131900fd838, type: 3}
+  - {fileID: 21300000, guid: ca7c1555148ce2e43a540f66b44c724e, type: 3}
+  - {fileID: 21300000, guid: dfc5f373093e0e84291ea1d827e5e719, type: 3}
   idleFrames:
-  - {fileID: 21300000, guid: ef33693f71bc6c746950f59f9b90c611, type: 3}
-  - {fileID: 21300000, guid: ca3a1bfbfb55ebe46884a3a9b9f86918, type: 3}
+  - {fileID: 21300000, guid: a8022b4b23adc9945b3b5f9a4205efa1, type: 3}
+  - {fileID: 21300000, guid: 0b7019aa8e0eaf445ab61c13c311d1ed, type: 3}
+  - {fileID: 21300000, guid: cedc91aedb6614143bda1b5de4dc341a, type: 3}
+  - {fileID: 21300000, guid: ec89901278b4f2b4495f3feaff37e0f5, type: 3}
   jumpFrames:
-  - {fileID: 21300000, guid: 557b108d5f540cf47ac9ebe00a582388, type: 3}
-  - {fileID: 21300000, guid: 06a125d3576852241a662978af75f0eb, type: 3}
-  - {fileID: 21300000, guid: 37ad507ccc6f6784881333123c6f4a8f, type: 3}
-  - {fileID: 21300000, guid: b5a6662645daa7246841a8d40150a06d, type: 3}
+  - {fileID: 21300000, guid: defb7ce96412f9447a745f7e98745ce0, type: 3}
+  - {fileID: 21300000, guid: b631a6fbb4e498d41b1dd5c95b9072d3, type: 3}
+  - {fileID: 21300000, guid: 4e0c0c552d263e2489dae07fde7f5cc2, type: 3}
+  - {fileID: 21300000, guid: decec4fe868991d45add963a23509bcf, type: 3}
+  jumpApexSprite: {fileID: 21300000, guid: a8f0df79b568ad249b17c3550d0dc4fd, type: 3}
   sleepFrames:
-  - {fileID: 21300000, guid: 13c8e1acb96b85e4495fa50573e184af, type: 3}
-  - {fileID: 21300000, guid: d459ae8ded3581045952bd61c0547da8, type: 3}
+  - {fileID: 21300000, guid: 4dc8cd61ddd830c479b9daac8c66f66c, type: 3}
+  - {fileID: 21300000, guid: 08559db2970b10543b99b0a53fc435d8, type: 3}
+  - {fileID: 21300000, guid: 269890a4c4eae234a8ff076cf7821c3d, type: 3}
+  - {fileID: 21300000, guid: 7713a689e4ee481449dabe23b2dd8028, type: 3}
+  - {fileID: 21300000, guid: a1a858001dc0baf4192250757be34725, type: 3}
+  climbFrames:
+  - {fileID: 21300000, guid: 1612eb2ef732b6a4b898ef3fa92e32d1, type: 3}
+  - {fileID: 21300000, guid: b9fd95c5b74cf094ab24d3234517596a, type: 3}
+  - {fileID: 21300000, guid: f053bce834700f84883cc2f248dc20d1, type: 3}
+  - {fileID: 21300000, guid: f2b6066afdd4d724a8cdc8580657025b, type: 3}
+  - {fileID: 21300000, guid: 603a89a7ccf736c4983ce82f162916af, type: 3}
+  - {fileID: 21300000, guid: 5bf6137892737b249af07a07cc06fbbf, type: 3}
+  - {fileID: 21300000, guid: a3833ae019c6d5340943e3cffcae1081, type: 3}
+  - {fileID: 21300000, guid: 56ab41f24998dc34587761c32898e680, type: 3}
+  - {fileID: 21300000, guid: 6f5e38680bdbc6e41b5d1d61923b2ac2, type: 3}
+  - {fileID: 21300000, guid: 65c88a4769bdc394da9ecfd732b4348a, type: 3}
+  - {fileID: 21300000, guid: 3e7e1bf3791399c4ea076be81c789c1f, type: 3}
+  - {fileID: 21300000, guid: 0cde93928e356474da9fd9f32e552776, type: 3}
+  eatFrames:
+  - {fileID: 21300000, guid: 975413911c19b3649b856f84667512ff, type: 3}
+  - {fileID: 21300000, guid: 811a3d9fe2ef707489c39d4c9552df2b, type: 3}
+  - {fileID: 21300000, guid: 4e997e7e935394140afb2801f500a1b4, type: 3}
+  - {fileID: 21300000, guid: 2e82d0a117279d24e84748d34fd7de88, type: 3}
+  drinkFrames:
+  - {fileID: 21300000, guid: 770298c95e509d24bad62373ba13e6ef, type: 3}
+  - {fileID: 21300000, guid: 08fe5d507d547cb4fb61b7c75832b64b, type: 3}
+  - {fileID: 21300000, guid: 963d51abe6b30c24fbb330e22b3feee9, type: 3}
+  - {fileID: 21300000, guid: fda42c4b01b05c0409812d1eb5c48886, type: 3}
   useDetailedHomeAnimations: 1
   purrClip: {fileID: 0}
   meowClip: {fileID: 0}
@@ -317,42 +373,70 @@ MonoBehaviour:
     z\u0131playa z\u0131playa sana geliyor. 'Bu yol biraz e\u011Flenceliydi,' der
     gibi m\u0131r\u0131ldan\u0131yor. Kap\u0131y\u0131 a\xE7\u0131k b\u0131rak\u0131yoruz."
   personality: 4
-  unlockAfterLevel: 15
+  unlockAfterLevel: 30
   isStarterCat: 0
   furTint: {r: 0.9, g: 0.55, b: 0.32, a: 1}
-  portrait: {fileID: 21300000, guid: da75d6e7179d8a143a891d2e0959d983, type: 3}
-  idleSprite: {fileID: 21300000, guid: 7c4047f4d116af3499b9a50f9725bde9, type: 3}
-  animator: {fileID: 9100000, guid: 4ca9264176d2e394c900b5e6a8ba1023, type: 2}
+  portrait: {fileID: 21300000, guid: fcdd29f9194d1724ca013fe1e7178efc, type: 3}
+  idleSprite: {fileID: 21300000, guid: 8036d21353cb6a04eaeda43c26eae830, type: 3}
+  animator: {fileID: 9100000, guid: 5512716a6ba25f545ab64703e40d9317, type: 2}
   walkFrames:
-  - {fileID: 21300000, guid: 620552ff6857bd54ca9b3127afd398f4, type: 3}
-  - {fileID: 21300000, guid: 616a2ad972924a94c859664171645c06, type: 3}
-  - {fileID: 21300000, guid: 2d34ea31a3e4e5943b8e644daa033a37, type: 3}
-  - {fileID: 21300000, guid: 17d0d4ac05a72224f86edde8b691d4b8, type: 3}
-  - {fileID: 21300000, guid: d70cdfca62e66184e8662febe24193f7, type: 3}
-  - {fileID: 21300000, guid: 8739113afbefc9e4d8495424c8680980, type: 3}
-  - {fileID: 21300000, guid: 2feab9fe0e59eda45b6a1f1102b24106, type: 3}
-  - {fileID: 21300000, guid: 5ac0e188684383d40b98750212659b73, type: 3}
-  - {fileID: 21300000, guid: ff121fce6a81bab499bedf3fb760133d, type: 3}
-  - {fileID: 21300000, guid: 292e9b3f5c2a4534a92447fd442f80c4, type: 3}
-  - {fileID: 21300000, guid: fc87992338d5b09488fed20a268255da, type: 3}
-  - {fileID: 21300000, guid: 63c7acd050ae90246b71c74cea4645a7, type: 3}
-  - {fileID: 21300000, guid: 3a0bcef35e5e01348a120f0936882f3a, type: 3}
-  - {fileID: 21300000, guid: ffe5fdce460802b4b98a410ae6ebda84, type: 3}
-  - {fileID: 21300000, guid: daeefb96e7de72545aa294e59d93f502, type: 3}
-  - {fileID: 21300000, guid: 94ec9736a5f85bf4596e911658e4bf95, type: 3}
-  - {fileID: 21300000, guid: cff0acc37a6b53d428353325f72d0c45, type: 3}
-  - {fileID: 21300000, guid: 411ff6919ab43d8468aab1a4ef53b802, type: 3}
+  - {fileID: 21300000, guid: 950691bc61d830745a5182bb0826f497, type: 3}
+  - {fileID: 21300000, guid: aaef97afc59d3f147b0a14b946a95fb4, type: 3}
+  - {fileID: 21300000, guid: 8983af56bbffd184ab23f2350e488189, type: 3}
+  - {fileID: 21300000, guid: bffd939e538237849bafaa1b3618b6d5, type: 3}
+  - {fileID: 21300000, guid: 1358ed0b68585cb42beb8efa7c644872, type: 3}
+  - {fileID: 21300000, guid: 8f7f4b88bf99d00439c2f24fa21de3fc, type: 3}
+  - {fileID: 21300000, guid: 2a1f97a32a450594ba24f7f884cf3609, type: 3}
+  - {fileID: 21300000, guid: 34fc5528e31a58c438b4b8ab27698629, type: 3}
+  - {fileID: 21300000, guid: b76fe2cbcc2623043bd79b0b84ab5c0a, type: 3}
+  - {fileID: 21300000, guid: b4e9c0d9c4eb174428e347bd157df4ea, type: 3}
+  - {fileID: 21300000, guid: 1eddf3d750e05bd40a371afe454a7f5d, type: 3}
+  - {fileID: 21300000, guid: 64ce3956c2d16574182dde75a6594217, type: 3}
+  crouchWalkFrames:
+  - {fileID: 21300000, guid: 24eb2f7b1db206145b89180afa3a375b, type: 3}
+  - {fileID: 21300000, guid: fa9592a34177a2a44bc36a2be9fbe7ba, type: 3}
+  - {fileID: 21300000, guid: ead8b53bf05befc4e8c2b61bbd013cd0, type: 3}
+  - {fileID: 21300000, guid: 5f261e2f808317d4fb4b8597a636bb3a, type: 3}
   idleFrames:
-  - {fileID: 21300000, guid: 7c4047f4d116af3499b9a50f9725bde9, type: 3}
-  - {fileID: 21300000, guid: 53c6721c74ad13248a4d410c4587f1f0, type: 3}
+  - {fileID: 21300000, guid: 8036d21353cb6a04eaeda43c26eae830, type: 3}
+  - {fileID: 21300000, guid: 7461d1e6a118ce54cb84de88af573c81, type: 3}
+  - {fileID: 21300000, guid: 17ca8d06bd406ff4b8913bb025ea57f5, type: 3}
+  - {fileID: 21300000, guid: d43b7a6f097c3e94d97cce9d1aa037c4, type: 3}
   jumpFrames:
-  - {fileID: 21300000, guid: 2026b82c28e10fd4fa10bdd8b1bac104, type: 3}
-  - {fileID: 21300000, guid: abd1829456d37104398b792ab914b935, type: 3}
-  - {fileID: 21300000, guid: 09a3bdd5d87689b488a414d32dff387e, type: 3}
-  - {fileID: 21300000, guid: 4232f20fb0d9fdb47950fd807c8d7fa0, type: 3}
+  - {fileID: 21300000, guid: 65d5b5ac9fd8dea4497d56258509233a, type: 3}
+  - {fileID: 21300000, guid: 84671a0e530aa274886e2c79fa6510dc, type: 3}
+  - {fileID: 21300000, guid: ebaa62cbcb590a744b7219b82f3baa50, type: 3}
+  - {fileID: 21300000, guid: d51231c55e3573042ac6eff9a87b119b, type: 3}
+  jumpApexSprite: {fileID: 21300000, guid: f3d15a111f3634f44a8d6f87c354911a, type: 3}
   sleepFrames:
-  - {fileID: 21300000, guid: 6407e80934edf8441b4af53f3a6cda05, type: 3}
-  - {fileID: 21300000, guid: 0dd203f1f6599fc4490d928c98f9ace1, type: 3}
+  - {fileID: 21300000, guid: abca48c516b709b4b9a3f935ad548534, type: 3}
+  - {fileID: 21300000, guid: 9f8cb094346120b4c9f20eae585c8184, type: 3}
+  - {fileID: 21300000, guid: d7068b6e8732304488b0d75b824d7dc4, type: 3}
+  - {fileID: 21300000, guid: f3297fbe35560d149838bf53f7172c0b, type: 3}
+  - {fileID: 21300000, guid: 0088aff43e5230b46b472f2f2c104156, type: 3}
+  climbFrames:
+  - {fileID: 21300000, guid: 01f846e12ec0cad40b1361f688e16eba, type: 3}
+  - {fileID: 21300000, guid: 3db193831dd853f4cab495c3ec797549, type: 3}
+  - {fileID: 21300000, guid: 6f57269c08d00974ca406f2752d601e9, type: 3}
+  - {fileID: 21300000, guid: a326989d3d5dafb43bdd85bab627b070, type: 3}
+  - {fileID: 21300000, guid: 42269cc2b6927434681e2fdb3271e068, type: 3}
+  - {fileID: 21300000, guid: b1f42c429e0381e47b4e59737fa03e49, type: 3}
+  - {fileID: 21300000, guid: ac054ce96f6774b4fa18e89aafe7f67a, type: 3}
+  - {fileID: 21300000, guid: 88026485d9b6b524bb6f79f6fda995b9, type: 3}
+  - {fileID: 21300000, guid: 5507a16745e442b43ba71cb52d3fbb63, type: 3}
+  - {fileID: 21300000, guid: aaba65da8100a77479f30b2faaf3b013, type: 3}
+  - {fileID: 21300000, guid: b3843f20680aae240be4dda927a35ab4, type: 3}
+  - {fileID: 21300000, guid: d7c7c37eb534d6e4a8edf845c95b3a5a, type: 3}
+  eatFrames:
+  - {fileID: 21300000, guid: 243a4185ac3539140bee840f39da856a, type: 3}
+  - {fileID: 21300000, guid: 28514f612559cc64db26a7b9eb42ad3f, type: 3}
+  - {fileID: 21300000, guid: 24cb13b34ae0ecc46a2f84ed9453e1fe, type: 3}
+  - {fileID: 21300000, guid: cf469d142a411db4082e88e3896fefe3, type: 3}
+  drinkFrames:
+  - {fileID: 21300000, guid: 28338ee4ede889248a24368a1164905d, type: 3}
+  - {fileID: 21300000, guid: d3504d8a36f89564fb4f56cce2277dd4, type: 3}
+  - {fileID: 21300000, guid: 9a47ab62bd546e8468a0b98199ebf812, type: 3}
+  - {fileID: 21300000, guid: 409fa828a3d8cf343aef10963ea35927, type: 3}
   useDetailedHomeAnimations: 1
   purrClip: {fileID: 0}
   meowClip: {fileID: 0}
@@ -412,42 +496,70 @@ MonoBehaviour:
     oturuyor. Sen e\u011Filince bir ad\u0131m yakla\u015F\u0131yor; sanki evinin
     kokusunu \xE7oktan tan\u0131yor."
   personality: 3
-  unlockAfterLevel: 10
+  unlockAfterLevel: 20
   isStarterCat: 0
   furTint: {r: 0.18, g: 0.16, b: 0.2, a: 1}
-  portrait: {fileID: 21300000, guid: 5a3500ee0e9b1ac4a98ace9467a56daf, type: 3}
-  idleSprite: {fileID: 21300000, guid: 3ea7ee3b67615a14883502319d79fca6, type: 3}
-  animator: {fileID: 9100000, guid: 34066e326d584a44a8efbec5f9bfad46, type: 2}
+  portrait: {fileID: 21300000, guid: 2d7923b8a1e9e304b9ca22219bbd4a8c, type: 3}
+  idleSprite: {fileID: 21300000, guid: a8022b4b23adc9945b3b5f9a4205efa1, type: 3}
+  animator: {fileID: 9100000, guid: e119a53e51349ef43aacec0394b79c99, type: 2}
   walkFrames:
-  - {fileID: 21300000, guid: b3a59b8bef5f4e64988afe7c1ef5179b, type: 3}
-  - {fileID: 21300000, guid: f495a0f97b6c1104a9e564cb4fb9c60d, type: 3}
-  - {fileID: 21300000, guid: d710378fff96b8746856600a99b617f8, type: 3}
-  - {fileID: 21300000, guid: 4b0b7ebd1c3907b49980dd1584ded6c6, type: 3}
-  - {fileID: 21300000, guid: 83e14de160f8725449e38674921699be, type: 3}
-  - {fileID: 21300000, guid: ac3f6bb6fe0430b45bbea42149392601, type: 3}
-  - {fileID: 21300000, guid: 94034331ea12d6d42892e0ed0efb321c, type: 3}
-  - {fileID: 21300000, guid: 4edf51091e982fe4584c1f5f94c3684d, type: 3}
-  - {fileID: 21300000, guid: e43c90162c2739549835af08d6d55a87, type: 3}
-  - {fileID: 21300000, guid: 52a30939c294f8b429914bc1d1b4a3b2, type: 3}
-  - {fileID: 21300000, guid: 8463e5e81ebc3cb42bd982154c741ea2, type: 3}
-  - {fileID: 21300000, guid: 8f5370154f2274149b7ee271b59bff00, type: 3}
-  - {fileID: 21300000, guid: 5a866a91eff432c4596031e720cc2f17, type: 3}
-  - {fileID: 21300000, guid: 188bc1815a395884a8966b23f60c3087, type: 3}
-  - {fileID: 21300000, guid: 454f2ff7bc89db34dbf692ac9fc08be6, type: 3}
-  - {fileID: 21300000, guid: 43a1c51bf8f21654ca507e85211add37, type: 3}
-  - {fileID: 21300000, guid: 0baa015b09c08a2459677c857a053303, type: 3}
-  - {fileID: 21300000, guid: bc07f0bf97f326b47be4bfd1702ccf2b, type: 3}
+  - {fileID: 21300000, guid: 181e0330e3438ac4dbe7b2d5e6c50fc2, type: 3}
+  - {fileID: 21300000, guid: e64d1ce3987e1f44b8360f0beca8373f, type: 3}
+  - {fileID: 21300000, guid: 247f5dae88956d34aa94d5ed05f21619, type: 3}
+  - {fileID: 21300000, guid: cc80363b74f8a6b4ca97dffc01b0b94f, type: 3}
+  - {fileID: 21300000, guid: 8e6b5f6d38c825e4482d72102d965642, type: 3}
+  - {fileID: 21300000, guid: 8f118af84f6adcc4b86dc84731ebc206, type: 3}
+  - {fileID: 21300000, guid: 8f57dbfb0be91cf4a9e23c22bf771704, type: 3}
+  - {fileID: 21300000, guid: bf1cd0f3b237465498c3bc8053c641ac, type: 3}
+  - {fileID: 21300000, guid: 6a9ed5023f8744a41a239464a007c47a, type: 3}
+  - {fileID: 21300000, guid: 3565c79d3feddd34a802a485dc2ee9df, type: 3}
+  - {fileID: 21300000, guid: 93a1df906a2529e4bb5bf172ca6b3412, type: 3}
+  - {fileID: 21300000, guid: 0e929c65c68473d42a8e6b2cefdd40b1, type: 3}
+  crouchWalkFrames:
+  - {fileID: 21300000, guid: deba804f407cea54db165f763a2683ba, type: 3}
+  - {fileID: 21300000, guid: 181f913ba8d00ca46a135131900fd838, type: 3}
+  - {fileID: 21300000, guid: ca7c1555148ce2e43a540f66b44c724e, type: 3}
+  - {fileID: 21300000, guid: dfc5f373093e0e84291ea1d827e5e719, type: 3}
   idleFrames:
-  - {fileID: 21300000, guid: 3ea7ee3b67615a14883502319d79fca6, type: 3}
-  - {fileID: 21300000, guid: ec5b56e2d6779da43b8e739c7184219a, type: 3}
+  - {fileID: 21300000, guid: a8022b4b23adc9945b3b5f9a4205efa1, type: 3}
+  - {fileID: 21300000, guid: 0b7019aa8e0eaf445ab61c13c311d1ed, type: 3}
+  - {fileID: 21300000, guid: cedc91aedb6614143bda1b5de4dc341a, type: 3}
+  - {fileID: 21300000, guid: ec89901278b4f2b4495f3feaff37e0f5, type: 3}
   jumpFrames:
-  - {fileID: 21300000, guid: 5c1e87fdf3b564a448044217799b75ba, type: 3}
-  - {fileID: 21300000, guid: 9fdee9474d565f343b53a486e737d6f7, type: 3}
-  - {fileID: 21300000, guid: ea76f2fbc48971d4fb4b559cdf013df3, type: 3}
-  - {fileID: 21300000, guid: ca24e647d1a795240b7c49f6bfd9df06, type: 3}
+  - {fileID: 21300000, guid: defb7ce96412f9447a745f7e98745ce0, type: 3}
+  - {fileID: 21300000, guid: b631a6fbb4e498d41b1dd5c95b9072d3, type: 3}
+  - {fileID: 21300000, guid: 4e0c0c552d263e2489dae07fde7f5cc2, type: 3}
+  - {fileID: 21300000, guid: decec4fe868991d45add963a23509bcf, type: 3}
+  jumpApexSprite: {fileID: 21300000, guid: a8f0df79b568ad249b17c3550d0dc4fd, type: 3}
   sleepFrames:
-  - {fileID: 21300000, guid: 71f7c2d81ae6fa34ba4a6b69fa3ae9d2, type: 3}
-  - {fileID: 21300000, guid: 193b9c0d01d97a441b613a69280e7641, type: 3}
+  - {fileID: 21300000, guid: 4dc8cd61ddd830c479b9daac8c66f66c, type: 3}
+  - {fileID: 21300000, guid: 08559db2970b10543b99b0a53fc435d8, type: 3}
+  - {fileID: 21300000, guid: 269890a4c4eae234a8ff076cf7821c3d, type: 3}
+  - {fileID: 21300000, guid: 7713a689e4ee481449dabe23b2dd8028, type: 3}
+  - {fileID: 21300000, guid: a1a858001dc0baf4192250757be34725, type: 3}
+  climbFrames:
+  - {fileID: 21300000, guid: 1612eb2ef732b6a4b898ef3fa92e32d1, type: 3}
+  - {fileID: 21300000, guid: b9fd95c5b74cf094ab24d3234517596a, type: 3}
+  - {fileID: 21300000, guid: f053bce834700f84883cc2f248dc20d1, type: 3}
+  - {fileID: 21300000, guid: f2b6066afdd4d724a8cdc8580657025b, type: 3}
+  - {fileID: 21300000, guid: 603a89a7ccf736c4983ce82f162916af, type: 3}
+  - {fileID: 21300000, guid: 5bf6137892737b249af07a07cc06fbbf, type: 3}
+  - {fileID: 21300000, guid: a3833ae019c6d5340943e3cffcae1081, type: 3}
+  - {fileID: 21300000, guid: 56ab41f24998dc34587761c32898e680, type: 3}
+  - {fileID: 21300000, guid: 6f5e38680bdbc6e41b5d1d61923b2ac2, type: 3}
+  - {fileID: 21300000, guid: 65c88a4769bdc394da9ecfd732b4348a, type: 3}
+  - {fileID: 21300000, guid: 3e7e1bf3791399c4ea076be81c789c1f, type: 3}
+  - {fileID: 21300000, guid: 0cde93928e356474da9fd9f32e552776, type: 3}
+  eatFrames:
+  - {fileID: 21300000, guid: 975413911c19b3649b856f84667512ff, type: 3}
+  - {fileID: 21300000, guid: 811a3d9fe2ef707489c39d4c9552df2b, type: 3}
+  - {fileID: 21300000, guid: 4e997e7e935394140afb2801f500a1b4, type: 3}
+  - {fileID: 21300000, guid: 2e82d0a117279d24e84748d34fd7de88, type: 3}
+  drinkFrames:
+  - {fileID: 21300000, guid: 770298c95e509d24bad62373ba13e6ef, type: 3}
+  - {fileID: 21300000, guid: 08fe5d507d547cb4fb61b7c75832b64b, type: 3}
+  - {fileID: 21300000, guid: 963d51abe6b30c24fbb330e22b3feee9, type: 3}
+  - {fileID: 21300000, guid: fda42c4b01b05c0409812d1eb5c48886, type: 3}
   useDetailedHomeAnimations: 1
   purrClip: {fileID: 0}
   meowClip: {fileID: 0}
@@ -525,42 +637,70 @@ MonoBehaviour:
     g\xF6r\xFCnce a\u015Fa\u011F\u0131 atl\u0131yor ve aln\u0131n\u0131 dizine yasl\u0131yor.
     'Ben de ailenin par\xE7as\u0131 olay\u0131m' diyor sessizce."
   personality: 2
-  unlockAfterLevel: 20
+  unlockAfterLevel: 40
   isStarterCat: 0
   furTint: {r: 0.72, g: 0.74, b: 0.78, a: 1}
-  portrait: {fileID: 21300000, guid: 6eaaa780dd07d5e4eac9363175a87e5c, type: 3}
-  idleSprite: {fileID: 21300000, guid: 5b39990115509b14a84b2a64efccc99c, type: 3}
-  animator: {fileID: 9100000, guid: 92c24b036822da0498de317406ac91c2, type: 2}
+  portrait: {fileID: 21300000, guid: 46d651d9b169ae443b6e05ad1d78505d, type: 3}
+  idleSprite: {fileID: 21300000, guid: 4dc00ffafd2f1d74295e14f6ab399c1f, type: 3}
+  animator: {fileID: 9100000, guid: bf53d92feed6eda4cb82bc293180d3a5, type: 2}
   walkFrames:
-  - {fileID: 21300000, guid: 52ef585f97ad9104495bd02511f27756, type: 3}
-  - {fileID: 21300000, guid: eac6b753aa7032f4281816b49ffb0fd2, type: 3}
-  - {fileID: 21300000, guid: d32fd84dcfcde954882e8251d943ec3f, type: 3}
-  - {fileID: 21300000, guid: 3d0330c54829c904e822c0a108eeb60d, type: 3}
-  - {fileID: 21300000, guid: e8f6028aac2feab47a3ff3647fef5c8a, type: 3}
-  - {fileID: 21300000, guid: a7f72cf215d9fcd4b8ac013513575aa3, type: 3}
-  - {fileID: 21300000, guid: ee3d9211f09d33c4ca91601f2650ccfb, type: 3}
-  - {fileID: 21300000, guid: e0827448f1b4f894283527f3440a6c03, type: 3}
-  - {fileID: 21300000, guid: 6ed38ab873de2a04cbba428f000d883d, type: 3}
-  - {fileID: 21300000, guid: 00c54ca93f1688e42b1e112c8f5c8d91, type: 3}
-  - {fileID: 21300000, guid: 83b0c50e735496241a7ddc40d7301be6, type: 3}
-  - {fileID: 21300000, guid: a86e89ab056920444ab62bbcb141671f, type: 3}
-  - {fileID: 21300000, guid: c37ec7755fee1d54ca91b6b0c80f5716, type: 3}
-  - {fileID: 21300000, guid: 0366c8c28e13a4143bbbff239a3e7587, type: 3}
-  - {fileID: 21300000, guid: 1ed3d90e08c08f541b0c54bb45a8c29f, type: 3}
-  - {fileID: 21300000, guid: 01e041e7ba2b4a54786c69a7d4ceb4fb, type: 3}
-  - {fileID: 21300000, guid: 8e1aaecc78cbfb84fbd5a97f037ea569, type: 3}
-  - {fileID: 21300000, guid: f29fd6812f3cd1f4b8ad607b0dbafa0c, type: 3}
+  - {fileID: 21300000, guid: 000a7fe9e287cfc49b219bc2bdc02546, type: 3}
+  - {fileID: 21300000, guid: 599c95156db512049992cd10c8da1afc, type: 3}
+  - {fileID: 21300000, guid: 08864c362ad4d144d9d791bd423e7be5, type: 3}
+  - {fileID: 21300000, guid: e1f8dbd594fb98143ac8164888c9ba6d, type: 3}
+  - {fileID: 21300000, guid: de860eb1a8fe82a499a995a7b7964fd8, type: 3}
+  - {fileID: 21300000, guid: 367f8b4350a3c80489cf309410c2bebc, type: 3}
+  - {fileID: 21300000, guid: 9eda2ae9cecfb054cb76058d579050f3, type: 3}
+  - {fileID: 21300000, guid: 115b52eb277a1644c9d06fe6dbe41485, type: 3}
+  - {fileID: 21300000, guid: 5420da971ba18ac4cac6294e37c17659, type: 3}
+  - {fileID: 21300000, guid: 8a648dc051efe684cb58579c48af3549, type: 3}
+  - {fileID: 21300000, guid: 87c4ca7a7f0e90149b901efcb7b2d5ba, type: 3}
+  - {fileID: 21300000, guid: ebb3306693daa8c4eaf3a548d16c0021, type: 3}
+  crouchWalkFrames:
+  - {fileID: 21300000, guid: 5dc1216255f4cfd49a2a4198ba16ffc5, type: 3}
+  - {fileID: 21300000, guid: 9caa356fe5341b34eb7aedac0eb4d242, type: 3}
+  - {fileID: 21300000, guid: c9ea5c22fe2ece94ca6382f267546a36, type: 3}
+  - {fileID: 21300000, guid: 6bd37c5a7cff75c4288c7fe3f0465b0d, type: 3}
   idleFrames:
-  - {fileID: 21300000, guid: 5b39990115509b14a84b2a64efccc99c, type: 3}
-  - {fileID: 21300000, guid: f14adb083addbe04fb5595bcf613371d, type: 3}
+  - {fileID: 21300000, guid: 4dc00ffafd2f1d74295e14f6ab399c1f, type: 3}
+  - {fileID: 21300000, guid: 96c1ddce3625ed54f8669b312abf57c7, type: 3}
+  - {fileID: 21300000, guid: 1406f8a1c2914cd42ba9b14da97514a7, type: 3}
+  - {fileID: 21300000, guid: e29a436d9d8b3f74b824f899113cd04b, type: 3}
   jumpFrames:
-  - {fileID: 21300000, guid: 81938ffd0d0ba5d468699c9ca5d6f7f9, type: 3}
-  - {fileID: 21300000, guid: c8f6d7ff9353bb04d877e276203548ce, type: 3}
-  - {fileID: 21300000, guid: 29b465ac131091d4395cc3bf14dd3997, type: 3}
-  - {fileID: 21300000, guid: c7a46423876546943b8768caacdbb53e, type: 3}
+  - {fileID: 21300000, guid: 7acb052730f08be4899c0923c678b17f, type: 3}
+  - {fileID: 21300000, guid: 0e3d078cd1d35ce418aaed154be6b229, type: 3}
+  - {fileID: 21300000, guid: 05e973416d885bf4687c5c03b0f4a654, type: 3}
+  - {fileID: 21300000, guid: 51401ab949d490c41a9628cc6d274237, type: 3}
+  jumpApexSprite: {fileID: 21300000, guid: 099198318ecc76945a2d81f1a41c3e2f, type: 3}
   sleepFrames:
-  - {fileID: 21300000, guid: d31c7979c7468f54da7fd97f5d7f5a39, type: 3}
-  - {fileID: 21300000, guid: a1d7b15b0ef89c2448117af3d6aac48e, type: 3}
+  - {fileID: 21300000, guid: 138a33c1be166cc4698f4ad32d1aa563, type: 3}
+  - {fileID: 21300000, guid: 9911e37aa87a8eb4284a2cfa0c42ecfb, type: 3}
+  - {fileID: 21300000, guid: 70f835ea7b19e6e45ba1172ce4a4e35e, type: 3}
+  - {fileID: 21300000, guid: aaa03097880de0046a76e3a46bcc5f07, type: 3}
+  - {fileID: 21300000, guid: 17997efc2ff5590438843c2e901adfd6, type: 3}
+  climbFrames:
+  - {fileID: 21300000, guid: 08e7685481dddd04da44d997d6761422, type: 3}
+  - {fileID: 21300000, guid: 831fd7e0d9f0c274b8da28298ac3b3d3, type: 3}
+  - {fileID: 21300000, guid: 8d13e8bd69f328643bcff7c5e4df2532, type: 3}
+  - {fileID: 21300000, guid: 79159b9bbf8f6534487d701f3fc256d6, type: 3}
+  - {fileID: 21300000, guid: d47f5b552188b3443bc08b970a98a687, type: 3}
+  - {fileID: 21300000, guid: ac137f6f025409d4da388ad2615cd52f, type: 3}
+  - {fileID: 21300000, guid: df7c2b03466e5b145a057a5d5ed93603, type: 3}
+  - {fileID: 21300000, guid: 12f76224aab2fcb459ca4ed7439cbf15, type: 3}
+  - {fileID: 21300000, guid: a6e32a2c995981445946ffe8be3b560f, type: 3}
+  - {fileID: 21300000, guid: 088a0ffa5020d16469db8af68526fe4c, type: 3}
+  - {fileID: 21300000, guid: 01c295083d8acf5448f422aebf83664e, type: 3}
+  - {fileID: 21300000, guid: 906b1fa3fef7ca7478137fe365c73e5c, type: 3}
+  eatFrames:
+  - {fileID: 21300000, guid: 3a22812a798768c409fbb918e26cdf64, type: 3}
+  - {fileID: 21300000, guid: 048e28db405880844aa1b6f833213d5a, type: 3}
+  - {fileID: 21300000, guid: b2fd5c125235b454ca3829e3b2c066b1, type: 3}
+  - {fileID: 21300000, guid: 7427d92a2c530d04397a6f47cf7d8453, type: 3}
+  drinkFrames:
+  - {fileID: 21300000, guid: eb4db8e4afc3592499bec57022164c1d, type: 3}
+  - {fileID: 21300000, guid: 20154cdd94fef134ab1ea7827628543a, type: 3}
+  - {fileID: 21300000, guid: af5145c5d167af340bd5841970e9816f, type: 3}
+  - {fileID: 21300000, guid: d8dc649901d431a41a48fa810596d2f5, type: 3}
   useDetailedHomeAnimations: 1
   purrClip: {fileID: 0}
   meowClip: {fileID: 0}
@@ -604,39 +744,67 @@ MonoBehaviour:
   unlockAfterLevel: 0
   isStarterCat: 1
   furTint: {r: 0.86, g: 0.62, b: 0.38, a: 1}
-  portrait: {fileID: 21300000, guid: fea50ecf103c4dd4b936368dabf7184c, type: 3}
-  idleSprite: {fileID: 21300000, guid: 91fd401493fd07d419ce2e00f3e01ced, type: 3}
-  animator: {fileID: 9100000, guid: 384aae5a2f5ff8145af40b083b479642, type: 2}
+  portrait: {fileID: 21300000, guid: 563a12bada27963468201a5c68e95619, type: 3}
+  idleSprite: {fileID: 21300000, guid: 377f6720b7692124f88dd0dc17eaa92b, type: 3}
+  animator: {fileID: 9100000, guid: 0ac99078a140a1349a8e0a9d6c34cf55, type: 2}
   walkFrames:
-  - {fileID: 21300000, guid: d37060aa6787a164fb85d9d9ac2e8f1e, type: 3}
-  - {fileID: 21300000, guid: ca2237caa39c0484d9168510cfd83bdf, type: 3}
-  - {fileID: 21300000, guid: bd4403b065281574aa9eb008051cb377, type: 3}
-  - {fileID: 21300000, guid: b4976eda184a64446ad821a6b33821ac, type: 3}
-  - {fileID: 21300000, guid: 98e0f312825bb1545a58df9f2c6a7370, type: 3}
-  - {fileID: 21300000, guid: 3e7f8fa11b554184ba9fa403b68f1e50, type: 3}
-  - {fileID: 21300000, guid: 5f4b5087bb9017245b602e1aa06f9e28, type: 3}
-  - {fileID: 21300000, guid: d81c60ef452c4bf438723153aaca35b1, type: 3}
-  - {fileID: 21300000, guid: c864b7f8a4871e94397ed1b807355fc4, type: 3}
-  - {fileID: 21300000, guid: 9f550e8f67770a140ada8ad032dcc25b, type: 3}
-  - {fileID: 21300000, guid: 92270aa498e8bba41b0ef7fa4770a34e, type: 3}
-  - {fileID: 21300000, guid: 7b3c434672691384ba31bc3a76cf2ee1, type: 3}
-  - {fileID: 21300000, guid: e7ff1de27c765c44bb4685c349fe3f1d, type: 3}
-  - {fileID: 21300000, guid: 5223ee4444281e74c93c0b6069c717eb, type: 3}
-  - {fileID: 21300000, guid: 47eba99ee18e6e348ac150c8b6ac5833, type: 3}
-  - {fileID: 21300000, guid: 834ca5264d2dd6a4c8e7d64edd1f0cd9, type: 3}
-  - {fileID: 21300000, guid: b590ffc45746a314fb6e1b1a1c82a83f, type: 3}
-  - {fileID: 21300000, guid: aa13c7796f8d32d4cad70d873bcdc161, type: 3}
+  - {fileID: 21300000, guid: 0b0526a949b8ab04ca7d6b269e473020, type: 3}
+  - {fileID: 21300000, guid: 42fc809d6986fe54fb4f3ff0e5525a18, type: 3}
+  - {fileID: 21300000, guid: a77fe98ca3e633342b9405c6e8b59c4b, type: 3}
+  - {fileID: 21300000, guid: d306a96306a75bf4e9b5e98cedac64ed, type: 3}
+  - {fileID: 21300000, guid: 183011d01c23a4241a36eb921e8d0558, type: 3}
+  - {fileID: 21300000, guid: e5e96c305c41b884ab7d983de194d994, type: 3}
+  - {fileID: 21300000, guid: 3b05d49a7ff19aa4fa4b144af9509800, type: 3}
+  - {fileID: 21300000, guid: 77946112a59430c4ca1d7c892cf8a11c, type: 3}
+  - {fileID: 21300000, guid: 921b82fd2014fa243b1b82a729e32071, type: 3}
+  - {fileID: 21300000, guid: f1f0241b47574f34dadb90723f0384ec, type: 3}
+  - {fileID: 21300000, guid: b3ddf1791b2f36046bd9d0ce377a80e7, type: 3}
+  - {fileID: 21300000, guid: 047298cd55b9732409bfd3dfd0911764, type: 3}
+  crouchWalkFrames:
+  - {fileID: 21300000, guid: 8546a43c9c5ac9f4fbfab2066a031bd1, type: 3}
+  - {fileID: 21300000, guid: c8546de5dba9d2d44906d9a0cad015ca, type: 3}
+  - {fileID: 21300000, guid: d68f64c9dd8725943ac6f4160806db8c, type: 3}
+  - {fileID: 21300000, guid: adf6bc83df7389140a282e631144eefd, type: 3}
   idleFrames:
-  - {fileID: 21300000, guid: 91fd401493fd07d419ce2e00f3e01ced, type: 3}
-  - {fileID: 21300000, guid: 5d1527a661fbc80469340b32d5006604, type: 3}
+  - {fileID: 21300000, guid: 377f6720b7692124f88dd0dc17eaa92b, type: 3}
+  - {fileID: 21300000, guid: 6483fe2b735e1944a99a823d8156f705, type: 3}
+  - {fileID: 21300000, guid: 7a60c57448b3f074f887a1c061c1dee9, type: 3}
+  - {fileID: 21300000, guid: 70d201c1a39eef84aa191dd778f30d2a, type: 3}
   jumpFrames:
-  - {fileID: 21300000, guid: d2a731fb74a190d45902a2d9c2104553, type: 3}
-  - {fileID: 21300000, guid: 4abef1f34d28e17409326d432f0f88f7, type: 3}
-  - {fileID: 21300000, guid: 48c89ec37d7c0304d8bc872e54aeb058, type: 3}
-  - {fileID: 21300000, guid: ee9c50e62cc95bb479dedcc473921191, type: 3}
+  - {fileID: 21300000, guid: 0b84137600d654542b0362d0cd2ae1f8, type: 3}
+  - {fileID: 21300000, guid: f35dc08c466010a4b89909c2d3878404, type: 3}
+  - {fileID: 21300000, guid: a97776b434448474eaa53dec688fbeb2, type: 3}
+  - {fileID: 21300000, guid: 2e8cb022892438140ab3ce5371388bee, type: 3}
+  jumpApexSprite: {fileID: 21300000, guid: a429f5d0149dbe641a2fb7b7a2fa2144, type: 3}
   sleepFrames:
-  - {fileID: 21300000, guid: 69697a44c67f2ec4796a3cedb9ec4781, type: 3}
-  - {fileID: 21300000, guid: 96bf801253c1a8a479cac175795bac93, type: 3}
+  - {fileID: 21300000, guid: 0dd17a0c3b6ef88499947c2c767d2138, type: 3}
+  - {fileID: 21300000, guid: a355b56c924337f49ab0232f5ff5711f, type: 3}
+  - {fileID: 21300000, guid: f71b9819c2834f0419c02208707ee1df, type: 3}
+  - {fileID: 21300000, guid: c638a7fbb5664f243a049838997dd6f8, type: 3}
+  - {fileID: 21300000, guid: 470c9c0045934f948b860106af522bde, type: 3}
+  climbFrames:
+  - {fileID: 21300000, guid: 3443c0fd6881373489c9395fe5dea41f, type: 3}
+  - {fileID: 21300000, guid: 432bd161250e17940afc49360330c67d, type: 3}
+  - {fileID: 21300000, guid: d7e7dde334f3c7d49bdb16a5189327fe, type: 3}
+  - {fileID: 21300000, guid: f8bcad219a63450409f4d897ad7a3113, type: 3}
+  - {fileID: 21300000, guid: e24bc06e702ef0846a1975ee34f57c2e, type: 3}
+  - {fileID: 21300000, guid: 6fedc2316fe7fa243ab5e420792bc9a8, type: 3}
+  - {fileID: 21300000, guid: fbdd662d680487140bd6d29217c0cc08, type: 3}
+  - {fileID: 21300000, guid: 2cce4d79013c6fb4ca79a74303f2bd56, type: 3}
+  - {fileID: 21300000, guid: 08d1272c1eb8b2c408e9ceb7431c5fd6, type: 3}
+  - {fileID: 21300000, guid: 7e59abebf1085d34098e16260a76d2c7, type: 3}
+  - {fileID: 21300000, guid: 98d382a2c235eac4a8ee57235215252b, type: 3}
+  - {fileID: 21300000, guid: 289f224be70ebb84e8abfb74084a3228, type: 3}
+  eatFrames:
+  - {fileID: 21300000, guid: 3469225a35feac1429e6c55aec8d9d7f, type: 3}
+  - {fileID: 21300000, guid: f31e3c608d87efb40a57120f239ccd7d, type: 3}
+  - {fileID: 21300000, guid: e5fcc1fe7d249174a95697fd93dad617, type: 3}
+  - {fileID: 21300000, guid: 41e0e8023c7f76a4db8e528c8aa0b246, type: 3}
+  drinkFrames:
+  - {fileID: 21300000, guid: 36c7013a97bf56847a2cc1159e5508b2, type: 3}
+  - {fileID: 21300000, guid: 77d4a42b07d19084483d78498c6dad28, type: 3}
+  - {fileID: 21300000, guid: 9201b7069ab3c2444a39145a3d91a824, type: 3}
+  - {fileID: 21300000, guid: 624445c56284ef44c92ec418e9595716, type: 3}
   useDetailedHomeAnimations: 1
   purrClip: {fileID: 0}
   meowClip: {fileID: 0}
@@ -703,6 +871,9 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 10a4635fba74469e85cf5ff357cdf8e9, type: 2}
   - {fileID: 11400000, guid: ffc1ca1eaae74d99bb61bf911904acef, type: 2}
   - {fileID: 11400000, guid: 0225e92104a74da393e8c78d28861c6b, type: 2}
+  - {fileID: 11400000, guid: cad7ab61354080c4d9b74753e373a669, type: 2}
+  - {fileID: 11400000, guid: d8db7be711de5e746b6e294bedd501ed, type: 2}
+  - {fileID: 11400000, guid: f9a9466cd919490489a0958628111530, type: 2}
   levels:
   - {fileID: 6913869129865368676}
   - {fileID: 548880351502417605}
@@ -735,9 +906,22 @@ MonoBehaviour:
   - {fileID: -4244430807692624375}
   - {fileID: -4454218811808859968}
   homeBackground: {fileID: 21300000, guid: 572371efb06d2ba40baf74e72d5374ab, type: 3}
+  homeRoomOptions:
+  - {fileID: 21300000, guid: 59de4047d6038804dbd51b21161dc605, type: 3}
+  - {fileID: 21300000, guid: c6eb15905bc27004b88dec9b98f19da8, type: 3}
+  - {fileID: 21300000, guid: d2aa00f7715a76044a1c30ca465efbbb, type: 3}
   shopBackground: {fileID: 21300000, guid: 572371efb06d2ba40baf74e72d5374ab, type: 3}
   gameplayBackground: {fileID: 21300000, guid: 7bd18f9a60dd4a45b021337f56a892c2, type: 3}
   forestBackground: {fileID: 21300000, guid: 8d3bc06f27d649339e2b9b3335e43fb1, type: 3}
+  streetCrouchObstacle: {fileID: 21300000, guid: 68cf34111f48a7b428e8dad5af3d69b1, type: 3}
+  forestCrouchObstacle: {fileID: 21300000, guid: 7c20137978d541a4cbb148fdd7432d02, type: 3}
+  cityCrouchObstacle: {fileID: 21300000, guid: c8560df59c6f16749a879b36bdf748a9, type: 3}
+  cyberCrouchObstacle: {fileID: 21300000, guid: 36b8b6e3e95ca984ba82518542a804f4, type: 3}
+  crouchUpperObstacles:
+  - {fileID: 21300000, guid: 896b07571c763f94194c195211095e66, type: 3}
+  - {fileID: 21300000, guid: 1950d12c989f72b4aa317c043904c433, type: 3}
+  - {fileID: 21300000, guid: a30244d8be979284fb58b24a539541cd, type: 3}
+  - {fileID: 21300000, guid: bd6330957be2ca74298d06d31a613fe4, type: 3}
   roadGapSprite: {fileID: 21300000, guid: da31e904fc314d3793e74df30b144825, type: 3}
   streetGapLeftSprite: {fileID: 0}
   streetGapRightSprite: {fileID: 0}
@@ -749,11 +933,11 @@ MonoBehaviour:
   forestPlatformSprite: {fileID: 0}
   forestGroundUnderfillSprite: {fileID: 21300000, guid: 43046c2cd3a397f48974fd4a82dc04b8, type: 3}
   cityBackground: {fileID: 21300000, guid: ce02071bbcb3dec4a8a725a8db5cdf81, type: 3}
-  cityGapSprite: {fileID: 21300000, guid: 9b3d5de8affcf0147bfdbed10b8cefe2, type: 3}
-  cityPlatformSprite: {fileID: 21300000, guid: 9c0d44d0269a1c04192774ec5e539fb5, type: 3}
+  cityGapSprite: {fileID: 21300000, guid: 4ca00d0fdd63b7d43824d48a5e8f5f42, type: 3}
+  cityPlatformSprite: {fileID: 21300000, guid: 5bdd7b1decc8f0040ad996586688a128, type: 3}
   cityCarSprite: {fileID: 21300000, guid: ea7ea890117145643be21bb2c35b4ade, type: 3}
   cityVanSprite: {fileID: 21300000, guid: 0672477962867034db0e485a388b10d3, type: 3}
-  cityRoadSprite: {fileID: 21300000, guid: 9ae09f0e5eb1e7043bfc374380f4cccc, type: 3}
+  cityRoadSprite: {fileID: 21300000, guid: 5bdd7b1decc8f0040ad996586688a128, type: 3}
   cyberBackground: {fileID: 21300000, guid: a1751648154d0264083fc39de405dd5b, type: 3}
   cyberGroundTile: {fileID: 21300000, guid: 6759b36ff7a25e74fbe1b5d829f9f4f8, type: 3}
   cyberObstacleSprites:
@@ -761,25 +945,26 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 521d9f7ce211b674da2a4b14d66ef015, type: 3}
   - {fileID: 21300000, guid: 5288c9b3d4065204f80750d4ba87d321, type: 3}
   - {fileID: 21300000, guid: a6e51a80563b8144ebe75c424acd1552, type: 3}
-  roboticBird: {fileID: 21300000, guid: d0a2d79e9a3fe044c9efddd92d1a7a67, type: 3}
+  roboticBird: {fileID: 21300000, guid: 7efc3e0df1ec7b34abd3e555cbf8fe9f, type: 3}
   roboticDogWalkFrames:
-  - {fileID: 21300000, guid: cb6da2a7c32b3ef4e937e1836120c4d6, type: 3}
-  - {fileID: 21300000, guid: 70a7a402e4f234a44bfc4f779f628de6, type: 3}
-  - {fileID: 21300000, guid: 9379c6bdf76ca63419594b94ac9fa372, type: 3}
-  - {fileID: 21300000, guid: 99eed07f98cbdca408592d1a29d16d10, type: 3}
-  - {fileID: 21300000, guid: f6fe01c56eb611e4ebc08ae8a6b734e2, type: 3}
-  - {fileID: 21300000, guid: 3489847006d01ea4a93014c88420ca8c, type: 3}
-  - {fileID: 21300000, guid: 5465b2c12ebaed643ac7e7c290e71da4, type: 3}
-  - {fileID: 21300000, guid: 4c4fecd4fe40062499877835bcd5be95, type: 3}
-  - {fileID: 21300000, guid: 60f82a36324f40a429409011a1a448fb, type: 3}
+  - {fileID: 21300000, guid: 4b2a2964f100cae45bbc819f5de22497, type: 3}
+  - {fileID: 21300000, guid: c05ee09991b395c4c96391574a034ddd, type: 3}
+  - {fileID: 21300000, guid: 745781def237c5c4890efc01960fced2, type: 3}
+  - {fileID: 21300000, guid: 120b54d7346447844b3bb9ed424bd72f, type: 3}
+  - {fileID: 21300000, guid: 80993676ab08c9540adf0f73cbf8e95f, type: 3}
+  - {fileID: 21300000, guid: 58c05ca9995df254e91c0b3a6432327f, type: 3}
+  - {fileID: 21300000, guid: 53dfc1b7ccd2cde4abaf31af35446b4c, type: 3}
+  - {fileID: 21300000, guid: e522ed60015d0a94b993c2ed7a71cc0e, type: 3}
+  dogIdleSprite: {fileID: 21300000, guid: d904ea34d100b7f418941f64c7eb0f32, type: 3}
+  roboticDogIdleSprite: {fileID: 21300000, guid: 49a3b553aef35f645b69b6c96adcd167, type: 3}
   finishPortalSprite: {fileID: 21300000, guid: 71fa809c24e6479cb4125806e44f450a, type: 3}
   homeMusic: {fileID: 8300000, guid: 729affca41972b544a5f17d900f5189c, type: 3}
   streetMusic: {fileID: 8300000, guid: af2f9362614ec2742b6a82ce24c4263e, type: 3}
   forestMusic: {fileID: 8300000, guid: 03e5dfaa32aa94748801f51750b2bc29, type: 3}
   cityMusic: {fileID: 8300000, guid: 9b2f8840c5cc9a4438f238730192e00f, type: 3}
   catStepSfx: {fileID: 8300000, guid: 83b85f0ad60dd2f4c8320a5fd9a33b33, type: 3}
+  catPurrSfx: {fileID: 8300000, guid: e80123ad28420eb4aad2764e876419db, type: 3}
   catMeowSfx:
-  - {fileID: 8300000, guid: c4250ceaf7f340340b55b128c25e7fec, type: 3}
   - {fileID: 8300000, guid: 8ee6684b2920ee2469bb9f8be53d7649, type: 3}
   - {fileID: 8300000, guid: 9bf4cac68b6988a45ab201a795cfbdb2, type: 3}
   - {fileID: 8300000, guid: e9ff62dc6bb098b42b15319ce6fc843f, type: 3}
@@ -791,35 +976,56 @@ MonoBehaviour:
   uiConfirmSfx: {fileID: 8300000, guid: 3c439a066a9eafb44b8fc94859b57f69, type: 3}
   shopBuySfx: {fileID: 8300000, guid: 3a6bbf23fae4b4b46a2dffb5f3972946, type: 3}
   shopSellSfx: {fileID: 8300000, guid: d5cc0a87779a4f34c844720c195acf5d, type: 3}
-  completionFaces: []
-  completionBackground: {fileID: 0}
+  completionFaces:
+  - {fileID: 21300000, guid: 563a12bada27963468201a5c68e95619, type: 3}
+  - {fileID: 21300000, guid: 46d651d9b169ae443b6e05ad1d78505d, type: 3}
+  - {fileID: 21300000, guid: 2d7923b8a1e9e304b9ca22219bbd4a8c, type: 3}
+  - {fileID: 21300000, guid: fcdd29f9194d1724ca013fe1e7178efc, type: 3}
+  - {fileID: 21300000, guid: 46d651d9b169ae443b6e05ad1d78505d, type: 3}
+  - {fileID: 21300000, guid: 2d7923b8a1e9e304b9ca22219bbd4a8c, type: 3}
+  completionBackground: {fileID: 21300000, guid: fb6cf618bf9dbe44c9d654248a0726dd, type: 3}
   failureBackground: {fileID: 21300000, guid: 053cd80549122ec45af532e8edea9419, type: 3}
   birdFrames:
-  - {fileID: 21300000, guid: 746e147c872317a4ead6a70ab1adb73d, type: 3}
-  - {fileID: 21300000, guid: cf86d25345c194d4599383a35d055f49, type: 3}
-  - {fileID: 21300000, guid: dddbbcc0ee0c4bc4c9f1bf71df463497, type: 3}
-  - {fileID: 21300000, guid: 1e17960b98448b74d8ddc4daedb1899a, type: 3}
+  - {fileID: 21300000, guid: 168a6b93f8eb37b4993aa3e970e247a8, type: 3}
+  - {fileID: 21300000, guid: 3a568c0551fa5a44b937eaf2f257a4cc, type: 3}
+  - {fileID: 21300000, guid: 1ea50ba2f1c5f4d47b818f3f42a15216, type: 3}
+  - {fileID: 21300000, guid: 8419e70af6509bd42bc1e721aa3ad040, type: 3}
+  - {fileID: 21300000, guid: da363533958fed4488921c44e1ea716f, type: 3}
+  - {fileID: 21300000, guid: af3d5daa52857e949ac39757fd8a3a6f, type: 3}
+  - {fileID: 21300000, guid: 36dd6c44cfd1f3d4790acb2cc2620d71, type: 3}
+  - {fileID: 21300000, guid: d8c1ace22aa4baa4789dc77421130f41, type: 3}
+  roboticBirdFrames:
+  - {fileID: 21300000, guid: 7efc3e0df1ec7b34abd3e555cbf8fe9f, type: 3}
+  - {fileID: 21300000, guid: 97736b0e04089c34782882c460c3f379, type: 3}
+  - {fileID: 21300000, guid: 4bd33492143fee7438142c24ad81c9cd, type: 3}
+  - {fileID: 21300000, guid: 2f3a929f0eb9de842b364e5373d1171f, type: 3}
+  - {fileID: 21300000, guid: b8c0bdc2ae0cf5f4da5bf8dca53b6a94, type: 3}
+  - {fileID: 21300000, guid: 007e6a5b7adf08c40b72354087a666f9, type: 3}
+  - {fileID: 21300000, guid: c7376f62cf8208a409e3d4ae8d79ed91, type: 3}
+  - {fileID: 21300000, guid: c2c478a943b86a44a8e009a7f47d7870, type: 3}
   dogRunFrames:
-  - {fileID: 21300000, guid: 1b90eae0e17f74248ab6bc92ec79ae87, type: 3}
-  - {fileID: 21300000, guid: 295d8189b33daa8418725e141c9f8af7, type: 3}
-  - {fileID: 21300000, guid: 747f49ed5e9bfa146889a04c610e4249, type: 3}
-  - {fileID: 21300000, guid: d571c1f8faf6dce409aaa43bde5ca61e, type: 3}
-  - {fileID: 21300000, guid: e2490ea3cf4255a49a5832f14dd19ce8, type: 3}
-  - {fileID: 21300000, guid: 5541051aa2f975f42b49000ff656a27d, type: 3}
-  - {fileID: 21300000, guid: 79616a529b6935341abbde061b975dd0, type: 3}
-  - {fileID: 21300000, guid: 71bb4ba476cb6c44eade9b371cdc555a, type: 3}
-  - {fileID: 21300000, guid: 1b192be9d77718e4383bda763061e11a, type: 3}
-  - {fileID: 21300000, guid: a4d03e810a7e2024398fa301afc41668, type: 3}
-  - {fileID: 21300000, guid: 11ccba21b321735488481db4f1c7adfa, type: 3}
-  - {fileID: 21300000, guid: 0386d08208c15b543a8d72a5729db17e, type: 3}
-  - {fileID: 21300000, guid: 7343ba13627ef6d479674804393023b5, type: 3}
-  - {fileID: 21300000, guid: 7602cc7e32a1a914e9903de5211318f8, type: 3}
+  - {fileID: 21300000, guid: 4b82eab326c56644a938b0a89a268994, type: 3}
+  - {fileID: 21300000, guid: 8035cec34cf199540bd374d858024684, type: 3}
+  - {fileID: 21300000, guid: 2abc50efc38e19547bf86bec8876eae6, type: 3}
+  - {fileID: 21300000, guid: 16b1e30dd3401fa4aad63c145a97dced, type: 3}
+  - {fileID: 21300000, guid: 5b1f6f3e98cd10a4b8bd786a2d816326, type: 3}
+  - {fileID: 21300000, guid: 03931603041b179489a397ed7684fc6a, type: 3}
+  - {fileID: 21300000, guid: 568fa50cc92d5cf44aef17505cc54b93, type: 3}
+  - {fileID: 21300000, guid: fda3423be13e5004698265657470d389, type: 3}
   climbTreeSprite: {fileID: 21300000, guid: 4a50ccc1bb90b1a45ade39c87230af46, type: 3}
   climbingCatFrames:
-  - {fileID: 21300000, guid: f0fc127883c0a46458efa11e4cb9d7b2, type: 3}
-  - {fileID: 21300000, guid: a95712b8d9f0a714fb2cfafec03959db, type: 3}
-  - {fileID: 21300000, guid: f21adc1064dec5746a66310d1eed0bbf, type: 3}
-  - {fileID: 21300000, guid: 88903cfcda9805c418742785ea47b58e, type: 3}
+  - {fileID: 21300000, guid: 3443c0fd6881373489c9395fe5dea41f, type: 3}
+  - {fileID: 21300000, guid: 432bd161250e17940afc49360330c67d, type: 3}
+  - {fileID: 21300000, guid: d7e7dde334f3c7d49bdb16a5189327fe, type: 3}
+  - {fileID: 21300000, guid: f8bcad219a63450409f4d897ad7a3113, type: 3}
+  - {fileID: 21300000, guid: e24bc06e702ef0846a1975ee34f57c2e, type: 3}
+  - {fileID: 21300000, guid: 6fedc2316fe7fa243ab5e420792bc9a8, type: 3}
+  - {fileID: 21300000, guid: fbdd662d680487140bd6d29217c0cc08, type: 3}
+  - {fileID: 21300000, guid: 2cce4d79013c6fb4ca79a74303f2bd56, type: 3}
+  - {fileID: 21300000, guid: 08d1272c1eb8b2c408e9ceb7431c5fd6, type: 3}
+  - {fileID: 21300000, guid: 7e59abebf1085d34098e16260a76d2c7, type: 3}
+  - {fileID: 21300000, guid: 98d382a2c235eac4a8ee57235215252b, type: 3}
+  - {fileID: 21300000, guid: 289f224be70ebb84e8abfb74084a3228, type: 3}
 --- !u!114 &212939797422698054
 MonoBehaviour:
   m_ObjectHideFlags: 0

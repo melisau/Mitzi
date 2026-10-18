@@ -1,4 +1,4 @@
-using PawPath.Audio;
+﻿using PawPath.Audio;
 using PawPath.Economy;
 using PawPath.Localization;
 using UnityEngine;
@@ -7,7 +7,7 @@ using UnityEngine.UI;
 namespace PawPath.Ads
 {
     /// <summary>
-    /// Kedi evindeki "Reklam izle, Sevgi kazan" butonu. Reklam olduğu açıkça yazılır,
+    /// Kedi evindeki "Reklam izle, Alışveriş puanı kazan" butonu. Reklam olduğu açıkça yazılır,
     /// tamamen isteğe bağlıdır ve günlük sınırı vardır.
     /// </summary>
     [RequireComponent(typeof(Button))]
@@ -40,15 +40,17 @@ namespace PawPath.Ads
             if (ads == null)
                 return;
 
-            bool shown = ads.TryShow(() =>
-            {
-                CozyEconomyManager.Instance?.AddLove(AdsConfig.RewardLovePoints, "Ödüllü reklam");
-                CozyAudioManager.Instance?.PlayShopBuy();
-            });
+            bool shown = ads.TryShow(GrantReward);
 
             if (!shown)
                 CozyAudioManager.Instance?.PlayError();
             Refresh();
+        }
+
+        void GrantReward()
+        {
+            CozyEconomyManager.Instance?.AddShoppingPoints(AdsConfig.RewardShoppingPoints, "Ödüllü reklam");
+            CozyAudioManager.Instance?.PlayShopBuy();
         }
 
         void Refresh()
@@ -73,7 +75,7 @@ namespace PawPath.Ads
             }
             else
             {
-                text = GameText.L($"▶ Reklam izle: +{AdsConfig.RewardLovePoints} Sevgi ({left})", $"▶ Watch ad: +{AdsConfig.RewardLovePoints} Love ({left})", $"▶ Werbung ansehen: +{AdsConfig.RewardLovePoints} Liebe ({left})");
+                text = GameText.L($"Reklam izle: +{AdsConfig.RewardShoppingPoints} para ({left})", $"Watch ad: +{AdsConfig.RewardShoppingPoints} coins ({left})", $"Werbung ansehen: +{AdsConfig.RewardShoppingPoints} Münzen ({left})");
                 interactable = true;
             }
 

@@ -10,7 +10,7 @@ public static class GameplayMechanicsAssetBuilder
     const string CatalogPath = "Assets/_Game/Content/PawPathCatalog.asset";
     const string FoodItemPath = "Assets/_Game/Content/item_food_bowl.asset";
     // v2 köpek karelerini eski Default Texture durumundan zorla Sprite'a geçirir.
-    const string SessionKey = "PawPath.GameplayMechanicsAssets.v5";
+    const string SessionKey = "PawPath.GameplayMechanicsAssets.realistic.v4.uprightclimb";
 
     static GameplayMechanicsAssetBuilder()
     {
@@ -25,20 +25,23 @@ public static class GameplayMechanicsAssetBuilder
         var catalog = AssetDatabase.LoadAssetAtPath<PawPathCatalog>(CatalogPath);
         if (catalog == null) return;
 
-        catalog.dogRunFrames = LoadSeries("Assets/dog_run ({0}).png", 14);
-        catalog.roboticDogWalkFrames = LoadSeries("Assets/walk_robotic_dog ({0}).png", 9);
-        catalog.roboticBird = LoadSprite("Assets/robotic_bird.png");
+        catalog.dogRunFrames = LoadSeries("Assets/_Game/Art/AnimalsRealistic/Dog/dog_run_{0:00}.png", 8);
+        catalog.dogIdleSprite = LoadSprite("Assets/_Game/Art/AnimalsRealistic/Dog/dog_idle.png");
+        catalog.roboticDogIdleSprite = LoadSprite("Assets/_Game/Art/AnimalsRealistic/RobotDog/dog_idle.png");
+        catalog.roboticDogWalkFrames = LoadSeries("Assets/_Game/Art/AnimalsRealistic/RobotDog/dog_run_{0:00}.png", 8);
+        catalog.roboticBirdFrames = LoadSeries("Assets/_Game/Art/AnimalsRealistic/RobotBird/bird_fly_{0:00}.png", 8);
+        catalog.roboticBird = catalog.roboticBirdFrames[0];
         catalog.cyberBackground = LoadSprite("Assets/cyber_neo.jpg");
         catalog.cyberGroundTile = LoadSprite("Assets/cyber_ground_tile.png");
         catalog.cyberObstacleSprites = LoadSeries("Assets/neo_techno_object ({0}).png", 4);
-        catalog.climbingCatFrames = LoadSeries("Assets/climbing_cat ({0}).png", 4);
+        catalog.climbingCatFrames = LoadSeries("Assets/_Game/Art/AnimalsRealistic/Cats/silver/climb_{0:00}.png", 12);
         catalog.climbTreeSprite = LoadSprite("Assets/climb_tree.png");
 
         var food = AssetDatabase.LoadAssetAtPath<ShopItemDefinition>(FoodItemPath);
         if (food != null)
         {
             food.interactionType = ItemInteractionType.Eating;
-            food.interactionFrames = LoadSeries("Assets/cat_eating ({0}).png", 4);
+            food.interactionFrames = LoadSeries("Assets/_Game/Art/AnimalsRealistic/Cats/silver/eatanim_{0:00}.png", 4);
             EditorUtility.SetDirty(food);
         }
 

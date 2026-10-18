@@ -11,10 +11,10 @@ namespace PawPath.Cat
         public static CatNeedsSystem Instance { get; private set; }
 
         [Header("Günlük Puan Limitleri")]
-        public int maxDailyPettingPoints = 100;
-        public int foodPoints = 15;
-        public int waterPoints = 20;
-        public int sleepPoints = 30;
+        public int maxDailyPettingPoints = 10;
+        public int foodPoints = 1;
+        public int waterPoints = 1;
+        public int sleepPoints = 2;
 
         [Header("Kedi Bakımı")]
         [Range(0, 100)] public int minimumNeedToPlay = 20;
@@ -99,20 +99,22 @@ namespace PawPath.Cat
             }
             currentDailyPettingPoints = PlayerPrefs.GetInt(dailyPointsKey, 0);
 
+            // Care stays available after the coin reward cap: the cat can always
+            // regain affection and become ready to travel.
+            needs.affection = Mathf.Clamp(needs.affection + Mathf.Max(0, pointsEarned), 0, 100);
+            SaveService.Persist();
+            NeedsChanged?.Invoke();
             if (currentDailyPettingPoints >= maxDailyPettingPoints)
-            {
                 return false;
-            }
 
             int allowedPoints = Mathf.Min(pointsEarned, maxDailyPettingPoints - currentDailyPettingPoints);
             currentDailyPettingPoints += allowedPoints;
             PlayerPrefs.SetInt(dailyPointsKey, currentDailyPettingPoints);
-            needs.affection = Mathf.Clamp(needs.affection + allowedPoints, 0, 100);
             SaveService.Persist();
 
             if (CozyEconomyManager.Instance != null)
             {
-                CozyEconomyManager.Instance.AddLove(allowedPoints, "Kediyi Okşama");
+                CozyEconomyManager.Instance.AddShoppingPoints(allowedPoints, "Kediyi Okşama");
             }
             return true;
         }
@@ -145,8 +147,13 @@ namespace PawPath.Cat
 
         public void RewardInteraction(int points, string reason)
         {
-            if (points > 0)
-                CozyEconomyManager.Instance?.AddLove(points, reason);
+            if (points <= 0) return;
+            // Repeated taps on furniture must not generate unlimited currency.
+            string key = CareKey("DailyInteraction." + reason, SelectedCatId);
+            if (WasUsedToday(key)) return;
+            PlayerPrefs.SetString(key, Today());
+            PlayerPrefs.Save();
+            CozyEconomyManager.Instance?.AddShoppingPoints(Mathf.Min(points, 2), reason);
         }
 
         public bool CanStartLevel()
@@ -173,7 +180,7 @@ namespace PawPath.Cat
             PlayerPrefs.SetString(key, Today());
             PlayerPrefs.Save();
             if (CozyEconomyManager.Instance != null)
-                CozyEconomyManager.Instance.AddLove(points, reason);
+                CozyEconomyManager.Instance.AddShoppingPoints(points, reason);
             return true;
         }
 

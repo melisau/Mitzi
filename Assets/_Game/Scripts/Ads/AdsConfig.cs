@@ -18,8 +18,8 @@ namespace PawPath.Ads
         const string ProductionRewardedAndroid = "";
         const string ProductionRewardedIos = "";
 
-        /// <summary>Bir ödüllü reklamın verdiği Sevgi puanı.</summary>
-        public const int RewardLovePoints = 20;
+        /// <summary>Bir tamamlanan reklamın verdiği alışveriş puanı.</summary>
+        public const int RewardShoppingPoints = 5;
 
         /// <summary>Günde izlenebilecek ödüllü reklam sayısı (çocuk kitlesi için düşük tutuldu).</summary>
         public const int DailyRewardedLimit = 3;

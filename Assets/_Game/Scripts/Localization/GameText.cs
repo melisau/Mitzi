@@ -77,6 +77,14 @@ namespace PawPath.Localization
         /// Dili kaydeder ve arayüz yeni dille kurulsun diye sahneyi yeniden yükler.
         /// İlerleme her değişiklikte zaten kaydedildiği için veri kaybı olmaz.
         /// </summary>
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        public static void ReloadDefaultLanguageForTesting()
+        {
+            loaded = false;
+            EnsureLoaded();
+        }
+#endif
+
         public static void SetLanguage(GameLanguage newLanguage)
         {
             EnsureLoaded();
@@ -214,6 +222,9 @@ namespace PawPath.Localization
             { "wall_sage", "Sage Walls" },
             { "wall_rose", "Dusty Rose Walls" },
             { "wall_sky", "Sky Blue Walls" },
+            { "wall_garden", "Garden Room" },
+            { "wall_courtyard", "Courtyard Room" },
+            { "wall_blue_room", "Blue Room" },
         };
 
         static readonly Dictionary<string, string> ItemNameDe = new Dictionary<string, string>
@@ -243,6 +254,9 @@ namespace PawPath.Localization
             { "wall_sage", "Salbeigrüne Wände" },
             { "wall_rose", "Altrosa Wände" },
             { "wall_sky", "Himmelblaue Wände" },
+            { "wall_garden", "Gartenzimmer" },
+            { "wall_courtyard", "Innenhofzimmer" },
+            { "wall_blue_room", "Blaues Zimmer" },
         };
 
         static readonly Dictionary<string, string> ItemDescriptionEn = new Dictionary<string, string>

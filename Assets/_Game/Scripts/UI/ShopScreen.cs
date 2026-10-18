@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using PawPath.Core;
@@ -16,9 +16,11 @@ namespace PawPath.UI
         [SerializeField] GameObject rowPrefab;
         [SerializeField] Button closeButton;
         [SerializeField] Text pointsText; 
+        int purchaseRoom=-1;
 
         void OnEnable()
         {
+            purchaseRoom=SaveService.Data.activeHomeRoom;
             GameEvents.OnShopChanged += Rebuild;
             GameEvents.OnLovePointsChanged += OnLove;
             Rebuild();
@@ -49,7 +51,7 @@ namespace PawPath.UI
             if (listRoot == null || GameFlow.Instance == null || GameFlow.Instance.Catalog == null)
                 return;
 
-            int currentPoints = CozyEconomyManager.Instance != null ? CozyEconomyManager.Instance.LovePoints : 0;
+            int currentPoints = CozyEconomyManager.Instance != null ? CozyEconomyManager.Instance.ShoppingPoints : 0;
             UpdatePointsDisplay(currentPoints);
 
             var scrollRect = listRoot.GetComponentInParent<ScrollRect>();
@@ -61,7 +63,11 @@ namespace PawPath.UI
 
             // 2. Eski Grid İçeriğini Temizle
             for (int i = listRoot.childCount - 1; i >= 0; i--)
-                Destroy(listRoot.GetChild(i).gameObject);
+            {
+                var old=listRoot.GetChild(i).gameObject;
+                old.SetActive(false);
+                if(Application.isPlaying) Destroy(old); else DestroyImmediate(old);
+            }
 
             // Grid Ayarları ve Konumlandırma
             var grid = listRoot.GetComponent<GridLayoutGroup>();
@@ -77,7 +83,7 @@ namespace PawPath.UI
             // Geniş ekranlarda ürünler tek sırada dört kart olarak görünür.
             grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
             grid.constraintCount = 4;
-            grid.cellSize = new Vector2(250, 350);
+            grid.cellSize = new Vector2(250, 390);
             grid.spacing = new Vector2(22, 24);
 
             var fitter = listRoot.GetComponent<ContentSizeFitter>();
@@ -93,7 +99,7 @@ namespace PawPath.UI
                 listRt.anchorMin = new Vector2(0f, 1f);
                 listRt.anchorMax = new Vector2(1f, 1f);
                 listRt.pivot = new Vector2(0.5f, 1f);
-                listRt.anchoredPosition = Vector2.zero;
+                if(!restoreScroll) listRt.anchoredPosition = Vector2.zero;
             }
 
             // Dükkan Ürünlerini Listele
@@ -107,17 +113,13 @@ namespace PawPath.UI
                 WireRow(row, item);
             }
 
-            if (restoreScroll)
-                StartCoroutine(RestoreScrollPosition(scrollRect, previousScroll));
-        }
-
-        static IEnumerator RestoreScrollPosition(ScrollRect scrollRect, float normalizedPosition)
-        {
-            yield return null;
-            Canvas.ForceUpdateCanvases();
-            if (scrollRect != null)
+            // Wallet and inventory events can rebuild twice in one frame.
+            // Restore synchronously so the second rebuild keeps the same offset.
+            if (scrollRect != null && listRt != null)
             {
-                scrollRect.verticalNormalizedPosition = normalizedPosition;
+                LayoutRebuilder.ForceRebuildLayoutImmediate(listRt);
+                Canvas.ForceUpdateCanvases();
+                if(restoreScroll) scrollRect.verticalNormalizedPosition = previousScroll;
                 scrollRect.StopMovement();
             }
         }
@@ -181,24 +183,31 @@ namespace PawPath.UI
         {
             var texts = row.GetComponentsInChildren<Text>(true);
             
-            // KOYU RENK YAZILAR (Açık Arka Planda Tam Okunabilirlik İçin)
+            // Sade kart: büyük görsel, ad ve fiyatlı al düğmesi. Açıklama ve
+            // oda/depo dökümü okuma bilmeyen çocuk için gereksiz kalabalıktı.
             if (texts.Length > 0)
             {
-                texts[0].text = GameText.ItemName(item); 
-                texts[0].fontSize = 24;
-                texts[0].color = new Color(0.2f, 0.15f, 0.1f); 
+                texts[0].text = GameText.ItemName(item);
+                texts[0].fontSize = 22;
+                texts[0].fontStyle = FontStyle.Bold;
+                texts[0].resizeTextForBestFit = true;
+                texts[0].resizeTextMinSize = 16;
+                texts[0].resizeTextMaxSize = 22;
+                texts[0].rectTransform.anchoredPosition = new Vector2(0f, -38f);
+                texts[0].rectTransform.sizeDelta = new Vector2(226f, 40f);
+                texts[0].color = new Color(0.30f, 0.20f, 0.13f);
             }
             if (texts.Length > 1)
-            {
-                texts[1].text = GameText.ItemDescription(item); 
-                texts[1].fontSize = 18;
-                texts[1].color = new Color(0.35f, 0.3f, 0.25f); 
-            }
+                texts[1].gameObject.SetActive(false);
             if (texts.Length > 2)
+                texts[2].gameObject.SetActive(false);
+
+            StyleCard(row);
+            var iconRtRow = row.transform.Find("Icon") as RectTransform;
+            if (iconRtRow != null)
             {
-                texts[2].text = GameText.L($"{item.lovePointCost} Puan", $"{item.lovePointCost} Points", $"{item.lovePointCost} Punkte"); 
-                texts[2].fontSize = 20;
-                texts[2].color = new Color(0.65f, 0.25f, 0.15f); 
+                iconRtRow.anchoredPosition = new Vector2(0f, 82f);
+                iconRtRow.sizeDelta = new Vector2(196f, 196f);
             }
 
             var iconImg = row.transform.Find("Icon")?.GetComponent<Image>();
@@ -219,121 +228,166 @@ namespace PawPath.UI
             var label = button.GetComponentInChildren<Text>();
             StyleWoodButton(button, label);
 
-            bool isOwned = CozyEconomyManager.Instance != null && CozyEconomyManager.Instance.Owns(item.id);
-            bool isPlaced = SaveService.Data != null && SaveService.Data.placedItemIds.Contains(item.id);
-            bool hasStock = isOwned || isPlaced;
-
+            var economy = CozyEconomyManager.Instance;
+            int owned = economy != null ? economy.OwnedCount(item.id) : 0;
+            int stored = economy != null ? economy.StoredCount(item.id) : 0;
+            if (owned > 0)
+                AddOwnedBadge(row.transform, owned);
             button.onClick.RemoveAllListeners();
-
-            if (texts.Length > 2 && isPlaced)
-                texts[2].text = GameText.L("✓ Evde", "✓ In your home", "✓ Im Haus");
-            else if (texts.Length > 2 && isOwned)
-                texts[2].text = GameText.L("Sende (depoda)", "Owned (stored)", "Gekauft (gelagert)");
-
-            if (isOwned && !isPlaced)
+            bool affordable = economy != null && economy.CanAfford(item);
+            button.interactable = affordable;
+            if (label != null) label.text = (economy != null ? economy.GetPurchasePrice(item) : item.lovePointCost).ToString();
+            button.GetComponent<RectTransform>().anchoredPosition = new Vector2(0f, -100f);
+            button.GetComponent<Image>().color = affordable ? BuyColor : UnaffordableColor;
+            button.onClick.AddListener(() =>
             {
-                // Sahip olunan ama kullanılmayan eşya: aynı yerdeki eşyanın yerine koy.
-                if (label != null)
-                {
-                    label.text = GameText.L("Yerleştir", "Place", "Aufstellen");
-                    label.color = Color.white;
-                }
-                var placeImg = button.GetComponent<Image>();
-                if (placeImg != null)
-                    placeImg.color = new Color(0.86f, 0.95f, 0.84f, 1f);
-                button.interactable = true;
-                var toPlace = item;
-                button.onClick.AddListener(() =>
-                {
-                    button.interactable = false;
-                    if (CozyEconomyManager.Instance != null && CozyEconomyManager.Instance.Place(toPlace))
-                        CozyAudioManager.Instance?.PlayConfirm();
-                    Rebuild();
-                });
+                if (economy != null && economy.TryBuy(item,purchaseRoom)) CozyAudioManager.Instance?.PlayShopBuy();
+                Rebuild();
+            });
+            var place = Instantiate(button.gameObject, row.transform).GetComponent<Button>();
+            place.name = "PlaceStoredButton";
+            var placeRt = place.GetComponent<RectTransform>();
+            placeRt.anchoredPosition = new Vector2(-50f, -130f);
+            StyleInventoryIcon(place, CozyIconFactory.Unpack(), false);
+            place.onClick.RemoveAllListeners(); place.interactable = stored > 0;
+            place.gameObject.SetActive(stored > 0);
+            place.GetComponent<Image>().color = stored > 0 ? BuyColor : UnaffordableColor;
+            place.onClick.AddListener(() => { if(economy != null && economy.Place(item,purchaseRoom)) CozyAudioManager.Instance?.PlayConfirm(); Rebuild(); });
+            var sell = Instantiate(place.gameObject, row.transform).GetComponent<Button>();
+            sell.name = "SellOneButton";
+            sell.GetComponent<RectTransform>().anchoredPosition = new Vector2(stored > 0 ? 50f : 0f, -130f);
+            StyleInventoryIcon(sell, CozyIconFactory.Coin(), true);
+            sell.onClick.RemoveAllListeners(); sell.interactable = owned > 0;
+            sell.gameObject.SetActive(owned > 0);
+            sell.GetComponent<Image>().color = owned > 0 ? SellColor : UnaffordableColor;
+            sell.onClick.AddListener(() => { if(economy != null && economy.SellOne(item)) CozyAudioManager.Instance?.PlayShopSell(); Rebuild(); });
+            // One action row: purchase, place a stored copy, sell one copy.
+            int actions=(stored>0 ? 1:0)+(owned>0 ? 1:0);
+            float buyWidth=actions==2 ? 104f:actions==1 ? 164f:220f;
+            float total=buyWidth+actions*60f;
+            float left=-total*.5f;
+            var buyRect=button.GetComponent<RectTransform>();
+            buyRect.sizeDelta=new Vector2(buyWidth,60);
+            buyRect.anchoredPosition=new Vector2(left+buyWidth*.5f,-130);
+            var buyIcon=button.transform.Find("Icon").GetComponent<RectTransform>();
+            buyIcon.sizeDelta=new Vector2(30,30); buyIcon.anchoredPosition=new Vector2(-buyWidth*.5f+23,0);
+            if(label!=null) { label.rectTransform.sizeDelta=new Vector2(buyWidth-48,48); label.rectTransform.anchoredPosition=new Vector2(18,0); }
+            float cursor=left+buyWidth+8;
+            foreach(var action in new[]{place,sell})
+            {
+                if(!action.gameObject.activeSelf) continue;
+                var actionRect=action.GetComponent<RectTransform>(); actionRect.sizeDelta=new Vector2(52,52);
+                actionRect.anchoredPosition=new Vector2(cursor+26,-130); cursor+=60;
             }
-            else if (hasStock)
+        }
+
+        static void StyleInventoryIcon(Button button, Sprite sprite, bool sell)
+        {
+            button.GetComponent<RectTransform>().sizeDelta = new Vector2(64f, 64f);
+            var image = button.GetComponent<Image>();
+            image.sprite = CozyIconFactory.CircleButton();
+            image.type = Image.Type.Simple;
+            image.preserveAspect = true;
+            var label = button.GetComponentInChildren<Text>(true);
+            if (label != null) label.gameObject.SetActive(false);
+            var icon = button.transform.Find("Icon").GetComponent<Image>();
+            icon.gameObject.SetActive(true);
+            icon.sprite = sprite;
+            icon.rectTransform.anchoredPosition = new Vector2(0f, 1f);
+            icon.rectTransform.sizeDelta = new Vector2(40f, 40f);
+            var colors = button.colors;
+            colors.disabledColor = new Color(1f, 1f, 1f, 0.40f);
+            button.colors = colors;
+        }
+
+        static readonly Color CardColor = new Color(1f, 0.96f, 0.90f, 0.93f);
+
+        /// <summary>Kartı yuvarlak köşeli, yumuşak gölgeli krem zemine çevirir.</summary>
+        static void StyleCard(GameObject row)
+        {
+            var bg = row.GetComponent<Image>();
+            if (bg == null)
+                return;
+            bg.sprite = CozyIconFactory.Pill();
+            bg.type = Image.Type.Sliced;
+            bg.pixelsPerUnitMultiplier = 1.1f;
+            bg.color = CardColor;
+            if (row.GetComponent<Shadow>() == null)
             {
-                // SAT BUTONU TASARIMI
-                if (label != null)
-                    label.text = GameText.L("Sat", "Sell", "Verkaufen");
-
-                var btnImg = button.GetComponent<Image>();
-                if (btnImg != null)
-                    btnImg.color = SellColor;
-
-                button.interactable = true;
-
-                button.onClick.AddListener(() => {
-                    button.interactable = false;
-
-                    if (CozyEconomyManager.Instance != null && SaveService.Data != null)
-                    {
-                        if (CozyEconomyManager.Instance.Owns(item.id) || SaveService.Data.placedItemIds.Contains(item.id))
-                        {
-                            SaveService.Data.placedItemIds.Remove(item.id);
-                            SaveService.Data.ownedItemIds.Remove(item.id);
-                            SaveService.Persist();
-
-                            int refund = Mathf.CeilToInt(item.lovePointCost * 0.5f);
-                            CozyEconomyManager.Instance.AddLove(refund, "Eşya Satışı"); 
-                            CozyAudioManager.Instance?.PlayShopSell();
-                            
-                            var furnitureView = FindFirstObjectByType<PawPath.Hub.HubFurnitureView>();
-                            if (furnitureView != null)
-                            {
-                                furnitureView.SendMessage("Refresh", SendMessageOptions.DontRequireReceiver);
-                            }
-                        }
-                    }
-
-                    Rebuild(); 
-                });
+                var shadow = row.AddComponent<Shadow>();
+                shadow.effectColor = new Color(0.25f, 0.15f, 0.08f, 0.18f);
+                shadow.effectDistance = new Vector2(0f, -6f);
             }
-            else
+        }
+
+        /// <summary>Sahip olunan adet: kartın sağ üst köşesinde küçük karamel rozet.</summary>
+        static void AddOwnedBadge(Transform row, int count)
+        {
+            var badge = new GameObject("OwnedBadge", typeof(RectTransform), typeof(Image));
+            badge.transform.SetParent(row, false);
+            var rt = badge.GetComponent<RectTransform>();
+            rt.anchorMin = rt.anchorMax = new Vector2(1f, 1f);
+            rt.anchoredPosition = new Vector2(-30f, -30f);
+            rt.sizeDelta = new Vector2(48f, 48f);
+            var image = badge.GetComponent<Image>();
+            image.sprite = CozyIconFactory.CircleButton();
+            image.preserveAspect = true;
+            image.color = SellColor;
+            image.raycastTarget = false;
+            var text = CreateText(badge.transform, "Count", 24);
+            text.fontStyle = FontStyle.Bold;
+            text.color = Color.white;
+            text.text = count.ToString();
+            text.raycastTarget = false;
+            text.rectTransform.anchorMin = Vector2.zero;
+            text.rectTransform.anchorMax = Vector2.one;
+            text.rectTransform.offsetMin = text.rectTransform.offsetMax = Vector2.zero;
+        }
+
+        /// <summary>Düz "Dükkan" yazısı yerine ev ekranındaki sayaçla aynı koyu hap başlık.</summary>
+        void StyleTitle()
+        {
+            foreach (var t in GetComponentsInChildren<Text>(true))
             {
-                // AL BUTONU TASARIMI
-                bool canAfford = CozyEconomyManager.Instance != null && CozyEconomyManager.Instance.LovePoints >= item.lovePointCost;
+                if (t.name != "Title" || (listRoot != null && t.transform.IsChildOf(listRoot)))
+                    continue;
+                if (t.transform.parent != null && t.transform.parent.name == "TitlePill")
+                    return;
+                var rt = t.rectTransform;
+                var pill = new GameObject("TitlePill", typeof(RectTransform), typeof(Image));
+                pill.transform.SetParent(rt.parent, false);
+                pill.transform.SetSiblingIndex(rt.GetSiblingIndex());
+                var pillRt = pill.GetComponent<RectTransform>();
+                pillRt.anchorMin = pillRt.anchorMax = rt.anchorMin;
+                pillRt.anchoredPosition = rt.anchoredPosition + new Vector2(0f, 6f);
+                pillRt.sizeDelta = new Vector2(270f, 76f);
+                var bg = pill.GetComponent<Image>();
+                bg.sprite = CozyIconFactory.Pill();
+                bg.type = Image.Type.Sliced;
+                bg.color = new Color(0.20f, 0.13f, 0.09f, 0.72f);
+                bg.raycastTarget = false;
 
-                if (label != null)
-                    label.text = GameText.L("Satın Al", "Buy", "Kaufen");
+                var icon = new GameObject("TitleIcon", typeof(RectTransform), typeof(Image));
+                icon.transform.SetParent(pill.transform, false);
+                var iconRt = icon.GetComponent<RectTransform>();
+                iconRt.anchorMin = iconRt.anchorMax = new Vector2(0f, 0.5f);
+                iconRt.anchoredPosition = new Vector2(44f, 0f);
+                iconRt.sizeDelta = new Vector2(50f, 50f);
+                var iconImage = icon.GetComponent<Image>();
+                iconImage.sprite = CozyIconFactory.Storefront();
+                iconImage.preserveAspect = true;
+                iconImage.raycastTarget = false;
 
-                // Parası yetmiyorsa soluk gri; yazıya gerek kalmadan "şimdilik alamazsın".
-                var btnImg = button.GetComponent<Image>();
-                if (btnImg != null)
-                    btnImg.color = canAfford ? BuyColor : UnaffordableColor;
-                var group = button.GetComponent<CanvasGroup>();
-                if (group == null)
-                    group = button.gameObject.AddComponent<CanvasGroup>();
-                group.alpha = canAfford ? 1f : 0.6f;
-
-                button.interactable = canAfford;
-
-                var captured = item;
-                button.onClick.AddListener(() => {
-                    button.interactable = false;
-
-                    if (CozyEconomyManager.Instance != null)
-                    {
-                        if (CozyEconomyManager.Instance.Owns(captured.id) || (SaveService.Data != null && SaveService.Data.placedItemIds.Contains(captured.id)))
-                        {
-                            Rebuild();
-                            return;
-                        }
-
-                        bool success = CozyEconomyManager.Instance.TryBuy(captured);
-                        if (success)
-                        {
-                            CozyAudioManager.Instance?.PlayShopBuy();
-                            var furnitureView = FindFirstObjectByType<PawPath.Hub.HubFurnitureView>();
-                            if (furnitureView != null)
-                            {
-                                furnitureView.SendMessage("Refresh", SendMessageOptions.DontRequireReceiver);
-                            }
-                        }
-                    }
-
-                    Rebuild();
-                });
+                t.transform.SetParent(pill.transform, false);
+                rt.anchorMin = Vector2.zero;
+                rt.anchorMax = Vector2.one;
+                rt.anchoredPosition = Vector2.zero;
+                rt.offsetMin = new Vector2(78f, 0f);
+                rt.offsetMax = new Vector2(-18f, 0f);
+                t.fontSize = 32;
+                t.fontStyle = FontStyle.Bold;
+                t.color = new Color(1f, 0.95f, 0.82f);
+                return;
             }
         }
 
@@ -345,7 +399,7 @@ namespace PawPath.UI
             rowRt.sizeDelta = new Vector2(280, 360);
 
             var itemBg = go.GetComponent<Image>();
-            itemBg.color = new Color(0, 0, 0, 0f); 
+            itemBg.color = new Color(1f, 0.97f, 0.91f, 0.94f);
 
             var iconGo = new GameObject("Icon", typeof(RectTransform), typeof(Image));
             iconGo.transform.SetParent(go.transform, false);
@@ -411,6 +465,7 @@ namespace PawPath.UI
         {
             listRoot = list;
             closeButton = close;
+            StyleTitle();
             if (closeButton != null)
             {
                 StyleHomeButton(closeButton);

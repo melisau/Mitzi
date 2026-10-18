@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using PawPath.Core;
 using PawPath.Hub;
 using PawPath.Gameplay;
 using PawPath.UI;
@@ -34,10 +35,15 @@ namespace PawPath.Levels
         Sprite streetGapLeftSprite;
         Sprite streetGapRightSprite;
         Sprite moundSprite;
+        Sprite crouchObstacleSprite;
+        Sprite crouchUpperSprite;
+        public void BindCrouchObstacle(Sprite sprite, Sprite upper = null) { crouchObstacleSprite = sprite; crouchUpperSprite = upper; }
         Sprite alternateMoundSprite;
         Sprite roadSprite;
         Sprite roadUnderfillSprite;
         Sprite[] birdFrames;
+        Sprite dogIdleSprite;
+        public void BindDogIdle(Sprite idle) => dogIdleSprite = idle;
         Sprite[] dogRunFrames;
         Sprite climbTreeSprite;
         Sprite[] climbingCatFrames;
@@ -187,6 +193,7 @@ namespace PawPath.Levels
             }
             if (cyberTheme && cyberObstacleCount == 0)
                 TryPlaceIntroCyberObstacle();
+            BuildCrouchChallenge(levelNumber);
             BuildModeChallenge(levelNumber);
             BuildDogAndTreeChallenge(levelNumber);
         }
@@ -326,6 +333,20 @@ namespace PawPath.Levels
                 renderer.sortingOrder = 1;
                 go.transform.localScale = new Vector3(span.Width, span.Top - span.Bottom, 1f);
                 collider.size = Vector2.one;
+                return;
+            }
+
+            if(roadSprite.name.Contains("city_service_road"))
+            {
+                const float bottom=-5.35f;
+                float height=span.Top-bottom;
+                var visual=new GameObject("CityServiceRoad");visual.transform.SetParent(generatedRoot,false);
+                visual.transform.position=new Vector2(span.CenterX,bottom+height*.5f);
+                var renderer=visual.AddComponent<SpriteRenderer>();renderer.sprite=roadSprite;renderer.sortingOrder=1;
+                renderer.drawMode=SpriteDrawMode.Tiled;renderer.tileMode=SpriteTileMode.Continuous;
+                float scale=height/roadSprite.bounds.size.y;
+                visual.transform.localScale=Vector3.one*scale;
+                renderer.size=new Vector2(span.Width/scale,roadSprite.bounds.size.y);
                 return;
             }
 
@@ -876,6 +897,12 @@ namespace PawPath.Levels
             // parçaları karanlığın içinde asılı sütun gibi görünürdü.
             if (UsesThinSlabs)
                 return;
+            if(gapSprite!=null && gapSprite.name.Contains("city_service_shaft"))
+            {
+                float top=RoadCenterY+RoadHeight*.5f;
+                DecorationTopAligned("CityServiceShaft",gapSprite,gap.CenterX,top,gap.Width,0,top+5.35f);
+                return;
+            }
             if (streetGapLeftSprite != null && streetGapRightSprite != null)
             {
                 CreateStreetGapEdges(gap);
@@ -1004,6 +1031,50 @@ namespace PawPath.Levels
                 }
             }
             return new GapSpan(leftEdge, rightEdge);
+        }
+
+        void BuildCrouchChallenge(int levelNumber)
+        {
+            if(crouchObstacleSprite==null)return;
+            const float width=4.2f;
+            float floor=RoadCenterY+RoadHeight*.5f;
+            var candidates=new List<float>();
+            for(float x=-4f;x<GoalX-4f;x+=.5f)
+            {
+                bool contained=false;
+                foreach(var road in roads)if(road.MaxCenteredWidth(x,.7f)>=width){contained=true;break;}
+                if(!contained)continue;
+                bool blocked=false;
+                foreach(var range in moundVisualRanges)if(x+width*.5f+.7f>range.x && x-width*.5f-.7f<range.y){blocked=true;break;}
+                if(blocked)continue;
+                foreach(var collider in generatedRoot.GetComponentsInChildren<Collider2D>())
+                    if(!collider.isTrigger && collider.bounds.max.y>floor+.08f && collider.bounds.min.x<x+width*.5f+.7f && collider.bounds.max.x>x-width*.5f-.7f){blocked=true;break;}
+                if(!blocked)candidates.Add(x);
+            }
+            if(candidates.Count==0)return;
+            var random=new System.Random(levelNumber*15427+389);
+            float center=candidates[random.Next(candidates.Count)];
+            float clearance=CrouchPassage.PassageClearance;
+            var root=new GameObject("CrouchPassage");root.transform.SetParent(generatedRoot,false);root.transform.position=new Vector3(center,floor,0);
+            root.AddComponent<CrouchPassage>().Configure(width,floor,clearance);
+            var art=new GameObject("OverheadVisual");art.transform.SetParent(root.transform,false);
+            var renderer=art.AddComponent<SpriteRenderer>();renderer.sprite=crouchObstacleSprite;renderer.sortingOrder=5;
+            CrouchPassage.FitArtwork(renderer, width, clearance);
+            float thickness=.32f;
+            var ceiling=root.AddComponent<BoxCollider2D>();ceiling.size=new Vector2(width,thickness);ceiling.offset=new Vector2(0,clearance+thickness*.5f);
+            if(crouchUpperSprite!=null)
+            {
+                var upper=new GameObject("VisibleUpperObstruction");upper.transform.SetParent(root.transform,false);
+                var upperRenderer=upper.AddComponent<SpriteRenderer>();upperRenderer.sprite=crouchUpperSprite;upperRenderer.sortingOrder=4;
+                CrouchPassage.FitUpperArtwork(upperRenderer,width,clearance);
+                var blocker=upper.AddComponent<PolygonCollider2D>();
+                var points=new System.Collections.Generic.List<Vector2>();
+                if(crouchUpperSprite.GetPhysicsShapeCount()>0)
+                {
+                    blocker.pathCount=crouchUpperSprite.GetPhysicsShapeCount();
+                    for(int i=0;i<blocker.pathCount;i++) { crouchUpperSprite.GetPhysicsShape(i,points);blocker.SetPath(i,points); }
+                }
+            }
         }
 
         void BuildModeChallenge(int levelNumber)
@@ -1183,6 +1254,21 @@ namespace PawPath.Levels
                     validRanges.Add(new Vector2(start, end));
             }
 
+            // Keep elevated launch points out of jumping range of the low passage.
+            // Its visible upper pile can then stay compact instead of reaching the sky.
+            foreach(var passage in generatedRoot.GetComponentsInChildren<CrouchPassage>(true))
+            {
+                float left=passage.Left-CrouchPassage.TreeSafetyDistance;
+                float right=passage.Right+CrouchPassage.TreeSafetyDistance;
+                var separated=new List<Vector2>();
+                foreach(var range in validRanges)
+                {
+                    if(range.x<left) { float end=Mathf.Min(range.y,left);if(end>range.x)separated.Add(new Vector2(range.x,end)); }
+                    if(range.y>right) { float start=Mathf.Max(range.x,right);if(range.y>start)separated.Add(new Vector2(start,range.y)); }
+                }
+                validRanges=separated;
+            }
+
             if (validRanges.Count == 0)
             {
                 treeX = 0f;
@@ -1196,6 +1282,8 @@ namespace PawPath.Levels
 
         void CreateDog(float x, float roadTop, float leftBound, float speed, int dogIndex)
         {
+            foreach(var passage in generatedRoot.GetComponentsInChildren<CrouchPassage>(true))
+                if(x>passage.Left-1f && x<passage.Right+1f)return;
             Sprite first = dogRunFrames[0];
             var go = new GameObject($"DogObstacle_{dogIndex + 1}");
             go.transform.SetParent(generatedRoot, false);
@@ -1218,8 +1306,8 @@ namespace PawPath.Levels
             go.AddComponent<DogObstacle>().Configure(renderer, dogRunFrames, speed, leftBound,
                 CourseRight + 2f,
                 roadTop, cyberTheme ? 1.95f : 2.75f,
-                cyberTheme ? 0.05f : 0.42f, cyberTheme ? 0.085f : 0.055f,
-                dogGaps, currentLevelNumber + dogIndex);
+                (cyberTheme ? 1.95f : 2.75f) * 0.08f, 1f / 16f,
+                dogGaps, currentLevelNumber + dogIndex, dogIdleSprite);
         }
 
         void CreateClimbableTree(float x, float roadTop)
@@ -1251,7 +1339,7 @@ namespace PawPath.Levels
             var perch = new GameObject("ClimbPerch").transform;
             perch.SetParent(go.transform, false);
             // Tepe noktası ağacın görsel sınırını aşmaz.
-            perch.localPosition = new Vector3(0f, climbTreeSprite.bounds.max.y * 0.78f, 0f);
+            perch.localPosition = new Vector3(0f, climbTreeSprite.bounds.max.y * 0.92f, 0f);
             go.AddComponent<ClimbableTree>().Configure(climbingCatFrames, perch);
         }
 
@@ -1357,6 +1445,7 @@ namespace PawPath.Levels
 
         bool IsContinuousCityUnderfill()
         {
+            if(roadSprite!=null && roadSprite.name.Contains("city_service_road"))return false;
             return roadUnderfillSprite != null &&
                 roadUnderfillSprite.name.ToLowerInvariant().Contains("city");
         }
@@ -1417,6 +1506,7 @@ namespace PawPath.Levels
         {
             if (generatedRoot != null)
             {
+                generatedRoot.gameObject.SetActive(false);
 #if UNITY_EDITOR
                 if (!Application.isPlaying)
                     DestroyImmediate(generatedRoot.gameObject);

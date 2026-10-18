@@ -34,7 +34,7 @@ namespace PawPath.Hub
             {
                 // Animator ilk etkinleştiğinde prefab ölçeğini 1'e çekebilir. Evdeki
                 // bütün kedilerle aynı kesin yüksekliği sprite ölçüsünden yeniden kur.
-                float normalizedScale = 2.20f * DisplaySizeSettings.CatScale / awakeSprite.bounds.size.y;
+                float normalizedScale = Mathf.Abs(spriteRenderer.transform.localScale.y);
                 float direction = Mathf.Sign(spriteRenderer.transform.localScale.x);
                 if (Mathf.Approximately(direction, 0f)) direction = 1f;
                 awakeScale = new Vector3(direction * normalizedScale, normalizedScale, 1f);
@@ -90,8 +90,10 @@ namespace PawPath.Hub
             transitionTime += Time.deltaTime;
             if (sleeping)
             {
-                int index = Mathf.Min(frames.Length - 1,
-                    Mathf.FloorToInt(transitionTime / FrameDuration));
+                float settlingDuration = frames.Length * FrameDuration;
+                int index = transitionTime < settlingDuration || frames.Length < 5
+                    ? Mathf.Min(frames.Length - 1, Mathf.FloorToInt(transitionTime / FrameDuration))
+                    : 1 + Mathf.FloorToInt((transitionTime - settlingDuration) / 0.5f) % (frames.Length - 1);
                 ApplyFrame(frames[index]);
             }
             else

@@ -85,7 +85,7 @@ namespace PawPath.Hub
                 pos = loungingSpots[slot % loungingSpots.Length].position;
             // Eski dinlenme noktalarının bazıları süpürgelik/duvar seviyesindeydi.
             // İlk kareden itibaren bütün kedileri gerçek zemin bandında tut.
-            pos.y = Mathf.Clamp(pos.y, -1.82f, -1.12f);
+            pos.y = Mathf.Clamp(pos.y, HomeRooms.FloorMinY, HomeRooms.FloorMaxY);
 
             GameObject go;
             if (residentPrefab != null)
@@ -102,7 +102,8 @@ namespace PawPath.Hub
                 sr.color = Color.white;
                 // Ev sahnesinde kediler dekorların yanında kaybolmasın; bu ölçek
                 // yalnızca resident görsellerine uygulanır, bölüm kedisini etkilemez.
-                FitSpriteToHeight(sr, 2.20f * DisplaySizeSettings.CatScale);
+                // Home görselleri; pati pivotu aynı zeminde kalır.
+                FitSpriteToHeight(sr, 2.75f * DisplaySizeSettings.CatScale);
                 var residentAnimator = sr.GetComponent<Animator>();
                 if (residentAnimator == null)
                     residentAnimator = sr.gameObject.AddComponent<Animator>();

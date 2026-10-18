@@ -12,7 +12,8 @@ namespace PawPath.Hub
         Sleeping,
         Eating,
         Drinking,
-        Playing
+        Playing,
+        Lying       // uyanık uzanma (boşta bekleme çeşitlemesi)
     }
 
     /// <summary>
@@ -27,7 +28,7 @@ namespace PawPath.Hub
         [SerializeField] Vector2 roomX = new Vector2(-5.4f, 5.4f);
         // Kediler zeminde derinlik hissi verecek kadar hareket eder; üst sınır
         // yükselirse süpürgelik/duvar üzerine çıkmış gibi görünürler.
-        [SerializeField] Vector2 roomY = new Vector2(-1.82f, -1.12f);
+        [SerializeField] Vector2 roomY = new Vector2(HomeRooms.FloorMinY, HomeRooms.FloorMaxY);
 
         public ResidentActivity CurrentActivity { get; private set; }
         public CatDefinition Definition { get; private set; }
@@ -36,6 +37,9 @@ namespace PawPath.Hub
         Vector2 finalPosition;
         float stateTimer;
         bool interacting;
+        bool externalAnimation;
+        float nextRoomVisit;
+        float walkingPersonality = 1f;
         bool navigatingDetour;
         bool directedMovement;
         ResidentActivity arrivalActivity = ResidentActivity.Standing;
@@ -49,12 +53,18 @@ namespace PawPath.Hub
 
         static readonly int WalkState = Animator.StringToHash("Walk");
         static readonly int SitState = Animator.StringToHash("Sit");
+        static readonly int IdleState = Animator.StringToHash("Idle");
+        static readonly int LieState = Animator.StringToHash("Lie");
 
         void Awake()
         {
             visual = transform.Find("Visual");
             animator = visual != null ? visual.GetComponent<Animator>() : GetComponentInChildren<Animator>();
+            walkingPersonality = Random.Range(.82f, 1.18f);
+            nextRoomVisit = Time.time + Random.Range(25f, 70f);
             BeginRest();
+            // Kediler aynı anda kalkıp yürümeye başlamasın.
+            stateTimer += Random.Range(0f, 3f);
         }
 
         void Update()
@@ -62,13 +72,14 @@ namespace PawPath.Hub
             if (GameFlow.Instance == null || !GameFlow.Instance.InHub)
                 return;
 
+            if (externalAnimation) return;
             stateTimer -= Time.deltaTime;
             UpdateAnimation();
             if (CurrentActivity == ResidentActivity.Walking)
             {
                 var target = new Vector3(targetPosition.x, targetPosition.y, transform.position.z);
                 float speed = directedMovement ? walkSpeed * directedSpeedMultiplier :
-                    interacting ? walkSpeed * 0.72f : walkSpeed;
+                    interacting ? walkSpeed * 0.72f : walkSpeed * walkingPersonality;
                 if (HasAnimator)
                     animator.speed = directedMovement ? directedAnimationSpeed : 0.92f;
                 transform.position = Vector3.MoveTowards(transform.position, target, speed * Time.deltaTime);
@@ -129,7 +140,19 @@ namespace PawPath.Hub
             else if (CurrentActivity == ResidentActivity.Sitting && animator.HasState(0, SitState))
             {
                 animator.Play(SitState, 0, 0f);
+                animator.speed = Random.Range(0.85f, 1.15f);
+            }
+            else if (CurrentActivity == ResidentActivity.Lying && animator.HasState(0, LieState))
+            {
+                animator.Play(LieState, 0, 0f);
                 animator.speed = 1f;
+            }
+            else if (CurrentActivity == ResidentActivity.Standing && animator.HasState(0, IdleState))
+            {
+                // Ayakta bekleme: nefes alan duruş. Her kedi döngünün farklı yerinden ve
+                // biraz farklı hızda başlar, böylece hepsi aynı anda aynı pozda olmaz.
+                animator.Play(IdleState, 0, Random.value);
+                animator.speed = Random.Range(0.75f, 1.25f);
             }
             else
             {
@@ -137,6 +160,12 @@ namespace PawPath.Hub
                     animator.Play(WalkState, 0, 0f);
                 animator.speed = 0f;
             }
+        }
+
+        public void SetExternalAnimation(bool value)
+        {
+            externalAnimation = value;
+            if (!value) BeginRest();
         }
 
         public void SetInteracting(bool value)
@@ -148,7 +177,32 @@ namespace PawPath.Hub
                 BeginRest();
         }
 
-        public void BindDefinition(CatDefinition definition) => Definition = definition;
+        public void BindDefinition(CatDefinition definition)
+        {
+            Definition = definition;
+            var catalog=GameFlow.Instance!=null ? GameFlow.Instance.Catalog : null;
+            if(catalog!=null && definition!=null && Mathf.Abs(transform.position.z)<.0001f)
+            {
+                int index=catalog.cats.IndexOf(definition);
+                if(index>=0) { var position=transform.position;position.z=-index*.02f;transform.position=position; }
+            }
+            UpdateDepthOrder();
+            roomY = new Vector2(HomeRooms.FloorMinY, HomeRooms.FloorMaxY);
+            if (HomeRooms.Instance != null)
+                roomX = new Vector2(-HomeRooms.Instance.RoomWidth * 0.42f, HomeRooms.Instance.Offset(1) + HomeRooms.Instance.RoomWidth * 0.42f);
+        }
+
+        public void ReflowHome(float oldWidth)
+        {
+            if (HomeRooms.Instance == null) return;
+            float shift = HomeRooms.Instance.RoomWidth - oldWidth;
+            var p = transform.position;
+            if(p.x >= oldWidth * 0.5f) p.x += shift;
+            transform.position = p;
+            if(finalPosition.x >= oldWidth * 0.5f) finalPosition.x += shift;
+            if(targetPosition.x >= oldWidth * 0.5f) targetPosition.x += shift;
+            BindDefinition(Definition);
+        }
 
         public void WalkTo(Vector2 worldPoint, ResidentActivity whenArrived = ResidentActivity.Standing)
         {
@@ -195,7 +249,28 @@ namespace PawPath.Hub
         {
             directedMovement = false;
             CurrentActivity = ResidentActivity.Walking;
-            finalPosition = new Vector2(Random.Range(roomX.x, roomX.y), Random.Range(roomY.x, roomY.y));
+            Vector2 localBounds = roomX;
+            if (HomeRooms.Instance != null)
+            {
+                var rooms = HomeRooms.Instance;
+                int currentRoom = transform.position.x < rooms.RoomWidth * .5f ? 0 : 1;
+                int destinationRoom = currentRoom;
+                bool anotherVisitor = false;
+                foreach (var other in FindObjectsOfType<CatHomeBehaviour>())
+                    if (other != this && !other.directedMovement && other.CurrentActivity == ResidentActivity.Walking &&
+                        (other.transform.position.x < rooms.RoomWidth * .5f ? 0 : 1) !=
+                        (other.finalPosition.x < rooms.RoomWidth * .5f ? 0 : 1))
+                        anotherVisitor = true;
+                if (!anotherVisitor && Time.time >= nextRoomVisit && Random.value < .14f)
+                {
+                    destinationRoom = 1-currentRoom;
+                    nextRoomVisit = Time.time + Random.Range(65f, 125f);
+                }
+                localBounds = rooms.RoomBounds(destinationRoom);
+                float margin = rooms.RoomWidth * .09f;
+                localBounds += new Vector2(margin, -margin);
+            }
+            finalPosition = new Vector2(Random.Range(localBounds.x, localBounds.y), Random.Range(roomY.x, roomY.y));
             arrivalActivity = ResidentActivity.Standing;
             stateTimer = 12f;
             ResetProgressWatch();
@@ -282,13 +357,18 @@ namespace PawPath.Hub
 
         void BeginRest()
         {
+            // Boşta bekleme: ayakta, oturma, uzanma veya uyuma rastgele seçilir;
+            // süre ve bakılan yön de her kedi için farklıdır.
             float roll = Random.value;
-            CurrentActivity = roll < 0.45f
-                ? ResidentActivity.Standing
-                : roll < 0.78f ? ResidentActivity.Sitting : ResidentActivity.Sleeping;
-            stateTimer = CurrentActivity == ResidentActivity.Sleeping
-                ? Random.Range(5f, 9f)
-                : Random.Range(2f, 5f);
+            CurrentActivity = roll < 0.30f ? ResidentActivity.Standing
+                : roll < 0.58f ? ResidentActivity.Sitting
+                : roll < 0.80f ? ResidentActivity.Lying
+                : ResidentActivity.Sleeping;
+            stateTimer = CurrentActivity == ResidentActivity.Sleeping ? Random.Range(12f, 28f)
+                : CurrentActivity == ResidentActivity.Lying ? Random.Range(6f, 16f)
+                : Random.Range(3.5f, 11f);
+            if (Random.value < 0.4f && visual != null)
+                Face(transform.position.x + (visual.localScale.x >= 0f ? -1f : 1f));
         }
 
         void Face(float x)
@@ -315,7 +395,15 @@ namespace PawPath.Hub
         {
             var renderer = visual != null ? visual.GetComponent<SpriteRenderer>() : GetComponentInChildren<SpriteRenderer>();
             if (renderer != null)
-                renderer.sortingOrder = 10 + Mathf.RoundToInt(-transform.position.y * 10f);
+            {
+                renderer.sortingOrder = 10;
+                renderer.spriteSortPoint = SpriteSortPoint.Pivot;
+            }
+        }
+
+        void LateUpdate()
+        {
+            if(!externalAnimation) UpdateDepthOrder();
         }
     }
 }

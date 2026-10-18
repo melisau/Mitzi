@@ -1,52 +1,59 @@
 # Mitzi (Paw Path)
 
-Mitzi is a cozy, side-scrolling 2D cat game built with **Unity 2022.3.62f3** and the Built-in Render Pipeline. Guide a cat across gaps and obstacles, collect rewards, and care for your growing group of cats at home. The project is playable but is still under development and has not been validated on physical devices.
+Unity **2022.3.62f3**, Built-in Render Pipeline ile geliştirilen, yatay ilerlemeli 2D mobil kedi oyunu. Çizerek veya tuşlarla oynayın; kedileri kurtarın, evde bakım yapın ve iki odayı döşeyin. Proje geliştirme aşamasındadır; fiziksel cihaz ve mağaza yayın doğrulaması henüz tamamlanmamıştır.
 
-## Current gameplay
+## Oynanış
 
-- Choose **Draw to Play** to draw physical paths with normal, bounce, hazard, or ice brushes, or **Play with Buttons** for direct left/right, jump, and crouch controls.
-- Play in street, forest, or city themes. Levels contain gaps, mounds, a finish gate, collectible birds, and running dogs. A climbable tree appears in some levels; climbing starts only when the cat is nearby and the player presses Up, W, or Jump.
-- The first five levels use introductory layouts. Later levels vary gap and mound placement deterministically by level number, so replaying the same level keeps its layout.
-- Reach the finish gate to advance. Falling or touching a hazard opens a failure screen with a retry option. A new cat can be rescued every five completed levels. The default roster is Mitzi, Pamuk, Kömür, Tarçın, Ada, and Moka.
-- At home, select a cat and tap the floor to send it there, or tap an interactive item such as a food bowl, litter box, or cat tree. Buy, place, move, and flip furniture in the shop and home editor.
-- The game is available in **Turkish, English and German**. The starting language follows the device language (Turkish/German, otherwise English) and can be changed in Settings.
-- Music and sound effects have separate mute controls. Progress is saved locally as versioned JSON in Unity `PlayerPrefs`, with a last-known-good backup. The save includes level progress, Love Points, selected and unlocked cats, owned/placed items, and per-cat care values.
+- **Çizerek Oyna:** normal, zıplatıcı, tehlikeli ve buzlu yollar çizin; silgiyi kullanın.
+- **Tuşlarla Oyna:** ekrandaki yön, zıplama ve eğilme düğmeleri; Editor'da klavye desteği.
+- Cadde, orman, şehir ve neo teknoloji mekanları; çukurlar, tümsekler, ağaçlar ve eğilerek geçilen engeller. Şehirde asfalt yol ve açık servis kanalları kullanılır.
+- Köpeğe temas kaybettirir; üstüne zıplayarak köpeği uzaklaştırabilirsiniz. Kuş toplamak alışveriş puanı kazandırır.
+- Mitzi başlangıç kedisidir. Pamuk, Kömür, Tarçın, Ada ve Moka sırasıyla 10, 20, 30, 40 ve 50. bölüm sonunda kurtarılır. Kurtarılacak kedi bitiş kapısının yanında bekler.
+- İlk oynayışta her kontrol biçimi için kısa yazılı, animasyonlu öğretici gösterilir. Türkçe, İngilizce ve Almanca desteklenir.
 
-## Controls
+## Kedi evi ve ekonomi
 
-| Mode | Input |
+İki oda arasında geçiş yapın. Kediler bağımsız dolaşır; bir kediyi seçip yere veya etkileşimli eşyaya dokunarak yönlendirebilirsiniz. Mama, su, uyku, sevme/mırlama, kum kabı ve kedi ağacı etkileşimleri bulunur.
+
+Dükkandan aynı üründen birden fazla alınabilir; yerleştirme, taşıma, çevirme, depolama ve satış desteklenir. Her başarılı alımdan sonra aynı ürünün sonraki fiyatı **×3** artar (40 → 120 → 360). Satış fiyat geçmişini sıfırlamaz. Duvar kağıdı, dükkanın açıldığı odaya uygulanır; odalar farklı görünebilir. Yeni kayıtta mavi oda varsayılandır. Alışveriş sonrasında liste konumu korunur.
+
+Alışveriş puanı ve kedinin sevgi ihtiyacı ayrıdır. Bölüm ödülü 5, kuş ödülü 3, yeni kedi ödülü 10 puandır. Tamamlanan ödüllü reklam 5 alışveriş puanı verir; günlük sınır 3'tür. Bakım ve sevme ödülleri günlük sınırlandırılmıştır. Test bütçesi ve tüm kedileri açma düğmeleri kaldırılmıştır.
+
+İlerleme, envanter, satın alma geçmişi, oda düzeni ve kedi ihtiyaçları `PlayerPrefs` içinde sürümlü JSON (şema 4) ve son sağlam yedekle tutulur. Açlık, su ve sevgi zamanla azalır; çevrimdışı ihtiyaç hesabı sekiz saatle sınırlıdır.
+
+## Projeyi açma
+
+1. Unity Hub'dan bu klasörü mevcut proje olarak **2022.3.62f3** ile açın.
+2. `Assets/Scenes/PawPath.unity` sahnesini açıp Play'e basın.
+3. Mevcut projede başlangıç sahnesini yeniden oluşturmayın. **Paw Path > Build Starter Scene** yalnızca boş proje içindir ve mevcut katalog/sahneyi korumak için çalışmayı reddeder.
+
+Ayarlar; görünüm boyutu, müzik/efekt, dil, öğretici ve oyundan çıkış içerir.
+
+### İlk oynayışı test etme
+
+**Ayarlar > İlk Oynayış Testi > Sıfırla ve Başlat** ile ilk kurulum deneyimine dönün. Onay ekranında Vazgeç hiçbir veriyi silmez. Onay; bu uygulamanın tüm `PlayerPrefs` verisini, ilerlemeyi, puanları, eşyaları, günlük limitleri, ayarları ve öğretici geçmişini siler; sahneyi yeniden açar. Yalnızca Mitzi ve sıfır bütçe ile başlanır; iki oyun biçiminin öğreticileri yeniden gösterilir.
+
+Bu geçici düğme yalnızca **Unity Editor veya Development Build** sürümlerinde derlenir; normal yayın sürümünde görünmez. Kullanılınca mevcut test ilerlemesi kalıcı olarak silinir.
+
+## Kaynak yapısı
+
+| Klasör | İçerik |
 | --- | --- |
-| Drawing | Draw on the screen with a finger or mouse; choose a brush or eraser from the toolbar. |
-| Direct control | Use the on-screen Left, Right, Jump, and Crouch buttons. Keyboard controls are also available in the Unity Editor. |
-| Home | Tap a cat to select it, tap the floor to move it, or tap an item to interact. Use Edit Home to reposition furniture. |
+| `Assets/_Game/Scripts/Core` | Oyun akışı, arayüz kurulumu, kamera ve kayıt |
+| `Assets/_Game/Scripts/Cat`, `Gameplay`, `Levels` | Animasyon, kontroller, bölüm ve engeller |
+| `Assets/_Game/Scripts/Hub`, `UI`, `Economy` | Odalar, bakım, eşya düzenleme ve dükkan |
+| `Assets/_Game/Scripts/Drawing` | Çizim ve fiziksel yol araçları |
+| `Assets/_Game/Art` | Oyunda kullanılan görseller |
+| `Assets/_Game/Content` | Kedi, eşya ve katalog tanımları |
+| `Assets/_Game/Editor` | İçerik oluşturucular ve izole doğrulamalar |
+| `tools` | Görsel hazırlama araçları |
 
-## Open the project
+Eski kullanılmayan piksel hayvanlar ve referanssız varlıklar temizlenmiştir. Yerel kaynak videoları, ara çıktılar, test günlükleri ve kurtarma kopyaları Git'e dahil edilmez. Sanat yaklaşımı için [ART_STYLE](docs/ART_STYLE.md).
 
-1. In Unity Hub, add this repository as an **existing project** and open it with Unity **2022.3.62f3**.
-2. Open `Assets/Scenes/PawPath.unity` and press **Play**.
-3. **Paw Path > Build Starter Scene** is only for an empty project: it refuses to run when `PawPathCatalog.asset` or the scene already exists, so it can no longer wipe the shop catalog. To regenerate shop items and art, use `tools/render_furniture.py`, `tools/harmonize_furniture.py` and `tools/build_shop_catalog.py`.
+## Doğrulama ve yayın durumu
 
-`Assets/Scenes/HubTest.unity` is a separate development scene. **Paw Path > Reset Save Data** deletes local progress for testing.
+18 Ekim 2026 güncellemesinde izole `MitziValidation` projesinde Unity derleme ve doğrulama çalışmaları geçti: hayvan animasyonları, tümsek/köpek hareketi, zıplama, eğilme fiziği, öğreticiler, envanter/fiyat artışı, oda bazlı duvar kağıdı, sabit kedi sıralaması, dükkan kaydırma konumu, şehir servis kanalı ve ilk oynayış sıfırlama.
 
-## Project structure
+Editor doğrulamalarını gerçek oyuncu kaydında çalıştırmayın; bazıları test verisi oluşturur veya siler. Ayrı proje kopyası ve `MitziValidation` ürün adı kullanın. Bunlar fiziksel cihaz testinin yerine geçmez. [QA_CHECKLIST.md](QA_CHECKLIST.md) cihaz ve oynanış kontrollerini içerir.
 
-| Area | Responsibility |
-| --- | --- |
-| `Assets/_Game/Scripts/Core` | Single-scene game flow, runtime setup, camera, and local saves. |
-| `Assets/_Game/Scripts/Levels` | Level generation, goals, birds, dogs, trees, and cat unlocks. |
-| `Assets/_Game/Scripts/Drawing` and `Gameplay` | Drawable colliders, surfaces, and direct/mobile controls. |
-| `Assets/_Game/Scripts/Hub` and `UI` | Home interactions, furniture editing, shop, and screens. |
-| `Assets/_Game/Scripts/Data` and `Content` | `ScriptableObject` definitions and catalog data. |
-| `Assets/_Game/Scripts/Audio` | Theme music, effects, and separate mute settings. |
-
-## Verification and current limitations
-
-- Android release configuration and signed AAB build instructions are in [ANDROID_RELEASE.md](ANDROID_RELEASE.md). ARM64, IL2CPP and target API 36 are configured; the current editor/toolchain and signing credentials still need preparation before a release package can be built and verified.
-
-- Use **Mitzi > Validate Course Geometry** in the Unity Editor to check road, gap, and mound bounds for levels 1–100. This is a geometry validation command, **not** a full automated gameplay test suite.
-- Use **Mitzi > Validate Save Format** to check legacy migration, malformed JSON rejection, backup readability, and newer-version protection without changing the live save. Export/import JSON APIs exist for future device transfer, but there is no in-game transfer interface yet.
-- Follow the [QA checklist](QA_CHECKLIST.md) for falling, reaching the goal, cat/item interactions, save loading, screen ratios, and real-device checks. Android and iOS device results have not yet been recorded.
-- Hunger, water, and affection are stored per cat and decrease every 30 minutes, including capped offline time (up to eight hours per return). Each value must be at least 20 for the selected cat to start a level. Shared Love Points remain the shop currency; daily care rewards are limited, but feeding and watering can still restore needs afterward.
-- Some non-Mitzi cats do not yet have complete animation sets. Visual alignment and memory use of runtime road-corner masks still need device profiling.
-
-The current artwork, audio, and catalog references live under `Assets/_Game`. Keep gameplay geometry and colliders separate from decorative sprites when adding new environment art.
+Android paket hazırlığı için [ANDROID_RELEASE.md](ANDROID_RELEASE.md). İmzalı AAB ve gerçek cihaz doğrulaması henüz tamamlanmadı. Reklamlar test kimlikleri kullanıyor; üretim reklam kimlikleri, gizlilik/veri güvenliği ve çocuklara yönelik mağaza ayarları yayın öncesinde tamamlanmalıdır.

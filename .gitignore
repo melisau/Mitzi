@@ -38,3 +38,10 @@ crashlytics-build.properties
 *.jks
 *.p12
 *.pfx
+
+# Local art sources, validation output and recovery copies
+/AnimalArtSources-*/
+/*Backup-*/
+/TempPackPreview/
+__pycache__/
+*.pyc

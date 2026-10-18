@@ -15,7 +15,20 @@ namespace PawPath.Core
         const string CorruptPrimaryKey = "PawPath.Save.v1.corrupt";
         const string CorruptBackupKey = "PawPath.Save.v1.backup.corrupt";
         const string MitziOnlyKey = "PawPath.Developer.MitziOnly";
-        public const int CurrentSchemaVersion = 2;
+        public const int CurrentSchemaVersion = 4;
+
+        [Serializable]
+        public class FurnitureCopy
+        {
+            public string instanceId;
+            public string itemId;
+            public int roomId;
+            public bool placed;
+            public bool hasPosition;
+            public bool legacyPlacement;
+            public float x, y;
+            public bool flipped;
+        }
 
         [Serializable]
         public class CatNeedState
@@ -29,6 +42,13 @@ namespace PawPath.Core
         }
 
         [Serializable]
+        public class ItemPurchaseCount
+        {
+            public string itemId;
+            public int count;
+        }
+
+        [Serializable]
         public class SaveData
         {
             public int schemaVersion = CurrentSchemaVersion;
@@ -39,6 +59,15 @@ namespace PawPath.Core
             public List<string> ownedItemIds = new List<string>();
             public List<string> placedItemIds = new List<string>();
             public List<CatNeedState> catNeeds = new List<CatNeedState>();
+            public List<FurnitureCopy> furniture = new List<FurnitureCopy>();
+            public bool furnitureInventoryMigrated;
+            public List<ItemPurchaseCount> itemPurchases = new List<ItemPurchaseCount>();
+            public bool itemPurchasesMigrated;
+            public int activeHomeRoom;
+            public int homeRoomStyle0 = 3;
+            public int homeRoomStyle1 = 3;
+            public bool homeRoomStyle0Chosen;
+            public bool homeRoomStyle1Chosen;
         }
 
         static SaveData cache;
@@ -195,6 +224,53 @@ namespace PawPath.Core
                 data.ownedItemIds = new List<string>();
             if (data.placedItemIds == null)
                 data.placedItemIds = new List<string>();
+            if (data.furniture == null) data.furniture = new List<FurnitureCopy>();
+            if (!data.furnitureInventoryMigrated)
+            {
+                var legacyIds = new HashSet<string>(data.ownedItemIds);
+                legacyIds.UnionWith(data.placedItemIds);
+                foreach (string id in legacyIds)
+                    if (!string.IsNullOrWhiteSpace(id) && !data.furniture.Exists(f => f != null && f.itemId == id))
+                        data.furniture.Add(new FurnitureCopy { instanceId = Guid.NewGuid().ToString("N"),
+                            itemId = id, roomId = 0, placed = data.placedItemIds.Contains(id), legacyPlacement = true });
+                data.furnitureInventoryMigrated = true;
+            }
+            var instanceIds = new HashSet<string>();
+            data.furniture.RemoveAll(f => f == null || string.IsNullOrWhiteSpace(f.itemId));
+            foreach (var copy in data.furniture)
+            {
+                if (string.IsNullOrEmpty(copy.instanceId) || !instanceIds.Add(copy.instanceId))
+                {
+                    copy.instanceId = Guid.NewGuid().ToString("N");
+                    instanceIds.Add(copy.instanceId);
+                }
+                copy.roomId = Mathf.Clamp(copy.roomId, 0, 1);
+                if (float.IsNaN(copy.x) || float.IsInfinity(copy.x) || float.IsNaN(copy.y) || float.IsInfinity(copy.y))
+                    copy.hasPosition = false;
+            }
+            if (data.itemPurchases == null) data.itemPurchases = new List<ItemPurchaseCount>();
+            data.itemPurchases.RemoveAll(p => p == null || string.IsNullOrWhiteSpace(p.itemId));
+            foreach (var purchase in data.itemPurchases) purchase.count = Mathf.Max(0, purchase.count);
+            // Earlier saves know current copies, but do not record already sold items.
+            if (!data.itemPurchasesMigrated)
+            {
+                foreach (var copy in data.furniture)
+                {
+                    var history = data.itemPurchases.Find(p => p.itemId == copy.itemId);
+                    if (history == null) { history = new ItemPurchaseCount { itemId = copy.itemId }; data.itemPurchases.Add(history); }
+                    history.count++;
+                }
+                data.itemPurchasesMigrated = true;
+            }
+            data.activeHomeRoom = Mathf.Clamp(data.activeHomeRoom, 0, 1);
+            // Keep legacy readers compatible; copies and quantities live in furniture.
+            data.ownedItemIds.Clear();
+            data.placedItemIds.Clear();
+            foreach (var copy in data.furniture)
+            {
+                if (!data.ownedItemIds.Contains(copy.itemId)) data.ownedItemIds.Add(copy.itemId);
+                if (copy.placed && !data.placedItemIds.Contains(copy.itemId)) data.placedItemIds.Add(copy.itemId);
+            }
             if (data.catNeeds == null)
                 data.catNeeds = new List<CatNeedState>();
             if (string.IsNullOrWhiteSpace(data.selectedCatId) ||
@@ -213,7 +289,7 @@ namespace PawPath.Core
 
         public static bool HasCat(string id) => Data.unlockedCatIds.Contains(id);
 
-        public static bool DeveloperMitziOnly => PlayerPrefs.GetInt(MitziOnlyKey, 0) == 1;
+        public static bool DeveloperMitziOnly => false;
 
         public static void SetDeveloperMitziOnly(bool enabled)
         {
@@ -225,6 +301,17 @@ namespace PawPath.Core
             }
             PlayerPrefs.Save();
         }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        public static void ResetFirstPlayForTesting()
+        {
+            // This is a full fresh-install simulation, including tutorial and daily limits.
+            PlayerPrefs.DeleteAll();
+            readOnlyFutureSave = false;
+            cache = new SaveData();
+            Persist();
+        }
+#endif
 
         public static void ResetProgressForTesting()
         {

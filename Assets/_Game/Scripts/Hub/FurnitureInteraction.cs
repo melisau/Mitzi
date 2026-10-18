@@ -55,7 +55,6 @@ namespace PawPath.Hub
             if (cats.Length == 0) return;
             CatHomeBehaviour nearest = null;
             if (item.interactionType == ItemInteractionType.Eating ||
-                item.interactionType == ItemInteractionType.Climbing ||
                 item.interactionType == ItemInteractionType.Toileting)
             {
                 string selectedId = SaveService.Data != null ? SaveService.Data.selectedCatId : "mitzi";
@@ -69,7 +68,6 @@ namespace PawPath.Hub
             if (nearest == null) nearest = cats[0];
             float best = Vector2.SqrMagnitude(nearest.transform.position - transform.position);
             if (item.interactionType != ItemInteractionType.Eating &&
-                item.interactionType != ItemInteractionType.Climbing &&
                 item.interactionType != ItemInteractionType.Toileting)
             {
                 for (int i = 0; i < cats.Length; i++)
@@ -114,12 +112,14 @@ namespace PawPath.Hub
                 return bowlCenter + new Vector2(cat.transform.position.x <= bowlCenter.x ? -0.9f : 0.9f, 0.04f);
 
             Bounds bowl = bowlRenderer.bounds;
-            Bounds body = catRenderer.bounds;
+            Bounds body = ResidentReferenceBounds(cat, catRenderer);
             // Kap kedinin sağındaysa kedi sağa bakar (facing = +1).
             float facing = cat.transform.position.x <= bowl.center.x ? 1f : -1f;
             // Burun, kabın merkezinin biraz berisinde: baş kabın içine eğilir.
             float noseX = bowl.center.x - facing * bowl.extents.x * 0.15f;
-            float bodyCenterX = noseX - facing * body.extents.x * 0.92f;
+            // The sprite canvas includes transparent space beyond the muzzle.
+            // Use the visible head reach so the nose rests over the contents.
+            float bodyCenterX = noseX - facing * body.extents.x * 0.72f;
             // Görselin merkezi pivotun yanında olabilir; kedi döndüğünde bu fark da aynalanır.
             float currentFacing = Mathf.Sign(catRenderer.transform.lossyScale.x);
             if (currentFacing == 0f) currentFacing = 1f;
@@ -128,6 +128,15 @@ namespace PawPath.Hub
             float feetY = bowl.min.y + 0.06f;
             float feetOffsetY = body.min.y - cat.transform.position.y;
             return new Vector2(bodyCenterX - pivotOffsetX * facing, feetY - feetOffsetY);
+        }
+
+        static Bounds ResidentReferenceBounds(CatHomeBehaviour cat, SpriteRenderer renderer)
+        {
+            var reference = cat.Definition != null && cat.Definition.idleSprite != null ? cat.Definition.idleSprite : renderer.sprite;
+            if (reference == null) return renderer.bounds;
+            Vector3 scale = renderer.transform.lossyScale;
+            return new Bounds(renderer.transform.TransformPoint(reference.bounds.center),
+                Vector3.Scale(reference.bounds.size, new Vector3(Mathf.Abs(scale.x), Mathf.Abs(scale.y), Mathf.Abs(scale.z))));
         }
 
         static CatHomeBehaviour FindSelectedCat()
@@ -188,25 +197,43 @@ namespace PawPath.Hub
             }
 
             // Su kabının kendi karesi yok; başını eğip yeme kareleri içme için de uygun.
-            Sprite[] frames = action == CareAction.Eat ? item?.interactionFrames : null;
+            // Önce kedinin kendi renginde yeme kareleri; yoksa kabın kareleri.
+            Sprite[] careFrames = cat.Definition == null ? null
+                : action == CareAction.Eat ? cat.Definition.eatFrames : cat.Definition.drinkFrames;
+            Sprite[] frames = careFrames != null && careFrames.Length > 0
+                ? careFrames
+                : action == CareAction.Eat ? item?.interactionFrames : null;
             if ((frames == null || frames.Length == 0) && GameFlow.Instance != null && GameFlow.Instance.Catalog != null)
             {
                 var bowl = GameFlow.Instance.Catalog.GetItem("food_bowl");
                 frames = bowl != null ? bowl.interactionFrames : null;
             }
-            // Yerken/içerken kap kedinin önünde çizilir: baş kabın içine eğilmiş görünür.
+            // Keep the cat in front of the bowl so its muzzle is not hidden by the whole bowl sprite.
             var bowlRenderer = GetComponent<SpriteRenderer>();
             var catSprite = cat.GetComponentInChildren<SpriteRenderer>();
-            int bowlOrder = bowlRenderer != null ? bowlRenderer.sortingOrder : 0;
+            int catOrder = catSprite != null ? catSprite.sortingOrder : 0;
+            int catLayer = catSprite != null ? catSprite.sortingLayerID : 0;
             if (bowlRenderer != null && catSprite != null)
-                bowlRenderer.sortingOrder = catSprite.sortingOrder + 1;
-            if (frames != null && frames.Length > 0 && cat.Definition != null &&
-                cat.Definition.useDetailedHomeAnimations)
-                yield return PlayInteractionFrames(cat, frames, 2.4f);
-            else
-                yield return new WaitForSeconds(2.4f);
-            if (bowlRenderer != null)
-                bowlRenderer.sortingOrder = bowlOrder;
+            {
+                catSprite.sortingLayerID = bowlRenderer.sortingLayerID;
+                catSprite.sortingOrder = Mathf.Max(catOrder, bowlRenderer.sortingOrder + 1);
+            }
+            try
+            {
+                if (frames != null && frames.Length > 0 && cat.Definition != null &&
+                    cat.Definition.useDetailedHomeAnimations)
+                    yield return PlayInteractionFrames(cat, frames, 2.4f);
+                else
+                    yield return new WaitForSeconds(2.4f);
+            }
+            finally
+            {
+                if (catSprite != null)
+                {
+                    catSprite.sortingLayerID = catLayer;
+                    catSprite.sortingOrder = catOrder;
+                }
+            }
 
             if (action == CareAction.Eat)
                 CatNeedsSystem.Instance?.FeedCat(catId);
@@ -245,7 +272,7 @@ namespace PawPath.Hub
                 // boyuttaki kedilerin de kabın uzağında yemesini önler.
                 var catRenderer = cat.GetComponentInChildren<SpriteRenderer>();
                 float headReach = catRenderer != null
-                    ? Mathf.Clamp(catRenderer.bounds.size.x * 0.40f, 0.72f, 1.12f)
+                    ? Mathf.Clamp(ResidentReferenceBounds(cat, catRenderer).size.x * 0.40f, 0.72f, 1.12f)
                     : 0.88f;
                 destination.x += side * headReach;
                 destination.y += 0.04f;
@@ -261,7 +288,11 @@ namespace PawPath.Hub
             }
             else if (item.interactionType == ItemInteractionType.Toileting)
             {
-                destination.x = transform.position.x;
+                // Stop outside the door so the entry sequence has visible travel.
+                float side = cat.transform.position.x <= transform.position.x ? -1f : 1f;
+                var boxRenderer = GetComponent<SpriteRenderer>();
+                float approach = boxRenderer != null ? boxRenderer.bounds.size.x * 0.32f : 0.8f;
+                destination.x = transform.position.x + side * Mathf.Max(0.65f, approach);
                 destination.y = cat.transform.position.y;
                 cat.WalkDirectTo(destination, activity);
             }
@@ -293,7 +324,9 @@ namespace PawPath.Hub
             {
                 // Coroutine zorla kesilmez; son kareden sonra sprite, ölçek ve
                 // Animator her durumda normal haline geri döner.
-                yield return PlayInteractionFrames(cat, item.interactionFrames, 2.4f);
+                var eatFrames = cat.Definition.eatFrames != null && cat.Definition.eatFrames.Length > 0
+                    ? cat.Definition.eatFrames : item.interactionFrames;
+                yield return PlayInteractionFrames(cat, eatFrames, 2.4f);
                 CatNeedsSystem.Instance?.FeedCat(cat.Definition.id);
                 running = false;
                 yield break;
@@ -301,16 +334,17 @@ namespace PawPath.Hub
             if (item.interactionType == ItemInteractionType.Climbing)
             {
                 Sprite[] climbFrames = cat.Definition != null && cat.Definition.useDetailedHomeAnimations
-                    ? item.interactionFrames : null;
+                    ? (cat.Definition.climbFrames != null && cat.Definition.climbFrames.Length > 0
+                        ? cat.Definition.climbFrames : item.interactionFrames)
+                    : null;
                 yield return PlaySmallHomeClimb(cat, climbFrames);
                 CatNeedsSystem.Instance?.RewardInteraction(3, "Kedi ağacına tırmanma");
                 running = false;
                 yield break;
             }
-            if (item.interactionType == ItemInteractionType.Toileting &&
-                item.interactionFrames != null && item.interactionFrames.Length >= 3)
+            if (item.interactionType == ItemInteractionType.Toileting)
             {
-                yield return PlayLitterBoxSequence(cat, item.interactionFrames);
+                yield return PlayLitterBoxSequence(cat);
                 CatNeedsSystem.Instance?.RewardInteraction(2, "Kedi kumu kullanımı");
                 // Aynı dokunuşun mouse/touch olayları veya hemen ardından gelen
                 // ikinci tıklama animasyonu yeniden başlatmasın.
@@ -337,10 +371,12 @@ namespace PawPath.Hub
             Transform visual = renderer.transform;
             Vector3 previousScale = visual.localScale;
             Vector3 previousPosition = visual.localPosition;
-            float displayedWidth = previous != null
-                ? previous.bounds.size.x * Mathf.Abs(previousScale.x) : 2.20f;
+            Sprite reference = cat.Definition != null && cat.Definition.idleSprite != null ? cat.Definition.idleSprite : previous;
+            float displayedWidth = reference != null
+                ? reference.bounds.size.x * Mathf.Abs(previousScale.x) : 2.20f;
             float baselineBottom = previous != null
-                ? previousPosition.y + previous.bounds.min.y * Mathf.Abs(previousScale.y)
+                ? previousPosition.y + (previous.bounds.min.y + previous.bounds.size.y * 0.08f
+                    - reference.bounds.size.y * 0.08f) * Mathf.Abs(previousScale.y)
                 : previousPosition.y;
             bool animatorWasEnabled = animator != null && animator.enabled;
             var sleepAnimator = cat.GetComponent<MitziSleepAnimator>();
@@ -364,9 +400,9 @@ namespace PawPath.Hub
                     framePosition.y = baselineBottom - frames[frame].bounds.min.y * frameScale;
                     visual.localPosition = framePosition;
                 }
-                yield return new WaitForSeconds(0.16f);
-                elapsed += 0.16f;
-                frame = (frame + 1) % frames.Length;
+                elapsed += Time.deltaTime;
+                frame = Mathf.FloorToInt(elapsed * 8f) % frames.Length;
+                yield return null;
             }
             renderer.sprite = cat.Definition != null && cat.Definition.idleSprite != null
                 ? cat.Definition.idleSprite : previous;
@@ -386,8 +422,9 @@ namespace PawPath.Hub
             Vector3 previousScale = renderer.transform.localScale;
             Vector3 previousLocalPosition = renderer.transform.localPosition;
             Vector3 start = cat.transform.position;
-            float displayedHeight = previous != null
-                ? previous.bounds.size.y * Mathf.Abs(previousScale.y) : 2.2f;
+            Sprite reference = cat.Definition != null && cat.Definition.idleSprite != null ? cat.Definition.idleSprite : previous;
+            float displayedHeight = reference != null
+                ? reference.bounds.size.y * Mathf.Abs(previousScale.y) : 2.2f;
             float tallestFrame = 0f;
             if (frames != null)
                 foreach (var candidate in frames)
@@ -396,14 +433,19 @@ namespace PawPath.Hub
             float fixedClimbScale = tallestFrame > 0f
                 ? displayedHeight / tallestFrame : Mathf.Abs(previousScale.y);
             float baselineBottom = previous != null
-                ? previousLocalPosition.y + previous.bounds.min.y * Mathf.Abs(previousScale.y)
+                ? previousLocalPosition.y + (previous.bounds.min.y + previous.bounds.size.y * 0.08f
+                    - reference.bounds.size.y * 0.08f) * Mathf.Abs(previousScale.y)
                 : previousLocalPosition.y;
             bool animatorWasEnabled = animator != null && animator.enabled;
             if (sleepAnimator != null) sleepAnimator.SetExternalAnimation(true);
             if (animator != null) animator.enabled = false;
 
-            const float riseHeight = 0.52f;
-            const float phaseDuration = 0.54f;
+            var treeRenderer=GetComponent<SpriteRenderer>();
+            float riseHeight=treeRenderer!=null ? Mathf.Clamp(treeRenderer.bounds.size.y*.28f,.55f,1.1f):.75f;
+            const float phaseDuration = 1.15f;
+            cat.SetExternalAnimation(true);
+            try
+            {
             float elapsed = 0f;
             while (elapsed < phaseDuration * 2f)
             {
@@ -414,7 +456,7 @@ namespace PawPath.Hub
 
                 if (frames != null && frames.Length > 0)
                 {
-                    int index = Mathf.Clamp(Mathf.FloorToInt(phase * frames.Length), 0, frames.Length - 1);
+                    int index = Mathf.FloorToInt(elapsed * 24f) % frames.Length;
                     if (descending) index = frames.Length - 1 - index;
                     Sprite frame = frames[index];
                     if (frame != null)
@@ -431,68 +473,87 @@ namespace PawPath.Hub
                 yield return null;
             }
 
-            cat.transform.position = start;
-            renderer.sprite = previous;
-            renderer.transform.localScale = previousScale;
-            renderer.transform.localPosition = previousLocalPosition;
-            if (animator != null) animator.enabled = animatorWasEnabled;
-            if (sleepAnimator != null) sleepAnimator.SetExternalAnimation(false);
+            }
+            finally
+            {
+                cat.transform.position = start;
+                renderer.sprite = previous;
+                renderer.transform.localScale = previousScale;
+                renderer.transform.localPosition = previousLocalPosition;
+                if (animator != null) animator.enabled = animatorWasEnabled;
+                if (sleepAnimator != null) sleepAnimator.SetExternalAnimation(false);
+                cat.SetExternalAnimation(false);
+            }
         }
 
-        IEnumerator PlayLitterBoxSequence(CatHomeBehaviour cat, Sprite[] frames)
+        IEnumerator PlayLitterBoxSequence(CatHomeBehaviour cat)
         {
             var furnitureRenderer = GetComponent<SpriteRenderer>();
             var catRenderer = cat.GetComponentInChildren<SpriteRenderer>();
             if (furnitureRenderer == null || catRenderer == null)
                 yield break;
 
-            Sprite originalFurniture = furnitureRenderer.sprite;
-            Vector3 originalFurnitureScale = transform.localScale;
-            Vector3 originalFurniturePosition = transform.position;
-            float displayedHeight = furnitureRenderer.bounds.size.y;
-            float groundBottom = furnitureRenderer.bounds.min.y;
+            Sprite previous = catRenderer.sprite;
+            Color previousColor = catRenderer.color;
+            int previousOrder = catRenderer.sortingOrder;
+            Vector3 start = cat.transform.position;
+            Vector3 originalScale = catRenderer.transform.localScale;
+            Vector3 doorway = new Vector3(furnitureRenderer.bounds.center.x, start.y, start.z);
+            var walk = cat.Definition != null ? cat.Definition.walkFrames : null;
             var animator = cat.GetComponentInChildren<Animator>();
             bool animatorWasEnabled = animator != null && animator.enabled;
             var sleepAnimator = cat.GetComponent<MitziSleepAnimator>();
             if (sleepAnimator != null) sleepAnimator.SetExternalAnimation(true);
             if (animator != null) animator.enabled = false;
-            catRenderer.enabled = false;
-
-            // Inspector/yeniden import sırasında array sırası değişse bile
-            // giriş ve çıkış karelerinin oynatma sırası sabit kalır.
-            Sprite[] orderedFrames =
+            // Use this resident's own animation; old furniture frames contain a
+            // baked-in unrelated cat and would change its appearance mid-interaction.
+            try
             {
-                FindFrame(frames, "cat_sand_out"),
-                FindFrame(frames, "cat_sand_in2"),
-                FindFrame(frames, "cat_sand_in")
-            };
-            float[] frameDurations = { 0.72f, 0.62f, 1.35f };
-            // One-shot: kareler yalnızca bir defa ilerler; modulo veya tekrar yoktur.
-            for (int i = 0; i < orderedFrames.Length; i++)
-            {
-                Sprite frame = orderedFrames[i] != null ? orderedFrames[i] : frames[i];
-                if (frame == null) continue;
-                float scale = frame.bounds.size.y > 0f
-                    ? displayedHeight / frame.bounds.size.y * item.EffectiveInteractionVisualScale
-                    : Mathf.Abs(originalFurnitureScale.y);
-                furnitureRenderer.sprite = frame;
-                // Yeni kedi kumu görseli animasyon kareleriyle aynı yöndedir.
-                // Kullanıcı itemi aynaladıysa yalnızca o mevcut yönü koru.
-                float animationDirection = Mathf.Sign(originalFurnitureScale.x);
-                transform.localScale = new Vector3(
-                    animationDirection * scale, scale, originalFurnitureScale.z);
-                Vector3 position = transform.position;
-                position.y = groundBottom - frame.bounds.min.y * scale;
-                transform.position = position;
-                yield return new WaitForSeconds(frameDurations[i]);
+                for (int phase = 0; phase < 2; phase++)
+                {
+                    bool entering = phase == 0;
+                    float direction = Mathf.Sign(doorway.x - start.x);
+                    if (Mathf.Approximately(direction, 0f)) direction = 1f;
+                    catRenderer.transform.localScale = new Vector3(
+                        Mathf.Abs(originalScale.x) * (entering ? direction : -direction), originalScale.y, originalScale.z);
+                    float elapsed = 0f;
+                    const float duration = 0.72f;
+                    while (elapsed < duration)
+                    {
+                        float t = Mathf.Clamp01(elapsed / duration);
+                        cat.transform.position = Vector3.Lerp(entering ? start : doorway,
+                            entering ? doorway : start, Mathf.SmoothStep(0f, 1f, t));
+                        if (walk != null && walk.Length > 0)
+                            catRenderer.sprite = walk[Mathf.FloorToInt(elapsed * 16f) % walk.Length];
+                        Color color = previousColor;
+                        color.a *= entering ? 1f - Mathf.InverseLerp(0.7f, 1f, t)
+                            : Mathf.InverseLerp(0f, 0.3f, t);
+                        catRenderer.color = color;
+                        catRenderer.sortingOrder = entering ? (t < 0.7f ? furnitureRenderer.sortingOrder + 1
+                            : furnitureRenderer.sortingOrder - 1) : (t < 0.3f ? furnitureRenderer.sortingOrder - 1
+                            : furnitureRenderer.sortingOrder + 1);
+                        elapsed += Time.deltaTime;
+                        yield return null;
+                    }
+                    if (entering)
+                    {
+                        catRenderer.enabled = false;
+                        yield return new WaitForSeconds(1.35f);
+                        catRenderer.enabled = true;
+                    }
+                }
             }
-
-            furnitureRenderer.sprite = originalFurniture;
-            transform.localScale = originalFurnitureScale;
-            transform.position = originalFurniturePosition;
-            catRenderer.enabled = true;
-            if (animator != null) animator.enabled = animatorWasEnabled;
-            if (sleepAnimator != null) sleepAnimator.SetExternalAnimation(false);
+            finally
+            {
+                cat.transform.position = start;
+                catRenderer.sprite = previous;
+                catRenderer.color = previousColor;
+                catRenderer.sortingOrder = previousOrder;
+                catRenderer.transform.localScale = originalScale;
+                catRenderer.enabled = true;
+                if (animator != null) animator.enabled = animatorWasEnabled;
+                if (sleepAnimator != null) sleepAnimator.SetExternalAnimation(false);
+            }
         }
 
         static Sprite FindFrame(Sprite[] frames, string exactName)

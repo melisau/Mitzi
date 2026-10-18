@@ -35,19 +35,19 @@ namespace PawPath.Levels
 
         void OnTriggerEnter2D(Collider2D other)
         {
-            var cat = other.GetComponent<CatController>();
+            var cat = other.GetComponentInParent<CatController>();
             if (cat != null) nearbyCat = cat;
         }
 
         void OnTriggerStay2D(Collider2D other)
         {
             if (nearbyCat == null)
-                nearbyCat = other.GetComponent<CatController>();
+                nearbyCat = other.GetComponentInParent<CatController>();
         }
 
         void OnTriggerExit2D(Collider2D other)
         {
-            var cat = other.GetComponent<CatController>();
+            var cat = other.GetComponentInParent<CatController>();
             if (cat != null && cat == nearbyCat && !cat.IsClimbing)
                 nearbyCat = null;
         }

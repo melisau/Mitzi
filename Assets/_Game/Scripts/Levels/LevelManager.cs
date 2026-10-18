@@ -12,7 +12,7 @@ using PawPath.Gameplay;
 namespace PawPath.Levels
 {
     /// <summary>
-    /// Bölüm ilerlemesi, spawn/hedef yerleştirme ve her 5. bölümde kedi kurtarma.
+    /// Bölüm ilerlemesi, spawn/hedef yerleştirme ve her 10. bölümde kedi kurtarma.
     /// </summary>
     public class LevelManager : MonoBehaviour
     {
@@ -23,6 +23,7 @@ namespace PawPath.Levels
         [SerializeField] SeasonBackdrop seasonBackdrop;
         [SerializeField] LevelCourseBuilder courseBuilder;
         bool completionHandled;
+        GameObject waitingRescueCat;
 
         public LevelDefinition Current { get; private set; }
         public int DisplayLevel => SaveService.Data.highestCompletedLevel + 1;
@@ -51,6 +52,7 @@ namespace PawPath.Levels
             if (courseBuilder != null)
                 courseBuilder.Build(Current.levelNumber);
             ApplyLayout(Current);
+            PlaceWaitingRescueCat(Current.levelNumber);
 
             var catId = SaveService.Data.selectedCatId;
             var cat = GameFlow.Instance != null && GameFlow.Instance.Catalog != null
@@ -108,7 +110,8 @@ namespace PawPath.Levels
                         forestTheme ? null : catalog.streetMoundHighSprite,
                     cityTheme ? catalog.cityRoadSprite :
                         null,
-                    cyberTheme ? (catalog.roboticBird != null ? new[] { catalog.roboticBird } : null)
+                    cyberTheme ? (catalog.roboticBirdFrames != null && catalog.roboticBirdFrames.Length > 0
+                        ? catalog.roboticBirdFrames : catalog.roboticBird != null ? new[] { catalog.roboticBird } : null)
                         : catalog.birdFrames,
                     cyberTheme ? catalog.roboticDogWalkFrames : catalog.dogRunFrames,
                     cyberTheme ? null : catalog.climbTreeSprite,
@@ -117,6 +120,8 @@ namespace PawPath.Levels
                     forestTheme || cityTheme || cyberTheme ? null : catalog.streetGapRightSprite,
                     cyberTheme,
                     cyberTheme ? catalog.cyberObstacleSprites : null);
+                courseBuilder.BindCrouchObstacle(catalog.CrouchObstacleForTheme(selectedTheme),catalog.CrouchUpperForTheme(selectedTheme));
+                courseBuilder.BindDogIdle(cyberTheme ? catalog.roboticDogIdleSprite : catalog.dogIdleSprite);
             }
 
             if (seasonBackdrop != null)
@@ -136,7 +141,7 @@ namespace PawPath.Levels
                 return;
             completionHandled = true;
 
-            const int completionReward = 10;
+            const int completionReward = 5;
             int completedLevel = DisplayLevel;
             if (LineDraw.Instance != null)
                 LineDraw.Instance.CanDraw = false;
@@ -144,7 +149,7 @@ namespace PawPath.Levels
             SaveService.Data.highestCompletedLevel = Mathf.Max(SaveService.Data.highestCompletedLevel, completedLevel);
             SaveService.Persist();
             if (CozyEconomyManager.Instance != null)
-                CozyEconomyManager.Instance.AddLove(completionReward, "Bölüm Tamamlama");
+                CozyEconomyManager.Instance.AddShoppingPoints(completionReward, "Bölüm Tamamlama");
             if (CozyAudioManager.Instance != null)
                 CozyAudioManager.Instance.PlayConfirm();
             GameEvents.LevelCompleted();
@@ -184,6 +189,23 @@ namespace PawPath.Levels
             so.inkBudget = Mathf.Clamp(16f + number * 0.4f, 16f, 28f);
             so.fallY = -7.5f;
             return so;
+        }
+
+        void PlaceWaitingRescueCat(int levelNumber)
+        {
+            if(waitingRescueCat!=null) { waitingRescueCat.SetActive(false); Destroy(waitingRescueCat); }
+            waitingRescueCat=null;
+            var cat=CatUnlockService.WaitingAtLevel(levelNumber);
+            if(cat==null || cat.idleSprite==null || goalMarker==null)return;
+            waitingRescueCat=new GameObject("WaitingRescueCat_"+cat.id);
+            waitingRescueCat.transform.SetParent(goalMarker.parent,false);
+            var sprite=waitingRescueCat.AddComponent<SpriteRenderer>();sprite.sprite=cat.idleSprite;sprite.sortingOrder=9;
+            float scale=2.5f*DisplaySizeSettings.CatScale/cat.idleSprite.bounds.size.y;
+            waitingRescueCat.transform.localScale=new Vector3(-scale,scale,1f);
+            float baseline=cat.idleSprite.bounds.min.y+cat.idleSprite.bounds.size.y*.08f;
+            float floor=courseBuilder!=null ? courseBuilder.CatSpawnY-.48f : goalMarker.position.y-.48f;
+            waitingRescueCat.transform.position=new Vector3(goalMarker.position.x-1.1f,floor-baseline*scale,0);
+            SoftShadow.Attach(waitingRescueCat,sprite,false,8,.55f,.06f,.32f);
         }
 
         void ApplyLayout(LevelDefinition level)

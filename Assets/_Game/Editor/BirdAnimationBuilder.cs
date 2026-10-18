@@ -6,14 +6,14 @@ using PawPath.Data;
 [InitializeOnLoad]
 public static class BirdAnimationBuilder
 {
-    const string Folder = "Assets/_Game/Art/Bird";
+    const string Folder = "Assets/_Game/Art/AnimalsRealistic/Bird";
     const string CatalogPath = "Assets/_Game/Content/PawPathCatalog.asset";
     static BirdAnimationBuilder() => EditorApplication.delayCall += Apply;
 
     [MenuItem("PawPath/İçerik/Kuş Animasyonunu Uygula")]
     public static void Apply()
     {
-        var frames = new Sprite[4];
+        var frames = new Sprite[8];
         for (int i = 0; i < frames.Length; i++)
         {
             string path = $"{Folder}/bird_fly_{i + 1:00}.png";

@@ -1,0 +1,93 @@
+using System.Collections.Generic;
+using UnityEngine;
+using PawPath.Cat;
+using PawPath.Core;
+using PawPath.UI;
+namespace PawPath.Levels
+{
+    /// <summary>An open-ended low ceiling. Rear artwork never blocks either entrance.</summary>
+    public sealed class CrouchPassage : MonoBehaviour
+    {
+        static readonly List<CrouchPassage> active=new List<CrouchPassage>();
+        public float Width { get; private set; }
+        public float FloorY { get; private set; }
+        public float Clearance { get; private set; }
+        GameObject crouchHint;
+        public float Left => transform.position.x-Width*.5f;
+        public float Right => transform.position.x+Width*.5f;
+        public static float PassageClearance => .62f * DisplaySizeSettings.CatScale;
+        public const float UpperHeight = 3.9f;
+        public const float TreeSafetyDistance = 12f;
+        public static void FitUpperArtwork(SpriteRenderer renderer,float width,float clearance)
+        {
+            var size=renderer.sprite.bounds.size;
+            float scale=UpperHeight/size.y;
+            renderer.transform.localScale=Vector3.one*scale;
+            renderer.transform.localPosition=new Vector3(renderer.sprite.name.Contains("forest") ? .2f : 0f,clearance+.25f-renderer.sprite.bounds.min.y*scale,0);
+        }
+        // Measured underside of each beam in its complete rear-support artwork.
+        public static float ArtUndersideFraction(Sprite sprite)
+        {
+            string name = sprite != null ? sprite.name : "";
+            return name.Contains("forest") ? .24f : name.Contains("cyber") ? .27f : .30f;
+        }
+        public static void FitArtwork(SpriteRenderer renderer, float width, float clearance)
+        {
+            var size = renderer.sprite.bounds.size;
+            float xScale = width / size.x;
+            float yScale = (clearance + .06f) / (size.y * ArtUndersideFraction(renderer.sprite));
+            renderer.transform.localScale = new Vector3(xScale, yScale, 1f);
+            renderer.transform.localPosition = new Vector3(0f, -.06f - renderer.sprite.bounds.min.y * yScale, 0f);
+            renderer.sortingOrder = 3;
+        }
+        public void Configure(float width,float floor,float clearance)
+        {
+            Width=width;FloorY=floor;Clearance=clearance;if(!active.Contains(this))active.Add(this);
+            if(crouchHint==null)
+            {
+                crouchHint=new GameObject("CrouchHint");crouchHint.transform.SetParent(transform,false);
+                var disc=crouchHint.AddComponent<SpriteRenderer>();disc.sprite=CozyIconFactory.CircleButton();disc.color=new Color(.36f,.63f,.90f);disc.sortingOrder=11;
+                crouchHint.transform.localScale=Vector3.one*(.52f/disc.sprite.bounds.size.x);
+                var arrow=new GameObject("DownArrow");arrow.transform.SetParent(crouchHint.transform,false);
+                var icon=arrow.AddComponent<SpriteRenderer>();icon.sprite=CozyIconFactory.ArrowDown();icon.sortingOrder=12;
+                arrow.transform.localScale=Vector3.one*(disc.sprite.bounds.size.x*.55f/icon.sprite.bounds.size.x);
+                crouchHint.SetActive(false);
+            }
+        }
+        void Update()
+        {
+            var cat=CatController.Instance;
+            bool near=cat!=null && !cat.IsCrouching && Mathf.Abs(cat.transform.position.x-transform.position.x)<Width*.5f+3f;
+            if(crouchHint==null)return;
+            crouchHint.SetActive(near);
+            if(near)crouchHint.transform.localPosition=new Vector3(cat.transform.position.x<transform.position.x ? -Width*.5f-.6f : Width*.5f+.6f,Clearance+.65f+Mathf.Sin(Time.unscaledTime*4f)*.06f,0);
+        }
+        void OnEnable(){if(!active.Contains(this))active.Add(this);}
+        void OnDisable()=>active.Remove(this);
+        void OnDestroy()=>active.Remove(this);
+        bool NearHeight(CatController cat)
+        {
+            var collider=cat.GetComponent<Collider2D>();
+            return collider!=null && collider.bounds.min.y<FloorY+Clearance+.04f && collider.bounds.max.y>FloorY-.1f;
+        }
+        public static bool NeedsCrouch(CatController cat,float extra=0f)
+        {
+            float reach=.75f*DisplaySizeSettings.CatScale+extra;
+            foreach(var passage in active)
+                if(passage!=null && passage.isActiveAndEnabled && passage.NearHeight(cat) && cat.transform.position.x>passage.Left-reach && cat.transform.position.x<passage.Right+reach)return true;
+            return false;
+        }
+        public static bool BlocksDog(float x,float step,float reach,out float stop)
+        {
+            foreach(var p in active)
+            {
+                if(p==null || !p.isActiveAndEnabled)continue;
+                stop=step>0 ? p.Left-reach:p.Right+reach;
+                if(step>0 && x<=stop+.02f && x+step>=stop || step<0 && x>=stop-.02f && x+step<=stop)return true;
+            }
+            stop=x;return false;
+        }
+        public static bool ContainsX(float x)
+        {foreach(var p in active)if(p!=null && p.isActiveAndEnabled && x>p.Left-1f && x<p.Right+1f)return true;return false;}
+    }
+}

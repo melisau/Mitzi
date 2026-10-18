@@ -13,10 +13,13 @@ namespace PawPath.Levels
         const float ActivationDistance = 7f;
         SpriteRenderer renderer;
         Sprite[] frames;
+        Sprite idleSprite;
         Vector2[] gaps;
         float speed, leftBound, rightBound, groundY, frameTimer, visualWidth, groundInset, frameInterval;
         float turnDelayRemaining;
         float gapRetreatRemaining, jumpElapsed, jumpDuration, jumpStartX, jumpEndX, jumpHeight;
+        readonly RaycastHit2D[] terrainHits = new RaycastHit2D[32];
+        float surfaceAngle, jumpStartY, jumpEndY;
         int levelNumber;
         int frameIndex;
         bool failed;
@@ -31,10 +34,11 @@ namespace PawPath.Levels
 
         public void Configure(SpriteRenderer target, Sprite[] animationFrames, float runSpeed,
             float minX, float maxX, float roadSurfaceY, float targetVisualWidth, float feetInset,
-            float secondsPerFrame, Vector2[] courseGaps, int courseLevelNumber)
+            float secondsPerFrame, Vector2[] courseGaps, int courseLevelNumber, Sprite idlePose = null)
         {
             renderer = target;
             frames = animationFrames;
+            idleSprite = idlePose;
             speed = runSpeed;
             leftBound = minX;
             rightBound = maxX;
@@ -45,19 +49,33 @@ namespace PawPath.Levels
             gaps = courseGaps;
             levelNumber = courseLevelNumber;
             AlignFeetToGround();
+            ShowIdle();
+        }
+
+        void ShowIdle()
+        {
+            if (renderer == null || idleSprite == null) return;
+            renderer.sprite = idleSprite;
+            AlignFeetToGround();
         }
 
         void Update()
         {
             if (failed || GameFlow.Instance == null || GameFlow.Instance.State != GameFlowState.Gameplay)
+            {
+                ShowIdle();
                 return;
+            }
 
             if (!activated)
             {
                 CatController cat = CatController.Instance;
                 if (cat == null || cat.IsBusy ||
                     Mathf.Abs(cat.transform.position.x - transform.position.x) > ActivationDistance)
+                {
+                    ShowIdle();
                     return;
+                }
                 activated = true;
             }
 
@@ -66,7 +84,10 @@ namespace PawPath.Levels
             {
                 turnDelayRemaining -= Time.deltaTime;
                 if (turnDelayRemaining > 0f)
+                {
+                    ShowIdle();
                     return;
+                }
                 turnPending = false;
                 turnedToChase = true;
                 direction = 1;
@@ -77,21 +98,40 @@ namespace PawPath.Levels
             {
                 gapRetreatRemaining -= Time.deltaTime;
                 if (gapRetreatRemaining > 0f)
+                {
+                    ShowIdle();
                     return;
+                }
                 gapRetreatPending = false;
                 turnedToChase = true;
                 direction = -direction;
                 AlignFeetToGround();
             }
 
+            if(!jumpingGap && CrouchPassage.BlocksDog(transform.position.x,direction*speed*Time.deltaTime,visualWidth*.45f,out float stopX))
+            {
+                var position=transform.position;position.x=stopX;transform.position=position;
+                gapRetreatPending=true;gapRetreatRemaining=GapRetreatDelaySeconds;ShowIdle();return;
+            }
             if (!jumpingGap)
                 TryStartGapAction(Time.deltaTime);
             if (gapRetreatPending)
+            {
+                ShowIdle();
                 return;
+            }
+            if (!jumpingGap && Mathf.Abs(speed) < 0.01f) { ShowIdle(); return; }
+            if (renderer != null && frames != null && frames.Length > 0 && renderer.sprite == idleSprite)
+            {
+                renderer.sprite = frames[frameIndex];
+                AlignFeetToGround();
+            }
             if (jumpingGap)
                 AdvanceGapJump(Time.deltaTime);
             else
                 transform.position += Vector3.right * (direction * speed * Time.deltaTime);
+            FollowTerrain();
+            AlignFeetToGround();
             if (transform.position.x < leftBound || transform.position.x > rightBound)
             {
                 Destroy(gameObject);
@@ -100,8 +140,9 @@ namespace PawPath.Levels
             if (frames == null || frames.Length == 0 || renderer == null) return;
             frameTimer += Time.deltaTime;
             if (frameTimer < frameInterval) return;
-            frameTimer = 0f;
-            frameIndex = (frameIndex + 1) % frames.Length;
+            int advance = Mathf.FloorToInt(frameTimer / frameInterval);
+            frameTimer -= advance * frameInterval;
+            frameIndex = (frameIndex + advance) % frames.Length;
             renderer.sprite = frames[frameIndex];
             AlignFeetToGround();
         }
@@ -131,7 +172,9 @@ namespace PawPath.Levels
                 if (jump)
                 {
                     jumpStartX = launchX;
+                    jumpStartY = transform.position.y;
                     jumpEndX = (direction < 0 ? gaps[i].x : gaps[i].y) + direction * clearance;
+                    jumpEndY = SurfaceAt(jumpEndX, out _);
                     float distance = Mathf.Abs(jumpEndX - jumpStartX);
                     jumpDuration = Mathf.Clamp(distance / Mathf.Max(0.1f, speed * 1.55f), 0.55f, 1.25f);
                     jumpHeight = Mathf.Max(0.9f, (gaps[i].y - gaps[i].x) * 0.7f + 0.45f);
@@ -153,7 +196,7 @@ namespace PawPath.Levels
             float progress = Mathf.Clamp01(jumpElapsed / jumpDuration);
             transform.position = new Vector3(
                 Mathf.Lerp(jumpStartX, jumpEndX, progress),
-                groundY + Mathf.Sin(progress * Mathf.PI) * jumpHeight,
+                Mathf.Lerp(jumpStartY, jumpEndY, progress) + Mathf.Sin(progress * Mathf.PI) * jumpHeight,
                 transform.position.z);
             if (progress >= 1f)
                 jumpingGap = false;
@@ -185,18 +228,48 @@ namespace PawPath.Levels
         void AlignFeetToGround()
         {
             if (renderer == null || renderer.sprite == null) return;
+            FollowTerrain();
             float width = Mathf.Max(0.01f, renderer.sprite.bounds.size.x);
             float scale = visualWidth / width;
             // Farklı boyutlarda gelen kareler gövdeyi büyütüp küçültmesin;
             // patiler her karede yolun aynı Y çizgisine basar.
             renderer.transform.localScale = new Vector3(direction * scale, scale, 1f);
-            renderer.transform.localPosition = new Vector3(0f,
-                -renderer.sprite.bounds.min.y * scale - groundInset, 0f);
+            renderer.transform.localRotation = Quaternion.Euler(0f, 0f, jumpingGap ? 0f : surfaceAngle);
+            renderer.transform.localPosition = renderer.transform.localRotation *
+                (Vector3.up * (-renderer.sprite.bounds.min.y * scale - groundInset));
+        }
+
+        // Sample the same solid collider surface that supports the cat, rather than
+        // advancing horizontally through a hill. The trigger follows the root too.
+        void FollowTerrain()
+        {
+            if (jumpingGap) return;
+            var position = transform.position;
+            position.y = SurfaceAt(position.x, out surfaceAngle);
+            transform.position = position;
+        }
+
+        float SurfaceAt(float x, out float angle)
+        {
+            angle = 0f;
+            int count = Physics2D.RaycastNonAlloc(new Vector2(x, groundY + 12f), Vector2.down, terrainHits, 24f);
+            float nearest = float.PositiveInfinity, height = groundY;
+            for (int i = 0; i < count; i++)
+            {
+                var hit = terrainHits[i];
+                if (hit.collider == null || hit.collider.isTrigger || hit.normal.y < .35f ||
+                    hit.collider.transform.IsChildOf(transform) || hit.collider.GetComponentInParent<CrouchPassage>() != null || hit.collider.attachedRigidbody != null ||
+                    hit.distance >= nearest) continue;
+                nearest = hit.distance;
+                height = hit.point.y;
+                angle = Mathf.Clamp(Vector2.SignedAngle(Vector2.up, hit.normal), -35f, 35f);
+            }
+            return height;
         }
 
         void OnTriggerEnter2D(Collider2D other)
         {
-            var cat = other.GetComponent<CatController>();
+            var cat = other.GetComponentInParent<CatController>();
             if (failed || cat == null || cat.IsClimbing) return;
             if (IsStompFromAbove(other))
             {

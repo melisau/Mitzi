@@ -29,8 +29,11 @@ namespace PawPath.Cat
         [SerializeField] float groundedProbe = 0.12f;
         [SerializeField] LayerMask groundMask = ~0;
         [SerializeField] float airGrace = 0.45f;
-        [SerializeField] float visualHeight = 1.656f;
-        [SerializeField, Range(0f, 0.25f)] float spriteBottomPadding = 0.1f;
+        // Pack 64x64 karelerde kedi içeriği ~%50; 4.0 ≈ görünen ~2 birim boy.
+        [SerializeField] float visualHeight = 2.0f;
+        [SerializeField, Min(0.1f)] float visualSizeMultiplier = 1.25f;
+        // Pack karelerinde patiler tuvalin altından ~%25 yukarıda (pivot ile aynı).
+        [SerializeField, Range(0f, 0.35f)] float spriteBottomPadding = 0.25f;
 
         [Header("Kurtarma")]
         [SerializeField] SpriteRenderer bubbleRenderer;
@@ -38,6 +41,8 @@ namespace PawPath.Cat
 
         Rigidbody2D body;
         CircleCollider2D bodyCollider;
+        BoxCollider2D standingProfile;
+        readonly RaycastHit2D[] groundVisualHits = new RaycastHit2D[8];
         SpriteRenderer sprite;
         Animator animator;
         // Kontrolcüsü olmayan Animator'a Play/speed göndermek konsolu uyarıyla doldurur.
@@ -48,9 +53,12 @@ namespace PawPath.Cat
         CatDefinition definition;
         int facing = 1;
         bool crouching;
+        public bool IsCrouching => crouching;
         bool keyboardJumpQueued;
         int jumpsRemaining = 2;
         bool jumpAnimationPlaying;
+        bool intentionalJump;
+        bool jumpLeftGround;
         float stepTimer;
         bool climbing;
         bool perched;
@@ -64,11 +72,15 @@ namespace PawPath.Cat
         float climbStartTime;
         float climbRiseDuration;
         const float ClimbAlignDuration = 0.28f;
+        const float ClimbFramesPerSecond = 24f;
         bool climbTopPoseApplied;
+        float climbMountAngle;
 
         static readonly int WalkState = Animator.StringToHash("Walk");
         static readonly int JumpState = Animator.StringToHash("Jump");
         static readonly int CrouchState = Animator.StringToHash("Crouch");
+        static readonly int CrouchWalkState = Animator.StringToHash("CrouchWalk");
+        static readonly int IdleState = Animator.StringToHash("Idle");
 
         public bool IsBusy => busy;
         public CatDefinition Definition => definition;
@@ -78,6 +90,7 @@ namespace PawPath.Cat
         {
             if (body == null || busy)
                 return;
+            intentionalJump = true; jumpLeftGround = false;
             body.velocity = new Vector2(body.velocity.x, bounceForce * 0.72f);
             jumpsRemaining = Mathf.Max(jumpsRemaining, 1);
             airTimer = 0f;
@@ -95,15 +108,23 @@ namespace PawPath.Cat
             Instance = this;
             body = GetComponent<Rigidbody2D>();
             bodyCollider = GetComponent<CircleCollider2D>();
+            var profile=transform.Find("StandingProfile");
+            if(profile==null) { profile=new GameObject("StandingProfile").transform;profile.SetParent(transform,false); }
+            standingProfile=profile.GetComponent<BoxCollider2D>();
+            if(standingProfile==null)standingProfile=profile.gameObject.AddComponent<BoxCollider2D>();
+            standingProfile.sharedMaterial=bodyCollider.sharedMaterial;
+            UpdateStandingProfile();
             body.freezeRotation = true;
             body.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
             body.interpolation = RigidbodyInterpolation2D.Interpolate;
             body.gravityScale = 2.4f;
+            facing = 1;
             normalGravityScale = body.gravityScale;
             sprite = visual != null ? visual.GetComponent<SpriteRenderer>() : GetComponentInChildren<SpriteRenderer>();
             animator = visual != null ? visual.GetComponent<Animator>() : GetComponentInChildren<Animator>();
             if (bubbleRenderer != null)
                 bubbleRenderer.enabled = false;
+                
         }
 
         public void ApplyCat(CatDefinition cat)
@@ -112,7 +133,12 @@ namespace PawPath.Cat
             if (sprite != null && cat != null)
             {
                 if (cat.idleSprite != null)
+                {
                     sprite.sprite = cat.idleSprite;
+                    // The imported ground pivot is also the registered paw baseline.
+                    spriteBottomPadding = cat.idleSprite.pivot.y / cat.idleSprite.rect.height;
+                }
+                walkAnimationSpeed = 1f;
                 // Sprite zaten kendi rengini içeriyor; furTint ile çarpmak görseli koyulaştırıyordu.
                 sprite.color = Color.white;
                 FitVisualToHeight();
@@ -132,15 +158,29 @@ namespace PawPath.Cat
             if (visual == null || sprite == null || sprite.sprite == null || sprite.sprite.bounds.size.y <= 0f)
                 return;
 
-            float scale = visualHeight * DisplaySizeSettings.CatScale / sprite.sprite.bounds.size.y;
+            // Always fit against idle. A recalibrated walk sprite has a different
+            // PPU; refitting to that transient frame would undo its size correction.
+            var reference = definition != null && definition.idleSprite != null ? definition.idleSprite : sprite.sprite;
+            float scale = visualHeight * visualSizeMultiplier * DisplaySizeSettings.CatScale / reference.bounds.size.y;
             // Eğilme için ayrı bir poz kullanılıyor; görseli dikey sıkıştırmak
             // kediyi ezilmiş gösterdiği için tüm pozlar orantılı ölçeklenir.
             visual.localScale = new Vector3(scale * facing, scale, 1f);
+            UpdateStandingProfile();
             AlignVisualFeet();
+        }
+
+        void UpdateStandingProfile()
+        {
+            if(standingProfile==null)return;
+            float scale=DisplaySizeSettings.CatScale;
+            standingProfile.size=new Vector2(.82f,.62f)*scale;
+            standingProfile.offset=new Vector2(0,.55f)*scale;
+            standingProfile.enabled=!crouching;
         }
 
         void LateUpdate()
         {
+            ApplyAirbornePose();
             // Animator kare değiştirdiğinde sprite sınırları da değişebilir.
             AlignVisualFeet();
         }
@@ -153,11 +193,56 @@ namespace PawPath.Cat
             if (bodyCollider == null)
                 return;
 
+            // The registered paw baseline excludes the transparent bottom margin.
             var bounds = sprite.sprite.bounds;
             float visibleFootY = bounds.min.y + bounds.size.y * spriteBottomPadding;
+            // The tucked pose has a hanging tail; keep the torso aligned instead
+            // of lifting the whole cat to register that tail as a grounded paw.
+            if (definition != null && sprite.sprite == definition.jumpApexSprite)
+                visibleFootY += bounds.size.y * .14f;
             float colliderFootY = bodyCollider.offset.y - bodyCollider.radius;
-            visual.localPosition = new Vector3(0f,
-                colliderFootY - visibleFootY * Mathf.Abs(visual.localScale.y), 0f);
+            Vector3 footPosition = new Vector3(0f, colliderFootY, 0f);
+            float surfaceAngle = 0f;
+            if (body != null && !intentionalJump && !climbing && !perched &&
+                TryVisualGround(bodyCollider.bounds.center.x, out var centreGround) &&
+                Mathf.Abs(centreGround.y - bodyCollider.bounds.min.y) < .30f)
+            {
+                // Fit a paw contact line across the body, including ascending motion.
+                // A single centre normal flips abruptly at a polygon's summit.
+                float span = .58f * DisplaySizeSettings.CatScale;
+                bool hasLeft = TryVisualGround(centreGround.x - span, out var left);
+                bool hasRight = TryVisualGround(centreGround.x + span, out var right);
+                if (hasLeft && hasRight)
+                    surfaceAngle = Mathf.Clamp(Mathf.Atan2(right.y-left.y, right.x-left.x)*Mathf.Rad2Deg, -35f, 35f);
+                surfaceAngle = Mathf.MoveTowardsAngle(visual.localEulerAngles.z, surfaceAngle, Mathf.Max(.001f, Time.deltaTime)*300f);
+                float slope = Mathf.Tan(surfaceAngle*Mathf.Deg2Rad);
+                float height = centreGround.y;
+                if (hasLeft) height = Mathf.Max(height, left.y - slope*(left.x-centreGround.x));
+                if (hasRight) height = Mathf.Max(height, right.y - slope*(right.x-centreGround.x));
+                footPosition = transform.InverseTransformPoint(new Vector3(centreGround.x, height+.035f, transform.position.z));
+            }
+            visual.localRotation = Quaternion.Euler(0f, 0f,
+                climbing && !climbTopPoseApplied ? climbMountAngle : surfaceAngle);
+            visual.localPosition = footPosition - visual.localRotation *
+                (Vector3.up * visibleFootY * Mathf.Abs(visual.localScale.y));
+        }
+
+        bool TryVisualGround(float x, out Vector2 point)
+        {
+            point = default;
+            Vector2 origin = new Vector2(x, bodyCollider.bounds.max.y + .75f);
+            int count = Physics2D.RaycastNonAlloc(origin, Vector2.down, groundVisualHits,
+                bodyCollider.bounds.size.y + 1.5f, groundMask);
+            float nearest = float.PositiveInfinity;
+            for (int i=0;i<count;i++)
+            {
+                var hit = groundVisualHits[i];
+                if (hit.collider == null || hit.collider == bodyCollider || hit.collider.isTrigger ||
+                    hit.collider.transform.IsChildOf(transform) || hit.collider.GetComponentInParent<CrouchPassage>() != null ||
+                    hit.normal.y < .35f || hit.distance >= nearest) continue;
+                nearest = hit.distance; point = hit.point;
+            }
+            return nearest < float.PositiveInfinity;
         }
 
         void Update()
@@ -179,20 +264,23 @@ namespace PawPath.Cat
             keyboardJumpQueued = false;
             climbing = true;
             perched = false;
-            climbFrames = frames;
+            // Her kedi kendi renginde tırmanır; tanımda kare yoksa ağacın ortak kareleri.
+            climbFrames = definition != null && definition.climbFrames != null && definition.climbFrames.Length > 0
+                ? definition.climbFrames : frames;
             climbFrameIndex = 0;
             climbFrameTimer = 0f;
             climbTopPoseApplied = false;
+            climbMountAngle = 0f;
             climbStartTime = Time.time;
-            climbRiseDuration = Mathf.Clamp(duration * 0.72f, 1.65f, 2.35f);
-            climbUntil = Time.time + duration;
+            climbRiseDuration = Mathf.Clamp(duration * 0.80f, 2.1f, 2.8f);
+            climbUntil = Time.time + Mathf.Max(duration, ClimbAlignDuration + climbRiseDuration + 0.35f);
             body.velocity = Vector2.zero;
             body.gravityScale = 0f;
             climbStartPosition = transform.position;
             // Kedi ağacın üzerinde dikey yükselir. Hedef ağacın tepesidir fakat
             // bozuk bir pivot olması halinde tek tırmanışta aşırı yükselmez.
-            climbTargetPosition = new Vector2(perchPosition.x,
-                Mathf.Clamp(perchPosition.y, climbStartPosition.y + 1.4f, climbStartPosition.y + 4.6f));
+            climbTargetPosition = new Vector2(perchPosition.x - facing * 0.35f,
+                Mathf.Clamp(perchPosition.y, climbStartPosition.y + 2.0f, climbStartPosition.y + 5.2f));
             if (animator != null) animator.enabled = false;
             if (sprite != null && climbFrames != null && climbFrames.Length > 0 && climbFrames[0] != null)
             {
@@ -217,13 +305,19 @@ namespace PawPath.Cat
             // Gövdeye hizalandıktan sonra X sabit kalır; yalnızca Y ekseninde
             // ağacın tepesine doğru kademeli olarak yükselir.
             float rise = Mathf.Clamp01((elapsed - ClimbAlignDuration) / climbRiseDuration);
+            // Reach the upper branch, then bring the torso over it rather than
+            // continuing vertically into empty space above the canopy.
+            climbMountAngle = -75f * facing * Mathf.SmoothStep(0f, 1f,
+                Mathf.Clamp01((rise - 0.55f) / 0.45f));
             float easedRise = rise * rise * (3f - 2f * rise);
             transform.position = new Vector2(climbTargetPosition.x,
                 Mathf.Lerp(climbStartPosition.y, climbTargetPosition.y, easedRise));
-            if (climbFrames != null && climbFrames.Length > 0)
+            if (rise < 0.995f && climbFrames != null && climbFrames.Length > 0)
             {
-                int nextFrame = Mathf.Min(climbFrames.Length - 1,
-                    Mathf.FloorToInt(rise * climbFrames.Length));
+                // Paw strokes repeat while the body ascends; they must not each
+                // freeze for a fraction of the entire climb.
+                int nextFrame = Mathf.FloorToInt((elapsed - ClimbAlignDuration) * ClimbFramesPerSecond)
+                    % climbFrames.Length;
                 if (nextFrame != climbFrameIndex && climbFrames[nextFrame] != null)
                 {
                     climbFrameIndex = nextFrame;
@@ -275,17 +369,22 @@ namespace PawPath.Cat
             if (animator != null)
                 animator.enabled = animator.runtimeAnimatorController != null;
             if (jumpRequested)
+            {
+                intentionalJump = true; jumpLeftGround = false;
                 body.velocity = new Vector2(0f, bounceForce * 0.75f);
+            }
             keyboardJumpQueued = false;
         }
 
         public void PlaceAtSpawn(Vector2 world)
         {
+            intentionalJump = false; jumpLeftGround = false; jumpAnimationPlaying = false;
             climbing = false;
             perched = false;
+            facing = 1;
             if (body != null)
                 body.gravityScale = normalGravityScale;
-            crouching = false;
+            SetCrouching(false,true);
             keyboardJumpQueued = false;
             jumpsRemaining = 2;
             FitVisualToHeight();
@@ -328,6 +427,8 @@ namespace PawPath.Cat
 
             bool grounded = IsGrounded(out var surface);
             UpdateJumpAnimation(grounded);
+            if (GameplayMode.IsDrawing)
+                SetCrouching(grounded && CrouchPassage.NeedsCrouch(this,.45f), grounded);
             if (!GameplayMode.IsDrawing)
             {
                 UpdateDirectControl(grounded, surface);
@@ -339,7 +440,7 @@ namespace PawPath.Cat
             if (grounded)
             {
                 airTimer = 0f;
-                float speed = surface == PathSurfaceType.Ice ? moveSpeed * iceSpeedMultiplier : moveSpeed;
+                float speed = (surface == PathSurfaceType.Ice ? moveSpeed * iceSpeedMultiplier : moveSpeed) * (crouching ? .55f : 1f);
                 body.velocity = new Vector2(facing * speed, body.velocity.y);
                 if (HasAnimator)
                     animator.speed = walkAnimationSpeed;
@@ -362,6 +463,8 @@ namespace PawPath.Cat
                 s.x = Mathf.Abs(s.x) * facing;
                 visual.localScale = s;
             }
+            if(GameplayMode.IsDrawing && crouching && grounded && HasAnimator && animator.HasState(0,CrouchWalkState))
+                animator.Play(CrouchWalkState,0,Mathf.Repeat(Time.time*2f,1f));
             UpdateFootsteps(grounded, body.velocity.x);
 
             var level = LevelManager.Instance != null ? LevelManager.Instance.Current : null;
@@ -370,43 +473,15 @@ namespace PawPath.Cat
                 StartCoroutine(RescueRoutine());
         }
 
-        void TryJump()
+        void SetCrouching(bool value, bool grounded)
         {
-            bool jumpRequested = MobileControlState.ConsumeJump() | keyboardJumpQueued;
-            keyboardJumpQueued = false;
-            if (!jumpRequested || jumpsRemaining <= 0)
-                return;
-
-            bool secondJump = jumpsRemaining == 1;
-            float jumpPower = bounceForce * (secondJump ? 1.22f : 1.02f);
-            body.velocity = new Vector2(body.velocity.x, jumpPower);
-            jumpsRemaining--;
-        }
-
-        void UpdateDirectControl(bool grounded, PathSurfaceType surface)
-        {
-            if (grounded && body.velocity.y <= 0.15f)
-                jumpsRemaining = 2;
-
-            float keyboardHorizontal = 0f;
-            if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) keyboardHorizontal -= 1f;
-            if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) keyboardHorizontal += 1f;
-            float horizontal = Mathf.Clamp(MobileControlState.Horizontal + keyboardHorizontal, -1f, 1f);
-            float speed = surface == PathSurfaceType.Ice ? moveSpeed * iceSpeedMultiplier : moveSpeed;
-            body.velocity = new Vector2(horizontal * speed, body.velocity.y);
-
-            if (Mathf.Abs(horizontal) > 0.01f)
-                facing = horizontal > 0f ? 1 : -1;
-            TryJump();
-
-            bool shouldCrouch = MobileControlState.CrouchHeld || Input.GetKey(KeyCode.S) ||
-                Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
-            if (shouldCrouch != crouching)
+            if (value != crouching)
             {
-                crouching = shouldCrouch;
+                crouching = value;
+                UpdateStandingProfile();
                 if (HasAnimator)
                 {
-                    if (crouching && grounded && animator.HasState(0, CrouchState))
+                    if (crouching && grounded && !jumpAnimationPlaying && animator.HasState(0, CrouchState))
                     {
                         animator.Play(CrouchState, 0, 0f);
                         animator.speed = 0f;
@@ -427,18 +502,76 @@ namespace PawPath.Cat
                 }
             }
 
+        }
+
+        void TryJump()
+        {
+            bool jumpRequested = MobileControlState.ConsumeJump() | keyboardJumpQueued;
+            keyboardJumpQueued = false;
+            if (!jumpRequested || jumpsRemaining <= 0)
+                return;
+
+            bool secondJump = jumpsRemaining == 1;
+            float jumpPower = bounceForce * (secondJump ? 1.22f : 1.02f);
+            intentionalJump = true; jumpLeftGround = false;
+            body.velocity = new Vector2(body.velocity.x, jumpPower);
+            jumpsRemaining--;
+            if (HasAnimator && animator.HasState(0, JumpState))
+            {
+                jumpAnimationPlaying = true;
+                animator.Play(JumpState, 0, 0f);
+                animator.speed = 1f;
+            }
+        }
+
+void UpdateDirectControl(bool grounded, PathSurfaceType surface)
+        {
+            if (grounded && body.velocity.y <= 0.15f)
+                jumpsRemaining = 2;
+
+            float keyboardHorizontal = 0f;
+            if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) keyboardHorizontal -= 1f;
+            if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) keyboardHorizontal += 1f;
+            float horizontal = Mathf.Clamp(MobileControlState.Horizontal + keyboardHorizontal, -1f, 1f);
+            float speed = surface == PathSurfaceType.Ice ? moveSpeed * iceSpeedMultiplier : moveSpeed;
+            body.velocity = new Vector2(horizontal * speed, body.velocity.y);
+
+            // Tuşa basıldığında yönü doğru şekilde alıyoruz (Sağ: 1, Sol: -1)
+            if (Mathf.Abs(horizontal) > 0.01f)
+                facing = horizontal > 0f ? 1 : -1;
+                
+            TryJump();
+
+            bool shouldCrouch = MobileControlState.CrouchHeld || Input.GetKey(KeyCode.S) ||
+                Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
+            SetCrouching(shouldCrouch || (crouching && CrouchPassage.NeedsCrouch(this)), grounded);
+
+            if (crouching && grounded)
+                body.velocity = new Vector2(body.velocity.x * 0.55f, body.velocity.y);
             if (HasAnimator)
-                animator.speed = crouching && grounded
-                    ? 0f
-                    : !grounded && jumpAnimationPlaying
-                        ? 1f
-                        : Mathf.Abs(horizontal) > 0.01f ? walkAnimationSpeed : 0f;
+            {
+                if (grounded && !jumpAnimationPlaying)
+                {
+                    bool moving = Mathf.Abs(horizontal) > 0.01f;
+                    int state = crouching ? (moving ? CrouchWalkState : CrouchState)
+                        : moving ? WalkState : IdleState;
+                    if (animator.HasState(0, state) && animator.GetCurrentAnimatorStateInfo(0).shortNameHash != state)
+                        animator.Play(state, 0, 0f);
+                    animator.speed = crouching && !moving ? 0f : moving ? walkAnimationSpeed : 1f;
+                }
+                else animator.speed = jumpAnimationPlaying ? 1f : 0f;
+            }
+                        
             if (visual != null)
             {
                 var scale = visual.localScale;
+                // Every side-view pose faces right in the source; jumping preserves direction.
                 scale.x = Mathf.Abs(scale.x) * facing;
                 visual.localScale = scale;
             }
+            
+            if(GameplayMode.IsDrawing && crouching && grounded && HasAnimator && animator.HasState(0,CrouchWalkState))
+                animator.Play(CrouchWalkState,0,Mathf.Repeat(Time.time*2f,1f));
             UpdateFootsteps(grounded, body.velocity.x);
 
             var level = LevelManager.Instance != null ? LevelManager.Instance.Current : null;
@@ -461,22 +594,46 @@ namespace PawPath.Cat
             CozyAudioManager.Instance?.PlayStep();
         }
 
+        void ApplyAirbornePose()
+        {
+            if (!intentionalJump || !jumpAnimationPlaying || climbing || perched || body == null || sprite == null || definition == null)
+                return;
+            bool supported = bodyCollider != null && bodyCollider.IsTouchingLayers(groundMask);
+            supported |= IsGrounded(out _);
+            if (supported)
+            {
+                if (sprite.sprite == definition.jumpApexSprite)
+                    sprite.sprite = definition.walkFrames != null && definition.walkFrames.Length > 0 ? definition.walkFrames[0] : definition.idleSprite;
+                return;
+            }
+            float verticalSpeed = body.velocity.y;
+            if (intentionalJump && Mathf.Abs(verticalSpeed) <= 1.8f && definition.jumpApexSprite != null)
+                sprite.sprite = definition.jumpApexSprite;
+            else if (definition.jumpFrames != null && definition.jumpFrames.Length >= 3)
+                sprite.sprite = definition.jumpFrames[verticalSpeed > 4.5f ? 1 : 2];
+        }
+
         void UpdateJumpAnimation(bool grounded)
         {
             if (!HasAnimator)
                 return;
 
-            if (!grounded && !jumpAnimationPlaying && animator.HasState(0, JumpState))
+            bool supported = grounded || (bodyCollider != null && bodyCollider.IsTouchingLayers(groundMask));
+            if (!supported) jumpLeftGround = true;
+            if (supported && (!intentionalJump || jumpLeftGround))
+            {
+                intentionalJump = false; jumpLeftGround = false;
+                if (sprite != null && definition != null && sprite.sprite == definition.jumpApexSprite)
+                    sprite.sprite = definition.walkFrames != null && definition.walkFrames.Length > 0 ? definition.walkFrames[0] : definition.idleSprite;
+                if (jumpAnimationPlaying && animator.HasState(0, WalkState))
+                    animator.Play(WalkState, 0, 0f);
+                jumpAnimationPlaying = false;
+            }
+            else if (!supported && intentionalJump && !jumpAnimationPlaying && animator.HasState(0, JumpState))
             {
                 jumpAnimationPlaying = true;
                 animator.Play(JumpState, 0, 0f);
                 animator.speed = 1f;
-            }
-            else if (grounded && jumpAnimationPlaying)
-            {
-                jumpAnimationPlaying = false;
-                if (animator.HasState(0, WalkState))
-                    animator.Play(WalkState, 0, 0f);
             }
         }
 
@@ -513,6 +670,7 @@ namespace PawPath.Cat
 
             if (path.Type == PathSurfaceType.Bounce)
             {
+                intentionalJump = true; jumpLeftGround = false;
                 body.velocity = new Vector2(body.velocity.x, bounceForce);
             }
             else if (path.Type == PathSurfaceType.Hazard)

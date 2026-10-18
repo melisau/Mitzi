@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using PawPath.Core;
 using PawPath.Data;
 using PawPath.Content;
@@ -9,7 +9,10 @@ namespace PawPath.Economy
     {
         public static CozyEconomyManager Instance { get; private set; }
 
-        public int LovePoints => SaveService.Data.lovePoints;
+        // Legacy save field retained to preserve existing balances. Cat affection
+        // is a separate per-cat need and is never purchased or rewarded by ads.
+        public int ShoppingPoints => SaveService.Data.lovePoints;
+        public int LovePoints => ShoppingPoints;
 
         private void Awake()
         {
@@ -27,7 +30,9 @@ namespace PawPath.Economy
             GameEvents.ShopChanged();
         }
 
-        public void AddLove(int amount, string reason = null)
+        public void AddLove(int amount, string reason = null) => AddShoppingPoints(amount, reason);
+
+        public void AddShoppingPoints(int amount, string reason = null)
         {
             if (amount <= 0)
                 return;
@@ -37,7 +42,7 @@ namespace PawPath.Economy
             GameEvents.LovePointsChanged(LovePoints);
 
             if (!string.IsNullOrEmpty(reason))
-                Debug.Log($"[PawPath] +{amount} Sevgi · {reason}");
+                Debug.Log($"[PawPath] +{amount} Alışveriş puanı · {reason}");
         }
 
         public void RemoveLove(int amount, string reason = null)
@@ -50,70 +55,107 @@ namespace PawPath.Economy
             GameEvents.LovePointsChanged(LovePoints);
 
             if (!string.IsNullOrEmpty(reason))
-                Debug.Log($"[PawPath] -{amount} Sevgi · {reason}");
+                Debug.Log($"[PawPath] -{amount} Alışveriş puanı · {reason}");
         }
 
-        public bool TryBuy(ShopItemDefinition item)
+        public int OwnedCount(string itemId) => SaveService.Data.furniture.FindAll(f => f.itemId == itemId).Count;
+        public int StoredCount(string itemId) => SaveService.Data.furniture.FindAll(f => f.itemId == itemId && !f.placed).Count;
+        public int PlacedCount(string itemId, int room) => SaveService.Data.furniture.FindAll(f => f.itemId == itemId && f.placed && f.roomId == room).Count;
+        public bool Owns(string itemId) => OwnedCount(itemId) > 0;
+        public int PurchaseCount(string itemId) => SaveService.Data.itemPurchases.Find(p => p.itemId == itemId)?.count ?? 0;
+
+        public long GetPurchasePrice(ShopItemDefinition item)
         {
-            if (item == null)
-                return false;
-            if (Owns(item.id))
-                return false;
-            if (LovePoints < item.lovePointCost)
-                return false;
+            if (item == null) return long.MaxValue;
+            long price = Mathf.Max(0, item.lovePointCost);
+            if (price == 0) return 0;
+            for (int i = 0; i < PurchaseCount(item.id); i++)
+            {
+                if (price > long.MaxValue / 3) return long.MaxValue;
+                price *= 3;
+            }
+            return price;
+        }
 
-            SaveService.Data.lovePoints -= item.lovePointCost;
-            SaveService.Data.ownedItemIds.Add(item.id);
+        public bool CanAfford(ShopItemDefinition item) => item != null && ShoppingPoints >= GetPurchasePrice(item);
 
-            // Yeni alınan eşya hemen evde kullanılır; aynı yerdeki eski eşya depoya kalkar.
-            PlaceInternal(item);
-
+        public bool TryBuy(ShopItemDefinition item, int room = -1)
+        {
+            if (!CanAfford(item)) return false;
+            SaveService.Data.lovePoints -= (int)GetPurchasePrice(item);
+            var history = SaveService.Data.itemPurchases.Find(p => p.itemId == item.id);
+            if (history == null) { history = new SaveService.ItemPurchaseCount { itemId = item.id }; SaveService.Data.itemPurchases.Add(history); }
+            if (history.count < int.MaxValue) history.count++;
+            var copy = new SaveService.FurnitureCopy { instanceId = System.Guid.NewGuid().ToString("N"), itemId = item.id };
+            SaveService.Data.furniture.Add(copy);
+            PlaceCopy(copy, item, room);
             SaveService.Persist();
-
             GameEvents.LovePointsChanged(LovePoints);
             GameEvents.ShopChanged();
-
             return true;
         }
 
-        /// <summary>
-        /// Sahip olunan bir eşyayı evde kullanır. Her yerde (yatak, halı, duvar…) aynı anda
-        /// tek eşya bulunur; o yerdeki önceki eşya satılmaz, sahip olunanlarda kalır.
-        /// </summary>
-        public bool Place(ShopItemDefinition item)
+        public bool Place(ShopItemDefinition item, int room = -1)
         {
-            if (item == null || !Owns(item.id))
-                return false;
-            PlaceInternal(item);
+            if (item == null) return false;
+            var copy = SaveService.Data.furniture.Find(f => f.itemId == item.id && !f.placed);
+            if (copy == null) return false;
+            PlaceCopy(copy, item, room);
             SaveService.Persist();
             GameEvents.ShopChanged();
             return true;
         }
 
-        public bool IsPlaced(ShopItemDefinition item) =>
-            item != null && SaveService.Data.placedItemIds.Contains(item.id);
-
-        void PlaceInternal(ShopItemDefinition item)
+        void PlaceCopy(SaveService.FurnitureCopy copy, ShopItemDefinition item, int targetRoom = -1)
         {
-            var placed = SaveService.Data.placedItemIds;
-            var catalog = GameFlow.Instance != null ? GameFlow.Instance.Catalog : null;
-            if (catalog != null)
-            {
-                placed.RemoveAll(id =>
+            int room = targetRoom < 0 ? SaveService.Data.activeHomeRoom : Mathf.Clamp(targetRoom,0,1);
+            // A wall has one covering, while every physical item supports copies.
+            if (item.slotType == FurnitureSlotType.Wallpaper && GameFlow.Instance != null)
+                foreach (var other in SaveService.Data.furniture)
                 {
-                    if (id == item.id)
-                        return false;
-                    var other = catalog.GetItem(id);
-                    return other != null && other.slotType == item.slotType;
-                });
-            }
-            if (!placed.Contains(item.id))
-                placed.Add(item.id);
+                    var definition = GameFlow.Instance.Catalog.GetItem(other.itemId);
+                    if (other.placed && other.roomId == room && definition != null && definition.slotType == FurnitureSlotType.Wallpaper)
+                        other.placed = false;
+                }
+            copy.roomId = room;
+            copy.placed = true;
+            copy.hasPosition = false;
+            copy.legacyPlacement = false;
         }
 
-        public bool Owns(string itemId) => SaveService.Data.ownedItemIds.Contains(itemId);
+        public bool Store(string instanceId)
+        {
+            var copy = SaveService.Data.furniture.Find(f => f.instanceId == instanceId);
+            if (copy == null || !copy.placed) return false;
+            copy.placed = false;
+            SaveService.Persist();
+            GameEvents.ShopChanged();
+            return true;
+        }
 
-        public bool CanAfford(ShopItemDefinition item) =>
-            item != null && !Owns(item.id) && LovePoints >= item.lovePointCost;
+        public bool SellOne(ShopItemDefinition item)
+        {
+            if (item == null) return false;
+            var copy = SaveService.Data.furniture.Find(f => f.itemId == item.id && !f.placed)
+                ?? SaveService.Data.furniture.Find(f => f.itemId == item.id && f.roomId == SaveService.Data.activeHomeRoom)
+                ?? SaveService.Data.furniture.Find(f => f.itemId == item.id);
+            if (copy == null) return false;
+            SaveService.Data.furniture.Remove(copy);
+            SaveService.Data.lovePoints += Mathf.CeilToInt(Mathf.Max(0, item.lovePointCost) * 0.5f);
+            SaveService.Persist();
+            GameEvents.LovePointsChanged(LovePoints);
+            GameEvents.ShopChanged();
+            return true;
+        }
+
+        public bool IsPlaced(ShopItemDefinition item) => item != null && PlacedCount(item.id, SaveService.Data.activeHomeRoom) > 0;
+
+        public bool MoveToRoom(string instanceId, int room)
+        {
+            var copy = SaveService.Data.furniture.Find(f => f.instanceId == instanceId);
+            if (copy == null || !copy.placed) return false;
+            copy.roomId = Mathf.Clamp(room, 0, 1); copy.hasPosition = false; copy.legacyPlacement = false;
+            SaveService.Persist(); GameEvents.ShopChanged(); return true;
+        }
     }
 }

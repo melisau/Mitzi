@@ -20,6 +20,62 @@ namespace PawPath.UI
         static Sprite[] handFrames;
         static Sprite treeIcon, buildingIcon, boltIcon, gamepadIcon, flagIcon;
         static Sprite arrowUp, arrowDown, arrowLeft, arrowRight, pauseIcon, restartIcon, house;
+        static Sprite eraserIcon, snowflakeIcon, unpackIcon, dotIcon, closeIcon, touchFinger;
+
+        public static Sprite TouchFinger() => touchFinger != null ? touchFinger : touchFinger = BuildIcon("IconTouchFinger", p =>
+            Mathf.Min(RoundBox(p, new Vector2(60f, 85f), new Vector2(10f, 33f), 9f),
+                Mathf.Min(RoundBox(p, new Vector2(70f, 43f), new Vector2(29f, 28f), 18f),
+                    RoundBox(p, new Vector2(36f, 45f), new Vector2(12f, 20f), 10f))));
+
+        public static Sprite Close() => closeIcon != null ? closeIcon : closeIcon = BuildIcon("IconClose", p =>
+        {
+            var v = p - new Vector2(64f, 64f);
+            var q = new Vector2((v.x + v.y) * 0.7071f, (v.y - v.x) * 0.7071f);
+            return Mathf.Min(RoundBox(q, Vector2.zero, new Vector2(10f, 43f), 6f),
+                RoundBox(q, Vector2.zero, new Vector2(43f, 10f), 6f));
+        });
+
+        public static Sprite Dot() => dotIcon != null ? dotIcon : dotIcon = BuildIcon("IconDot", p => Circle(p, new Vector2(64f, 64f), 52f));
+
+        public static Sprite Unpack() => unpackIcon != null ? unpackIcon : unpackIcon = BuildIcon("IconUnpack", UnpackSdf);
+
+        static float UnpackSdf(Vector2 p)
+        {
+            float box = RoundBox(p, new Vector2(64f, 36f), new Vector2(43f, 23f), 6f);
+            float inside = RoundBox(p, new Vector2(64f, 42f), new Vector2(33f, 21f), 3f);
+            float rim = Mathf.Max(box, -inside);
+            Vector2 q = (p - new Vector2(64f, 85f)) / 0.55f + new Vector2(64f, 64f);
+            return Mathf.Min(rim, ArrowSdf(q, 0f) * 0.55f);
+        }
+
+        public static Sprite Eraser() => eraserIcon != null ? eraserIcon : eraserIcon = BuildIcon("IconEraser", EraserSdf);
+        public static Sprite Snowflake() => snowflakeIcon != null ? snowflakeIcon : snowflakeIcon = BuildIcon("IconSnowflake", SnowflakeSdf);
+
+        static float EraserSdf(Vector2 p)
+        {
+            Vector2 q = p - new Vector2(64f, 66f);
+            q = new Vector2((q.x + q.y) * 0.7071f, (q.y - q.x) * 0.7071f) + new Vector2(64f, 64f);
+            float body = RoundBox(q, new Vector2(64f, 64f), new Vector2(23f, 43f), 9f);
+            float seam = RoundBox(q, new Vector2(64f, 56f), new Vector2(28f, 3f), 1f);
+            return Mathf.Max(body, -seam);
+        }
+
+        static float SnowflakeSdf(Vector2 p)
+        {
+            float d = 1000f;
+            for (int i = 0; i < 6; i++)
+            {
+                float a = i * Mathf.PI / 3f;
+                Vector2 v = p - new Vector2(64f, 64f);
+                Vector2 q = new Vector2(v.x * Mathf.Cos(a) + v.y * Mathf.Sin(a),
+                    -v.x * Mathf.Sin(a) + v.y * Mathf.Cos(a));
+                d = Mathf.Min(d, RoundBox(q, new Vector2(0f, 24f), new Vector2(4f, 25f), 3f));
+                Vector2 branch = q - new Vector2(0f, 28f);
+                branch = new Vector2((branch.x - branch.y) * 0.7071f, (branch.x + branch.y) * 0.7071f);
+                d = Mathf.Min(d, RoundBox(branch, new Vector2(0f, 9f), new Vector2(3f, 12f), 2f));
+            }
+            return d;
+        }
 
         /// <summary>Altın renkli, ortasında pati olan para. Boyanmadan kullanılır.</summary>
         public static Sprite Coin() => coin != null ? coin : coin = BuildCoin();

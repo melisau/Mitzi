@@ -119,7 +119,7 @@ namespace PawPath.Hub
                     else if (CozyEconomyManager.Instance != null)
                     {
                         // CatNeedsSystem bağlı değilse yedek olarak direkt ekler
-                        CozyEconomyManager.Instance.AddLove(lovePerTick, GameText.PettingLove(cat));
+                        awarded = false;
                     }
                     // =====================================================================
 
@@ -201,6 +201,7 @@ namespace PawPath.Hub
         {
             if (loveText == null || cat == null || CatNeedsSystem.Instance == null)
                 return;
+            PositionLoveFeedback();
             int affection = CatNeedsSystem.Instance.GetNeeds(cat.id).affection;
             loveText.text = "💖 " + GameText.AffectionLabel(cat, affection);
         }
@@ -225,14 +226,32 @@ namespace PawPath.Hub
             worldLoveText.color = new Color(0.80f, 0.18f, 0.38f);
             var renderer = worldLoveText.GetComponent<MeshRenderer>();
             if (renderer != null)
-                renderer.sortingOrder = 30;
+                renderer.sortingOrder = 1000;
             go.SetActive(false);
+        }
+
+        void LateUpdate()
+        {
+            if (worldLoveText == null || !worldLoveText.gameObject.activeSelf) return;
+            PositionLoveFeedback();
+        }
+
+        void PositionLoveFeedback()
+        {
+            var visual=GetComponentInChildren<SpriteRenderer>();
+            if(visual==null || worldLoveText==null) return;
+            var bounds=visual.bounds;
+            worldLoveText.transform.position=new Vector3(bounds.center.x,
+                bounds.min.y+bounds.size.y*.8f+.25f, transform.position.z-.2f);
+            var textRenderer=worldLoveText.GetComponent<MeshRenderer>();
+            if(textRenderer!=null) { textRenderer.sortingLayerID=visual.sortingLayerID; textRenderer.sortingOrder=Mathf.Max(1000,visual.sortingOrder+100); }
         }
 
         void UpdateWorldLoveText()
         {
             if (worldLoveText == null || cat == null || CatNeedsSystem.Instance == null)
                 return;
+            PositionLoveFeedback();
             int affection = CatNeedsSystem.Instance.GetNeeds(cat.id).affection;
             worldLoveText.text = GameText.AffectionLabel(cat, affection);
         }
@@ -241,7 +260,7 @@ namespace PawPath.Hub
         {
             if (floatingTextPrefab != null)
             {
-                Vector3 spawnPos = transform.position + new Vector3(0, 1.2f, 0);
+                Vector3 spawnPos = worldLoveText != null ? worldLoveText.transform.position : transform.position + Vector3.up * 2f;
                 Instantiate(floatingTextPrefab, spawnPos, Quaternion.identity);
             }
         }

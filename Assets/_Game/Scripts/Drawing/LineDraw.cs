@@ -48,6 +48,8 @@ namespace PawPath.Drawing
         bool eraserMode;
 
         public float InkLeft => inkLeft;
+        public PathSurfaceType CurrentBrush => brushType;
+        public bool IsEraser => eraserMode;
         public float InkMax { get; private set; } = 18f;
         public bool CanDraw { get; set; } = true;
         public bool HasDrawnPath { get; private set; }

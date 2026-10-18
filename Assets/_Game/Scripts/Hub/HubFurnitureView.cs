@@ -1,170 +1,106 @@
+﻿using System.Collections.Generic;
 using UnityEngine;
 using PawPath.Core;
-using PawPath.Data;
+using PawPath.Content;
 
 namespace PawPath.Hub
 {
     public class HubFurnitureView : MonoBehaviour
     {
         public static HubFurnitureView Instance { get; private set; }
-        [SerializeField] private Transform[] slots;
-
+        [SerializeField] Transform[] slots;
+        [SerializeField] SpriteRenderer roomBackground;
+        [SerializeField] Sprite defaultRoom;
+        readonly Dictionary<string, GameObject> copies = new Dictionary<string, GameObject>();
         void Awake() => Instance = this;
+        public Vector3 BowlPosition => PlacedInteraction(FurnitureSlotType.Bowl)?.transform.position ?? new Vector3(0f,-1.72f,0f);
+        public Vector3 WaterPosition => PlacedInteraction(FurnitureSlotType.Water)?.transform.position ?? new Vector3(0.95f,-1.82f,0f);
+        public bool HasPlacedWater => HasPlacedInSlot(FurnitureSlotType.Water);
+        public bool HasPlacedBowl => HasPlacedInSlot(FurnitureSlotType.Bowl);
+        public bool HasPlacedInSlot(FurnitureSlotType type) => PlacedInteraction(type) != null;
 
-        public Vector3 BowlPosition => slots != null && slots.Length > (int)PawPath.Content.FurnitureSlotType.Bowl &&
-            slots[(int)PawPath.Content.FurnitureSlotType.Bowl] != null
-            ? slots[(int)PawPath.Content.FurnitureSlotType.Bowl].position
-            : new Vector3(-3.4f, -1.65f, 0f);
-
-        public Vector3 WaterPosition => slots != null && slots.Length > (int)PawPath.Content.FurnitureSlotType.Water &&
-            slots[(int)PawPath.Content.FurnitureSlotType.Water] != null
-            ? slots[(int)PawPath.Content.FurnitureSlotType.Water].position
-            : new Vector3(-1.8f, -1.65f, 0f);
-
-        /// <summary>Slotta gerçekten yerleştirilmiş bir eşya varsa onun etkileşimi.</summary>
-        public FurnitureInteraction PlacedInteraction(PawPath.Content.FurnitureSlotType type)
+        public FurnitureInteraction PlacedInteraction(FurnitureSlotType type)
         {
-            int index = (int)type;
-            if (slots == null || index < 0 || index >= slots.Length || slots[index] == null)
-                return null;
-            var renderer = slots[index].GetComponent<SpriteRenderer>();
-            if (renderer == null || renderer.sprite == null)
-                return null;
-            return slots[index].GetComponent<FurnitureInteraction>();
-        }
-
-        // Hangi model olursa olsun (çelik, bakır, krem…) o yerde bir eşya varsa yeterli.
-        public bool HasPlacedWater => HasPlacedInSlot(PawPath.Content.FurnitureSlotType.Water);
-
-        public bool HasPlacedBowl => HasPlacedInSlot(PawPath.Content.FurnitureSlotType.Bowl);
-
-        [SerializeField] private SpriteRenderer roomBackground;
-        [SerializeField] private Sprite defaultRoom;
-
-        public bool HasPlacedInSlot(PawPath.Content.FurnitureSlotType slot)
-        {
-            if (SaveService.Data == null || SaveService.Data.placedItemIds == null ||
-                GameFlow.Instance == null || GameFlow.Instance.Catalog == null)
-                return false;
-            foreach (var id in SaveService.Data.placedItemIds)
+            if (GameFlow.Instance == null) return null;
+            foreach (var copy in SaveService.Data.furniture)
             {
-                var item = GameFlow.Instance.Catalog.GetItem(id);
-                if (item != null && item.slotType == slot)
-                    return true;
+                if (!copy.placed || copy.roomId != SaveService.Data.activeHomeRoom) continue;
+                var item = GameFlow.Instance.Catalog.GetItem(copy.itemId);
+                if (item != null && item.slotType == type && copies.TryGetValue(copy.instanceId, out var go) && go != null)
+                    return go.GetComponent<FurnitureInteraction>();
             }
-            return false;
+            return null;
         }
-
-        /// <summary>Duvar rengi eşyaları odanın arka plan görselini değiştirir.</summary>
-        public void BindRoom(SpriteRenderer background, Sprite defaultSprite)
-        {
-            roomBackground = background;
-            defaultRoom = defaultSprite;
-        }
-
-        private void OnEnable()
-        {
-            GameEvents.OnShopChanged += Refresh;
-            GameEvents.OnHubEntered += Refresh;
-            Refresh();
-        }
-
-        private void OnDisable()
-        {
-            GameEvents.OnShopChanged -= Refresh;
-            GameEvents.OnHubEntered -= Refresh;
-        }
-
-        public void Bind(Transform[] furnitureSlots) => slots = furnitureSlots;
+        public void Bind(Transform[] anchors) => slots = anchors;
+        public void BindRoom(SpriteRenderer background, Sprite defaultSprite) { roomBackground=background; defaultRoom=defaultSprite; }
+        void OnEnable() { GameEvents.OnShopChanged += Refresh; GameEvents.OnHubEntered += Refresh; Refresh(); }
+        void OnDisable() { GameEvents.OnShopChanged -= Refresh; GameEvents.OnHubEntered -= Refresh; }
 
         public void Refresh()
         {
-            if (GameFlow.Instance == null || GameFlow.Instance.Catalog == null)
-                return;
-            if (slots == null || slots.Length == 0)
-                return;
-
+            if (GameFlow.Instance == null || GameFlow.Instance.Catalog == null || slots == null) return;
             foreach (var slot in slots)
             {
-                if (slot != null)
-                {
-                    var existingSr = slot.GetComponent<SpriteRenderer>();
-                    if (existingSr != null)
-                    {
-                        existingSr.sprite = null;
-                    }
-                    var drag = slot.GetComponent<DraggableFurniture>();
-                    if (drag != null)
-                        drag.DisableInteraction();
-                }
+                if (slot == null) continue;
+                var old = slot.GetComponent<SpriteRenderer>(); if (old != null) old.sprite=null;
+                slot.GetComponent<DraggableFurniture>()?.DisableInteraction();
+                var interaction=slot.GetComponent<FurnitureInteraction>(); if(interaction!=null) interaction.enabled=false;
+                var oldCollider=slot.GetComponent<Collider2D>(); if(oldCollider!=null) oldCollider.enabled=false;
             }
-
-            Sprite room = defaultRoom;
-
-            if (SaveService.Data == null || SaveService.Data.placedItemIds == null)
+            for(int room=0;room<2;room++)
             {
-                ApplyRoom(room);
-                return;
+                int style = HomeRooms.StyleForRoom(room);
+                var options = GameFlow.Instance.Catalog.homeRoomOptions;
+                ApplyRoom(style > 0 && options != null && style <= options.Length ? options[style - 1] : defaultRoom, room);
             }
-
-            foreach (var id in SaveService.Data.placedItemIds)
+            var alive=new HashSet<string>();
+            var ordinals=new Dictionary<string,int>();
+            foreach (var copy in SaveService.Data.furniture)
             {
-                var item = GameFlow.Instance.Catalog.GetItem(id);
-                if (item == null)
-                    continue;
-
-                if (item.slotType == PawPath.Content.FurnitureSlotType.Wallpaper)
+                if (!copy.placed) continue;
+                var item=GameFlow.Instance.Catalog.GetItem(copy.itemId); if(item==null) continue;
+                if(item.slotType==FurnitureSlotType.Wallpaper) { ApplyRoom(item.placedSprite, copy.roomId); continue; }
+                alive.Add(copy.instanceId);
+                if(!copies.TryGetValue(copy.instanceId,out var go) || go==null)
                 {
-                    if (item.placedSprite != null)
-                        room = item.placedSprite;
-                    continue;
+                    go=new GameObject("Furniture_"+copy.instanceId); go.transform.SetParent(transform,false); copies[copy.instanceId]=go;
                 }
-
-                int slotIndex = (int)item.slotType;
-                if (slotIndex < 0 || slotIndex >= slots.Length)
-                    continue;
-                Transform targetSlot = slots[slotIndex];
-                if (targetSlot != null)
-                {
-                    var sr = targetSlot.GetComponent<SpriteRenderer>();
-                    if (sr == null)
-                        sr = targetSlot.gameObject.AddComponent<SpriteRenderer>();
-
-                    sr.sprite = item.placedSprite != null ? item.placedSprite : FallbackSprite.WhiteCircle();
-                    sr.color = Color.white;
-                    sr.sortingOrder = item.slotType == PawPath.Content.FurnitureSlotType.Rug ||
-                        item.slotType == PawPath.Content.FurnitureSlotType.Sand ? 2 :
-                        item.slotType == PawPath.Content.FurnitureSlotType.Poster ? 3 : 4;
-                    FitItem(sr, item.slotType);
-                    var drag = targetSlot.GetComponent<DraggableFurniture>();
-                    if (drag == null)
-                        drag = targetSlot.gameObject.AddComponent<DraggableFurniture>();
-                    drag.Configure(item.slotType, sr);
-                    var interaction = targetSlot.GetComponent<FurnitureInteraction>();
-                    if (interaction == null)
-                        interaction = targetSlot.gameObject.AddComponent<FurnitureInteraction>();
-                    interaction.Configure(item);
-                }
+                string key=copy.roomId+":"+item.slotType;
+                ordinals.TryGetValue(key,out int ordinal); ordinals[key]=ordinal+1;
+                var anchor=(int)item.slotType<slots.Length ? slots[(int)item.slotType] : null;
+                Vector3 position=anchor!=null ? anchor.position : new Vector3(0f,-2f,0f);
+                position.x += HomeRooms.Instance!=null ? HomeRooms.Instance.Offset(copy.roomId) : copy.roomId*16f;
+                position.x += ordinal%4 * (item.slotType==FurnitureSlotType.Poster ? 1.7f : 1.3f);
+                position.y -= ordinal/4 * 0.4f;
+                go.transform.position=position;
+                var sr=go.GetComponent<SpriteRenderer>();
+                if(sr==null) sr=go.AddComponent<SpriteRenderer>();
+                sr.sprite=item.placedSprite!=null ? item.placedSprite : FallbackSprite.WhiteCircle(); sr.color=Color.white;
+                sr.sortingOrder=item.slotType==FurnitureSlotType.Poster ? 3 : item.slotType==FurnitureSlotType.Rug ? 2 : 4;
+                FitItem(sr,item.slotType);
+                var drag=go.GetComponent<DraggableFurniture>();
+                if(drag==null) drag=go.AddComponent<DraggableFurniture>();
+                drag.Configure(item.slotType,sr,copy);
+                var interaction=go.GetComponent<FurnitureInteraction>();
+                if(interaction==null) interaction=go.AddComponent<FurnitureInteraction>();
+                interaction.Configure(item);
             }
-            ApplyRoom(room);
+            var removed=new List<string>();
+            foreach(var pair in copies) if(!alive.Contains(pair.Key)) { if(pair.Value!=null) { pair.Value.SetActive(false); Destroy(pair.Value); } removed.Add(pair.Key); }
+            foreach(string id in removed) copies.Remove(id);
         }
 
-        void ApplyRoom(Sprite sprite)
+        void ApplyRoom(Sprite sprite, int room)
         {
-            if (roomBackground == null || sprite == null)
-                return;
-            if (roomBackground.sprite == sprite)
-                return;
-            roomBackground.sprite = sprite;
-            var cam = Camera.main;
-            Vector2 size = sprite.bounds.size;
-            if (cam == null || size.x <= 0f || size.y <= 0f)
-                return;
-            // RuntimeBootstrap.FitSpriteToCamera ile aynı: ekranı kaplayacak kadar büyüt.
-            float height = cam.orthographicSize * 2f;
-            float width = height * cam.aspect;
-            float cover = Mathf.Max(width / size.x, height / size.y) * 1.12f;
-            roomBackground.transform.localScale = new Vector3(cover, cover, 1f);
+            var renderer=HomeRooms.Instance!=null ? HomeRooms.Instance.Background(room) : room==0 ? roomBackground : null;
+            if(renderer==null || sprite==null) return;
+            renderer.sprite=HomeRooms.Instance!=null ? HomeRooms.Instance.RoomSprite(sprite) : sprite;
+            var camera=Camera.main; var size=renderer.sprite.bounds.size;
+            if(camera==null || size.x<=0f || size.y<=0f) return;
+            float height=camera.orthographicSize*2f;
+            float scale=HomeRooms.Instance!=null ? height/size.y : Mathf.Max(height*camera.aspect/size.x,height/size.y)*1.12f;
+            renderer.transform.localScale=new Vector3(scale,scale,1f);
+            renderer.transform.position=new Vector3(renderer.transform.position.x,camera.transform.position.y,renderer.transform.position.z);
         }
 
         static void FitItem(SpriteRenderer renderer, PawPath.Content.FurnitureSlotType type)

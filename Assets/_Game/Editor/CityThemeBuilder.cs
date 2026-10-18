@@ -10,11 +10,11 @@ public static class CityThemeBuilder
     static readonly string[] Paths =
     {
         "Assets/_Game/Art/city_avenue_background_v1.png",
-        "Assets/_Game/Art/city_trash_gap_v1.png",
-        "Assets/_Game/Art/city_sidewalk_platform_v1.png",
+        "Assets/_Game/Art/CityService/city_service_shaft.png",
+        "Assets/_Game/Art/CityService/city_service_road.png",
         "Assets/_Game/Art/city_car_small_v1.png",
         "Assets/_Game/Art/city_car_van_v1.png",
-        "Assets/city_road_underfill.jpg"
+        "Assets/_Game/Art/CityService/city_service_road.png"
     };
 
     static CityThemeBuilder() => EditorApplication.delayCall += Apply;
@@ -33,6 +33,12 @@ public static class CityThemeBuilder
             importer.alphaIsTransparency = path.Contains("car_") || path.Contains("trash_gap");
             importer.mipmapEnabled = false;
             importer.filterMode = FilterMode.Bilinear;
+            if(path.Contains("city_service_road"))
+            {
+                importer.wrapMode=TextureWrapMode.Repeat;
+                var settings=new TextureImporterSettings();importer.ReadTextureSettings(settings);
+                settings.spriteMeshType=SpriteMeshType.FullRect;importer.SetTextureSettings(settings);
+            }
             if (path.Contains("city_road_underfill"))
             {
                 importer.wrapMode = TextureWrapMode.Repeat;

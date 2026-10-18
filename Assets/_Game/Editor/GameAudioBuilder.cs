@@ -22,10 +22,11 @@ public static class GameAudioBuilder
         catalog.forestMusic = Clip("forest_loop", "ogg");
         catalog.cityMusic = Clip("city_loop", "ogg");
         catalog.catStepSfx = Clip("cat_step", "wav");
+        catalog.catPurrSfx = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/_Game/Audio/purr.mp3");
         catalog.catMeowSfx = new[]
         {
-            Clip("cat_meow", "wav"), Clip("cat_meow2", "wav"),
-            Clip("cat_meow3", "wav"), Clip("cat_meow4", "wav")
+            // cat_meow.wav (~13 sn) bilerek dışarıda: oyunda çok uzun sürüyordu.
+            Clip("cat_meow2", "wav"), Clip("cat_meow3", "wav"), Clip("cat_meow4", "wav")
         };
         catalog.catHurtSfx = Clip("cat_hurt", "wav");
         catalog.catFallSfx = Clip("cat_fall", "wav");

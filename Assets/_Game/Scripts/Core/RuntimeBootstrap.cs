@@ -122,6 +122,8 @@ namespace PawPath.Core
             var furnitureView = hub.AddComponent<HubFurnitureView>();
             furnitureView.Bind(furnitureSlots);
             furnitureView.BindRoom(hubBg, catalog.homeBackground);
+            var homeRooms = hub.AddComponent<HomeRooms>();
+            homeRooms.Bind(cam, hubBg);
 
             var spots = new Transform[6];
             var spotPositions = new[]
@@ -223,6 +225,7 @@ namespace PawPath.Core
             var canvasGo = CreateCanvas(root.transform);
             var care = BuildCareUi(canvasGo.transform, needs);
             var hud = BuildHud(canvasGo.transform, care);
+            homeRooms.BuildControls(hud.transform);
             var rescue = BuildRescue(canvasGo.transform);
             var levelComplete = BuildLevelComplete(canvasGo.transform, catalog);
             var levelFailure = BuildLevelFailure(canvasGo.transform, catalog);
@@ -356,9 +359,25 @@ namespace PawPath.Core
             // Bölüm ilerleme çubuğu (yalnızca bölüm içinde görünür).
             BuildProgressBar(content, -(EdgeMargin + 36f) - 34f - 14f - 26f);
 
-            var ink = Label(content, "Ink", "", new Vector2(0f, 1f), new Vector2(265f, -205f));
+            var ink = Label(content, "Ink", "", new Vector2(0f, 1f), new Vector2(150f, -185f));
             ink.fontSize = FontBody;
-            ink.rectTransform.sizeDelta = new Vector2(460f, 52f);
+            ink.rectTransform.sizeDelta = new Vector2(160f, 52f);
+            var inkIcon = IconImage(ink.transform, "Pencil", CozyIconFactory.Pencil(), UtilityColor,
+                new Vector2(0.5f, 0.5f), new Vector2(-105f, 0f), 40f);
+            inkIcon.raycastTarget = false;
+            var inkTrack = IconImage(ink.transform, "InkTrack", CozyIconFactory.Pill(),
+                new Color(0.25f, 0.18f, 0.13f, 0.35f), new Vector2(0.5f, 0.5f), new Vector2(-15f, -36f), 190f);
+            inkTrack.type = Image.Type.Sliced;
+            inkTrack.rectTransform.sizeDelta = new Vector2(190f, 16f);
+            inkTrack.raycastTarget = false;
+            var inkFill = IconImage(inkTrack.transform, "Remaining", CozyIconFactory.Pill(), DrawModeColor,
+                new Vector2(0f, 0.5f), Vector2.zero, 190f);
+            inkFill.rectTransform.pivot = new Vector2(0f, 0.5f);
+            inkFill.rectTransform.sizeDelta = new Vector2(190f, 16f);
+            inkFill.type = Image.Type.Sliced;
+            inkFill.raycastTarget = false;
+            ink.gameObject.AddComponent<DrawingInkMeter>().Bind(inkFill);
+            ink.gameObject.SetActive(false);
             var selected = Label(content, "Selected", "", new Vector2(0.5f, 1f), new Vector2(0, -260));
             selected.gameObject.SetActive(false);
 
@@ -397,10 +416,12 @@ namespace PawPath.Core
                 new Vector2(0.5f, 0.72f), new Vector2(-220f, 0f), Color.white);
             var largeSize = Button(settingsContent, "LargeSize", GameText.L("Büyük", "Large", "Groß"),
                 new Vector2(0.5f, 0.72f), new Vector2(220f, 0f), Color.white);
-            StyleWarmGameButton(normalSize, new Vector2(330f, 96f), FontButton);
-            StyleWarmGameButton(largeSize, new Vector2(330f, 96f), FontButton);
+            StylePillButton(normalSize, new Vector2(330f, 96f), UtilityColor, null, FontButton, false);
+            StylePillButton(largeSize, new Vector2(330f, 96f), UtilityColor, null, FontButton, false);
             void RefreshSizeLabels()
             {
+                normalSize.GetComponent<Image>().color = !DisplaySizeSettings.Large ? PlayColor : UtilityColor;
+                largeSize.GetComponent<Image>().color = DisplaySizeSettings.Large ? PlayColor : UtilityColor;
                 normalSize.GetComponentInChildren<Text>().text = GameText.Checked(GameText.L("Normal", "Normal", "Normal"), !DisplaySizeSettings.Large);
                 largeSize.GetComponentInChildren<Text>().text = GameText.Checked(GameText.L("Büyük", "Large", "Groß"), DisplaySizeSettings.Large);
             }
@@ -422,11 +443,13 @@ namespace PawPath.Core
                 new Vector2(0.5f, 0.55f), new Vector2(-220f, 0f), Color.white);
             var effectsMute = Button(settingsContent, "EffectsMuteButton", GameText.L("Efektler", "Effects", "Effekte"),
                 new Vector2(0.5f, 0.55f), new Vector2(220f, 0f), Color.white);
-            StyleWarmGameButton(musicMute, new Vector2(330f, 96f), FontButton);
-            StyleWarmGameButton(effectsMute, new Vector2(330f, 96f), FontButton);
+            StylePillButton(musicMute, new Vector2(330f, 96f), UtilityColor, null, FontButton, false);
+            StylePillButton(effectsMute, new Vector2(330f, 96f), UtilityColor, null, FontButton, false);
             void RefreshAudioButtons()
             {
                 var audio = CozyAudioManager.Instance;
+                musicMute.GetComponent<Image>().color = audio != null && audio.MusicMuted ? UtilityColor : PlayColor;
+                effectsMute.GetComponent<Image>().color = audio != null && audio.EffectsMuted ? UtilityColor : PlayColor;
                 var musicLabel = musicMute.GetComponentInChildren<Text>();
                 var effectsLabel = effectsMute.GetComponentInChildren<Text>();
                 if (musicLabel != null)
@@ -465,66 +488,8 @@ namespace PawPath.Core
                 languageButton.onClick.AddListener(() => GameText.SetLanguage(option.lang));
             }
 
-            // Geliştirici / test düğmeleri: yalnızca editörde ve test derlemesinde.
-            bool developerTools = Debug.isDebugBuild || Application.isEditor;
-            var developerSection = SettingsSectionLabel(settingsContent, "DeveloperSection",
-                "Geliştirici (yalnızca test sürümü)", 0.29f);
-            developerSection.gameObject.SetActive(developerTools);
-            var developerLove = Button(settingsContent, "DeveloperLove", "+100",
-                new Vector2(0.5f, 0.21f), new Vector2(-400f, 0f), Color.white);
-            StyleWarmGameButton(developerLove, new Vector2(220f, 96f), FontButton);
-            developerLove.onClick.AddListener(() =>
-            {
-                if (CozyEconomyManager.Instance != null)
-                    CozyEconomyManager.Instance.AddLove(100, "Geliştirici testi");
-            });
-            developerLove.gameObject.SetActive(developerTools);
-
-            var mitziOnly = Button(settingsContent, "DeveloperMitziOnly", "Sadece Mitzi",
-                new Vector2(0.5f, 0.21f), new Vector2(-60f, 0f), Color.white);
-            StyleWarmGameButton(mitziOnly, new Vector2(330f, 96f), FontBody);
-            void RefreshMitziOnlyLabel()
-            {
-                var label = mitziOnly.GetComponentInChildren<Text>();
-                if (label != null)
-                    label.text = SaveService.DeveloperMitziOnly ? "✓ Sadece Mitzi" : "Tüm Kediler";
-            }
-            RefreshMitziOnlyLabel();
-            mitziOnly.onClick.AddListener(() =>
-            {
-                SaveService.SetDeveloperMitziOnly(!SaveService.DeveloperMitziOnly);
-                RefreshMitziOnlyLabel();
-                if (CatHouseManager.Instance != null)
-                    CatHouseManager.Instance.RefreshResidents();
-                var starterCat = GameFlow.Instance != null ? GameFlow.Instance.Catalog?.StarterCat : null;
-                if (starterCat != null)
-                    GameEvents.PlayableCatChanged(starterCat);
-            });
-            mitziOnly.gameObject.SetActive(developerTools);
-
-            var resetProgress = Button(settingsContent, "DeveloperReset", "Baştan Başla",
-                new Vector2(0.5f, 0.21f), new Vector2(320f, 0f), Color.white);
-            StyleWarmGameButton(resetProgress, new Vector2(290f, 96f), FontBody);
-            var resetImage = resetProgress.GetComponent<Image>();
-            if (resetImage != null)
-                resetImage.color = new Color(1f, 0.72f, 0.70f, 1f);
-            resetProgress.onClick.AddListener(() =>
-            {
-                SaveService.ResetProgressForTesting();
-                SaveService.SetDeveloperMitziOnly(true);
-                RefreshMitziOnlyLabel();
-                if (CozyEconomyManager.Instance != null)
-                    CozyEconomyManager.Instance.RefreshUI();
-                if (GameFlow.Instance != null)
-                    GameFlow.Instance.EnterHub();
-                var starterCat = GameFlow.Instance != null ? GameFlow.Instance.Catalog?.StarterCat : null;
-                if (starterCat != null)
-                    GameEvents.PlayableCatChanged(starterCat);
-            });
-            resetProgress.gameObject.SetActive(developerTools);
-
             var howToPlay = Button(settingsContent, "HowToPlayButton", GameText.L("Nasıl Oynanır?", "How to Play", "So wird gespielt"),
-                new Vector2(0.5f, 0.08f), new Vector2(-200f, 0f), Color.white);
+                new Vector2(0.5f, 0.08f), new Vector2(-340f, 0f), Color.white);
             StylePillButton(howToPlay, new Vector2(380f, 104f), WaterColor, CozyIconFactory.HappyCatFace(), FontButton, false);
             howToPlay.onClick.AddListener(() =>
             {
@@ -532,14 +497,64 @@ namespace PawPath.Core
                 HowToPlayUI.Open();
             });
             var closeSettings = Button(settingsContent, "CloseSettings", GameText.Close,
-                new Vector2(0.5f, 0.08f), new Vector2(190f, 0f), Color.white);
+                new Vector2(0.5f, 0.08f), new Vector2(20f, 0f), Color.white);
             StylePillButton(closeSettings, new Vector2(280f, 104f), UtilityColor, null, FontButton, false);
             closeSettings.onClick.AddListener(() => settingsPanel.SetActive(false));
+            var quitGame = Button(settingsContent, "QuitGame", GameText.L("Oyundan Çık", "Quit Game", "Spiel beenden"),
+                new Vector2(0.5f, 0.08f), new Vector2(350f, 0f), Color.white);
+            StylePillButton(quitGame, new Vector2(340f, 104f), HardColor, null, FontButton, false);
+            quitGame.onClick.AddListener(() =>
+            {
+                SaveService.Persist();
+                PlayerPrefs.Save();
+#if UNITY_EDITOR
+                UnityEditor.EditorApplication.isPlaying = false;
+#else
+                Application.Quit();
+#endif
+            });
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            var resetFirstPlay = Button(settingsContent, "ResetFirstPlay",
+                GameText.L("İlk Oynayış Testi", "Test First Play", "Ersten Start testen"),
+                new Vector2(0.5f, 0.23f), Vector2.zero, Color.white);
+            StylePillButton(resetFirstPlay, new Vector2(410f, 82f), UtilityColor, null, FontButton, false);
+            var resetConfirm = Panel("ResetFirstPlayConfirmation", settingsPanel.transform,
+                Vector2.zero, Vector2.one, new Color(.10f, .07f, .05f, .96f));
+            var resetMessage = Label(resetConfirm.transform, "ResetMessage",
+                GameText.L("Kayıt, puanlar ve eşyalar silinecek.\nİlk açılıştan başlansın mı?",
+                    "Progress, points and items will be erased.\nStart from the first launch?",
+                    "Fortschritt, Punkte und Gegenstände werden gelöscht.\nBeim ersten Start beginnen?"),
+                new Vector2(.5f, .58f), Vector2.zero);
+            resetMessage.fontSize = 36;
+            resetMessage.color = Color.white;
+            resetMessage.alignment = TextAnchor.MiddleCenter;
+            resetMessage.rectTransform.sizeDelta = new Vector2(1050f, 180f);
+            var cancelReset = Button(resetConfirm.transform, "CancelFirstPlayReset",
+                GameText.L("Vazgeç", "Cancel", "Abbrechen"), new Vector2(.5f, .34f), new Vector2(-220f, 0f), Color.white);
+            StylePillButton(cancelReset, new Vector2(340f, 100f), UtilityColor, null, FontButton, false);
+            cancelReset.onClick.AddListener(() => resetConfirm.SetActive(false));
+            var confirmReset = Button(resetConfirm.transform, "ConfirmFirstPlayReset",
+                GameText.L("Sıfırla ve Başlat", "Reset and Start", "Zurücksetzen und starten"),
+                new Vector2(.5f, .34f), new Vector2(220f, 0f), Color.white);
+            StylePillButton(confirmReset, new Vector2(410f, 100f), HardColor, null, FontButton, false);
+            confirmReset.onClick.AddListener(() =>
+            {
+                confirmReset.interactable = false;
+                SaveService.ResetFirstPlayForTesting();
+                GameText.ReloadDefaultLanguageForTesting();
+                GameplayMode.Select(GameplayPlayMode.Drawing);
+                Time.timeScale = 1f;
+                MobileControlState.Reset();
+                UnityEngine.SceneManagement.SceneManager.LoadScene(
+                    UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
+            });
+            resetFirstPlay.onClick.AddListener(() => resetConfirm.SetActive(true));
+            resetConfirm.SetActive(false);
+#endif
             settingsButton.onClick.AddListener(() =>
             {
                 RefreshSizeLabels();
                 RefreshAudioButtons();
-                RefreshMitziOnlyLabel();
                 settingsPanel.transform.SetAsLastSibling();
                 settingsPanel.SetActive(true);
             });
@@ -582,21 +597,14 @@ namespace PawPath.Core
             var themeSelector = themeSelectorObject.GetComponent<ThemeSelectionUI>();
             var brushes = BuildBrushToolbar(content);
             brushes.SetActive(false);
-            var previousDrawView = Button(content, "PreviousDrawView", GameText.L("◀ Önceki", "◀ Previous", "◀ Zurück"),
-                new Vector2(0.5f, 1f), new Vector2(-390f, -165f), new Color(0.78f, 0.84f, 0.72f));
-            var startDrawingGame = Button(content, "StartDrawingGame", GameText.L("Oyunu Başlat", "Start Game", "Spiel starten"),
-                new Vector2(0.5f, 1f), new Vector2(0f, -165f), new Color(0.93f, 0.72f, 0.76f));
-            var nextDrawView = Button(content, "NextDrawView", GameText.L("Sonraki ▶", "Next ▶", "Weiter ▶"),
-                new Vector2(0.5f, 1f), new Vector2(390f, -165f), new Color(0.78f, 0.84f, 0.72f));
-            StyleWarmGameButton(previousDrawView, new Vector2(220f, 96f), FontBody);
-            StyleWarmGameButton(startDrawingGame, new Vector2(270f, 96f), FontButton, true);
-            StyleWarmGameButton(nextDrawView, new Vector2(220f, 96f), FontBody);
-            var nextDrawLabel = nextDrawView.GetComponentInChildren<Text>();
-            if (nextDrawLabel != null)
-            {
-                nextDrawLabel.text = GameText.L("SONRAKİ  ▶", "NEXT  ▶", "WEITER  ▶");
-                nextDrawLabel.fontStyle = FontStyle.Bold;
-            }
+            var previousDrawView = RoundIconButton(content, "PreviousDrawView", CozyIconFactory.ArrowLeft(),
+                WaterColor, new Vector2(0.5f, 1f), new Vector2(-145f, -165f), 96f, 0.52f);
+            var startDrawingGame = RoundIconButton(content, "StartDrawingGame", CozyIconFactory.Play(),
+                PlayColor, new Vector2(0.5f, 1f), new Vector2(0f, -165f), 112f, 0.57f);
+            var nextDrawView = RoundIconButton(content, "NextDrawView", CozyIconFactory.ArrowRight(),
+                WaterColor, new Vector2(0.5f, 1f), new Vector2(145f, -165f), 96f, 0.52f);
+            previousDrawView.gameObject.AddComponent<DrawingToolButton>();
+            nextDrawView.gameObject.AddComponent<DrawingToolButton>();
             previousDrawView.gameObject.SetActive(false);
             startDrawingGame.gameObject.SetActive(false);
             nextDrawView.gameObject.SetActive(false);
@@ -917,12 +925,12 @@ namespace PawPath.Core
             var rt = toolbar.GetComponent<RectTransform>();
             Stretch(rt);
 
-            AddBrushButton(toolbar.transform, "NormalBrush", GameText.L("Yol", "Path", "Weg"), -255f, new Color(0.17f, 0.15f, 0.14f), PathSurfaceType.Normal);
-            AddBrushButton(toolbar.transform, "BounceBrush", GameText.L("Zıpla", "Bounce", "Sprung"), -85f, new Color(0.20f, 0.55f, 0.95f), PathSurfaceType.Bounce);
-            AddBrushButton(toolbar.transform, "IceBrush", GameText.L("Buz", "Ice", "Eis"), 85f, new Color(0.95f, 0.98f, 1f), PathSurfaceType.Ice);
-            var eraser = Button(toolbar.transform, "Eraser", GameText.L("Sil", "Erase", "Löschen"), new Vector2(0.5f, 0f), new Vector2(255f, 68f), new Color(0.72f, 0.68f, 0.65f));
-            eraser.GetComponent<RectTransform>().sizeDelta = new Vector2(150f, 88f);
-            StyleWarmGameButton(eraser, new Vector2(150f, 88f), 24);
+            AddBrushButton(toolbar.transform, "NormalBrush", CozyIconFactory.Pencil(), -198f, UtilityColor, PathSurfaceType.Normal);
+            AddBrushButton(toolbar.transform, "BounceBrush", CozyIconFactory.ArrowUp(), -66f, WaterColor, PathSurfaceType.Bounce);
+            AddBrushButton(toolbar.transform, "IceBrush", CozyIconFactory.Snowflake(), 66f, new Color(0.40f, 0.70f, 0.75f), PathSurfaceType.Ice);
+            var eraser = RoundIconButton(toolbar.transform, "Eraser", CozyIconFactory.Eraser(), LoveColor,
+                new Vector2(0.5f, 0f), new Vector2(198f, 80f), 104f, 0.56f);
+            AddDrawingToolSelection(eraser, PathSurfaceType.Normal, true);
             eraser.onClick.AddListener(() =>
             {
                 if (LineDraw.Instance != null)
@@ -931,17 +939,11 @@ namespace PawPath.Core
             return toolbar;
         }
 
-        static void AddBrushButton(Transform parent, string name, string label, float x, Color color, PathSurfaceType type)
+        static void AddBrushButton(Transform parent, string name, Sprite icon, float x, Color color, PathSurfaceType type)
         {
-            var button = Button(parent, name, label, new Vector2(0.5f, 0f), new Vector2(x, 68f), color);
-            button.GetComponent<RectTransform>().sizeDelta = new Vector2(150f, 88f);
-            StyleWarmGameButton(button, new Vector2(150f, 88f), 24);
-            var text = button.GetComponentInChildren<Text>();
-            if (text != null)
-            {
-                text.fontSize = 24;
-                text.color = type == PathSurfaceType.Normal ? Color.white : new Color(0.18f, 0.16f, 0.17f);
-            }
+            var button = RoundIconButton(parent, name, icon, color,
+                new Vector2(0.5f, 0f), new Vector2(x, 80f), 104f, 0.56f);
+            AddDrawingToolSelection(button, type, false);
             button.onClick.AddListener(() =>
             {
                 if (LineDraw.Instance != null)
@@ -949,21 +951,20 @@ namespace PawPath.Core
             });
         }
 
+        static void AddDrawingToolSelection(Button button, PathSurfaceType type, bool eraser)
+        {
+            var ring = IconImage(button.transform, "SelectionRing", CozyIconFactory.Ring(),
+                new Color(1f, 0.93f, 0.66f), new Vector2(0.5f, 0.5f), Vector2.zero, 134f);
+            ring.raycastTarget = false;
+            button.gameObject.AddComponent<DrawingToolButton>().Bind(type, eraser, ring.gameObject);
+        }
+
         static GameObject BuildBrushTutorial(Transform parent)
         {
-            var panel = Panel("BrushTutorial", parent, Vector2.zero, Vector2.zero, new Color(0.12f, 0.10f, 0.11f, 0.82f));
-            var rt = panel.GetComponent<RectTransform>();
-            rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
-            rt.sizeDelta = new Vector2(760f, 430f);
-            rt.anchoredPosition = Vector2.zero;
-            var text = Label(panel.transform, "TutorialText",
-                GameText.TutorialDrawing,
-                new Vector2(0.5f, 0.5f), Vector2.zero);
-            text.rectTransform.sizeDelta = new Vector2(680f, 370f);
-            text.fontSize = 27;
-            text.color = Color.white;
-            panel.GetComponent<Image>().raycastTarget = true;
-            panel.AddComponent<Button>();
+            var panel = new GameObject("BrushTutorial", typeof(RectTransform));
+            panel.transform.SetParent(parent, false);
+            Stretch(panel.GetComponent<RectTransform>());
+            panel.AddComponent<GameplayTutorialUI>().Build();
             return panel;
         }
 

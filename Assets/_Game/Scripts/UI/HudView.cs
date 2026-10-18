@@ -48,7 +48,6 @@ namespace PawPath.UI
         public static readonly Color EditActiveColor = new Color(0.98f, 0.76f, 0.30f, 1f);
         GameplayPlayMode pendingMode;
         Coroutine selectedNameRoutine;
-        Coroutine tutorialRoutine;
 
         private void Awake()
         {
@@ -173,11 +172,7 @@ namespace PawPath.UI
                 homeButton.gameObject.SetActive(true);
             if (quitGameButton != null)
                 quitGameButton.gameObject.SetActive(true);
-            bool cityTheme = LevelManager.Instance != null &&
-                ThemeSelectionUI.GetSelectedTheme(LevelManager.Instance.DisplayLevel) == 2;
-            bool tutorialShown = cityTheme
-                ? ShowCityTutorialOnce()
-                : GameplayMode.IsDrawing && ShowBrushTutorialOnce();
+            bool tutorialShown = ShowGameplayTutorialOnce();
             if (!tutorialShown)
             {
                 if (GameplayMode.IsDrawing)
@@ -243,23 +238,20 @@ namespace PawPath.UI
 
         private void Update()
         {
-            if (inkLabel == null || LineDraw.Instance == null)
+            RefreshDrawingPreparationButtons();
+            if (inkLabel == null || LineDraw.Instance == null || !GameplayMode.IsDrawing)
                 return;
             if (GameFlow.Instance != null && GameFlow.Instance.InHub)
                 return;
 
             bool preparing = GameFlow.Instance != null &&
                 GameFlow.Instance.State == GameFlowState.DrawingPreparation;
-            RefreshDrawingPreparationButtons();
             if (preparing)
             {
                 var cameraFollow = Camera.main != null ? Camera.main.GetComponent<SideScrollCamera>() : null;
                 int view = cameraFollow != null ? cameraFollow.PreparationViewIndex + 1 : 1;
                 int total = cameraFollow != null ? cameraFollow.PreparationViewCount : 1;
-                inkLabel.text = LineDraw.Instance.AvailableInkForCurrentView() <= 0.01f &&
-                    LineDraw.Instance.InkLeft > 0.01f
-                    ? GameText.L($"Sonraki ekrana geç ▶ · Kalan {LineDraw.Instance.InkLeft:0.0}", $"Go to next screen ▶ · Left {LineDraw.Instance.InkLeft:0.0}", $"Zum nächsten Bildschirm ▶ · Übrig {LineDraw.Instance.InkLeft:0.0}")
-                    : GameText.L($"Çizim: {LineDraw.Instance.InkLeft:0.0} · Ekran {view}/{total}", $"Ink: {LineDraw.Instance.InkLeft:0.0} · Screen {view}/{total}", $"Tinte: {LineDraw.Instance.InkLeft:0.0} · Bildschirm {view}/{total}");
+                inkLabel.text = $"{view} / {total}";
             }
             else
                 inkLabel.text = GameText.Ink + $": {LineDraw.Instance.InkLeft:0.0}";
@@ -287,9 +279,8 @@ namespace PawPath.UI
             if (mobileControls != null && GameplayMode.IsDrawing && GameFlow.Instance != null &&
                 !GameFlow.Instance.InHub)
                 mobileControls.SetActive(drawingGameplay);
-            if (inkLabel != null && GameplayMode.IsDrawing && GameFlow.Instance != null &&
-                !GameFlow.Instance.InHub)
-                inkLabel.gameObject.SetActive(preparing);
+            if (inkLabel != null)
+                inkLabel.gameObject.SetActive(GameplayMode.IsDrawing && preparing);
 
             if (!preparing)
                 return;
@@ -510,73 +501,15 @@ namespace PawPath.UI
             HideSelectedCatName();
         }
 
-        private bool ShowBrushTutorialOnce()
+        private bool ShowGameplayTutorialOnce()
         {
-            if (brushTutorial == null || PlayerPrefs.GetInt("PawPath.BrushTutorialSeen.v2", 0) == 1)
+            var mode = GameplayMode.IsDrawing ? GameplayPlayMode.Drawing : GameplayPlayMode.DirectControl;
+            var tutorial = brushTutorial != null ? brushTutorial.GetComponent<GameplayTutorialUI>() : null;
+            if (tutorial == null || GameplayTutorialUI.HasSeen(mode))
                 return false;
-
-            SetTutorialText(GameText.TutorialDrawing);
-            PlayerPrefs.SetInt("PawPath.BrushTutorialSeen.v2", 1);
-            PlayerPrefs.Save();
-            PresentTutorial();
-            return true;
-        }
-
-        private bool ShowCityTutorialOnce()
-        {
-            if (brushTutorial == null || PlayerPrefs.GetInt("PawPath.CityTutorialSeen.v1", 0) == 1)
-                return false;
-
-            SetTutorialText(GameText.TutorialCity);
-            PlayerPrefs.SetInt("PawPath.CityTutorialSeen.v1", 1);
-            PlayerPrefs.Save();
-            PresentTutorial();
-            return true;
-        }
-
-        private void PresentTutorial()
-        {
             GameFlow.Instance?.ShowInfoOverlay();
-            brushTutorial.SetActive(true);
-            var dismissButton = brushTutorial.GetComponent<Button>();
-            if (dismissButton != null)
-            {
-                dismissButton.onClick.RemoveListener(DismissTutorial);
-                dismissButton.onClick.AddListener(DismissTutorial);
-            }
-            if (tutorialRoutine != null)
-                StopCoroutine(tutorialRoutine);
-            tutorialRoutine = StartCoroutine(HideBrushTutorial());
-        }
-
-        private void DismissTutorial()
-        {
-            if (tutorialRoutine != null)
-            {
-                StopCoroutine(tutorialRoutine);
-                tutorialRoutine = null;
-            }
-            if (brushTutorial != null)
-                brushTutorial.SetActive(false);
-            GameFlow.Instance?.DismissInfoOverlay();
-        }
-
-        private void SetTutorialText(string value)
-        {
-            if (brushTutorial == null)
-                return;
-            var label = brushTutorial.transform.Find("TutorialText")?.GetComponent<Text>();
-            if (label == null)
-                label = brushTutorial.GetComponentInChildren<Text>();
-            if (label != null)
-                label.text = value;
-        }
-
-        private IEnumerator HideBrushTutorial()
-        {
-            yield return new WaitForSecondsRealtime(5f);
-            tutorialRoutine = null;
-            DismissTutorial();
+            tutorial.Open(mode, () => GameFlow.Instance?.DismissInfoOverlay());
+            return true;
         }
     }
 }
