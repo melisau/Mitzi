@@ -55,6 +55,7 @@ namespace PawPath.Hub
             if (cats.Length == 0) return;
             CatHomeBehaviour nearest = null;
             if (item.interactionType == ItemInteractionType.Eating ||
+                item.interactionType == ItemInteractionType.Climbing ||
                 item.interactionType == ItemInteractionType.Toileting)
             {
                 string selectedId = SaveService.Data != null ? SaveService.Data.selectedCatId : "mitzi";
@@ -68,6 +69,7 @@ namespace PawPath.Hub
             if (nearest == null) nearest = cats[0];
             float best = Vector2.SqrMagnitude(nearest.transform.position - transform.position);
             if (item.interactionType != ItemInteractionType.Eating &&
+                item.interactionType != ItemInteractionType.Climbing &&
                 item.interactionType != ItemInteractionType.Toileting)
             {
                 for (int i = 0; i < cats.Length; i++)
@@ -307,6 +309,7 @@ namespace PawPath.Hub
             // Etkileşim animasyonu eşyanın uzağında başlayamaz. Son fizik karesi
             // hedefe tam ulaşmadıysa kediyi hesaplanan temas noktasına sabitle.
             if (item.interactionType == ItemInteractionType.Eating ||
+                item.interactionType == ItemInteractionType.Climbing ||
                 item.interactionType == ItemInteractionType.Climbing ||
                 item.interactionType == ItemInteractionType.Toileting)
             {
