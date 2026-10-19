@@ -17,10 +17,10 @@ namespace PawPath.Content
                 Cat("mitzi", "Mitzi", 0, new Color(0.86f, 0.62f, 0.38f), CatPersonality.Curious,
                     "Evin ilk patisi. Güneş lekelerini takip etmeyi ve senin çizdiğin köprülerde minik adımlar atmayı sever.",
                     "Mitzi zaten seninle. Pencerenin önünde kuyruğunu kıvırıp 'hadi yol çiz' diyor.", true),
-                Cat("pamuk", "Pamuk", 7, new Color(0.96f, 0.95f, 0.93f), CatPersonality.Sleepy,
+                Cat("pamuk", "Pamuk", 60, new Color(0.96f, 0.95f, 0.93f), CatPersonality.Sleepy,
                     "Bulut gibi, usul usul. En yumuşak mindere kıvrılıp mırıldanır.",
                     "Parkın bankının altında titreyen bir yumak buldun. Pamuk, burnunu parmağına değdirip 'beni de götürür müsün?' diye bakıyor. Evde ona bir güneş dilimi ayıracağız."),
-                Cat("komur", "Kömür", 20, new Color(0.18f, 0.16f, 0.20f), CatPersonality.Shy,
+                Cat("komur", "Kömür", 70, new Color(0.18f, 0.16f, 0.20f), CatPersonality.Shy,
                     "Gece kadar sessiz, kucak kadar sıcak. Çiçek tacını eğik takar.",
                     "Kömür, sokak lambasının gölgesinde tek başına oturuyor. Sen eğilince bir adım yaklaşıyor; sanki evinin kokusunu çoktan tanıyor."),
                 Cat("tarcin", "Tarçın", 30, new Color(0.90f, 0.55f, 0.32f), CatPersonality.Playful,
@@ -31,8 +31,16 @@ namespace PawPath.Content
                     "Ada, çitlerin üstünde rüzgarla dans ediyordu. Seni görünce aşağı atlıyor ve alnını dizine yaslıyor. 'Ben de ailenin parçası olayım' diyor sessizce."),
                 Cat("moka", "Moka", 50, new Color(0.45f, 0.32f, 0.24f), CatPersonality.Sleepy,
                     "Örgü atkılı, kahve kokulu. Şömineye en yakın yastığı bilir.",
-                    "Moka, kış penceresinin önünde atkısı kaymış halde seni bekliyor. Bir okşamada ipliği düzelir, ikinci okşamada evinin yolunu öğrenir.")
+                    "Moka, kış penceresinin önünde atkısı kaymış halde seni bekliyor. Bir okşamada ipliği düzelir, ikinci okşamada evinin yolunu öğrenir."),
+                Cat("ghost", "Ghost", 7, Color.white, CatPersonality.Curious,
+                    "Bembeyaz pofuduk tüylü, bir gözü mavi, diğeri kehribar yeşili bir Van kedisi.",
+                    "Ghost kapının yanında seni bekliyor. İki renkli gözleriyle sana bakıyor; artık onun da sıcacık bir evi var."),
+                Cat("boza", "Boza", 20, Color.white, CatPersonality.Curious,
+                    "Beyaz göğüslü, yeşil gözlü, turuncu ve kahverengi tekir desenli sıcacık bir dost.",
+                    "Boza kapının yanında seni bekliyor. Artık onun da sıcacık bir evi var.")
             };
+
+            catalog.cats.Sort((a,b)=>a.unlockAfterLevel.CompareTo(b.unlockAfterLevel));
 
             catalog.shopItems = new List<ShopItemDefinition>
             {

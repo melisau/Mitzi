@@ -166,7 +166,7 @@ namespace PawPath.Cat
             // Always fit against idle. A recalibrated walk sprite has a different
             // PPU; refitting to that transient frame would undo its size correction.
             var reference = definition != null && definition.idleSprite != null ? definition.idleSprite : sprite.sprite;
-            float scale = visualHeight * visualSizeMultiplier * DisplaySizeSettings.CatScale / reference.bounds.size.y;
+            float scale = visualHeight * visualSizeMultiplier * DisplaySizeSettings.CatScale * (definition != null ? definition.visualHeightMultiplier : 1f) / reference.bounds.size.y;
             // Eğilme için ayrı bir poz kullanılıyor; görseli dikey sıkıştırmak
             // kediyi ezilmiş gösterdiği için tüm pozlar orantılı ölçeklenir.
             visual.localScale = new Vector3(scale * facing, scale, 1f);

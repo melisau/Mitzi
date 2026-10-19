@@ -55,8 +55,7 @@ namespace PawPath.UI
 
         void Select(int theme)
         {
-            PlayerPrefs.SetInt(ThemeKey, theme);
-            PlayerPrefs.Save();
+            if(!TrySelectTheme(theme))return;
             Refresh();
             onThemeChosen?.Invoke(theme);
         }
@@ -73,18 +72,15 @@ namespace PawPath.UI
                 SetLabel(streetButton, GameText.Checked(GameText.L("Sokak", "Street", "Straße"), selected == 0));
             if (forestButton != null)
             {
-                forestButton.interactable = true;
-                SetLabel(forestButton, GameText.Checked(GameText.L("Orman", "Forest", "Wald"), selected == 1));
+                UpdateChoice(forestButton,1,selected);
             }
             if (cityButton != null)
             {
-                cityButton.interactable = true;
-                SetLabel(cityButton, GameText.Checked(GameText.L("Cadde", "City", "Stadt"), selected == 2));
+                UpdateChoice(cityButton,2,selected);
             }
             if (cyberButton != null)
             {
-                cyberButton.interactable = true;
-                SetLabel(cyberButton, GameText.Checked(GameText.L("Neo Teknoloji", "Neo Tech", "Neo-Tech"), selected == 3));
+                UpdateChoice(cyberButton,3,selected);
             }
         }
 
@@ -113,12 +109,21 @@ namespace PawPath.UI
 
         public static int GetSelectedTheme(int levelNumber)
         {
-            if (PlayerPrefs.HasKey(ThemeKey))
-            {
-                int chosen = PlayerPrefs.GetInt(ThemeKey, 0);
-                return Mathf.Clamp(chosen, 0, 3);
-            }
-            return ((Mathf.Max(1, levelNumber) - 1) / 5) % 2;
+            int chosen=PlayerPrefs.GetInt(ThemeKey,0);
+            return IsUnlocked(chosen)?chosen:0;
+        }
+        public static int UnlockAfter(int theme)=>Mathf.Clamp(theme,0,3)*10;
+        public static bool IsUnlocked(int theme)=>theme>=0&&theme<4&&SaveService.Data.highestCompletedLevel>=UnlockAfter(theme);
+        public static string ThemeName(int theme)=>theme==1?GameText.L("Orman","Forest","Wald"):theme==2?GameText.L("Cadde","City","Stadt"):theme==3?GameText.L("Neo Teknoloji","Neo Tech","Neo-Tech"):GameText.L("Sokak","Street","Straße");
+        public static bool TrySelectTheme(int theme)
+        {
+            if(!IsUnlocked(theme))return false;
+            PlayerPrefs.SetInt(ThemeKey,theme);PlayerPrefs.Save();return true;
+        }
+        static void UpdateChoice(Button button,int theme,int selected)
+        {
+            bool unlocked=IsUnlocked(theme);button.interactable=unlocked;
+            SetLabel(button,unlocked?GameText.Checked(ThemeName(theme),selected==theme):ThemeName(theme)+GameText.L($" · Bölüm {UnlockAfter(theme)}",$" · Level {UnlockAfter(theme)}",$" · Level {UnlockAfter(theme)}"));
         }
     }
 }

@@ -4,18 +4,20 @@ Unity **2022.3.62f3**, Built-in Render Pipeline ile geliştirilen, yatay ilerlem
 
 ## Oynanış
 
-- **Çizerek Oyna:** normal, zıplatıcı, tehlikeli ve buzlu yollar çizin; silgiyi kullanın. Koşu sırasında yukarı okla zıplayın, aşağı oku basılı tutarak eğilin.
-- **Tuşlarla Oyna:** ekrandaki yön, zıplama ve eğilme düğmeleri; Editor'da klavye desteği.
-- Cadde, orman, şehir ve neo teknoloji mekanları; çukurlar, tümsekler, ağaçlar ve eğilerek geçilen engeller. Şehirde asfalt yol ve açık servis kanalları kullanılır.
+- **Çizerek Oyna:** normal, zıplatıcı, tehlikeli ve buzlu yollar çizin; silgiyi kullanın. Koşu sırasında sağdaki pati joystickini yukarı iterek zıplayın, aşağıda tutarak eğilin.
+- **Tuşlarla Oyna:** solda ileri/geri, sağda zıplama/eğilme pati joystickleri; Editor'da klavye desteği.
+- Sokak, orman, cadde ve neo teknoloji mekanları; çukurlar, tümsekler, ağaçlar ve eğilerek geçilen engeller. Şehirde asfalt yol ve açık servis kanalları kullanılır.
 - Köpeğe temas kaybettirir; üstüne zıplayarak köpeği uzaklaştırabilirsiniz. Kuş toplamak alışveriş puanı kazandırır.
-- Mitzi başlangıç kedisidir. Pamuk, Kömür, Tarçın, Ada ve Moka sırasıyla 7, 20, 30, 40 ve 50. bölüm sonunda kurtarılır. Kurtarılacak kedi bitiş kapısının yanında bekler.
+- Mitzi başlangıç kedisidir. Ghost, Boza, Tarçın, Ada, Moka, Pamuk ve Kömür sırasıyla 7, 20, 30, 40, 50, 60 ve 70. bölüm sonunda kurtarılır. Ghost tasmasız, bembeyaz pofuduk Van kedisi ve iki farklı göz rengine sahiptir; Boza fotoğraf referanslı turuncu-kahverengi tekir ve beyaz desenlidir. Kurtarılacak kedi bitiş kapısının yanında bekler.
 - İlk oynayışta her kontrol biçimi için kısa yazılı, animasyonlu öğretici gösterilir. Türkçe, İngilizce ve Almanca desteklenir.
 
 Otomatik zorluk her mekânda ayrı ilerler: ilk 10 bölüm kolay, 11–20 orta, 21. bölümden itibaren zor. Köpek sayısı/hızı, çukur ve tümsek yoğunluğu ile çizim bütçesi buna göre değişir. Oyna menüsünden Otomatik, Kolay, Orta veya Zor seçilebilir; elle seçilen seviye değiştirilene kadar korunur. Eski kayıtlarda mekân geçmişi tutulmadığından yeni mekân sayaçları sıfırdan başlar; genel ilerleme, bütçe ve kurtarılan kediler korunur.
 
+Yeni oyuncu Sokak mekanında başlar. Genel ilerlemede 10. bölüm tamamlanınca Orman, 20. bölümde Cadde, 30. bölümde Neo Teknoloji açılır. Bilgi kartından yeni mekan seçilebilir veya mevcut mekanda kalınabilir; önceki açık mekanlar seçilebilir.
+
 ## Kedi evi ve ekonomi
 
-İki oda arasında geçiş yapın. Kediler bağımsız dolaşır; bir kediyi seçip yere veya etkileşimli eşyaya dokunarak yönlendirebilirsiniz. Mama, su, uyku, sevme/mırlama, kum kabı ve kedi ağacı etkileşimleri bulunur.
+İki oda arasında geçiş yapın. Kediler evde yukarı giderken arkalarını, aşağı gelirken yüzlerini döner; bu yön animasyonları bölüm oynanışını etkilemez. Kediler bağımsız dolaşır; bir kediyi seçip yere veya etkileşimli eşyaya dokunarak yönlendirebilirsiniz. Mama, su, uyku, sevme/mırlama, kum kabı ve kedi ağacı etkileşimleri bulunur.
 
 Dükkandan aynı üründen birden fazla alınabilir; yerleştirme, taşıma, çevirme, depolama ve satış desteklenir. Her başarılı alımdan sonra aynı ürünün sonraki fiyatı **×3** artar (40 → 120 → 360). Satış fiyat geçmişini sıfırlamaz. Duvar kağıdı, dükkanın açıldığı odaya uygulanır; odalar farklı görünebilir. Yeni kayıtta mavi oda varsayılandır. Alışveriş sonrasında liste konumu korunur. Eşyalar zemin/duvar sınırları içinde tutulur; yeni eşyalar boş yerlere ayrık yerleşir, oda doluysa depoda saklanır.
 

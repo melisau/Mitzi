@@ -25,7 +25,7 @@ public static class DifficultyProgressionValidation
             Check(Application.productName=="MitziValidation","Use isolated project");
             HomeSettingsValidation.Run();RescueMilestoneBuilder.Apply();SaveServiceValidation.Run();
             var flow=GameFlow.Instance;var data=SaveService.Data;var catalog=flow.Catalog;
-            int[] milestones={7,20,30,40,50};string[] ids={"pamuk","komur","tarcin","ada","moka"};
+            int[] milestones={7,20,30,40,50,60,70};string[] ids={"ghost","boza","tarcin","ada","moka","pamuk","komur"};
             for(int i=0;i<ids.Length;i++)
             {
                 Check(catalog.GetCat(ids[i]).unlockAfterLevel==milestones[i],"Wrong catalog rescue milestone");
@@ -34,8 +34,8 @@ public static class DifficultyProgressionValidation
                 Check(CatUnlockService.TryUnlockAfterLevel(milestones[i],out var rescued)&&rescued.id==ids[i],"Rescue failed");
                 Check(!CatUnlockService.TryUnlockAfterLevel(milestones[i],out _),"Duplicate rescue");
             }
-            data.unlockedCatIds.Remove("pamuk");
-            Check(CatUnlockService.WaitingAtLevel(9)?.id=="pamuk"&&CatUnlockService.TryUnlockAfterLevel(9,out _),"Old save missed moved milestone");
+            data.unlockedCatIds.Remove("ghost");
+            Check(CatUnlockService.WaitingAtLevel(9)?.id=="ghost"&&CatUnlockService.TryUnlockAfterLevel(9,out _),"Old save missed moved milestone");
             Check(SaveService.TryReadJson("{\"schemaVersion\":4,\"lovePoints\":777,\"highestCompletedLevel\":99,\"unlockedCatIds\":[\"mitzi\",\"pamuk\"]}",out var old,out _)&&old.lovePoints==777&&old.highestCompletedLevel==99&&old.unlockedCatIds.Contains("pamuk")&&old.themeCompletedLevels.Length==4&&old.themeCompletedLevels.All(n=>n==0),"Legacy migration lost data or invented theme history");
             GameDifficulty.SelectAutomatic();
             data.themeCompletedLevels=new int[4];
@@ -57,12 +57,12 @@ public static class DifficultyProgressionValidation
             buttons.First(b=>b.name=="AutomaticDifficulty").onClick.Invoke();Check(GameDifficulty.IsAutomatic,"Automatic UI selection failed");
             var level=flow.GetComponent<LevelManager>();Call(level,"Awake");
             var cat=flow.GetComponentInChildren<CatController>(true);Call(cat,"Awake");
-            data.highestCompletedLevel=5;data.themeCompletedLevels=new[]{0,9,0,0};
+            data.highestCompletedLevel=15;data.themeCompletedLevels=new[]{0,9,0,0};
             PlayerPrefs.SetInt("PawPath.SelectedTheme",1);GameplayMode.Select(GameplayPlayMode.DirectControl);
             level.BeginCurrentLevel();level.BeginCurrentLevel();
             Check(data.themeCompletedLevels[1]==9&&level.CurrentDifficulty==DifficultyLevel.Easy,"Retry increased theme progress");
             PlayerPrefs.SetInt("PawPath.SelectedTheme",2);level.CompleteLevel();level.CompleteLevel();
-            Check(data.highestCompletedLevel==6&&data.themeCompletedLevels[1]==10&&data.themeCompletedLevels[2]==0,"Completion used wrong theme or counted twice");
+            Check(data.highestCompletedLevel==16&&data.themeCompletedLevels[1]==10&&data.themeCompletedLevels[2]==0,"Completion used wrong theme or counted twice");
             Check(GameDifficulty.ForTheme(1)==DifficultyLevel.Medium&&GameDifficulty.ForTheme(2)==DifficultyLevel.Easy,"Completing tenth theme level did not advance difficulty");
             var course=flow.GetComponentInChildren<LevelCourseBuilder>(true);
             PlayerPrefs.SetInt("PawPath.SelectedTheme",0);Call(level,"ApplyLevelTheme",170);

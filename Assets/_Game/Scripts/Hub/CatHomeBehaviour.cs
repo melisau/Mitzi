@@ -52,6 +52,8 @@ namespace PawPath.Hub
         float stuckTimer;
         Vector2 manualInput;
         public bool HasExternalAnimation => externalAnimation;
+        public Vector2 HomeMovementDirection { get; private set; }
+        public bool IsMovingInHome { get; private set; }
 
         public void SetManualInput(Vector2 input)
         {
@@ -89,6 +91,8 @@ namespace PawPath.Hub
 
         void Update()
         {
+            HomeMovementDirection = Vector2.zero;
+            IsMovingInHome = false;
             if (GameFlow.Instance == null || !GameFlow.Instance.InHub)
                 return;
 
@@ -109,11 +113,14 @@ namespace PawPath.Hub
             if (CurrentActivity == ResidentActivity.Walking)
             {
                 var target = new Vector3(targetPosition.x, targetPosition.y, transform.position.z);
+                HomeMovementDirection = (Vector2)target - (Vector2)transform.position;
+                Vector3 previousPosition = transform.position;
                 float speed = directedMovement ? walkSpeed * directedSpeedMultiplier :
                     interacting ? walkSpeed * 0.72f : walkSpeed * walkingPersonality;
                 if (HasAnimator)
                     animator.speed = directedMovement ? directedAnimationSpeed : 0.92f;
                 transform.position = Vector3.MoveTowards(transform.position, target, speed * Time.deltaTime);
+                IsMovingInHome = (transform.position - previousPosition).sqrMagnitude > .000001f;
                 if (Vector2.Distance(transform.position, lastProgressPosition) >= 0.025f)
                 {
                     lastProgressPosition = transform.position;
@@ -375,11 +382,14 @@ namespace PawPath.Hub
 
         void AdvanceManualMovement(float deltaTime)
         {
+            HomeMovementDirection = manualInput;
+            Vector3 previousPosition = transform.position;
             Vector2 next = (Vector2)transform.position + manualInput * (walkSpeed * directedSpeedMultiplier * deltaTime);
             next.x = Mathf.Clamp(next.x, roomX.x, roomX.y);
             next.y = Mathf.Clamp(next.y, roomY.x, roomY.y);
             if (IsFreeForCat(next, true))
                 transform.position = new Vector3(next.x, next.y, transform.position.z);
+            IsMovingInHome = (transform.position - previousPosition).sqrMagnitude > .000001f;
             if (Mathf.Abs(manualInput.x) > .05f) Face(transform.position.x + manualInput.x);
             UpdateDepthOrder();
         }

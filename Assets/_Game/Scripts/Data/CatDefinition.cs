@@ -29,10 +29,17 @@ namespace PawPath.Data
         public Sprite portrait;
         public Sprite idleSprite;
         public RuntimeAnimatorController animator;
+        [Min(.1f)] public float visualHeightMultiplier = 1f;
         [Header("İsteğe Bağlı Animasyon Kareleri")]
         public Sprite[] walkFrames;
         public Sprite[] crouchWalkFrames;
         public Sprite[] idleFrames;
+        [Header("Yalnız Ev İçinde Derinlik Yönleri")]
+        public Sprite[] homeTowardFrames;
+        public Sprite[] homeAwayFrames;
+        [Range(.1f,1f)] public float homeVisibleHeightRatio = 1f;
+        public float homeTowardBodyHeight;
+        public float homeAwayBodyHeight;
         public Sprite[] jumpFrames;
         public Sprite jumpApexSprite;
         public Sprite[] sleepFrames;

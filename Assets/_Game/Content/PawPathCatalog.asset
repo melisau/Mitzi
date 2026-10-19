@@ -37,12 +37,13 @@ MonoBehaviour:
     buldun. Pamuk, burnunu parma\u011F\u0131na de\u011Fdirip 'beni de g\xF6t\xFCr\xFCr
     m\xFCs\xFCn?' diye bak\u0131yor. Evde ona bir g\xFCne\u015F dilimi ay\u0131raca\u011F\u0131z."
   personality: 1
-  unlockAfterLevel: 7
+  unlockAfterLevel: 60
   isStarterCat: 0
   furTint: {r: 0.96, g: 0.95, b: 0.93, a: 1}
   portrait: {fileID: 21300000, guid: 46d651d9b169ae443b6e05ad1d78505d, type: 3}
   idleSprite: {fileID: 21300000, guid: 4dc00ffafd2f1d74295e14f6ab399c1f, type: 3}
   animator: {fileID: 9100000, guid: bf53d92feed6eda4cb82bc293180d3a5, type: 2}
+  visualHeightMultiplier: 1
   walkFrames:
   - {fileID: 21300000, guid: 000a7fe9e287cfc49b219bc2bdc02546, type: 3}
   - {fileID: 21300000, guid: 599c95156db512049992cd10c8da1afc, type: 3}
@@ -66,6 +67,23 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 96c1ddce3625ed54f8669b312abf57c7, type: 3}
   - {fileID: 21300000, guid: 1406f8a1c2914cd42ba9b14da97514a7, type: 3}
   - {fileID: 21300000, guid: e29a436d9d8b3f74b824f899113cd04b, type: 3}
+  homeTowardFrames:
+  - {fileID: 2766344493943885416, guid: b0aeeb094b8ffec48a3e83adeece67e4, type: 3}
+  - {fileID: 1740172514756076631, guid: b0aeeb094b8ffec48a3e83adeece67e4, type: 3}
+  - {fileID: 2925626692617802220, guid: b0aeeb094b8ffec48a3e83adeece67e4, type: 3}
+  - {fileID: 7834072403031789409, guid: b0aeeb094b8ffec48a3e83adeece67e4, type: 3}
+  - {fileID: 2017353806755173486, guid: b0aeeb094b8ffec48a3e83adeece67e4, type: 3}
+  - {fileID: -1914418116858269998, guid: b0aeeb094b8ffec48a3e83adeece67e4, type: 3}
+  homeAwayFrames:
+  - {fileID: -3512561072496993273, guid: b0aeeb094b8ffec48a3e83adeece67e4, type: 3}
+  - {fileID: 6403338371196304359, guid: b0aeeb094b8ffec48a3e83adeece67e4, type: 3}
+  - {fileID: 842151903400571945, guid: b0aeeb094b8ffec48a3e83adeece67e4, type: 3}
+  - {fileID: -4009211071222651256, guid: b0aeeb094b8ffec48a3e83adeece67e4, type: 3}
+  - {fileID: 2973890023496571024, guid: b0aeeb094b8ffec48a3e83adeece67e4, type: 3}
+  - {fileID: 8165035569339175478, guid: b0aeeb094b8ffec48a3e83adeece67e4, type: 3}
+  homeVisibleHeightRatio: 0.459375
+  homeTowardBodyHeight: 2.69
+  homeAwayBodyHeight: 2.77
   jumpFrames:
   - {fileID: 21300000, guid: 7acb052730f08be4899c0923c678b17f, type: 3}
   - {fileID: 21300000, guid: 0e3d078cd1d35ce418aaed154be6b229, type: 3}
@@ -238,6 +256,7 @@ MonoBehaviour:
   portrait: {fileID: 21300000, guid: 2d7923b8a1e9e304b9ca22219bbd4a8c, type: 3}
   idleSprite: {fileID: 21300000, guid: a8022b4b23adc9945b3b5f9a4205efa1, type: 3}
   animator: {fileID: 9100000, guid: e119a53e51349ef43aacec0394b79c99, type: 2}
+  visualHeightMultiplier: 1
   walkFrames:
   - {fileID: 21300000, guid: 181e0330e3438ac4dbe7b2d5e6c50fc2, type: 3}
   - {fileID: 21300000, guid: e64d1ce3987e1f44b8360f0beca8373f, type: 3}
@@ -261,6 +280,23 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 0b7019aa8e0eaf445ab61c13c311d1ed, type: 3}
   - {fileID: 21300000, guid: cedc91aedb6614143bda1b5de4dc341a, type: 3}
   - {fileID: 21300000, guid: ec89901278b4f2b4495f3feaff37e0f5, type: 3}
+  homeTowardFrames:
+  - {fileID: 2766344493943885416, guid: 884d998baf703a74e9d21627548e3fa8, type: 3}
+  - {fileID: 1740172514756076631, guid: 884d998baf703a74e9d21627548e3fa8, type: 3}
+  - {fileID: 2925626692617802220, guid: 884d998baf703a74e9d21627548e3fa8, type: 3}
+  - {fileID: 7834072403031789409, guid: 884d998baf703a74e9d21627548e3fa8, type: 3}
+  - {fileID: 2017353806755173486, guid: 884d998baf703a74e9d21627548e3fa8, type: 3}
+  - {fileID: -1914418116858269998, guid: 884d998baf703a74e9d21627548e3fa8, type: 3}
+  homeAwayFrames:
+  - {fileID: -3512561072496993273, guid: 884d998baf703a74e9d21627548e3fa8, type: 3}
+  - {fileID: 6403338371196304359, guid: 884d998baf703a74e9d21627548e3fa8, type: 3}
+  - {fileID: 842151903400571945, guid: 884d998baf703a74e9d21627548e3fa8, type: 3}
+  - {fileID: -4009211071222651256, guid: 884d998baf703a74e9d21627548e3fa8, type: 3}
+  - {fileID: 2973890023496571024, guid: 884d998baf703a74e9d21627548e3fa8, type: 3}
+  - {fileID: 8165035569339175478, guid: 884d998baf703a74e9d21627548e3fa8, type: 3}
+  homeVisibleHeightRatio: 0.478125
+  homeTowardBodyHeight: 2.53
+  homeAwayBodyHeight: 2.79
   jumpFrames:
   - {fileID: 21300000, guid: defb7ce96412f9447a745f7e98745ce0, type: 3}
   - {fileID: 21300000, guid: b631a6fbb4e498d41b1dd5c95b9072d3, type: 3}
@@ -317,6 +353,110 @@ MonoBehaviour:
   goalPoint: {x: 6.25, y: 1}
   inkBudget: 18.4
   fallY: -7.5
+--- !u!114 &-4487770357530055325
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ba0a48be16eac847b8231e19fb2dadc, type: 3}
+  m_Name: Cat_Boza
+  m_EditorClassIdentifier: 
+  id: boza
+  displayName: Boza
+  bio: "Beyaz g\xF6\u011F\xFCsl\xFC, ye\u015Fil g\xF6zl\xFC, turuncu ve kahverengi
+    tekir desenli s\u0131cac\u0131k bir dost."
+  encounterDialogue: "Boza kap\u0131n\u0131n yan\u0131nda seni bekliyor. Art\u0131k
+    onun da s\u0131cac\u0131k bir evi var."
+  personality: 0
+  unlockAfterLevel: 20
+  isStarterCat: 0
+  furTint: {r: 1, g: 1, b: 1, a: 1}
+  portrait: {fileID: 6906487603962361545, guid: 133e2dc1a7750ae459c45bc508ead554, type: 3}
+  idleSprite: {fileID: -7138293540070697815, guid: 27819fca15fda904ab448cc52ffc0861, type: 3}
+  animator: {fileID: 9100000, guid: 06f0ac852db7fc947b000cf81e881cbb, type: 2}
+  visualHeightMultiplier: 0.6393502
+  walkFrames:
+  - {fileID: 8554824292988298296, guid: 61cd7ea088923944a9ab41f88a39c385, type: 3}
+  - {fileID: 7844458622879455089, guid: 61cd7ea088923944a9ab41f88a39c385, type: 3}
+  - {fileID: -6800602591002125234, guid: 61cd7ea088923944a9ab41f88a39c385, type: 3}
+  - {fileID: 6715948736895976041, guid: 61cd7ea088923944a9ab41f88a39c385, type: 3}
+  - {fileID: -1537390394180024022, guid: 61cd7ea088923944a9ab41f88a39c385, type: 3}
+  - {fileID: 7552448450392433387, guid: 61cd7ea088923944a9ab41f88a39c385, type: 3}
+  - {fileID: 5023324155731484214, guid: 61cd7ea088923944a9ab41f88a39c385, type: 3}
+  - {fileID: -8371239941679560438, guid: 61cd7ea088923944a9ab41f88a39c385, type: 3}
+  - {fileID: -7839854294131964190, guid: 61cd7ea088923944a9ab41f88a39c385, type: 3}
+  - {fileID: 8428286525173097495, guid: 61cd7ea088923944a9ab41f88a39c385, type: 3}
+  - {fileID: -2787140197056013511, guid: 61cd7ea088923944a9ab41f88a39c385, type: 3}
+  - {fileID: -8260419473583676578, guid: 61cd7ea088923944a9ab41f88a39c385, type: 3}
+  crouchWalkFrames:
+  - {fileID: 2827213529713726254, guid: 133e2dc1a7750ae459c45bc508ead554, type: 3}
+  - {fileID: 690262882181244813, guid: 133e2dc1a7750ae459c45bc508ead554, type: 3}
+  - {fileID: 1880618155397164373, guid: 133e2dc1a7750ae459c45bc508ead554, type: 3}
+  - {fileID: 8360454650150603337, guid: 133e2dc1a7750ae459c45bc508ead554, type: 3}
+  idleFrames:
+  - {fileID: -7138293540070697815, guid: 27819fca15fda904ab448cc52ffc0861, type: 3}
+  - {fileID: 6145577613641655487, guid: 27819fca15fda904ab448cc52ffc0861, type: 3}
+  - {fileID: 7834412365305588473, guid: 27819fca15fda904ab448cc52ffc0861, type: 3}
+  - {fileID: -4690433748030803917, guid: 27819fca15fda904ab448cc52ffc0861, type: 3}
+  homeTowardFrames:
+  - {fileID: 2766344493943885416, guid: dc2f6284e7816e24f8c95173961a3829, type: 3}
+  - {fileID: 1740172514756076631, guid: dc2f6284e7816e24f8c95173961a3829, type: 3}
+  - {fileID: 2925626692617802220, guid: dc2f6284e7816e24f8c95173961a3829, type: 3}
+  - {fileID: 7834072403031789409, guid: dc2f6284e7816e24f8c95173961a3829, type: 3}
+  - {fileID: 2017353806755173486, guid: dc2f6284e7816e24f8c95173961a3829, type: 3}
+  - {fileID: -1914418116858269998, guid: dc2f6284e7816e24f8c95173961a3829, type: 3}
+  homeAwayFrames:
+  - {fileID: -3512561072496993273, guid: dc2f6284e7816e24f8c95173961a3829, type: 3}
+  - {fileID: 6403338371196304359, guid: dc2f6284e7816e24f8c95173961a3829, type: 3}
+  - {fileID: 842151903400571945, guid: dc2f6284e7816e24f8c95173961a3829, type: 3}
+  - {fileID: -4009211071222651256, guid: dc2f6284e7816e24f8c95173961a3829, type: 3}
+  - {fileID: 2973890023496571024, guid: dc2f6284e7816e24f8c95173961a3829, type: 3}
+  - {fileID: 8165035569339175478, guid: dc2f6284e7816e24f8c95173961a3829, type: 3}
+  homeVisibleHeightRatio: 0.7869318
+  homeTowardBodyHeight: 2.6149998
+  homeAwayBodyHeight: 2.8049998
+  jumpFrames:
+  - {fileID: 6201622957524672731, guid: 133e2dc1a7750ae459c45bc508ead554, type: 3}
+  - {fileID: -8740355725668426187, guid: 133e2dc1a7750ae459c45bc508ead554, type: 3}
+  - {fileID: 8361352545645417326, guid: 133e2dc1a7750ae459c45bc508ead554, type: 3}
+  - {fileID: 5427891160974818260, guid: 133e2dc1a7750ae459c45bc508ead554, type: 3}
+  jumpApexSprite: {fileID: -6413386900279588941, guid: 133e2dc1a7750ae459c45bc508ead554, type: 3}
+  sleepFrames:
+  - {fileID: -694803891993344848, guid: 27819fca15fda904ab448cc52ffc0861, type: 3}
+  - {fileID: 5370495935834506543, guid: 27819fca15fda904ab448cc52ffc0861, type: 3}
+  - {fileID: -134563122694215712, guid: 27819fca15fda904ab448cc52ffc0861, type: 3}
+  - {fileID: 7069720416407870433, guid: 27819fca15fda904ab448cc52ffc0861, type: 3}
+  - {fileID: 2671232734657876868, guid: 27819fca15fda904ab448cc52ffc0861, type: 3}
+  climbFrames:
+  - {fileID: -3854552879989889003, guid: 30ff576233cfb664fa086806858a8204, type: 3}
+  - {fileID: -4808715429605491641, guid: 30ff576233cfb664fa086806858a8204, type: 3}
+  - {fileID: -7261873194425865724, guid: 30ff576233cfb664fa086806858a8204, type: 3}
+  - {fileID: 2937037625177089677, guid: 30ff576233cfb664fa086806858a8204, type: 3}
+  - {fileID: -8168134722748618602, guid: 30ff576233cfb664fa086806858a8204, type: 3}
+  - {fileID: -1970500078727753011, guid: 30ff576233cfb664fa086806858a8204, type: 3}
+  - {fileID: -4454574701824159672, guid: 30ff576233cfb664fa086806858a8204, type: 3}
+  - {fileID: -2957152382139229798, guid: 30ff576233cfb664fa086806858a8204, type: 3}
+  - {fileID: -3861613785932702687, guid: 30ff576233cfb664fa086806858a8204, type: 3}
+  - {fileID: -2527151920994739858, guid: 30ff576233cfb664fa086806858a8204, type: 3}
+  - {fileID: 2882974079030685156, guid: 30ff576233cfb664fa086806858a8204, type: 3}
+  - {fileID: -4827046112558683853, guid: 30ff576233cfb664fa086806858a8204, type: 3}
+  eatFrames:
+  - {fileID: 6313142568155290232, guid: 1ba5a93c14510c04099683ff3d7bf0f6, type: 3}
+  - {fileID: 2178430305417506410, guid: 1ba5a93c14510c04099683ff3d7bf0f6, type: 3}
+  - {fileID: -5847589552829286955, guid: 1ba5a93c14510c04099683ff3d7bf0f6, type: 3}
+  - {fileID: -5719999548339693002, guid: 1ba5a93c14510c04099683ff3d7bf0f6, type: 3}
+  drinkFrames:
+  - {fileID: 1189704253982337162, guid: 1ba5a93c14510c04099683ff3d7bf0f6, type: 3}
+  - {fileID: -4404431803387190739, guid: 1ba5a93c14510c04099683ff3d7bf0f6, type: 3}
+  - {fileID: -4448607604486921195, guid: 1ba5a93c14510c04099683ff3d7bf0f6, type: 3}
+  - {fileID: 2138133079600866525, guid: 1ba5a93c14510c04099683ff3d7bf0f6, type: 3}
+  useDetailedHomeAnimations: 1
+  purrClip: {fileID: 0}
+  meowClip: {fileID: 0}
 --- !u!114 &-4454218811808859968
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -379,6 +519,7 @@ MonoBehaviour:
   portrait: {fileID: 21300000, guid: fcdd29f9194d1724ca013fe1e7178efc, type: 3}
   idleSprite: {fileID: 21300000, guid: 8036d21353cb6a04eaeda43c26eae830, type: 3}
   animator: {fileID: 9100000, guid: 5512716a6ba25f545ab64703e40d9317, type: 2}
+  visualHeightMultiplier: 1
   walkFrames:
   - {fileID: 21300000, guid: 950691bc61d830745a5182bb0826f497, type: 3}
   - {fileID: 21300000, guid: aaef97afc59d3f147b0a14b946a95fb4, type: 3}
@@ -402,6 +543,23 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 7461d1e6a118ce54cb84de88af573c81, type: 3}
   - {fileID: 21300000, guid: 17ca8d06bd406ff4b8913bb025ea57f5, type: 3}
   - {fileID: 21300000, guid: d43b7a6f097c3e94d97cce9d1aa037c4, type: 3}
+  homeTowardFrames:
+  - {fileID: 2766344493943885416, guid: ca2c784dca9230f4aa638f1a8ea1423c, type: 3}
+  - {fileID: 1740172514756076631, guid: ca2c784dca9230f4aa638f1a8ea1423c, type: 3}
+  - {fileID: 2925626692617802220, guid: ca2c784dca9230f4aa638f1a8ea1423c, type: 3}
+  - {fileID: 7834072403031789409, guid: ca2c784dca9230f4aa638f1a8ea1423c, type: 3}
+  - {fileID: 2017353806755173486, guid: ca2c784dca9230f4aa638f1a8ea1423c, type: 3}
+  - {fileID: -1914418116858269998, guid: ca2c784dca9230f4aa638f1a8ea1423c, type: 3}
+  homeAwayFrames:
+  - {fileID: -3512561072496993273, guid: ca2c784dca9230f4aa638f1a8ea1423c, type: 3}
+  - {fileID: 6403338371196304359, guid: ca2c784dca9230f4aa638f1a8ea1423c, type: 3}
+  - {fileID: 842151903400571945, guid: ca2c784dca9230f4aa638f1a8ea1423c, type: 3}
+  - {fileID: -4009211071222651256, guid: ca2c784dca9230f4aa638f1a8ea1423c, type: 3}
+  - {fileID: 2973890023496571024, guid: ca2c784dca9230f4aa638f1a8ea1423c, type: 3}
+  - {fileID: 8165035569339175478, guid: ca2c784dca9230f4aa638f1a8ea1423c, type: 3}
+  homeVisibleHeightRatio: 0.403125
+  homeTowardBodyHeight: 2.83
+  homeAwayBodyHeight: 3.1950002
   jumpFrames:
   - {fileID: 21300000, guid: 65d5b5ac9fd8dea4497d56258509233a, type: 3}
   - {fileID: 21300000, guid: 84671a0e530aa274886e2c79fa6510dc, type: 3}
@@ -437,6 +595,110 @@ MonoBehaviour:
   - {fileID: 21300000, guid: d3504d8a36f89564fb4f56cce2277dd4, type: 3}
   - {fileID: 21300000, guid: 9a47ab62bd546e8468a0b98199ebf812, type: 3}
   - {fileID: 21300000, guid: 409fa828a3d8cf343aef10963ea35927, type: 3}
+  useDetailedHomeAnimations: 1
+  purrClip: {fileID: 0}
+  meowClip: {fileID: 0}
+--- !u!114 &-3551820249185170581
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ba0a48be16eac847b8231e19fb2dadc, type: 3}
+  m_Name: Cat_Ghost
+  m_EditorClassIdentifier: 
+  id: ghost
+  displayName: Ghost
+  bio: "Bembeyaz pofuduk t\xFCyl\xFC, bir g\xF6z\xFC mavi, di\u011Feri kehribar ye\u015Fili
+    bir Van kedisi."
+  encounterDialogue: "Ghost kap\u0131n\u0131n yan\u0131nda seni bekliyor. Art\u0131k
+    onun da s\u0131cac\u0131k bir evi var."
+  personality: 0
+  unlockAfterLevel: 7
+  isStarterCat: 0
+  furTint: {r: 1, g: 1, b: 1, a: 1}
+  portrait: {fileID: 6906487603962361545, guid: 91704fdacc24a2d4aa792c6d95f27499, type: 3}
+  idleSprite: {fileID: -7138293540070697815, guid: 1b42ef5284d4ae2409d706ca67b9486a, type: 3}
+  animator: {fileID: 9100000, guid: ec37462d33938394190eac9e1dea91b2, type: 2}
+  visualHeightMultiplier: 0.58385026
+  walkFrames:
+  - {fileID: 8554824292988298296, guid: 7cb98e3618f5c204ca5529dfe22f7cc3, type: 3}
+  - {fileID: 7844458622879455089, guid: 7cb98e3618f5c204ca5529dfe22f7cc3, type: 3}
+  - {fileID: -6800602591002125234, guid: 7cb98e3618f5c204ca5529dfe22f7cc3, type: 3}
+  - {fileID: 6715948736895976041, guid: 7cb98e3618f5c204ca5529dfe22f7cc3, type: 3}
+  - {fileID: -1537390394180024022, guid: 7cb98e3618f5c204ca5529dfe22f7cc3, type: 3}
+  - {fileID: 7552448450392433387, guid: 7cb98e3618f5c204ca5529dfe22f7cc3, type: 3}
+  - {fileID: 5023324155731484214, guid: 7cb98e3618f5c204ca5529dfe22f7cc3, type: 3}
+  - {fileID: -8371239941679560438, guid: 7cb98e3618f5c204ca5529dfe22f7cc3, type: 3}
+  - {fileID: -7839854294131964190, guid: 7cb98e3618f5c204ca5529dfe22f7cc3, type: 3}
+  - {fileID: 8428286525173097495, guid: 7cb98e3618f5c204ca5529dfe22f7cc3, type: 3}
+  - {fileID: -2787140197056013511, guid: 7cb98e3618f5c204ca5529dfe22f7cc3, type: 3}
+  - {fileID: -8260419473583676578, guid: 7cb98e3618f5c204ca5529dfe22f7cc3, type: 3}
+  crouchWalkFrames:
+  - {fileID: 2827213529713726254, guid: 91704fdacc24a2d4aa792c6d95f27499, type: 3}
+  - {fileID: 690262882181244813, guid: 91704fdacc24a2d4aa792c6d95f27499, type: 3}
+  - {fileID: 1880618155397164373, guid: 91704fdacc24a2d4aa792c6d95f27499, type: 3}
+  - {fileID: 8360454650150603337, guid: 91704fdacc24a2d4aa792c6d95f27499, type: 3}
+  idleFrames:
+  - {fileID: -7138293540070697815, guid: 1b42ef5284d4ae2409d706ca67b9486a, type: 3}
+  - {fileID: 6145577613641655487, guid: 1b42ef5284d4ae2409d706ca67b9486a, type: 3}
+  - {fileID: 7834412365305588473, guid: 1b42ef5284d4ae2409d706ca67b9486a, type: 3}
+  - {fileID: -4690433748030803917, guid: 1b42ef5284d4ae2409d706ca67b9486a, type: 3}
+  homeTowardFrames:
+  - {fileID: 2766344493943885416, guid: 7dbb92b8ec3835c43bb133fe7a329047, type: 3}
+  - {fileID: 1740172514756076631, guid: 7dbb92b8ec3835c43bb133fe7a329047, type: 3}
+  - {fileID: 2925626692617802220, guid: 7dbb92b8ec3835c43bb133fe7a329047, type: 3}
+  - {fileID: 7834072403031789409, guid: 7dbb92b8ec3835c43bb133fe7a329047, type: 3}
+  - {fileID: 2017353806755173486, guid: 7dbb92b8ec3835c43bb133fe7a329047, type: 3}
+  - {fileID: -1914418116858269998, guid: 7dbb92b8ec3835c43bb133fe7a329047, type: 3}
+  homeAwayFrames:
+  - {fileID: -3512561072496993273, guid: 7dbb92b8ec3835c43bb133fe7a329047, type: 3}
+  - {fileID: 6403338371196304359, guid: 7dbb92b8ec3835c43bb133fe7a329047, type: 3}
+  - {fileID: 842151903400571945, guid: 7dbb92b8ec3835c43bb133fe7a329047, type: 3}
+  - {fileID: -4009211071222651256, guid: 7dbb92b8ec3835c43bb133fe7a329047, type: 3}
+  - {fileID: 2973890023496571024, guid: 7dbb92b8ec3835c43bb133fe7a329047, type: 3}
+  - {fileID: 8165035569339175478, guid: 7dbb92b8ec3835c43bb133fe7a329047, type: 3}
+  homeVisibleHeightRatio: 0.86173636
+  homeTowardBodyHeight: 3.17
+  homeAwayBodyHeight: 3.12
+  jumpFrames:
+  - {fileID: 6201622957524672731, guid: 91704fdacc24a2d4aa792c6d95f27499, type: 3}
+  - {fileID: -8740355725668426187, guid: 91704fdacc24a2d4aa792c6d95f27499, type: 3}
+  - {fileID: 8361352545645417326, guid: 91704fdacc24a2d4aa792c6d95f27499, type: 3}
+  - {fileID: 5427891160974818260, guid: 91704fdacc24a2d4aa792c6d95f27499, type: 3}
+  jumpApexSprite: {fileID: -6413386900279588941, guid: 91704fdacc24a2d4aa792c6d95f27499, type: 3}
+  sleepFrames:
+  - {fileID: -694803891993344848, guid: 1b42ef5284d4ae2409d706ca67b9486a, type: 3}
+  - {fileID: 5370495935834506543, guid: 1b42ef5284d4ae2409d706ca67b9486a, type: 3}
+  - {fileID: -134563122694215712, guid: 1b42ef5284d4ae2409d706ca67b9486a, type: 3}
+  - {fileID: 7069720416407870433, guid: 1b42ef5284d4ae2409d706ca67b9486a, type: 3}
+  - {fileID: 2671232734657876868, guid: 1b42ef5284d4ae2409d706ca67b9486a, type: 3}
+  climbFrames:
+  - {fileID: -3854552879989889003, guid: 2de0466130920b34095d37bc17af62bc, type: 3}
+  - {fileID: -4808715429605491641, guid: 2de0466130920b34095d37bc17af62bc, type: 3}
+  - {fileID: -7261873194425865724, guid: 2de0466130920b34095d37bc17af62bc, type: 3}
+  - {fileID: 2937037625177089677, guid: 2de0466130920b34095d37bc17af62bc, type: 3}
+  - {fileID: -8168134722748618602, guid: 2de0466130920b34095d37bc17af62bc, type: 3}
+  - {fileID: -1970500078727753011, guid: 2de0466130920b34095d37bc17af62bc, type: 3}
+  - {fileID: -4454574701824159672, guid: 2de0466130920b34095d37bc17af62bc, type: 3}
+  - {fileID: -2957152382139229798, guid: 2de0466130920b34095d37bc17af62bc, type: 3}
+  - {fileID: -3861613785932702687, guid: 2de0466130920b34095d37bc17af62bc, type: 3}
+  - {fileID: -2527151920994739858, guid: 2de0466130920b34095d37bc17af62bc, type: 3}
+  - {fileID: 2882974079030685156, guid: 2de0466130920b34095d37bc17af62bc, type: 3}
+  - {fileID: -4827046112558683853, guid: 2de0466130920b34095d37bc17af62bc, type: 3}
+  eatFrames:
+  - {fileID: 6313142568155290232, guid: 5c2f0bc2bcaafe44f81f7474e2753c2b, type: 3}
+  - {fileID: 2178430305417506410, guid: 5c2f0bc2bcaafe44f81f7474e2753c2b, type: 3}
+  - {fileID: -5847589552829286955, guid: 5c2f0bc2bcaafe44f81f7474e2753c2b, type: 3}
+  - {fileID: -5719999548339693002, guid: 5c2f0bc2bcaafe44f81f7474e2753c2b, type: 3}
+  drinkFrames:
+  - {fileID: 1189704253982337162, guid: 5c2f0bc2bcaafe44f81f7474e2753c2b, type: 3}
+  - {fileID: -4404431803387190739, guid: 5c2f0bc2bcaafe44f81f7474e2753c2b, type: 3}
+  - {fileID: -4448607604486921195, guid: 5c2f0bc2bcaafe44f81f7474e2753c2b, type: 3}
+  - {fileID: 2138133079600866525, guid: 5c2f0bc2bcaafe44f81f7474e2753c2b, type: 3}
   useDetailedHomeAnimations: 1
   purrClip: {fileID: 0}
   meowClip: {fileID: 0}
@@ -496,12 +758,13 @@ MonoBehaviour:
     oturuyor. Sen e\u011Filince bir ad\u0131m yakla\u015F\u0131yor; sanki evinin
     kokusunu \xE7oktan tan\u0131yor."
   personality: 3
-  unlockAfterLevel: 20
+  unlockAfterLevel: 70
   isStarterCat: 0
   furTint: {r: 0.18, g: 0.16, b: 0.2, a: 1}
   portrait: {fileID: 21300000, guid: 2d7923b8a1e9e304b9ca22219bbd4a8c, type: 3}
   idleSprite: {fileID: 21300000, guid: a8022b4b23adc9945b3b5f9a4205efa1, type: 3}
   animator: {fileID: 9100000, guid: e119a53e51349ef43aacec0394b79c99, type: 2}
+  visualHeightMultiplier: 1
   walkFrames:
   - {fileID: 21300000, guid: 181e0330e3438ac4dbe7b2d5e6c50fc2, type: 3}
   - {fileID: 21300000, guid: e64d1ce3987e1f44b8360f0beca8373f, type: 3}
@@ -525,6 +788,23 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 0b7019aa8e0eaf445ab61c13c311d1ed, type: 3}
   - {fileID: 21300000, guid: cedc91aedb6614143bda1b5de4dc341a, type: 3}
   - {fileID: 21300000, guid: ec89901278b4f2b4495f3feaff37e0f5, type: 3}
+  homeTowardFrames:
+  - {fileID: 2766344493943885416, guid: 884d998baf703a74e9d21627548e3fa8, type: 3}
+  - {fileID: 1740172514756076631, guid: 884d998baf703a74e9d21627548e3fa8, type: 3}
+  - {fileID: 2925626692617802220, guid: 884d998baf703a74e9d21627548e3fa8, type: 3}
+  - {fileID: 7834072403031789409, guid: 884d998baf703a74e9d21627548e3fa8, type: 3}
+  - {fileID: 2017353806755173486, guid: 884d998baf703a74e9d21627548e3fa8, type: 3}
+  - {fileID: -1914418116858269998, guid: 884d998baf703a74e9d21627548e3fa8, type: 3}
+  homeAwayFrames:
+  - {fileID: -3512561072496993273, guid: 884d998baf703a74e9d21627548e3fa8, type: 3}
+  - {fileID: 6403338371196304359, guid: 884d998baf703a74e9d21627548e3fa8, type: 3}
+  - {fileID: 842151903400571945, guid: 884d998baf703a74e9d21627548e3fa8, type: 3}
+  - {fileID: -4009211071222651256, guid: 884d998baf703a74e9d21627548e3fa8, type: 3}
+  - {fileID: 2973890023496571024, guid: 884d998baf703a74e9d21627548e3fa8, type: 3}
+  - {fileID: 8165035569339175478, guid: 884d998baf703a74e9d21627548e3fa8, type: 3}
+  homeVisibleHeightRatio: 0.478125
+  homeTowardBodyHeight: 2.53
+  homeAwayBodyHeight: 2.79
   jumpFrames:
   - {fileID: 21300000, guid: defb7ce96412f9447a745f7e98745ce0, type: 3}
   - {fileID: 21300000, guid: b631a6fbb4e498d41b1dd5c95b9072d3, type: 3}
@@ -643,6 +923,7 @@ MonoBehaviour:
   portrait: {fileID: 21300000, guid: 46d651d9b169ae443b6e05ad1d78505d, type: 3}
   idleSprite: {fileID: 21300000, guid: 4dc00ffafd2f1d74295e14f6ab399c1f, type: 3}
   animator: {fileID: 9100000, guid: bf53d92feed6eda4cb82bc293180d3a5, type: 2}
+  visualHeightMultiplier: 1
   walkFrames:
   - {fileID: 21300000, guid: 000a7fe9e287cfc49b219bc2bdc02546, type: 3}
   - {fileID: 21300000, guid: 599c95156db512049992cd10c8da1afc, type: 3}
@@ -666,6 +947,23 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 96c1ddce3625ed54f8669b312abf57c7, type: 3}
   - {fileID: 21300000, guid: 1406f8a1c2914cd42ba9b14da97514a7, type: 3}
   - {fileID: 21300000, guid: e29a436d9d8b3f74b824f899113cd04b, type: 3}
+  homeTowardFrames:
+  - {fileID: 2766344493943885416, guid: b0aeeb094b8ffec48a3e83adeece67e4, type: 3}
+  - {fileID: 1740172514756076631, guid: b0aeeb094b8ffec48a3e83adeece67e4, type: 3}
+  - {fileID: 2925626692617802220, guid: b0aeeb094b8ffec48a3e83adeece67e4, type: 3}
+  - {fileID: 7834072403031789409, guid: b0aeeb094b8ffec48a3e83adeece67e4, type: 3}
+  - {fileID: 2017353806755173486, guid: b0aeeb094b8ffec48a3e83adeece67e4, type: 3}
+  - {fileID: -1914418116858269998, guid: b0aeeb094b8ffec48a3e83adeece67e4, type: 3}
+  homeAwayFrames:
+  - {fileID: -3512561072496993273, guid: b0aeeb094b8ffec48a3e83adeece67e4, type: 3}
+  - {fileID: 6403338371196304359, guid: b0aeeb094b8ffec48a3e83adeece67e4, type: 3}
+  - {fileID: 842151903400571945, guid: b0aeeb094b8ffec48a3e83adeece67e4, type: 3}
+  - {fileID: -4009211071222651256, guid: b0aeeb094b8ffec48a3e83adeece67e4, type: 3}
+  - {fileID: 2973890023496571024, guid: b0aeeb094b8ffec48a3e83adeece67e4, type: 3}
+  - {fileID: 8165035569339175478, guid: b0aeeb094b8ffec48a3e83adeece67e4, type: 3}
+  homeVisibleHeightRatio: 0.459375
+  homeTowardBodyHeight: 2.69
+  homeAwayBodyHeight: 2.77
   jumpFrames:
   - {fileID: 21300000, guid: 7acb052730f08be4899c0923c678b17f, type: 3}
   - {fileID: 21300000, guid: 0e3d078cd1d35ce418aaed154be6b229, type: 3}
@@ -747,6 +1045,7 @@ MonoBehaviour:
   portrait: {fileID: 21300000, guid: 563a12bada27963468201a5c68e95619, type: 3}
   idleSprite: {fileID: 21300000, guid: 377f6720b7692124f88dd0dc17eaa92b, type: 3}
   animator: {fileID: 9100000, guid: 0ac99078a140a1349a8e0a9d6c34cf55, type: 2}
+  visualHeightMultiplier: 1
   walkFrames:
   - {fileID: 21300000, guid: 0b0526a949b8ab04ca7d6b269e473020, type: 3}
   - {fileID: 21300000, guid: 42fc809d6986fe54fb4f3ff0e5525a18, type: 3}
@@ -770,6 +1069,23 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 6483fe2b735e1944a99a823d8156f705, type: 3}
   - {fileID: 21300000, guid: 7a60c57448b3f074f887a1c061c1dee9, type: 3}
   - {fileID: 21300000, guid: 70d201c1a39eef84aa191dd778f30d2a, type: 3}
+  homeTowardFrames:
+  - {fileID: 2766344493943885416, guid: 429da527f0c4da748977fc7316ab0909, type: 3}
+  - {fileID: 1740172514756076631, guid: 429da527f0c4da748977fc7316ab0909, type: 3}
+  - {fileID: 2925626692617802220, guid: 429da527f0c4da748977fc7316ab0909, type: 3}
+  - {fileID: 7834072403031789409, guid: 429da527f0c4da748977fc7316ab0909, type: 3}
+  - {fileID: 2017353806755173486, guid: 429da527f0c4da748977fc7316ab0909, type: 3}
+  - {fileID: -1914418116858269998, guid: 429da527f0c4da748977fc7316ab0909, type: 3}
+  homeAwayFrames:
+  - {fileID: -3512561072496993273, guid: 429da527f0c4da748977fc7316ab0909, type: 3}
+  - {fileID: 6403338371196304359, guid: 429da527f0c4da748977fc7316ab0909, type: 3}
+  - {fileID: 842151903400571945, guid: 429da527f0c4da748977fc7316ab0909, type: 3}
+  - {fileID: -4009211071222651256, guid: 429da527f0c4da748977fc7316ab0909, type: 3}
+  - {fileID: 2973890023496571024, guid: 429da527f0c4da748977fc7316ab0909, type: 3}
+  - {fileID: 8165035569339175478, guid: 429da527f0c4da748977fc7316ab0909, type: 3}
+  homeVisibleHeightRatio: 0.503125
+  homeTowardBodyHeight: 2.78
+  homeAwayBodyHeight: 3
   jumpFrames:
   - {fileID: 21300000, guid: 0b84137600d654542b0362d0cd2ae1f8, type: 3}
   - {fileID: 21300000, guid: f35dc08c466010a4b89909c2d3878404, type: 3}
@@ -840,11 +1156,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cats:
   - {fileID: -658513395329563809}
-  - {fileID: -8302633049469788424}
-  - {fileID: -2678519778766622585}
+  - {fileID: -3551820249185170581}
+  - {fileID: -4487770357530055325}
   - {fileID: -3616975402496998030}
   - {fileID: -1059568637041675864}
   - {fileID: -4842658224880327068}
+  - {fileID: -8302633049469788424}
+  - {fileID: -2678519778766622585}
   shopItems:
   - {fileID: 11400000, guid: 9f8edd8da300d7945ad3d0fd0f2a268e, type: 2}
   - {fileID: 11400000, guid: c9c878848a64442787900ba4b9d2dd90, type: 2}
@@ -978,9 +1296,11 @@ MonoBehaviour:
   shopSellSfx: {fileID: 8300000, guid: d5cc0a87779a4f34c844720c195acf5d, type: 3}
   completionFaces:
   - {fileID: 21300000, guid: 563a12bada27963468201a5c68e95619, type: 3}
+  - {fileID: 6906487603962361545, guid: 91704fdacc24a2d4aa792c6d95f27499, type: 3}
+  - {fileID: 6906487603962361545, guid: 133e2dc1a7750ae459c45bc508ead554, type: 3}
+  - {fileID: 21300000, guid: fcdd29f9194d1724ca013fe1e7178efc, type: 3}
   - {fileID: 21300000, guid: 46d651d9b169ae443b6e05ad1d78505d, type: 3}
   - {fileID: 21300000, guid: 2d7923b8a1e9e304b9ca22219bbd4a8c, type: 3}
-  - {fileID: 21300000, guid: fcdd29f9194d1724ca013fe1e7178efc, type: 3}
   - {fileID: 21300000, guid: 46d651d9b169ae443b6e05ad1d78505d, type: 3}
   - {fileID: 21300000, guid: 2d7923b8a1e9e304b9ca22219bbd4a8c, type: 3}
   completionBackground: {fileID: 21300000, guid: fb6cf618bf9dbe44c9d654248a0726dd, type: 3}

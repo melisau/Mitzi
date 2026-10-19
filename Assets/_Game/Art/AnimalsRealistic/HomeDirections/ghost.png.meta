@@ -1,0 +1,391 @@
+fileFormatVersion: 2
+guid: 7dbb92b8ec3835c43bb133fe7a329047
+TextureImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 0
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 4096
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: toward_01
+      rect:
+        serializedVersion: 2
+        x: 111
+        y: 372
+        width: 173
+        height: 341
+      alignment: 9
+      pivot: {x: 0.51848894, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 86e02e719a7046620800000000000000
+      internalID: 2766344493943885416
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: toward_02
+      rect:
+        serializedVersion: 2
+        x: 477
+        y: 372
+        width: 168
+        height: 338
+      alignment: 9
+      pivot: {x: 0.49085662, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7542fedaea5562810800000000000000
+      internalID: 1740172514756076631
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: toward_03
+      rect:
+        serializedVersion: 2
+        x: 835
+        y: 373
+        width: 166
+        height: 337
+      alignment: 9
+      pivot: {x: 0.5108362, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ce192eee9f9e99820800000000000000
+      internalID: 2925626692617802220
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: toward_04
+      rect:
+        serializedVersion: 2
+        x: 1195
+        y: 372
+        width: 168
+        height: 339
+      alignment: 9
+      pivot: {x: 0.50220287, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 16f8667085738bc60800000000000000
+      internalID: 7834072403031789409
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: toward_05
+      rect:
+        serializedVersion: 2
+        x: 1559
+        y: 372
+        width: 166
+        height: 339
+      alignment: 9
+      pivot: {x: 0.49026033, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e649ced49941ffb10800000000000000
+      internalID: 2017353806755173486
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: toward_06
+      rect:
+        serializedVersion: 2
+        x: 1921
+        y: 372
+        width: 165
+        height: 340
+      alignment: 9
+      pivot: {x: 0.46449083, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2de2711adde9e65e0800000000000000
+      internalID: -1914418116858269998
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: away_01
+      rect:
+        serializedVersion: 2
+        x: 114
+        y: 25
+        width: 166
+        height: 333
+      alignment: 9
+      pivot: {x: 0.4266927, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 70c93fd9050e04fc0800000000000000
+      internalID: -3512561072496993273
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: away_02
+      rect:
+        serializedVersion: 2
+        x: 473
+        y: 24
+        width: 154
+        height: 332
+      alignment: 9
+      pivot: {x: 0.56501055, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7ebb8cf725a3dd850800000000000000
+      internalID: 6403338371196304359
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: away_03
+      rect:
+        serializedVersion: 2
+        x: 836
+        y: 24
+        width: 157
+        height: 333
+      alignment: 9
+      pivot: {x: 0.5886352, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9243c19b1bcefab00800000000000000
+      internalID: 842151903400571945
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: away_04
+      rect:
+        serializedVersion: 2
+        x: 1193
+        y: 24
+        width: 160
+        height: 332
+      alignment: 9
+      pivot: {x: 0.43785354, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 886e53eb5cb6c58c0800000000000000
+      internalID: -4009211071222651256
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: away_05
+      rect:
+        serializedVersion: 2
+        x: 1557
+        y: 24
+        width: 159
+        height: 331
+      alignment: 9
+      pivot: {x: 0.48154348, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 09857935831654920800000000000000
+      internalID: 2973890023496571024
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: away_06
+      rect:
+        serializedVersion: 2
+        x: 1918
+        y: 25
+        width: 162
+        height: 332
+      alignment: 9
+      pivot: {x: 0.54351157, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 63214e01798005170800000000000000
+      internalID: 8165035569339175478
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    nameFileIdTable:
+      away_01: -3512561072496993273
+      away_02: 6403338371196304359
+      away_03: 842151903400571945
+      away_04: -4009211071222651256
+      away_05: 2973890023496571024
+      away_06: 8165035569339175478
+      toward_01: 2766344493943885416
+      toward_02: 1740172514756076631
+      toward_03: 2925626692617802220
+      toward_04: 7834072403031789409
+      toward_05: 2017353806755173486
+      toward_06: -1914418116858269998
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

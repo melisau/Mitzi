@@ -147,6 +147,7 @@ namespace PawPath.Levels
 
             const int completionReward = 5;
             int completedLevel = Current != null ? Current.levelNumber : DisplayLevel;
+            int previousCompletedLevel=SaveService.Data.highestCompletedLevel;
             if (LineDraw.Instance != null)
                 LineDraw.Instance.CanDraw = false;
 
@@ -165,11 +166,13 @@ namespace PawPath.Levels
             {
                 if (GameFlow.Instance != null)
                     GameFlow.Instance.ShowRescue(cat);
+                ThemeUnlockNotice.ShowNewlyUnlocked(previousCompletedLevel,completedLevel);
                 return;
             }
 
             if (GameFlow.Instance != null)
                 GameFlow.Instance.ShowLevelComplete(completedLevel, completionReward);
+            ThemeUnlockNotice.ShowNewlyUnlocked(previousCompletedLevel,completedLevel);
         }
 
         LevelDefinition ResolveLevel(int number)
@@ -206,9 +209,9 @@ namespace PawPath.Levels
             waitingRescueCat=new GameObject("WaitingRescueCat_"+cat.id);
             waitingRescueCat.transform.SetParent(goalMarker.parent,false);
             var sprite=waitingRescueCat.AddComponent<SpriteRenderer>();sprite.sprite=cat.idleSprite;sprite.sortingOrder=9;
-            float scale=2.5f*DisplaySizeSettings.CatScale/cat.idleSprite.bounds.size.y;
+            float scale=2.5f*DisplaySizeSettings.CatScale*cat.visualHeightMultiplier/cat.idleSprite.bounds.size.y;
             waitingRescueCat.transform.localScale=new Vector3(-scale,scale,1f);
-            float baseline=cat.idleSprite.bounds.min.y+cat.idleSprite.bounds.size.y*.08f;
+            float baseline=cat.idleSprite.bounds.min.y+cat.idleSprite.bounds.size.y*cat.idleSprite.pivot.y/cat.idleSprite.rect.height;
             float floor=courseBuilder!=null ? courseBuilder.CatSpawnY-.48f : goalMarker.position.y-.48f;
             waitingRescueCat.transform.position=new Vector3(goalMarker.position.x-1.1f,floor-baseline*scale,0);
             SoftShadow.Attach(waitingRescueCat,sprite,false,8,.55f,.06f,.32f);

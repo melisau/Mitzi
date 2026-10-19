@@ -319,6 +319,9 @@ namespace PawPath.Localization
 
         static readonly Dictionary<string, string> CatBioEn = new Dictionary<string, string>
         {
+            { "ghost", "A fluffy snow-white Van cat with one blue eye and one amber-green eye." },
+            { "boza", "A green-eyed friend with a white chest and warm orange-brown tabby markings." },
+
             { "mitzi", "The first paw of the house. She loves chasing sunbeams and taking tiny steps on the bridges you draw." },
             { "pamuk", "Soft as a cloud, quiet as a whisper. She curls up on the softest cushion and purrs." },
             { "komur", "Quiet as the night, warm as a hug. Wears her flower crown slightly tilted." },
@@ -329,6 +332,9 @@ namespace PawPath.Localization
 
         static readonly Dictionary<string, string> CatBioDe = new Dictionary<string, string>
         {
+            { "ghost", "Eine flauschige schneeweiße Van-Katze mit einem blauen und einem bernsteingrünen Auge." },
+            { "boza", "Ein grünäugiger Freund mit weißer Brust und orangebraun getigertem Fell." },
+
             { "mitzi", "Die erste Pfote im Haus. Sie jagt gern Sonnenflecken und macht kleine Schritte auf den Brücken, die du zeichnest." },
             { "pamuk", "Weich wie eine Wolke, leise wie ein Flüstern. Sie rollt sich auf dem weichsten Kissen zusammen und schnurrt." },
             { "komur", "Still wie die Nacht, warm wie eine Umarmung. Trägt ihren Blumenkranz leicht schief." },
@@ -339,6 +345,9 @@ namespace PawPath.Localization
 
         static readonly Dictionary<string, string> CatEncounterEn = new Dictionary<string, string>
         {
+            { "ghost", "Ghost is waiting beside the gate. Now this fluffy friend has a warm home too." },
+            { "boza", "Boza is waiting beside the gate. There is a warm place for this new friend at home." },
+
             { "mitzi", "Mitzi is already with you. She curls her tail by the window as if to say, 'come on, draw a path.'" },
             { "pamuk", "Under a park bench you found a shivering ball of fluff. Pamuk touches her nose to your finger as if asking, 'will you take me too?' We'll save her a slice of sunshine at home." },
             { "komur", "Kömür sits alone in the shadow of a streetlamp. When you lean down, she steps closer, as if she already knows the scent of home." },
@@ -349,6 +358,9 @@ namespace PawPath.Localization
 
         static readonly Dictionary<string, string> CatEncounterDe = new Dictionary<string, string>
         {
+            { "ghost", "Ghost wartet neben dem Tor. Jetzt hat auch diese flauschige Katze ein warmes Zuhause." },
+            { "boza", "Boza wartet neben dem Tor. Zu Hause wartet ein warmer Platz auf diesen neuen Freund." },
+
             { "mitzi", "Mitzi ist schon bei dir. Sie ringelt am Fenster den Schwanz, als wollte sie sagen: 'Los, zeichne einen Weg.'" },
             { "pamuk", "Unter einer Parkbank hast du ein zitterndes Fellknäuel gefunden. Pamuk stupst mit der Nase deinen Finger an, als würde sie fragen: 'Nimmst du mich mit?' Zu Hause bekommt sie ein Stück Sonnenschein." },
             { "komur", "Kömür sitzt allein im Schatten einer Straßenlaterne. Als du dich bückst, kommt sie einen Schritt näher, als kenne sie den Duft von Zuhause schon." },

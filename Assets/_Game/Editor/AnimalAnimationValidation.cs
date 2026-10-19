@@ -72,18 +72,19 @@ public static class AnimalAnimationValidation
         {
             AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
             CatBreedAnimationBuilder.BuildFromMenu();
+            GhostCatBuilder.Apply();HomeDirectionArtBuilder.Apply();
             BirdAnimationBuilder.Apply();
             GameplayMechanicsAssetBuilder.Apply();
             var catalog = AssetDatabase.LoadAssetAtPath<PawPathCatalog>(CatalogPath);
             Require(catalog != null, "Catalog missing");
-            Require(catalog.cats.Count(c => c != null) == 6, "Expected six cats");
+            Require(catalog.cats.Count(c => c != null) == 8, "Expected eight cats");
             Require(catalog.StarterCat != null && catalog.StarterCat.id == "mitzi"
                 && catalog.cats[0] == catalog.StarterCat, "Mitzi must be first starter cat");
             Require(AssetDatabase.GetAssetPath(catalog.StarterCat.idleSprite).Contains("/Cats/silver/"),
                 "Mitzi must use silver spotted reference cat");
             foreach (var cat in catalog.cats.Where(c => c != null))
             {
-                Require(cat.walkFrames.Length == 12 && cat.walkFrames.All(f => AssetDatabase.GetAssetPath(f).Contains("/videowalk_")), cat.id + " video gait missing");
+                Require(cat.walkFrames.Length == 12 && cat.walkFrames.All(f => AssetDatabase.GetAssetPath(f).Contains(cat.id=="ghost"||cat.id=="boza"?"/"+cat.id+"/walk.png":"/videowalk_")), cat.id + " gait missing");
                 CheckSeries(cat.walkFrames, cat.walkFrames.Length, cat.id + " walk");
                 CheckSeries(cat.climbFrames, 12, cat.id + " climb");
                 CheckSeries(cat.jumpFrames, 4, cat.id + " jump");
@@ -119,7 +120,7 @@ public static class AnimalAnimationValidation
             AssetDatabase.SaveAssets();
             Directory.CreateDirectory("AnimalArtSources-20261018");
             File.WriteAllText("AnimalArtSources-20261018/unity-validation.txt",
-                "PASS: grey spotted Mitzi first starter, video-guided walking cycle at 24fps; six cats, eleven controller states, distinct eat/drink, idle/sleep loops, " +
+                "PASS: grey spotted Mitzi first starter, walking cycle at 24fps; eight cats, eleven controller states, distinct eat/drink, idle/sleep loops, " +
                 "crouch walking, low/high jump and two-jump limit, left/right jump facing, left-facing birds.\n" + Application.unityVersion);
             Debug.Log("ANIMAL_ANIMATION_VALIDATION_PASS");
         }
@@ -238,7 +239,8 @@ public static class AnimalAnimationValidation
             Require(frame != null, name + " null sprite");
             Require(AssetDatabase.GetAssetPath(frame).StartsWith("Assets/_Game/Art/AnimalsRealistic/"),
                 name + " references old art");
-            Require(frame.rect.width == 320 && frame.rect.height == 320, name + " canvas");
+            bool photoCat=AssetDatabase.GetAssetPath(frame).Contains("/Cats/ghost/")||AssetDatabase.GetAssetPath(frame).Contains("/Cats/boza/");
+            Require(photoCat ? frame.rect.width>50&&frame.rect.height>50 : frame.rect.width == 320 && frame.rect.height == 320, name + " canvas");
             var importer = (TextureImporter)AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(frame));
             Require(importer.alphaIsTransparency && !importer.mipmapEnabled, name + " alpha/import");
         }

@@ -103,7 +103,7 @@ namespace PawPath.Hub
                 // Ev sahnesinde kediler dekorların yanında kaybolmasın; bu ölçek
                 // yalnızca resident görsellerine uygulanır, bölüm kedisini etkilemez.
                 // Home görselleri; pati pivotu aynı zeminde kalır.
-                FitSpriteToHeight(sr, 2.75f * DisplaySizeSettings.CatScale);
+                FitSpriteToHeight(sr, 2.75f * DisplaySizeSettings.CatScale * cat.visualHeightMultiplier);
                 var residentAnimator = sr.GetComponent<Animator>();
                 if (residentAnimator == null)
                     residentAnimator = sr.gameObject.AddComponent<Animator>();
@@ -125,6 +125,11 @@ namespace PawPath.Hub
             if (homeBehaviour == null)
                 homeBehaviour = go.AddComponent<CatHomeBehaviour>();
             homeBehaviour.BindDefinition(cat);
+            if (sr != null && cat.homeTowardFrames != null && cat.homeTowardFrames.Length > 0)
+            {
+                var homeDirections = go.GetComponent<HomeDirectionalAnimator>() ?? go.AddComponent<HomeDirectionalAnimator>();
+                homeDirections.Bind(cat, sr, homeBehaviour);
+            }
             if (cat.useDetailedHomeAnimations && sr != null && cat.sleepFrames != null && cat.sleepFrames.Length > 0)
             {
                 var sleepAnimator = go.GetComponent<MitziSleepAnimator>();

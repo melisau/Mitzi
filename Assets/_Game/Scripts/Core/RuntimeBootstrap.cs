@@ -125,7 +125,7 @@ namespace PawPath.Core
             var homeRooms = hub.AddComponent<HomeRooms>();
             homeRooms.Bind(cam, hubBg);
 
-            var spots = new Transform[6];
+            var spots = new Transform[8];
             var spotPositions = new[]
             {
                 // Kedilerin dinlendiği noktalar: zeminde, alt ortadaki bakım düğmelerinin üstünde.
@@ -134,7 +134,9 @@ namespace PawPath.Core
                 new Vector3(0.55f, -3.30f, 0f),
                 new Vector3(2.60f, -3.25f, 0f),
                 new Vector3(4.35f, -3.05f, 0f),
-                new Vector3(-2.20f, -3.30f, 0f)
+                new Vector3(-2.20f, -3.30f, 0f),
+                new Vector3(3.40f, -2.30f, 0f),
+                new Vector3(-4.30f, -2.30f, 0f)
             };
             for (int i = 0; i < spots.Length; i++)
             {
