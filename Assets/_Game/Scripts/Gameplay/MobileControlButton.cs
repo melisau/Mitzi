@@ -12,6 +12,7 @@ namespace PawPath.Gameplay
         public static bool CrouchHeld => crouch;
         public static bool JumpQueued => jumpQueued;
         public static bool ConsumeJump() { bool value = jumpQueued; jumpQueued = false; return value; }
+        public static void ClearJump() => jumpQueued = false;
         public static void Set(MobileAction action, bool pressed)
         {
             switch (action)

@@ -10,8 +10,8 @@ namespace PawPath.UI
     /// <summary>Separate first-play lessons; only the user's close action marks them seen.</summary>
     public sealed class GameplayTutorialUI : MonoBehaviour
     {
-        public const string DrawingSeenKey = "PawPath.AnimatedTutorial.Drawing.v2";
-        public const string DirectSeenKey = "PawPath.AnimatedTutorial.Direct.v2";
+        public const string DrawingSeenKey = "PawPath.AnimatedTutorial.Drawing.v3.Joystick";
+        public const string DirectSeenKey = "PawPath.AnimatedTutorial.Direct.v3.Joystick";
         public GameplayTutorialDemo Demo { get; private set; }
         public int PageIndex { get; private set; }
         public int PageCount => mode==GameplayPlayMode.Drawing ? 6:7;
@@ -78,19 +78,19 @@ namespace PawPath.UI
                     PageIndex==1 ? GameText.L("Araçları dene","Try the tools","Probiere die Werkzeuge"):GameText.L("Sonra başlat","Then press play","Dann starte");
                 caption.text=PageIndex==0 ? GameText.L("Parmağınla boşluğu birleştir.","Connect the gap with your finger.","Verbinde die Lücke mit deinem Finger."):
                     PageIndex==1 ? GameText.L("Mavi zıplatır. Buz kaydırır. Silgi siler.","Blue bounces. Ice slides. The eraser removes.","Blau federt. Eis rutscht. Der Radierer löscht."):
-                    GameText.L("Diğer ekranı da çiz. Yeşil oka bas.","Draw the next screen too. Tap green play.","Zeichne auch den nächsten Bildschirm. Tippe auf Grün.");
+                    GameText.L("Yeşil okla başlat. Sağ pati: yukarı zıpla, aşağı eğil.","Tap green play. Right paw: up to jump, down to crouch.","Tippe auf Grün. Rechte Pfote: hoch springen, runter ducken.");
             }
             else
             {
                 kind=PageIndex==0 ? TutorialDemoKind.Move:PageIndex==1 ? TutorialDemoKind.Jump:PageIndex==2 ? TutorialDemoKind.Crouch:TutorialDemoKind.Climb;
                 title.text=PageIndex==0 ? GameText.L("Yürü","Walk","Laufen"):PageIndex==1 ? GameText.L("Zıpla","Jump","Springen"):
                     PageIndex==2 ? GameText.L("Eğil","Crouch","Ducken"):GameText.L("Tırman","Climb","Klettern");
-                caption.text=PageIndex==0 ? GameText.L("Sağ veya sol oku basılı tut.","Hold the right or left arrow.","Halte den rechten oder linken Pfeil."):
-                    PageIndex==1 ? GameText.L("Bir dokunuş: zıpla. İki dokunuş: daha yükseğe!","Tap once to jump. Twice goes higher!","Einmal tippen: springen. Zweimal: höher!"):
-                    PageIndex==2 ? GameText.L("Alçak yerlerde aşağı oku basılı tut.","Hold the down arrow under low branches.","Halte unter niedrigen Ästen den Pfeil nach unten."):
-                    GameText.L("Ağacın yanında yukarı oka dokun.","Tap up next to a tree.","Tippe neben einem Baum auf den Pfeil nach oben.");
+                caption.text=PageIndex==0 ? GameText.L("Soldaki patiyi sağa veya sola it.","Push the left paw right or left.","Schiebe die linke Pfote nach rechts oder links."):
+                    PageIndex==1 ? GameText.L("Sağ patiyi yukarı it. Bırakıp yine it: çift zıpla!","Push the right paw up. Release and push again: double jump!","Rechte Pfote nach oben. Loslassen und erneut: Doppelsprung!"):
+                    PageIndex==2 ? GameText.L("Sağ patiyi aşağıda tut.","Hold the right paw down.","Halte die rechte Pfote unten."):
+                    GameText.L("Ağacın yanında sağ patiyi yukarı it.","Push the right paw up beside a tree.","Schiebe die rechte Pfote neben einem Baum nach oben.");
             }
-            Demo.Configure(kind);
+            Demo.Configure(kind,null,true);
             for(int i=0;i<dots.Length;i++)
             {
                 dots[i].gameObject.SetActive(i<PageCount);

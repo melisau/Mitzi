@@ -73,6 +73,12 @@ namespace PawPath.Hub
                 return;
 
             if (externalAnimation) return;
+            if (CurrentActivity == ResidentActivity.Walking)
+            {
+                var sleepAnimation = GetComponent<MitziSleepAnimator>();
+                if (sleepAnimation != null && sleepAnimation.BlocksWalking)
+                    return;
+            }
             stateTimer -= Time.deltaTime;
             UpdateAnimation();
             if (CurrentActivity == ResidentActivity.Walking)

@@ -431,6 +431,7 @@ namespace PawPath.Core
                 RefreshSizeLabels();
                 foreach (var control in hud.GetComponentsInChildren<MobileControlButton>(true))
                     ApplyControlLayout(control.GetComponent<RectTransform>(), control.name, large);
+                foreach (var stick in hud.GetComponentsInChildren<MobileJoystick>(true)) stick.Resize(large);
                 if (CatHouseManager.Instance != null)
                     CatHouseManager.Instance.RefreshResidents();
             }
@@ -754,10 +755,8 @@ namespace PawPath.Core
             var controls = new GameObject("MobileControls", typeof(RectTransform));
             controls.transform.SetParent(parent, false);
             Stretch(controls.GetComponent<RectTransform>());
-            AddControlButton(controls.transform, "Left", CozyIconFactory.ArrowLeft(), new Vector2(0f, 0f), MobileAction.Left);
-            AddControlButton(controls.transform, "Right", CozyIconFactory.ArrowRight(), new Vector2(0f, 0f), MobileAction.Right);
-            AddControlButton(controls.transform, "Jump", CozyIconFactory.ArrowUp(), new Vector2(1f, 0f), MobileAction.Jump);
-            AddControlButton(controls.transform, "Crouch", CozyIconFactory.ArrowDown(), new Vector2(1f, 0f), MobileAction.Crouch);
+            MobileJoystick.Create(controls.transform,"MoveJoystick",JoystickAxis.Horizontal,new Vector2(0f,0f));
+            MobileJoystick.Create(controls.transform,"ActionJoystick",JoystickAxis.Vertical,new Vector2(1f,0f));
             return controls;
         }
 

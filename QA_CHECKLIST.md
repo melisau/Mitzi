@@ -28,3 +28,9 @@ Not: Bu listedeki oynanış ve cihaz testleri henüz otomatik değildir; editör
 Ev kaydırma kontrolü: Boş duvar/zeminden sola kaydırınca ikinci, sağa kaydırınca ilk oda açılmalı; oklar da çalışmalıdır. Dikey/kısa hareketler, arayüz düğmeleri, kedi okşama ve eşya taşıma oda değiştirmemelidir. Parmağı kaldırmak kediyi kaydırmanın bittiği yere göndermemelidir. İzole doğrulama: `HomeRoomSwipeValidation.Run`.
 
 Köpek temposu kontrolü: Yavaş devriye ile hızlı kovalamada adım temposu farklı, dururken duruş pozu sabit olmalı; çukur sıçramasında bacaklar havada koşmamalıdır. `DogCadenceValidation.Run` oda kaydırması, köpeğin tümsek takibi ve temposunu birlikte doğrular.
+
+Joystick doğrulaması: `JoystickValidation.Run` yalnız izole projede çalışır. Hareket + zıplama/eğilme için iki parmak, yabancı parmakların kontrolü değiştirememesi, merkez boşluğu, pad dışına sürükleme, tek/çift zıplama eşiği, bırakma/durdurmada takılı giriş kalmaması ve çizim modunda yalnız sağ joystickle zıpla/eğil desteği test edilir. Gerçek telefonda rahat erişim ve öğretici parmak animasyonu ayrıca gözlenmelidir.
+
+Uyanma kontrolü: HomeWakeValidation.Run altı kedinin oda hedefi ve doğrudan eşya hedefinde uyku/uyanış sırasında hareket etmediğini, uyanınca hedefini koruduğunu doğrular. Telefonda uyuyan kediye hedef verilip yerinde uyanışı gözlenmelidir.
+
+DrawingPassageRecoveryValidation.Run: sürtünmeli eğilme engeline 1, 2 ve 3 birim yükseklikten çarpan kedi aşağı inmeli ve geçidi tamamlamalı. JoystickValidation.Run da aynı doğrulamada çalışır.

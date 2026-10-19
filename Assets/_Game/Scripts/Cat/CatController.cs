@@ -43,6 +43,7 @@ namespace PawPath.Cat
         CircleCollider2D bodyCollider;
         BoxCollider2D standingProfile;
         readonly RaycastHit2D[] groundVisualHits = new RaycastHit2D[8];
+        readonly ContactPoint2D[] movementContacts = new ContactPoint2D[16];
         SpriteRenderer sprite;
         Animator animator;
         // Kontrolcüsü olmayan Animator'a Play/speed göndermek konsolu uyarıyla doldurur.
@@ -453,11 +454,14 @@ namespace PawPath.Cat
                 perchJump = false;
             }
             TryJump();
+            // Auto-run must not keep pressing into the side of a low passage.
+            // Releasing that pressure lets gravity bring the cat down to its entrance.
+            float forward = BlockedByPassageSide() ? 0f : facing;
             if (grounded)
             {
                 airTimer = 0f;
                 float speed = (surface == PathSurfaceType.Ice ? moveSpeed * iceSpeedMultiplier : moveSpeed) * (crouching ? .55f : 1f);
-                body.velocity = new Vector2(facing * speed, body.velocity.y);
+                body.velocity = new Vector2(forward * speed, body.velocity.y);
                 if (HasAnimator)
                     animator.speed = walkAnimationSpeed;
             }
@@ -468,7 +472,7 @@ namespace PawPath.Cat
                 // karesi boyunca false dönebilir. Yatay hızı korumazsak kedi tam
                 // tepede asılı kalıyordu; havadayken de ileri momentumunu sürdürüyor.
                 float airSpeed = surface == PathSurfaceType.Ice ? moveSpeed * iceSpeedMultiplier : moveSpeed;
-                body.velocity = new Vector2(facing * airSpeed, body.velocity.y);
+                body.velocity = new Vector2(forward * airSpeed, body.velocity.y);
                 if (HasAnimator)
                     animator.speed = jumpAnimationPlaying ? 1f : 0f;
             }
@@ -487,6 +491,20 @@ namespace PawPath.Cat
             float fallY = level != null ? level.fallY : -7.5f;
             if (transform.position.y < fallY || airTimer > airGrace + 1.8f)
                 StartCoroutine(RescueRoutine());
+        }
+
+        bool BlockedByPassageSide()
+        {
+            int count = body.GetContacts(movementContacts);
+            for (int i = 0; i < count; i++)
+            {
+                var contact = movementContacts[i];
+                if (contact.normal.x * facing < -.5f && Mathf.Abs(contact.normal.y) < .55f &&
+                    (contact.collider.GetComponentInParent<CrouchPassage>() != null ||
+                     contact.otherCollider.GetComponentInParent<CrouchPassage>() != null))
+                    return true;
+            }
+            return false;
         }
 
         void SetCrouching(bool value, bool grounded)
@@ -673,6 +691,8 @@ void UpdateDirectControl(bool grounded, PathSurfaceType surface)
                 if (hits[i].collider == null || hits[i].collider.isTrigger)
                     continue;
                 if (hits[i].collider.transform == transform || hits[i].collider.transform.IsChildOf(transform))
+                    continue;
+                if (hits[i].normal.y < .35f)
                     continue;
                 var path = hits[i].collider.GetComponent<PathSurface>();
                 if (path != null)

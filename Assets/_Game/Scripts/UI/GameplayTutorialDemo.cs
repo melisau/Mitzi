@@ -21,6 +21,8 @@ namespace PawPath.UI
         public bool RewardVisible => reward != null && reward.gameObject.activeSelf;
         Image[] path;
         Image[] controls;
+        Image[] joystickThumbs;
+        bool joystickControls;
         Image[] viewDots;
         float started;
         float catSize;
@@ -31,9 +33,10 @@ namespace PawPath.UI
         static readonly Color Ice = new Color(.40f,.70f,.75f);
         const float Floor = -35f;
 
-        public void Configure(TutorialDemoKind kind, CatDefinition catDefinition = null)
+        public void Configure(TutorialDemoKind kind, CatDefinition catDefinition = null, bool useJoysticks = true)
         {
             Kind=kind;
+            joystickControls=useJoysticks;
             definition=catDefinition ?? GameFlow.Instance?.Catalog?.StarterCat;
             for (int i = transform.childCount - 1; i >= 0; i--)
             {
@@ -107,10 +110,13 @@ namespace PawPath.UI
             viewDots=new Image[2];
             for(int i=0;i<2;i++) viewDots[i]=Art("ViewDot_"+i,CozyIconFactory.Dot(),new Vector2(i==0 ? -13 : 13,139),Vector2.one*13,Green);
             controls=new Image[4];
+            joystickThumbs=new Image[4];
             for(int i=0;i<controls.Length;i++)
             {
                 controls[i]=Art("DemoControl_"+i,CozyIconFactory.CircleButton(),Vector2.zero,Vector2.one*66,Blue);
                 var icon=Art("Icon",CozyIconFactory.ArrowRight(),Vector2.zero,Vector2.one*35,Color.white,controls[i].transform);
+                joystickThumbs[i]=Art("JoystickThumb",CozyIconFactory.CircleButton(),Vector2.zero,Vector2.one*48,new Color(.98f,.94f,.85f),controls[i].transform);
+                Art("Paw",CozyIconFactory.Paw(),Vector2.zero,Vector2.one*24,Blue,joystickThumbs[i].transform);
             }
             tapRing=Art("TouchRing",CozyIconFactory.Ring(),Vector2.zero,Vector2.one*80,new Color(1f,.83f,.36f));
             finger=Art("Finger",CozyIconFactory.TouchFinger(),Vector2.zero,Vector2.one*55,new Color(1f,.77f,.60f));
@@ -189,9 +195,7 @@ namespace PawPath.UI
         void Move(float elapsed)
         {
             float t=elapsed%6f; bool right=t<3f; float progress=(t%3f)/3f;
-            Control(0,CozyIconFactory.ArrowLeft(),Brown,new Vector2(-300,-112));
-            Control(1,CozyIconFactory.ArrowRight(),Blue,new Vector2(300,-112));
-            Press(right ? 1 : 0,t%1f);
+            Stick(0,new Vector2(-300,-112),right?Vector2.right:Vector2.left,Mathf.Clamp01(progress*8f));
             Pose(Mathf.Lerp(right ? -280 : 280,right ? 280 : -280,progress),Floor,Frame(definition?.walkFrames,t,24),right);
         }
 
@@ -199,9 +203,10 @@ namespace PawPath.UI
         {
             float t=elapsed%7f; bool high=t>=3.4f; float start=high ? 3.4f:.4f;
             float local=t-start; float duration=high ? 2.3f:1.8f;
-            Control(0,CozyIconFactory.ArrowUp(),Blue,new Vector2(0,-112));
-            if(local>=0 && local<.35f) Press(0,local);
-            if(high && local>=.35f && local<.7f) Press(0,local-.35f);
+            Control(0,CozyIconFactory.ArrowUp(),Blue,new Vector2(300,-112));
+            if(joystickControls)Stick(0,new Vector2(300,-112),Vector2.up,0,false);
+            if(local>=0 && local<.35f) Gesture(0,Vector2.up,local,.35f);
+            if(high && local>=.35f && local<.7f) Gesture(0,Vector2.up,local-.35f,.35f);
             for(int i=0;i<2;i++)
             {
                 viewDots[i].gameObject.SetActive(i==0 || high);
@@ -218,7 +223,8 @@ namespace PawPath.UI
             float t=elapsed%5.5f; float progress=Mathf.Clamp01((t-.5f)/4f);
             Control(0,CozyIconFactory.ArrowDown(),Blue,new Vector2(300,-112));
             float x=Mathf.Lerp(-300,300,progress); bool low=x>-245 && x<245;
-            if(low) Press(0,t%1f);
+            if(joystickControls)Stick(0,new Vector2(300,-112),Vector2.down,low?1:0,low);
+            else if(low) Press(0,t%1f);
             Pose(x,Floor,low ? Frame(definition?.crouchWalkFrames,t,8) ?? Frame(definition?.jumpFrames,0,1) : Frame(definition?.walkFrames,t,24));
         }
 
@@ -226,7 +232,8 @@ namespace PawPath.UI
         {
             float t=elapsed%6f;
             Control(0,CozyIconFactory.ArrowUp(),Blue,new Vector2(300,-112));
-            if(t<.65f) Press(0,t);
+            if(joystickControls)Stick(0,new Vector2(300,-112),Vector2.up,0,false);
+            if(t<.65f) Gesture(0,Vector2.up,t,.65f);
             float rise=Mathf.Clamp01((t-.65f)/2.4f);
             Pose(-35,Mathf.Lerp(-80,5,rise),t<3.1f ? Frame(definition?.climbFrames,t,24) : definition?.idleSprite);
         }
@@ -237,7 +244,8 @@ namespace PawPath.UI
             if(Kind==TutorialDemoKind.DogStomp)
             {
                 Control(0,CozyIconFactory.ArrowUp(),Blue,new Vector2(-280,-112));
-                if(t<.5f) Press(0,t);
+                if(joystickControls)Stick(0,new Vector2(280,-112),Vector2.up,0,false);
+                if(t<.5f) Gesture(0,Vector2.up,t,.5f);
                 dog.gameObject.SetActive(t<2.5f);
                 dog.color=new Color(1,1,1,Mathf.Clamp01((2.5f-t)/.3f));
                 dog.rectTransform.localScale=new Vector3(-1,1,1)*(t<2.2f ? 1f:Mathf.Max(.1f,1-(t-2.2f)*2));
@@ -256,7 +264,8 @@ namespace PawPath.UI
                 float u=Mathf.Clamp01(t/1.8f);
                 Pose(Mathf.Lerp(-260,-30,u)+(t>1.8f && t<2.3f ? Mathf.Sin(t*55)*4:0),Floor,u<1 ? Frame(definition?.walkFrames,t,24):definition?.idleSprite);
                 Control(0,u<1 ? CozyIconFactory.ArrowRight():CozyIconFactory.ArrowLeft(),u<1 ? Blue:Pink,new Vector2(-280,-112));
-                if(u<1) Press(0,t%1f);
+                if(joystickControls)Stick(0,new Vector2(-280,-112),Vector2.right,u<1?Mathf.Clamp01(t*4):0,u<1);
+                else if(u<1) Press(0,t%1f);
                 feedback.sprite=CozyIconFactory.Close(); feedback.color=Pink; feedback.rectTransform.anchoredPosition=new Vector2(5,110);
                 feedback.gameObject.SetActive(t>=1.8f);
             }
@@ -270,7 +279,9 @@ namespace PawPath.UI
                 Pose(Mathf.Lerp(-240,90,u),y,u>0 && u<1 ? JumpPose(u):definition?.idleSprite);
                 reward.gameObject.SetActive(collected); reward.rectTransform.anchoredPosition=new Vector2(90,85+Mathf.Min(25,(t-2.15f)*15));
                 feedback.sprite=CozyIconFactory.Star(); feedback.color=new Color(1,.76f,.24f); feedback.rectTransform.anchoredPosition=new Vector2(40,100); feedback.gameObject.SetActive(collected);
-                Control(0,CozyIconFactory.ArrowUp(),Blue,new Vector2(-280,-112)); if(t<.5f) Press(0,t);
+                Control(0,CozyIconFactory.ArrowUp(),Blue,new Vector2(-280,-112));
+                if(joystickControls)Stick(0,new Vector2(280,-112),Vector2.up,0,false);
+                if(t<.5f) Gesture(0,Vector2.up,t,.5f);
             }
         }
 
@@ -305,8 +316,24 @@ namespace PawPath.UI
         void Control(int index,Sprite sprite,Color color,Vector2 position)
         {
             var control=controls[index]; control.gameObject.SetActive(true); control.color=color;
+            control.rectTransform.sizeDelta=Vector2.one*66;
             control.rectTransform.anchoredPosition=position;
-            control.transform.GetChild(0).GetComponent<Image>().sprite=sprite;
+            var icon=control.transform.GetChild(0).GetComponent<Image>();icon.gameObject.SetActive(true);icon.sprite=sprite;
+            joystickThumbs[index].gameObject.SetActive(false);
+        }
+        void Stick(int index,Vector2 position,Vector2 direction,float amount,bool showFinger=true)
+        {
+            Control(index,CozyIconFactory.Paw(),direction.x!=0?Brown:Blue,position);
+            var control=controls[index];control.rectTransform.sizeDelta=Vector2.one*92;
+            control.transform.GetChild(0).gameObject.SetActive(false);
+            var knob=joystickThumbs[index];knob.gameObject.SetActive(true);
+            knob.rectTransform.anchoredPosition=direction*20f*amount;
+            if(showFinger)Touch(position+direction*20f*amount,false);
+        }
+        void Gesture(int index,Vector2 direction,float elapsed,float duration)
+        {
+            if(!joystickControls){Press(index,elapsed);return;}
+            Stick(index,controls[index].rectTransform.anchoredPosition,direction,Mathf.Sin(Mathf.Clamp01(elapsed/duration)*Mathf.PI));
         }
         void Press(int index,float phase)
         {

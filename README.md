@@ -67,3 +67,9 @@ AdMob Android uygulama/ödüllü birim kimlikleri yapılandırıldı. [Geliştir
 Evde boş alandan sola/sağa kaydırarak odalar arasında geçilebilir; ok düğmeleri de kullanılabilir. UI, kedi ve eşya üzerinden başlayan hareketler ile eşya düzenleme modu kaydırma başlatmaz. Kaydırmayı bırakmak, seçili kediye yürüme komutu vermez.
 
 Köpek bacak animasyonu sabit 16 FPS yerine ilerleme hızına göre 8–12 FPS çalışır. Yerinde dururken duruş görseli, çukur sıçramasında sabit atlayış pozu kullanılır; düşman hareket hızları değiştirilmez.
+
+Tuşlarla oynama modunda iki pati joysticki kullanılır: solda sağ/sol hareket, sağda yukarı itme ile zıplama ve aşağıda tutma ile eğilme. Sağ joystick merkezden tekrar yukarı itilince ikinci zıplama istenir; yukarıda tutmak otomatik tekrar üretmez. İki kontrol farklı parmakları ayrı izler; ekran dışına sürükleme, bırakma, duraklatma ve odak kaybı girişleri temizler. Çizerek oynarken yalnız sağdaki aynı zıpla/eğil joysticki gösterilir; çizim hazırlığında gizlenir. Her iki modun öğreticisi joystick hareketini gösterir ve eski öğreticiyi görmüş oyuncuya da yeni kontrol anlatımı açılır.
+
+Evde uyuyan kediye yürüme hedefi verildiğinde uyanış kareleri yerinde tamamlanır; kedi kıvrılmış halde kaymadan yürümeye başlar. Oda tıklaması ve eşyalara doğrudan yürüme aynı beklemeyi kullanır.
+
+Çizim koşusunda eğilme engelinin yanına zıplayarak çarpınca otomatik ileri baskı kesilir; kedi yerçekimiyle girişe iner ve eğilerek devam eder. Dikey çarpışma yüzeyleri zemin sayılmaz.

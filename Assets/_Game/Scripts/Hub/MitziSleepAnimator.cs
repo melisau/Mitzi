@@ -23,6 +23,10 @@ namespace PawPath.Hub
         Vector3 awakePosition;
         const float FrameDuration = 0.18f;
 
+        // The reverse sleep frames must finish before the resident can translate.
+        // Include wasSleeping so this works regardless of the two Update callbacks' order.
+        public bool BlocksWalking => !externalAnimationActive && (wasSleeping || transitioning);
+
         public void Bind(CatDefinition cat, SpriteRenderer renderer, CatHomeBehaviour homeBehaviour)
         {
             spriteRenderer = renderer;
