@@ -50,6 +50,26 @@ namespace PawPath.Hub
         ResidentActivity animatedActivity = (ResidentActivity)(-1);
         Vector2 lastProgressPosition;
         float stuckTimer;
+        Vector2 manualInput;
+        public bool HasExternalAnimation => externalAnimation;
+
+        public void SetManualInput(Vector2 input)
+        {
+            bool wasMoving = manualInput.sqrMagnitude > 0f;
+            manualInput = Vector2.ClampMagnitude(input, 1f);
+            if (manualInput.sqrMagnitude > 0f && !externalAnimation)
+            {
+                directedMovement = true;
+                CurrentActivity = ResidentActivity.Walking;
+                arrivalActivity = ResidentActivity.Standing;
+            }
+            else if (wasMoving && !externalAnimation)
+            {
+                directedMovement = false;
+                CurrentActivity = ResidentActivity.Standing;
+                stateTimer = 12f;
+            }
+        }
 
         static readonly int WalkState = Animator.StringToHash("Walk");
         static readonly int SitState = Animator.StringToHash("Sit");
@@ -81,6 +101,11 @@ namespace PawPath.Hub
             }
             stateTimer -= Time.deltaTime;
             UpdateAnimation();
+            if (manualInput.sqrMagnitude > 0f)
+            {
+                AdvanceManualMovement(Time.deltaTime);
+                return;
+            }
             if (CurrentActivity == ResidentActivity.Walking)
             {
                 var target = new Vector3(targetPosition.x, targetPosition.y, transform.position.z);
@@ -348,14 +373,28 @@ namespace PawPath.Hub
             BeginWalk();
         }
 
-        bool IsFreeForCat(Vector2 point)
+        void AdvanceManualMovement(float deltaTime)
+        {
+            Vector2 next = (Vector2)transform.position + manualInput * (walkSpeed * directedSpeedMultiplier * deltaTime);
+            next.x = Mathf.Clamp(next.x, roomX.x, roomX.y);
+            next.y = Mathf.Clamp(next.y, roomY.x, roomY.y);
+            if (IsFreeForCat(next, true))
+                transform.position = new Vector3(next.x, next.y, transform.position.z);
+            if (Mathf.Abs(manualInput.x) > .05f) Face(transform.position.x + manualInput.x);
+            UpdateDepthOrder();
+        }
+
+        bool IsFreeForCat(Vector2 point, bool allowExit = false)
         {
             var hits = Physics2D.OverlapCircleAll(point, 0.26f);
             foreach (var hit in hits)
             {
                 var furniture = hit.GetComponent<DraggableFurniture>();
                 if (furniture != null && furniture.BlocksCats &&
-                    furniture.CatObstacleBounds.Contains(point))
+                    furniture.CatObstacleBounds.Contains(point) &&
+                    !(allowExit && furniture.CatObstacleBounds.Contains(transform.position) &&
+                      Vector2.SqrMagnitude(point - (Vector2)furniture.CatObstacleBounds.center) >
+                      Vector2.SqrMagnitude((Vector2)transform.position - (Vector2)furniture.CatObstacleBounds.center)))
                     return false;
             }
             return true;

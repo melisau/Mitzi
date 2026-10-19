@@ -11,11 +11,13 @@ namespace PawPath.Hub
 
         CatHomeBehaviour selected;
         int selectedFrame = -1;
+        public CatHomeBehaviour Selected { get { EnsureSelectedResident(); return selected; } }
 
         void Awake() => Instance = this;
 
         public void Select(CatHomeBehaviour cat)
         {
+            if (selected != null && selected != cat) selected.SetManualInput(Vector2.zero);
             selected = cat;
             selectedFrame = Time.frameCount;
         }
@@ -55,9 +57,9 @@ namespace PawPath.Hub
 
         void Update()
         {
-            if (GameFlow.Instance == null || !GameFlow.Instance.InHub || HomeRooms.SuppressWorldTap || !PointerUp())
+            if (GameFlow.Instance == null || !GameFlow.Instance.InHub || HomeRooms.SuppressWorldTap || PawPath.Gameplay.MobileJoystick.SuppressHomeWorldInput || !PointerUp())
                 return;
-            if (Time.frameCount == selectedFrame || EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+            if (Time.frameCount == selectedFrame || EventSystem.current != null && EventSystem.current.IsPointerOverGameObject(Input.touchCount > 0 ? Input.GetTouch(0).fingerId : -1))
                 return;
 
             Vector2 world = PointerWorld();

@@ -16,8 +16,15 @@ namespace PawPath.Gameplay
         int pointer;
         const float DeadZone=.25f;
         public JoystickAxis Axis => axis;
+        public bool HomeMode { get; set; }
+        public Vector2 HomeValue { get; private set; }
+        static int homePointers, homeReleaseFrame = -1;
+        public static bool SuppressHomeWorldInput => homePointers > 0 || homeReleaseFrame == Time.frameCount;
+        bool AcceptsInput => GameFlow.Instance == null || (HomeMode
+            ? GameFlow.Instance.InHub && !PawPath.Hub.HomeEditMode.Active
+            : GameFlow.Instance.State == GameFlowState.Gameplay);
 
-        public static MobileJoystick Create(Transform parent,string name,JoystickAxis axis,Vector2 anchor)
+        public static MobileJoystick Create(Transform parent,string name,JoystickAxis axis,Vector2 anchor,bool homeMode=false)
         {
             var root=new GameObject(name,typeof(RectTransform),typeof(Image));root.transform.SetParent(parent,false);
             var rt=root.GetComponent<RectTransform>();rt.anchorMin=rt.anchorMax=anchor;
@@ -36,7 +43,7 @@ namespace PawPath.Gameplay
                 Part("LeftHint",CozyIconFactory.ArrowLeft(),new Vector2(.07f,.42f),new Vector2(.23f,.58f),color);
                 Part("RightHint",CozyIconFactory.ArrowRight(),new Vector2(.77f,.42f),new Vector2(.93f,.58f),color);
             }
-            else
+            if(axis==JoystickAxis.Vertical || homeMode)
             {
                 Part("JumpHint",CozyIconFactory.ArrowUp(),new Vector2(.42f,.77f),new Vector2(.58f,.93f),color);
                 Part("CrouchHint",CozyIconFactory.ArrowDown(),new Vector2(.42f,.07f),new Vector2(.58f,.23f),color);
@@ -44,7 +51,7 @@ namespace PawPath.Gameplay
             var knob=Part("Thumb",CozyIconFactory.CircleButton(),Vector2.one*.5f,Vector2.one*.5f,color);
             var knobShadow=knob.gameObject.AddComponent<Shadow>();knobShadow.effectColor=new Color(.2f,.13f,.09f,.22f);knobShadow.effectDistance=new Vector2(0,-5);
             Part("Paw",CozyIconFactory.Paw(),Vector2.one*.28f,Vector2.one*.72f,new Color(1,.97f,.88f),knob.transform);
-            var stick=root.AddComponent<MobileJoystick>();stick.axis=axis;stick.pad=rt;stick.thumb=knob.rectTransform;
+            var stick=root.AddComponent<MobileJoystick>();stick.axis=axis;stick.pad=rt;stick.thumb=knob.rectTransform;stick.HomeMode=homeMode;
             stick.Resize(PawPath.Core.DisplaySizeSettings.Large);return stick;
         }
 
@@ -60,12 +67,14 @@ namespace PawPath.Gameplay
 
         public void OnPointerDown(PointerEventData data)
         {
-            if(owned || data==null || GameFlow.Instance!=null&&GameFlow.Instance.State!=GameFlowState.Gameplay)return;
-            owned=true;pointer=data.pointerId;jumpLatched=false;ReadPointer(data);
+            if(owned || data==null || !AcceptsInput)return;
+            owned=true;pointer=data.pointerId;jumpLatched=false;
+            if(HomeMode)homePointers++;
+            ReadPointer(data);
         }
         public void OnDrag(PointerEventData data)
         {
-            if(GameFlow.Instance!=null&&GameFlow.Instance.State!=GameFlowState.Gameplay)
+            if(!AcceptsInput)
             {Release();if(axis==JoystickAxis.Vertical)MobileControlState.ClearJump();return;}
             if(owned&&data!=null&&data.pointerId==pointer)ReadPointer(data);
         }
@@ -74,6 +83,13 @@ namespace PawPath.Gameplay
         {
             if(!RectTransformUtility.ScreenPointToLocalPointInRectangle(pad,data.position,data.pressEventCamera,out var local))return;
             float radius=pad.rect.width*.30f;
+            if(HomeMode)
+            {
+                HomeValue=Vector2.ClampMagnitude(local/radius,1f);
+                if(HomeValue.magnitude<DeadZone)HomeValue=Vector2.zero;
+                thumb.anchoredPosition=HomeValue*radius;
+                return;
+            }
             ApplyAxis(Mathf.Clamp((axis==JoystickAxis.Horizontal?local.x:local.y)/radius,-1f,1f));
         }
         void ApplyAxis(float value)
@@ -93,8 +109,11 @@ namespace PawPath.Gameplay
         }
         void Release()
         {
+            if(owned && HomeMode){homePointers=Mathf.Max(0,homePointers-1);homeReleaseFrame=Time.frameCount;}
             owned=false;jumpLatched=false;
             if(thumb!=null)thumb.anchoredPosition=Vector2.zero;
+            HomeValue=Vector2.zero;
+            if(HomeMode)return;
             if(axis==JoystickAxis.Horizontal){MobileControlState.Set(MobileAction.Left,false);MobileControlState.Set(MobileAction.Right,false);}
             else MobileControlState.Set(MobileAction.Crouch,false);
         }

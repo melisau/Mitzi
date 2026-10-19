@@ -26,7 +26,7 @@ public static class JoystickValidation
         {
             Check(Application.productName=="MitziValidation","Use isolated validation project");
             HudTrimValidation.Run();var flow=GameFlow.Instance;
-            var sticks=flow.GetComponentsInChildren<MobileJoystick>();Check(sticks.Length==2,"Direct mode must have two active sticks");
+            var sticks=flow.GetComponentsInChildren<MobileJoystick>().Where(s=>!s.HomeMode).ToArray();Check(sticks.Length==2,"Direct mode must have two active sticks");
             var left=sticks.Single(s=>s.Axis==JoystickAxis.Horizontal);var right=sticks.Single(s=>s.Axis==JoystickAxis.Vertical);
             var oldButtons=flow.GetComponentsInChildren<MobileControlButton>();Check(oldButtons.Length==0,"Direct mode retains old arrow buttons");
             MobileControlState.Reset();Canvas.ForceUpdateCanvases();

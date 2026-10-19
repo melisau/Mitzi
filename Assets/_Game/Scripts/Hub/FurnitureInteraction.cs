@@ -17,6 +17,19 @@ namespace PawPath.Hub
         bool running;
         Collider2D hitbox;
         float nextInteractionTime;
+        CatHomeBehaviour activeCat;
+        public bool IsBusyWith(CatHomeBehaviour cat) => running && activeCat == cat;
+        public bool TryNearbyCare(CatHomeBehaviour cat, out CareAction action)
+        {
+            action = CareAction.Eat;
+            if (item == null || cat == null || running || !isActiveAndEnabled) return false;
+            if (item.slotType == FurnitureSlotType.Water) action = CareAction.Drink;
+            else if (item.slotType == FurnitureSlotType.Bed) action = CareAction.Sleep;
+            else if (item.slotType != FurnitureSlotType.Bowl) return false;
+            var placed = GetComponent<DraggableFurniture>();
+            if (placed != null && HomeRooms.Instance != null && placed.RoomId != HomeRooms.Instance.ActiveRoom) return false;
+            return Vector2.Distance(cat.transform.position, transform.position) <= 1.5f;
+        }
 
         public void Configure(ShopItemDefinition definition)
         {
@@ -155,6 +168,7 @@ namespace PawPath.Hub
         IEnumerator CareRoutine(CatHomeBehaviour cat, CareAction action)
         {
             running = true;
+            activeCat = cat;
             string catId = cat.Definition != null ? cat.Definition.id : null;
             Vector2 destination = transform.position;
 
@@ -256,6 +270,7 @@ namespace PawPath.Hub
         IEnumerator Interact(CatHomeBehaviour cat)
         {
             running = true;
+            activeCat = cat;
             var activity = item.interactionType == ItemInteractionType.Eating
                 ? ResidentActivity.Eating
                 : item.interactionType == ItemInteractionType.Sleeping

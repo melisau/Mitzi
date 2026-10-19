@@ -34,3 +34,5 @@ Joystick doğrulaması: `JoystickValidation.Run` yalnız izole projede çalış�
 Uyanma kontrolü: HomeWakeValidation.Run altı kedinin oda hedefi ve doğrudan eşya hedefinde uyku/uyanış sırasında hareket etmediğini, uyanınca hedefini koruduğunu doğrular. Telefonda uyuyan kediye hedef verilip yerinde uyanışı gözlenmelidir.
 
 DrawingPassageRecoveryValidation.Run: sürtünmeli eğilme engeline 1, 2 ve 3 birim yükseklikten çarpan kedi aşağı inmeli ve geçidi tamamlamalı. JoystickValidation.Run da aynı doğrulamada çalışır.
+
+HomeManualControlValidation.Run: seçili kediye joystick girişi, oyun kontrollerine giriş sızmaması, bırakınca durma, zemin üst sınırı, yakındaki mama/su/yatak eylemi, uzaktaki eşyanın reddi ve düzenlemede joystick gizlenmesi kontrol edilir. Telefonda bakım animasyonu sırasında kontrol kilidi, yataktan çıkış, kedi seçimi ve odalar arası takip ayrıca gözlenmelidir.

@@ -73,3 +73,5 @@ Tuşlarla oynama modunda iki pati joysticki kullanılır: solda sağ/sol hareket
 Evde uyuyan kediye yürüme hedefi verildiğinde uyanış kareleri yerinde tamamlanır; kedi kıvrılmış halde kaymadan yürümeye başlar. Oda tıklaması ve eşyalara doğrudan yürüme aynı beklemeyi kullanır.
 
 Çizim koşusunda eğilme engelinin yanına zıplayarak çarpınca otomatik ileri baskı kesilir; kedi yerçekimiyle girişe iner ve eğilerek devam eder. Dikey çarpışma yüzeyleri zemin sayılmaz.
+
+Evde seçili kedi dört yönlü pati joystickiyle zeminin sınırları içinde yürütülebilir; kediye kısa dokunmak seçimi değiştirir ve joystick üstünde adını gösterir. Yakındaki mama/su kabı veya yatak için ayrı bir kullan düğmesi çıkar. İşlem elle başlatılır; bakım sürerken joystick gizlenir, başka odaya yürürken kamera odayı takip eder. Uyuyan kedi önce yerinde uyanır; eşyaların içinden yürüyemez, yatağın içinden dışarı çıkabilir.

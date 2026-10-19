@@ -57,7 +57,7 @@ namespace PawPath.Hub
         void Update()
         {
             // 1. Oyun Hub modunda değilse sevmeyi durdur
-            if (HomeRooms.SuppressWorldTap || GameFlow.Instance != null && !GameFlow.Instance.InHub)
+            if (HomeRooms.SuppressWorldTap || PawPath.Gameplay.MobileJoystick.SuppressHomeWorldInput || GameFlow.Instance != null && !GameFlow.Instance.InHub)
             {
                 StopPetting();
                 return;
@@ -65,7 +65,7 @@ namespace PawPath.Hub
 
             // 2. UI / Buton üzerindeyse sevmeyi durdur
             if (UnityEngine.EventSystems.EventSystem.current != null && 
-                UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
+                UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject(Input.touchCount > 0 ? Input.GetTouch(0).fingerId : -1))
             {
                 StopPetting();
                 return;

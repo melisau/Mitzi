@@ -20,6 +20,9 @@ namespace PawPath.Hub
         {
             if (GameFlow.Instance != null && !GameFlow.Instance.InHub)
                 return;
+            if (HomeEditMode.Active || PawPath.Gameplay.MobileJoystick.SuppressHomeWorldInput || UnityEngine.EventSystems.EventSystem.current != null &&
+                UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject(Input.touchCount > 0 ? Input.GetTouch(0).fingerId : -1))
+            { down = false; return; }
 
             if (PointerDown())
             {

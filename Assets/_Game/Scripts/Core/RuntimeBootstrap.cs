@@ -926,6 +926,18 @@ namespace PawPath.Core
             rewardedAd.gameObject.AddComponent<RewardedAdButton>();
 
             var ui = panel.AddComponent<CatNeedsUI>();
+            var homeStick = MobileJoystick.Create(content, "HomeJoystick", JoystickAxis.Horizontal, new Vector2(0,0), true);
+            var homeName = Label(content, "ControlledCatName", "", new Vector2(0,0), new Vector2(170,330));
+            homeName.fontSize = 28;
+            homeName.fontStyle = FontStyle.Bold;
+            var homeNameOutline = homeName.gameObject.AddComponent<Outline>();
+            homeNameOutline.effectColor = new Color(1f,.97f,.90f,1f);
+            homeNameOutline.effectDistance = new Vector2(2,2);
+            homeName.rectTransform.sizeDelta = new Vector2(300,50);
+            homeName.raycastTarget = false;
+            var nearbyAction = Button(content, "NearbyCareAction", "", new Vector2(1,0), new Vector2(-245,300), FoodColor);
+            StylePillButton(nearbyAction, new Vector2(300,92), FoodColor, null, FontBody, false);
+            content.gameObject.AddComponent<HomeManualControls>().Bind(homeStick, nearbyAction, homeName);
             ui.Bind(needs, feed, water, sleep, foodGauge, waterGauge, loveGauge, paws, toast);
             return ui;
         }
