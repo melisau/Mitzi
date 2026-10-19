@@ -11,3 +11,5 @@
 Loglar: `AnimalArtSources-20261018/unity-rescue-ghost-dog-final.log`, `unity-dog-passage-final.log`, `unity-dog-meeting-guard.log`. Sonuncusu sarılma sırasında gecikmiş tehlike temasının başarılı kurtarmayı kaybetme ekranına çevirmediğini de doğrular.
 
 Görsel üretimi, dosyalar ve istemler: [RESCUE_HUG_ART_PROMPTS.md](RESCUE_HUG_ART_PROMPTS.md). Kaynak PNG'ler korunur; dilimleme ve hizalama Unity importer metadatasıdır. Son görsel değerlendirme gerçek telefonda yapılmalıdır; bu oturumda yeni paketle fiziksel cihaz oynanış testi yapılmadı.
+
+Son imzalı APK: `Builds/Android/Rescue-Gait-Dog-Final-20261019/Mitzi-1.0.0-1-device-test.apk` (160.279.113 bayt). Unity Android derlemesi çıkış kodu 0; imza/yükleme sertifikası eşleşmesi, ZIP 16 KB hizalaması ve dört ARM64 kütüphanenin ELF/RELRO kontrolleri geçti. Ayrıntılar paketin yanındaki `apk-verification.json` dosyasındadır. Paket uygulama kaynak commit'i `1a84326`; bu APK GitHub'a eklenmedi, canlı reklamlar kapalıdır.
