@@ -81,3 +81,5 @@ Evde seçili kedi dört yönlü pati joystickiyle zeminin sınırları içinde y
 19 Ekim ek düzeltmeler: Evdeki kedi zemin bandı -3,40 ile -2,15 arasına genişletildi; duvar tarafındaki sınır korunur. Android simgesi için pati küçültülüp turkuaz kenar boşlukları artırıldı. Çizim koşusunda eğilme engelinin çıkıntısına oturan kedi kısa bir geri adımla çıkıntıdan ayrılır, aşağı iner ve geçide devam eder; görünmez çarpışma kapatma veya ışınlama kullanılmaz. Gerçek engellerle dört mekânda, iki kedi boyutunda, 6–7. bölümlerde 48 fizik denemesi geçti.
 
 Ghost ve Boza yürüyüşleri 8 karelik, 0,8 saniyelik daha sakin çevrime geçirildi; baş/zemin hizası ve çevrim ölçeği sabitlendi. Ghost küçültüldü; zıplama kareleri tam pati görünümüyle yenilendi, kazanma portresi fotoğraf referanslı ve iki farklı göz rengindedir. [Görsel istemleri](Docs/RESCUE_HUG_ART_PROMPTS.md).
+
+Ghost'un yan yürüyüşünde pati hareketlerini eşleyen sürekli ara geçişler kullanılır. Boza'nın mevcut yürüyüşü korunur. [Doğrulama ve sınırlar](Docs/GHOST_WALK_SMOOTHING_QA.md).

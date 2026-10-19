@@ -109,6 +109,7 @@ namespace PawPath.Hub
                     residentAnimator = sr.gameObject.AddComponent<Animator>();
                 residentAnimator.runtimeAnimatorController = cat.animator;
                 residentAnimator.enabled = cat.animator != null;
+                GhostWalkSmoother.Bind(sr, cat);
                 // Yumuşak gölge kediyi zemine oturtur (sahne zemininde collider yok).
                 SoftShadow.Attach(go, sr, false, sr.sortingOrder - 1, 0.55f, 0.06f, 0.32f);
             }

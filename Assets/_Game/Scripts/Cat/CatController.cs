@@ -154,6 +154,7 @@ namespace PawPath.Cat
                 animator.runtimeAnimatorController = cat != null ? cat.animator : null;
                 animator.enabled = animator.runtimeAnimatorController != null;
             }
+            GhostWalkSmoother.Bind(sprite, cat);
             if (cat != null)
                 CozyAudioManager.Instance?.PlayRandomMeow();
         }
