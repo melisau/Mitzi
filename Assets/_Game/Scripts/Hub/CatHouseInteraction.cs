@@ -55,7 +55,7 @@ namespace PawPath.Hub
 
         void Update()
         {
-            if (GameFlow.Instance == null || !GameFlow.Instance.InHub || !PointerUp())
+            if (GameFlow.Instance == null || !GameFlow.Instance.InHub || HomeRooms.SuppressWorldTap || !PointerUp())
                 return;
             if (Time.frameCount == selectedFrame || EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
                 return;

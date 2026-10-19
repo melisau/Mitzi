@@ -45,7 +45,7 @@ namespace PawPath.Levels
             groundY = roadSurfaceY;
             visualWidth = targetVisualWidth;
             groundInset = feetInset;
-            frameInterval = secondsPerFrame;
+            frameInterval = Mathf.Max(secondsPerFrame, 1f / 12f);
             gaps = courseGaps;
             levelNumber = courseLevelNumber;
             AlignFeetToGround();
@@ -126,6 +126,8 @@ namespace PawPath.Levels
                 renderer.sprite = frames[frameIndex];
                 AlignFeetToGround();
             }
+            float previousX = transform.position.x;
+            bool airborne = jumpingGap;
             if (jumpingGap)
                 AdvanceGapJump(Time.deltaTime);
             else
@@ -137,14 +139,31 @@ namespace PawPath.Levels
                 Destroy(gameObject);
                 return;
             }
-            if (frames == null || frames.Length == 0 || renderer == null) return;
-            frameTimer += Time.deltaTime;
-            if (frameTimer < frameInterval) return;
-            int advance = Mathf.FloorToInt(frameTimer / frameInterval);
-            frameTimer -= advance * frameInterval;
+            if (airborne)
+            {
+                // Hold the extended leap pose rather than running in the air.
+                if (frames != null && frames.Length > 0 && renderer != null)
+                { renderer.sprite = frames[0]; AlignFeetToGround(); }
+            }
+            else AdvanceRunAnimation(Mathf.Abs(transform.position.x - previousX));
+        }
+
+        int AdvanceRunAnimation(float travelledDistance)
+        {
+            if (frames == null || frames.Length == 0 || renderer == null ||
+                travelledDistance <= 0f || Mathf.Abs(speed) < .01f) return 0;
+            // A slow patrol needs fewer strides than a chase. Keep 8–12 poses
+            // per second and advance only for actual ground movement.
+            float interval = Mathf.Clamp(visualWidth * .55f / (Mathf.Abs(speed) * frames.Length),
+                frameInterval, Mathf.Max(frameInterval, 1f / 8f));
+            frameTimer += travelledDistance / Mathf.Abs(speed);
+            if (frameTimer < interval) return 0;
+            int advance = Mathf.FloorToInt(frameTimer / interval);
+            frameTimer -= advance * interval;
             frameIndex = (frameIndex + advance) % frames.Length;
             renderer.sprite = frames[frameIndex];
             AlignFeetToGround();
+            return advance;
         }
 
         void TryStartGapAction(float deltaTime)

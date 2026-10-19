@@ -24,3 +24,7 @@ Test kaydı: tarih, Unity sürümü, cihaz/model, işletim sistemi, oyun sürüm
 Not: Bu listedeki oynanış ve cihaz testleri henüz otomatik değildir; editör geometri doğrulaması yalnızca yerleşim verisini denetler.
 
 Çukur açıklığı regresyonu için yalnız izole MitziValidation kopyasında `GapChallengeValidation.Run` çalıştırılır. Her mekanda 1, 6 ve 10. bölümlerde müdahalesiz yürüyüşün gerçekten düşmeyle sonuçlandığı, kenardan tek zıplama ve çizilen köprüyle geçiş kontrol edilir. Normal/büyük görünüm ve buz hızını kapsar. Orta/zor 21. bölüm açıklıkları çift zıplamayla, 144 bölüm yerleşimi geometri kontrolüyle doğrulanır. Gerçek telefonda zıplama zamanlaması ve çukurun görsel okunabilirliği ayrıca gözlenmelidir.
+
+Ev kaydırma kontrolü: Boş duvar/zeminden sola kaydırınca ikinci, sağa kaydırınca ilk oda açılmalı; oklar da çalışmalıdır. Dikey/kısa hareketler, arayüz düğmeleri, kedi okşama ve eşya taşıma oda değiştirmemelidir. Parmağı kaldırmak kediyi kaydırmanın bittiği yere göndermemelidir. İzole doğrulama: `HomeRoomSwipeValidation.Run`.
+
+Köpek temposu kontrolü: Yavaş devriye ile hızlı kovalamada adım temposu farklı, dururken duruş pozu sabit olmalı; çukur sıçramasında bacaklar havada koşmamalıdır. `DogCadenceValidation.Run` oda kaydırması, köpeğin tümsek takibi ve temposunu birlikte doğrular.

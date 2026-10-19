@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 using System.Collections.Generic;
 using PawPath.Core;
 using PawPath.UI;
@@ -7,6 +8,7 @@ using PawPath.UI;
 namespace PawPath.Hub
 {
     /// <summary>Two adjacent rooms share a continuous floor and resident walking area.</summary>
+    [DefaultExecutionOrder(-100)]
     public class HomeRooms : MonoBehaviour
     {
         public static HomeRooms Instance { get; private set; }
@@ -23,6 +25,13 @@ namespace PawPath.Hub
         Button previous, next;
         Button store, move;
         float velocity;
+        bool swipeTracking, swipeConsumed;
+        int swipeFinger, swipeReleaseFrame = -1;
+        Vector2 swipeStart;
+        float swipeStartedAt;
+        readonly List<RaycastResult> swipeUiHits = new List<RaycastResult>();
+        public static bool SuppressWorldTap => Instance != null &&
+            (Instance.swipeConsumed || Instance.swipeReleaseFrame == Time.frameCount);
         readonly Dictionary<Sprite, Sprite> roomSprites = new Dictionary<Sprite, Sprite>();
 
         public Sprite RoomSprite(Sprite source)
@@ -131,7 +140,7 @@ namespace PawPath.Hub
         }
 
         void OnEnable() { if (controls != null) controls.SetActive(true); }
-        void OnDisable() { if (controls != null) controls.SetActive(false); }
+        void OnDisable() { EndSwipe(); if (controls != null) controls.SetActive(false); }
         void OnDestroy()
         {
             if (Instance == this) Instance = null;
@@ -154,6 +163,73 @@ namespace PawPath.Hub
             p.x = Mathf.SmoothDamp(p.x, Offset(ActiveRoom), ref velocity, 0.25f);
             camera.transform.position = p;
             UpdateControls();
+        }
+
+        void Update()
+        {
+            if (GameFlow.Instance == null || !GameFlow.Instance.InHub || HomeEditMode.Active ||
+                controls == null || !controls.activeInHierarchy)
+            { EndSwipe(); return; }
+            if (Input.touchCount > 1) { EndSwipe(); return; }
+            if (Input.touchCount == 1)
+            {
+                var touch = Input.GetTouch(0);
+                if (touch.phase == TouchPhase.Began) BeginSwipe(touch.position, touch.fingerId);
+                else if (swipeTracking && touch.fingerId == swipeFinger)
+                {
+                    if (touch.phase != TouchPhase.Canceled) TrackSwipe(touch.position);
+                    if (touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled) EndSwipe();
+                }
+                return;
+            }
+            if (Input.GetMouseButtonDown(0)) BeginSwipe(Input.mousePosition, -1);
+            if (swipeTracking && swipeFinger == -1)
+            {
+                TrackSwipe(Input.mousePosition);
+                if (Input.GetMouseButtonUp(0) || !Input.GetMouseButton(0)) EndSwipe();
+            }
+            else if (swipeTracking) EndSwipe();
+        }
+
+        bool BeginSwipe(Vector2 screen, int finger)
+        {
+            EndSwipe();
+            if (camera == null || GameFlow.Instance == null || !GameFlow.Instance.InHub ||
+                HomeEditMode.Active || controls == null || !controls.activeInHierarchy) return false;
+            if (EventSystem.current != null)
+            {
+                swipeUiHits.Clear();
+                EventSystem.current.RaycastAll(new PointerEventData(EventSystem.current) { position = screen }, swipeUiHits);
+                if (swipeUiHits.Count > 0) return false;
+            }
+            Vector3 point = screen; point.z = Mathf.Abs(camera.transform.position.z);
+            foreach (var hit in Physics2D.OverlapPointAll(camera.ScreenToWorldPoint(point)))
+                if (hit.GetComponentInParent<CatHomeBehaviour>() != null ||
+                    hit.GetComponentInParent<CatPettingSystem>() != null ||
+                    hit.GetComponentInParent<DraggableFurniture>() != null) return false;
+            swipeTracking = true; swipeConsumed = false; swipeFinger = finger;
+            swipeStart = screen; swipeStartedAt = Time.unscaledTime;
+            return true;
+        }
+
+        void TrackSwipe(Vector2 screen)
+        {
+            if (!swipeTracking || swipeConsumed) return;
+            Vector2 delta = screen - swipeStart;
+            float threshold = Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) * .12f, 60f, 160f);
+            if (Time.unscaledTime - swipeStartedAt > 2.5f ||
+                (Mathf.Abs(delta.y) > threshold && Mathf.Abs(delta.y) > Mathf.Abs(delta.x)))
+            { EndSwipe(); return; }
+            if (Mathf.Abs(delta.x) < threshold || Mathf.Abs(delta.x) < Mathf.Abs(delta.y) * 1.5f) return;
+            swipeConsumed = true;
+            int room = Mathf.Clamp(ActiveRoom + (delta.x < 0 ? 1 : -1), 0, 1);
+            if (room != ActiveRoom) SelectRoom(room);
+        }
+
+        void EndSwipe()
+        {
+            if (swipeConsumed) swipeReleaseFrame = Time.frameCount;
+            swipeTracking = false; swipeConsumed = false;
         }
         void UpdateControls()
         {

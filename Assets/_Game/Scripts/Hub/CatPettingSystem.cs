@@ -57,7 +57,7 @@ namespace PawPath.Hub
         void Update()
         {
             // 1. Oyun Hub modunda değilse sevmeyi durdur
-            if (GameFlow.Instance != null && !GameFlow.Instance.InHub)
+            if (HomeRooms.SuppressWorldTap || GameFlow.Instance != null && !GameFlow.Instance.InHub)
             {
                 StopPetting();
                 return;

@@ -63,3 +63,7 @@ Android paket hazırlığı için [ANDROID_RELEASE.md](ANDROID_RELEASE.md). İmz
 AdMob Android uygulama/ödüllü birim kimlikleri yapılandırıldı. [Geliştirici sitesi](https://melisau.github.io/) ve [app-ads.txt](https://melisau.github.io/app-ads.txt) yayımlandı; AdMob hesap/uygulama incelemesi ve mağaza bağlantısı henüz tamamlanmış sayılmaz.
 
 19 Ekim 2026: Başlangıç çukurları fiziksel olarak 1,75–1,90 birime genişletildi; giriş platformları ve çukur görselleri aynı açıklıklardan oluşturulur. Değişken bölümlerde kolay 1,75–1,90, orta 2,00–2,30 ve zor 2,30–2,60 birim aralıkları kullanılır. İzole doğrulamada dört mekanda 144 yerleşim ve 332 fizik denemesi geçti: normal/büyük kedi, normal/hızlı yürüyüşte çukura düşme, kolay çukurlarda tek zıplama/köprü, ileri çukurlarda çift zıplama.
+
+Evde boş alandan sola/sağa kaydırarak odalar arasında geçilebilir; ok düğmeleri de kullanılabilir. UI, kedi ve eşya üzerinden başlayan hareketler ile eşya düzenleme modu kaydırma başlatmaz. Kaydırmayı bırakmak, seçili kediye yürüme komutu vermez.
+
+Köpek bacak animasyonu sabit 16 FPS yerine ilerleme hızına göre 8–12 FPS çalışır. Yerinde dururken duruş görseli, çukur sıçramasında sabit atlayış pozu kullanılır; düşman hareket hızları değiştirilmez.
