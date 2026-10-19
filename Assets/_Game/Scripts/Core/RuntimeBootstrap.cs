@@ -749,6 +749,12 @@ namespace PawPath.Core
             var scroll=panel.AddComponent<ScrollRect>();scroll.viewport=rect;scroll.content=textRect;scroll.horizontal=false;scroll.movementType=ScrollRect.MovementType.Clamped;scroll.scrollSensitivity=35;
             var close=Button(panel.transform,"ClosePrivacyPolicy",GameText.Close,new Vector2(.5f,.09f),Vector2.zero,Color.white);
             StylePillButton(close,new Vector2(300f,100f),UtilityColor,null,FontButton,false);
+            close.GetComponent<RectTransform>().anchoredPosition=new Vector2(-220f,0);
+            var web=Button(panel.transform,"OpenPrivacyPolicyWebsite",GameText.L("Web'de aç", "Open website", "Webseite öffnen"),new Vector2(.5f,.09f),new Vector2(180f,0),Color.white);
+            StylePillButton(web,new Vector2(400f,100f),UtilityColor,null,FontButton,false);
+            string policyUrl=ReleaseConfiguration.Current?.privacyPolicyUrl;
+            web.interactable=System.Uri.TryCreate(policyUrl,System.UriKind.Absolute,out var policyUri)&&policyUri.Scheme=="https";
+            web.onClick.AddListener(()=>Application.OpenURL(policyUrl));
             panel.SetActive(false);return panel;
         }
 

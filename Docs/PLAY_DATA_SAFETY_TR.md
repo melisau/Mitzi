@@ -1,5 +1,7 @@
 # Mitzi — yayın ve veri güvenliği çalışma notları
 
+19 Ekim güncellemesi: Console'da uygulama oluşturma hesap doğrulaması bitene kadar engelli. Kullanıcının seçtiği hedef yaşlar ve hazırlanmış alanlar [PLAY_CONSOLE_DECLARATIONS_TR.md](PLAY_CONSOLE_DECLARATIONS_TR.md) içinde. Oyun içi gizlilik ekranına yayımlanan sayfayı açan düğme eklendi. Reklam tercihi ve son SDK davranışı kesinleşmeden veri güvenliği başvurusu yapılmadı.
+
 18 Ekim 2026. Bu bir Play Console başvurusu veya uygunluk sertifikası değildir. Beyanları geliştirici, son paketin davranışını inceleyerek tamamlar.
 
 ## İncelenen yapı

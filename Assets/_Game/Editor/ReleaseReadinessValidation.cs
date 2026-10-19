@@ -21,14 +21,19 @@ public static class ReleaseReadinessValidation
             Check(!config.advertisingEnabled,"Missing production IDs enable ads");
             Check(config.privacyPolicyReviewed && config.privacyPolicyUrl=="https://melisau.github.io/Mitzi/privacy.html","Published privacy URL missing");
             bool blocked=false;
-            try{PawPath.Editor.AndroidReleaseBuilder.RequireProductionConfiguration();}catch(BuildFailedException){blocked=true;}
-            Check(blocked,"Store build accepted missing production settings");
+            PawPath.Editor.AndroidReleaseBuilder.RequireProductionConfiguration();
+            string policyUrl=config.privacyPolicyUrl;
+            try
+            {
+                config.privacyPolicyUrl="";
+                try{PawPath.Editor.AndroidReleaseBuilder.RequireProductionConfiguration();}catch(BuildFailedException){blocked=true;}
+                Check(blocked,"Store build accepted missing privacy policy");
+            }
+            finally{config.privacyPolicyUrl=policyUrl;}
             ReleaseReadinessGuard.ValidateAndroidConfiguration(false,false);
             foreach(var destination in new[]{new[]{true,false},new[]{false,true}})
             {
-                blocked=false;
-                try{ReleaseReadinessGuard.ValidateAndroidConfiguration(destination[0],destination[1]);}catch(BuildFailedException){blocked=true;}
-                Check(blocked,"Store AAB/export accepted disabled production ads");
+                ReleaseReadinessGuard.ValidateAndroidConfiguration(destination[0],destination[1]);
             }
             string savedAdUnit=config.androidRewardedAdUnitId;
             try
@@ -43,6 +48,8 @@ public static class ReleaseReadinessValidation
             buttons.First(b=>b.name=="SettingsButton").onClick.Invoke();buttons.First(b=>b.name=="PrivacyPolicyButton").onClick.Invoke();
             var close=buttons.First(b=>b.name=="ClosePrivacyPolicy");
             Check(close.transform.parent.gameObject.activeSelf,"Privacy screen did not open");
+            var web=buttons.First(b=>b.name=="OpenPrivacyPolicyWebsite");
+            Check(web.interactable&&web.onClick!=null,"Privacy website link missing or unavailable");
             Canvas.ForceUpdateCanvases();
             var text=close.transform.parent.GetComponentsInChildren<Text>().First(t=>t.name=="PolicyText");
             Check(text.text.Contains(config.contactEmail)&&text.text.Contains("Google")&&text.text.Contains("SİLME"),"Privacy disclosure incomplete");
@@ -50,7 +57,7 @@ public static class ReleaseReadinessValidation
             LayoutRebuilder.ForceRebuildLayoutImmediate(scroll.content);
             Check(scroll.content.rect.height>scroll.viewport.rect.height,"Long privacy policy is not scrollable");
             var icons=PlayerSettings.GetIconsForTargetGroup(BuildTargetGroup.Unknown);
-            Check(icons.Length>0&&AssetDatabase.GetAssetPath(icons[0]).EndsWith("paw_icon.png"),"Paw app icon missing");
+            Check(icons.Length>0&&AssetDatabase.GetAssetPath(icons[0]).EndsWith("paw_icon_adaptive.png"),"Paw app icon missing");
             foreach(var canvas in flow.GetComponentsInChildren<Canvas>(true))canvas.sortingOrder=200;
             var cam=Camera.main;cam.aspect=16f/9f;Canvas.ForceUpdateCanvases();
             var target=new RenderTexture(1280,720,24);cam.targetTexture=target;cam.Render();RenderTexture.active=target;

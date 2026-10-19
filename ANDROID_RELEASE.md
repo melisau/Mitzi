@@ -61,6 +61,6 @@ CI Android store builds remain disabled until repository variable `MITZI_STORE_B
 
 ## Phone APK builds with advertisements disabled
 
-For Unity Build Settings > Build / Build And Run, uncheck **Build App Bundle (Google Play)** and **Export Project**. A non-development APK is allowed while `ReleaseConfiguration.advertisingEnabled=false`; there is no need to enable live ads or Development Build for this test. AAB/export builds, and APKs with live ads enabled, retain production validation. The error distinguishes disabled ads from missing ad IDs.
+For Unity Build Settings > Build / Build And Run, uncheck **Build App Bundle (Google Play)** and **Export Project**. A non-development APK is allowed while `ReleaseConfiguration.advertisingEnabled=false`; there is no need to enable live ads or Development Build for this test. AAB/export builds require a reviewed HTTPS privacy policy. Live ads are optional for a store release; production AdMob IDs are required only when advertising is enabled. SDK data handling and Play declarations still need verification even when ad display is disabled.
 
 Use **Mitzi > Android > Build Signed Device Test APK** for an APK signed with the configured upload-key environment. The local helper supports `-ApkOnly`. A freshly signed APK with the Egyptian Mau paw icon is generated under `Builds/Android/DeviceTestFix/`; previous artifacts are preserved.
