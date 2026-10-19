@@ -11,3 +11,5 @@ Hareket verisi `tools/build_ghost_motion_vectors.py` ile kaynak PNG'ler okunarak
 `GhostWalkSmoothingValidation.Run`, izole `MitziValidation` projesinde başarılı: gerçek shader çıktısında ara pati konumu, üst gövde opaklığı, sekiz geçişin hareket verisi, döngü birleşimi, fiziksel hizalama, ön/arka görünümün ve sarılmanın kaynak çizimi gizleyebilmesi, zıplamaya dönüş ve Boza'nın etkilenmemesi kontrol edildi. Shader derlemesi doğrulandı. Render önizlemeleri ve loglar yerel, ignore edilen `AnimalArtSources-20261018` klasöründedir.
 
 Yeni Android paketinin fiziksel telefonda akıcılık değerlendirmesi henüz yapılmadı. Ara hareketlerin görsel niteliği ve cihaz performansı telefonda da değerlendirilmelidir.
+
+İmzalı APK: `Builds/Android/Ghost-Continuous-Walk-20261019/Mitzi-1.0.0-1-device-test.apk` (161.232.589 bayt; kaynak commit `0663a84`). Unity Android derlemesi başarılı. İmza sertifikası, ZIP 16 KB hizalaması ve dört ARM64 kütüphanenin ELF/RELRO kontrolleri geçti. Yanındaki `apk-verification.json` ayrıntıları içerir. Canlı reklamlar kapalı. Bu APK mağazaya yüklenecek `.aab` paketi değildir.
