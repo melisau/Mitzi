@@ -22,3 +22,5 @@ Zemin testi için sokak, orman ve cadde temalarının her birinde **1, 6 ve 20. 
 Test kaydı: tarih, Unity sürümü, cihaz/model, işletim sistemi, oyun sürümü, geçen/kalan senaryolar ve hata ekran görüntüsü.
 
 Not: Bu listedeki oynanış ve cihaz testleri henüz otomatik değildir; editör geometri doğrulaması yalnızca yerleşim verisini denetler.
+
+Çukur açıklığı regresyonu için yalnız izole MitziValidation kopyasında `GapChallengeValidation.Run` çalıştırılır. Her mekanda 1, 6 ve 10. bölümlerde müdahalesiz yürüyüşün gerçekten düşmeyle sonuçlandığı, kenardan tek zıplama ve çizilen köprüyle geçiş kontrol edilir. Normal/büyük görünüm ve buz hızını kapsar. Orta/zor 21. bölüm açıklıkları çift zıplamayla, 144 bölüm yerleşimi geometri kontrolüyle doğrulanır. Gerçek telefonda zıplama zamanlaması ve çukurun görsel okunabilirliği ayrıca gözlenmelidir.

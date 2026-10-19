@@ -219,11 +219,12 @@ namespace PawPath.Levels
             selected.Sort();
 
             var gaps = new List<Vector2>(selected.Count);
-            float maxGapWidth = CurrentDifficulty == DifficultyLevel.Easy ? 1.15f : CurrentDifficulty == DifficultyLevel.Medium ? 1.35f : 1.52f;
+            float minGapWidth = CurrentDifficulty == DifficultyLevel.Easy ? 1.75f : CurrentDifficulty == DifficultyLevel.Medium ? 2.0f : 2.30f;
+            float maxGapWidth = CurrentDifficulty == DifficultyLevel.Easy ? 1.90f : CurrentDifficulty == DifficultyLevel.Medium ? 2.30f : 2.60f;
             foreach (int lane in selected)
             {
                 float center = gapLanes[lane] + NextRange(layoutRandom, -0.62f, 0.62f);
-                float width = NextRange(layoutRandom, 0.88f, maxGapWidth);
+                float width = NextRange(layoutRandom, minGapWidth, maxGapWidth);
                 gaps.Add(new Vector2(center, width));
             }
 
@@ -276,44 +277,43 @@ namespace PawPath.Levels
             {
                 case 0:
                     // İlk bölüm: tek, kolay bir çukur.
-                    Road(-5.15f + offsetX, 4.7f);
-                    Road(2.95f + offsetX, 9.1f);
-                    Gap(-2.2f + offsetX, 1.35f);
+                    BuildIntroRoads(offsetX, new Vector2(-2.2f, 1.75f));
                     break;
                 case 1:
                     // İki kısa çukur.
-                    Road(-5.45f + offsetX, 4.1f);
-                    Road(-0.15f + offsetX, 4.1f);
-                    Road(5.25f + offsetX, 4.5f);
-                    Gap(-2.8f + offsetX, 1.35f);
-                    Gap(2.45f + offsetX, 1.25f);
+                    BuildIntroRoads(offsetX, new Vector2(-2.8f, 1.85f), new Vector2(2.45f, 1.80f));
                     break;
                 case 2:
                     // Bir çukur ve üzerinden çizilecek yüksek bir tümsek.
-                    Road(-5.25f + offsetX, 4.5f);
-                    Road(2.8f + offsetX, 9.4f);
-                    Gap(-2.45f + offsetX, 1.25f);
+                    BuildIntroRoads(offsetX, new Vector2(-2.45f, 1.80f));
                     Obstacle(2.0f + offsetX, 1.08f, 1.05f);
                     break;
                 case 3:
                     // Tümsekten sonra ikinci bir kopuk yol.
-                    Road(-5.45f + offsetX, 4.1f);
-                    Road(-0.25f + offsetX, 4.1f);
-                    Road(5.25f + offsetX, 4.5f);
-                    Gap(-2.8f + offsetX, 1.35f);
-                    Gap(2.45f + offsetX, 1.25f);
+                    BuildIntroRoads(offsetX, new Vector2(-2.8f, 1.85f), new Vector2(2.45f, 1.80f));
                     Obstacle(-0.7f + offsetX, 1.05f, 0.95f);
                     break;
                 default:
                     // Sezon sonu: iki çukur ve daha geniş bir tümsek.
-                    Road(-5.55f + offsetX, 3.9f);
-                    Road(-0.35f + offsetX, 4.1f);
-                    Road(5.25f + offsetX, 4.5f);
-                    Gap(-2.95f + offsetX, 1.25f);
-                    Gap(2.5f + offsetX, 1.18f);
+                    BuildIntroRoads(offsetX, new Vector2(-2.95f, 1.85f), new Vector2(2.5f, 1.90f));
                     Obstacle(0.15f + offsetX, 1.32f, 1.18f);
                     break;
             }
+        }
+
+        void BuildIntroRoads(float offsetX, params Vector2[] openings)
+        {
+            float start = -7.5f + offsetX;
+            foreach (var opening in openings)
+            {
+                float left = offsetX + opening.x - opening.y * .5f;
+                Road((start + left) * .5f, left - start);
+                start = offsetX + opening.x + opening.y * .5f;
+            }
+            float end = 7.5f + offsetX;
+            Road((start + end) * .5f, end - start);
+            foreach (var opening in openings)
+                Gap(offsetX + opening.x, opening.y);
         }
 
         void Road(float centerX, float width)
