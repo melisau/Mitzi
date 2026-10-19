@@ -20,7 +20,8 @@ namespace PawPath.Core
         Pause,
         Victory,
         GameOver,
-        Rescue
+        Rescue,
+        RescueMeeting
     }
 
     /// <summary>
@@ -109,6 +110,12 @@ namespace PawPath.Core
                 screen.Present(cat);
         }
 
+        public void BeginRescueMeeting()
+        {
+            TransitionTo(GameFlowState.RescueMeeting);
+            SetRoots(hub: false, level: true, hud: false, rescue: false, complete: false, failure: false);
+        }
+
         public void ShowLevelComplete(int completedLevel, int reward)
         {
             TransitionTo(GameFlowState.Victory);
@@ -120,6 +127,7 @@ namespace PawPath.Core
 
         public void ShowLevelFailure(string reason)
         {
+            if(State==GameFlowState.RescueMeeting)return;
             TransitionTo(GameFlowState.GameOver);
             SetRoots(hub: false, level: false, hud: false, rescue: false, complete: false, failure: true);
             var screen = levelFailureRoot != null ? levelFailureRoot.GetComponent<UI.LevelFailureUI>() : null;
@@ -149,7 +157,7 @@ namespace PawPath.Core
             // Bilgi kartı açıkken duraklatılmaz; kart kendi zamanlayıcısıyla kapanır.
             if (InHub || State == GameFlowState.Pause || State == GameFlowState.InfoOverlay ||
                 State == GameFlowState.Victory ||
-                State == GameFlowState.GameOver || State == GameFlowState.Rescue)
+                State == GameFlowState.GameOver || State == GameFlowState.Rescue || State == GameFlowState.RescueMeeting)
                 return;
             stateBeforePause = State;
             TransitionTo(GameFlowState.Pause);
@@ -214,7 +222,7 @@ namespace PawPath.Core
             bool paused = state == GameFlowState.InfoOverlay ||
                 state == GameFlowState.DrawingPreparation || state == GameFlowState.Pause ||
                 state == GameFlowState.Victory || state == GameFlowState.GameOver ||
-                state == GameFlowState.Rescue;
+                state == GameFlowState.Rescue || state == GameFlowState.RescueMeeting;
             Time.timeScale = paused ? 0f : 1f;
             if (paused && CatController.Instance != null)
                 CatController.Instance.StopImmediately();

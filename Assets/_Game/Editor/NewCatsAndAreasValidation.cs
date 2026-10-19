@@ -33,6 +33,7 @@ public static class NewCatsAndAreasValidation
                 ThemeSelectionUI.TrySelectTheme(0);
                 var level=flow.GetComponent<LevelManager>();typeof(LevelManager).GetMethod("Awake",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(level,null);
                 level.BeginCurrentLevel();level.CompleteLevel();
+                var greeting=flow.GetComponent<RescueGreeting>();if(greeting!=null&&greeting.IsPlaying)greeting.Advance(RescueGreeting.Duration);
                 var notice=UnityEngine.Object.FindObjectOfType<ThemeUnlockNotice>();
                 Check(notice!=null&&notice.Theme==milestone/10,"Area notification absent on completion/rescue");
                 Check(ThemeSelectionUI.GetSelectedTheme(milestone+1)==0,"Unlock forces a theme change");

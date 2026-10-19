@@ -40,6 +40,7 @@ namespace PawPath.Levels
 
         public void BeginCurrentLevel()
         {
+            GetComponent<RescueGreeting>()?.Cancel();
             GameFlow.Instance?.SetGameplayPaused(true);
             completionHandled = false;
             Current = ResolveLevel(DisplayLevel);
@@ -164,9 +165,13 @@ namespace PawPath.Levels
             if (!SaveService.DeveloperMitziOnly &&
                 CatUnlockService.TryUnlockAfterLevel(SaveService.Data.highestCompletedLevel, out var cat))
             {
-                if (GameFlow.Instance != null)
-                    GameFlow.Instance.ShowRescue(cat);
-                ThemeUnlockNotice.ShowNewlyUnlocked(previousCompletedLevel,completedLevel);
+                System.Action finish=()=>
+                {
+                    if(GameFlow.Instance!=null)GameFlow.Instance.ShowRescue(cat);
+                    ThemeUnlockNotice.ShowNewlyUnlocked(previousCompletedLevel,completedLevel);
+                };
+                var greeting=GetComponent<RescueGreeting>()??gameObject.AddComponent<RescueGreeting>();
+                if(!greeting.Play(CatController.Instance,cat,waitingRescueCat,finish))finish();
                 return;
             }
 

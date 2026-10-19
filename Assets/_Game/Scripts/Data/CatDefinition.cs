@@ -32,6 +32,7 @@ namespace PawPath.Data
         [Min(.1f)] public float visualHeightMultiplier = 1f;
         [Header("İsteğe Bağlı Animasyon Kareleri")]
         public Sprite[] walkFrames;
+        public float walkCycleSeconds = .5f;
         public Sprite[] crouchWalkFrames;
         public Sprite[] idleFrames;
         [Header("Yalnız Ev İçinde Derinlik Yönleri")]
@@ -40,6 +41,10 @@ namespace PawPath.Data
         [Range(.1f,1f)] public float homeVisibleHeightRatio = 1f;
         public float homeTowardBodyHeight;
         public float homeAwayBodyHeight;
+        [Header("Kurtarma Sarılması")]
+        public Sprite[] rescueHugFrames;
+        public float rescueHugBodyHeight;
+        public float rescueHugContactX;
         public Sprite[] jumpFrames;
         public Sprite jumpApexSprite;
         public Sprite[] sleepFrames;

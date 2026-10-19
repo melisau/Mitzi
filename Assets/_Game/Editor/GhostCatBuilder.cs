@@ -39,10 +39,20 @@ public static class GhostCatBuilder
         cat.crouchWalkFrames=packs["action"].Skip(5).Take(4).ToArray();cat.sleepFrames=new[]{packs["home"][6]}.Concat(packs["home"].Skip(8).Take(4)).ToArray();
         cat.climbFrames=packs["climb"];cat.eatFrames=packs["care"].Take(4).ToArray();cat.drinkFrames=packs["care"].Skip(4).Take(4).ToArray();cat.useDetailedHomeAnimations=true;
         cat.homeVisibleHeightRatio=VisibleHeightRatio(root,cat.idleSprite);
-        cat.visualHeightMultiplier=catalog.StarterCat.homeVisibleHeightRatio/cat.homeVisibleHeightRatio;
+        cat.visualHeightMultiplier=catalog.StarterCat.homeVisibleHeightRatio/cat.homeVisibleHeightRatio*(id=="ghost"?.78f:1f);
+        cat.walkCycleSeconds=.8f;
+        if(id=="ghost"&&File.Exists(root+"/jump.png"))cat.jumpFrames=Import(root,"jump");
+        if(id=="ghost"&&File.Exists(root+"/portrait.png"))
+        {
+            var portrait=(TextureImporter)AssetImporter.GetAtPath(root+"/portrait.png");
+            if(portrait==null){AssetDatabase.ImportAsset(root+"/portrait.png");portrait=(TextureImporter)AssetImporter.GetAtPath(root+"/portrait.png");}
+            if(portrait.textureType!=TextureImporterType.Sprite||portrait.spriteImportMode!=SpriteImportMode.Single||portrait.mipmapEnabled)
+            {portrait.textureType=TextureImporterType.Sprite;portrait.spriteImportMode=SpriteImportMode.Single;portrait.alphaIsTransparency=true;portrait.mipmapEnabled=false;portrait.maxTextureSize=2048;portrait.SaveAndReimport();}
+            cat.portrait=AssetDatabase.LoadAssetAtPath<Sprite>(root+"/portrait.png");
+        }
         var controller=AssetDatabase.LoadAssetAtPath<AnimatorController>(root+"/"+id+".controller")??AnimatorController.CreateAnimatorControllerAtPath(root+"/"+id+".controller");
         var machine=controller.layers[0].stateMachine;
-        State(root,machine,"Walk",cat.walkFrames,24,true);State(root,machine,"Idle",cat.idleFrames,2,true);State(root,machine,"Jump",cat.jumpFrames.Take(3).ToArray(),12,false);
+        State(root,machine,"Walk",cat.walkFrames,cat.walkFrames.Length/cat.walkCycleSeconds,true);State(root,machine,"Idle",cat.idleFrames,2,true);State(root,machine,"Jump",cat.jumpFrames.Take(3).ToArray(),12,false);
         State(root,machine,"Crouch",new[]{packs["action"][id=="boza"?9:8]},1,false);State(root,machine,"CrouchWalk",cat.crouchWalkFrames,8,true);
         State(root,machine,"Sit",packs["home"].Skip(4).Take(2).ToArray(),4,false);State(root,machine,"Lie",new[]{packs["home"][6]},1,false);
         State(root,machine,"Sleep",cat.sleepFrames.Skip(1).ToArray(),2,true);State(root,machine,"Eat",cat.eatFrames,8,true);State(root,machine,"Drink",cat.drinkFrames,8,true);State(root,machine,"Climb",cat.climbFrames,24,true);
@@ -71,14 +81,15 @@ public static class GhostCatBuilder
         string path=root+"/"+sheet+".png";AssetDatabase.ImportAsset(path);
         var importer=(TextureImporter)AssetImporter.GetAtPath(path);
         var image=new Texture2D(2,2);image.LoadImage(File.ReadAllBytes(path));var pixels=image.GetPixels32();
-        var rows=new int[4];rows[3]=image.height;
-        for(int i=1;i<3;i++)rows[i]=Gutter(image,pixels,false,image.height*i/3,image.height/12,0,image.width);
+        int rowCount=sheet=="walk"||sheet=="jump"?2:3;
+        var rows=new int[rowCount+1];rows[rowCount]=image.height;
+        for(int i=1;i<rowCount;i++)rows[i]=Gutter(image,pixels,false,image.height*i/rowCount,image.height/12,0,image.width);
         var metadata=new List<SpriteMetaData>();
-        for(int row=0;row<3;row++)
+        for(int row=0;row<rowCount;row++)
         {
-            int bottom=rows[2-row],top=rows[3-row];
+            int bottom=rows[rowCount-1-row],top=rows[rowCount-row];
             // Boza's action rows contain four jumps, five apex/crouch poses and three final poses.
-            int count=root.EndsWith("/boza")&&sheet=="action"?(row==1?5:row==2?3:4):4;
+            int count=sheet=="jump"?2:root.EndsWith("/boza")&&sheet=="action"?(row==1?5:row==2?3:4):4;
             var columns=new int[count+1];columns[count]=image.width;
             for(int i=1;i<count;i++)columns[i]=Gutter(image,pixels,true,image.width*i/count,image.width/20,bottom,top);
             for(int col=0;col<count;col++)
@@ -92,13 +103,19 @@ public static class GhostCatBuilder
             }
         }
         float ppu=100;
-        if(sheet=="walk")
+        if(sheet=="walk"||sheet=="jump")
         {
             var idle=AssetDatabase.LoadAllAssetsAtPath(root+"/home.png").OfType<Sprite>().OrderBy(s=>s.name).First();
             var source=new Texture2D(2,2);source.LoadImage(File.ReadAllBytes(root+"/home.png"));
             float idleHeight=BodyHeight(idle.rect,source.GetPixels32(),source.width);
             var heights=metadata.Select(m=>BodyHeight(m.rect,pixels,image.width)).OrderBy(h=>h).ToArray();
-            ppu=100*((heights[5]+heights[6])*.5f)/idleHeight;
+            ppu=sheet=="jump"?100*metadata[0].rect.width/idle.rect.width:100*((heights[(heights.Length-1)/2]+heights[heights.Length/2])*.5f)/idleHeight;
+            if(sheet=="walk")
+            {
+                float referenceHead=HeadCenter(idle.rect,source.GetPixels32(),source.width)-idle.rect.x-idle.pivot.x;
+                for(int i=0;i<metadata.Count;i++)
+                {var m=metadata[i];float head=HeadCenter(m.rect,pixels,image.width);m.pivot=new Vector2((head-referenceHead*ppu/100-m.rect.x)/m.rect.width,0);metadata[i]=m;}
+            }
             UnityEngine.Object.DestroyImmediate(source);
         }
         UnityEngine.Object.DestroyImmediate(image);
@@ -117,6 +134,12 @@ public static class GhostCatBuilder
         int ear=(int)rect.y;
         for(int y=(int)rect.y;y<(int)rect.yMax;y++)for(int x=(int)(rect.x+rect.width*.67f);x<(int)rect.xMax;x++)if(pixels[y*width+x].a>96)ear=Mathf.Max(ear,y);
         return ear-rect.y+1;
+    }
+    static float HeadCenter(Rect rect,Color32[] pixels,int width)
+    {
+        float ear=BodyHeight(rect,pixels,width)+rect.y-1,total=0;int count=0;
+        for(int y=(int)(rect.y+(ear-rect.y)*.7f);y<=ear;y++)for(int x=(int)(rect.x+rect.width*.67f);x<rect.xMax;x++)if(pixels[y*width+x].a>96){total+=x;count++;}
+        return count>0?total/count:rect.center.x;
     }
     static int Gutter(Texture2D image,Color32[] pixels,bool vertical,int expected,int radius,int low,int high)
     {

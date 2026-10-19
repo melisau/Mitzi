@@ -79,13 +79,29 @@ namespace PawPath.Levels
         }
         public static bool BlocksDog(float x,float step,float reach,out float stop)
         {
+            bool blocked=false;float nearest=float.PositiveInfinity;stop=x;
             foreach(var p in active)
             {
                 if(p==null || !p.isActiveAndEnabled)continue;
-                stop=step>0 ? p.Left-reach:p.Right+reach;
-                if(step>0 && x<=stop+.02f && x+step>=stop || step<0 && x>=stop-.02f && x+step<=stop)return true;
+                float left=p.Left-reach,right=p.Right+reach;
+                float boundary=step>0?left:right;
+                bool crossing=step>0&&x<=left+.02f&&x+step>=left||step<0&&x>=right-.02f&&x+step<=right;
+                bool inside=x>left&&x<right;
+                bool deeper=inside&&(step>0&&x<(left+right)*.5f||step<0&&x>=(left+right)*.5f);
+                if(!(crossing||deeper))continue;
+                float distance=Mathf.Abs(boundary-x);if(distance<nearest){nearest=distance;stop=boundary;blocked=true;}
             }
-            stop=x;return false;
+            return blocked;
+        }
+        public static float SafeDogSpawnX(float x,float reach)
+        {
+            foreach(var p in active)
+            {
+                if(p==null||!p.isActiveAndEnabled)continue;
+                float left=p.Left-reach-.02f,right=p.Right+reach+.02f;
+                if(x>left&&x<right)x=x<(left+right)*.5f?left:right;
+            }
+            return x;
         }
         public static bool ContainsX(float x)
         {foreach(var p in active)if(p!=null && p.isActiveAndEnabled && x>p.Left-1f && x<p.Right+1f)return true;return false;}

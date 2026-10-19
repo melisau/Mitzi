@@ -84,7 +84,7 @@ public static class AnimalAnimationValidation
                 "Mitzi must use silver spotted reference cat");
             foreach (var cat in catalog.cats.Where(c => c != null))
             {
-                Require(cat.walkFrames.Length == 12 && cat.walkFrames.All(f => AssetDatabase.GetAssetPath(f).Contains(cat.id=="ghost"||cat.id=="boza"?"/"+cat.id+"/walk.png":"/videowalk_")), cat.id + " gait missing");
+                Require(cat.walkFrames.Length == (cat.id=="ghost"||cat.id=="boza"?8:12) && cat.walkFrames.All(f => AssetDatabase.GetAssetPath(f).Contains(cat.id=="ghost"||cat.id=="boza"?"/"+cat.id+"/walk.png":"/videowalk_")), cat.id + " gait missing");
                 CheckSeries(cat.walkFrames, cat.walkFrames.Length, cat.id + " walk");
                 CheckSeries(cat.climbFrames, 12, cat.id + " climb");
                 CheckSeries(cat.jumpFrames, 4, cat.id + " jump");
@@ -105,7 +105,7 @@ public static class AnimalAnimationValidation
                     {
                         var keys = AnimationUtility.GetObjectReferenceCurve(clip, binding);
                         Require(keys.Length == cat.walkFrames.Length, cat.id + " walk density");
-                        Require(Mathf.Abs(clip.length - 0.5f) < 0.001f, cat.id + " gait duration changed");
+                        Require(Mathf.Abs(clip.length - cat.walkCycleSeconds) < 0.001f, cat.id + " gait duration changed");
                         Require(AnimationUtility.GetAnimationClipSettings(clip).loopTime, cat.id + " walk loop");
                     }
                     Require(AnimationUtility.GetObjectReferenceCurve(clip, binding).All(k => k.value != null),

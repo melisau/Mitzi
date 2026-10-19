@@ -73,7 +73,7 @@ namespace PawPath.UI
             var flow = GameFlow.Instance;
             bool inLevel = flow != null && !flow.InHub &&
                 flow.State != GameFlowState.Victory && flow.State != GameFlowState.GameOver &&
-                flow.State != GameFlowState.Rescue;
+                flow.State != GameFlowState.Rescue && flow.State != GameFlowState.RescueMeeting;
             if (pauseButton != null && pauseButton.gameObject.activeSelf != inLevel)
                 pauseButton.gameObject.SetActive(inLevel);
             // Oyun başka bir yoldan duraklamadan çıktıysa (ör. eve dönüş) menü kapanır.

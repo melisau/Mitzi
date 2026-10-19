@@ -4,7 +4,7 @@
 
 `NewCatsAndAreasValidation.Run` başarıyla tamamlandı (Unity 2022.3.62f3, çıkış kodu 0).
 
-- Sekiz kedi, her birinde 12 yürüme/tırmanma karesi, 11 Animator durumu; boş kare veya eksik durum yok.
+- Sekiz kedi, eski kedilerde 12 yürüme karesi, son düzeltmeden sonra Ghost/Boza’da 8 yürüme karesi; bütün kedilerde 12 tırmanma karesi, 11 Animator durumu; boş kare veya eksik durum yok.
 - Ghost ve Boza kendilerine ait yürüme, duruş, zıplama, eğilme, uyuma, yeme, içme, tırmanma ve evde önden/arkadan yürüme görsellerini kullanır. Atlaslar ve gerçek Unity önizlemeleri incelendi; Boza eğilme satırı 5 hücre olarak kaydedilerek komşu kedinin kesilmiş parçası düzeltildi.
 - Evde aşağı hareket önden, yukarı hareket arkadan gösterilir; durunca son yön korunur. Yana hareket, bakım ve uyku kendi animasyonlarına döner. Bölüm oynanışına ev yönleri sızmaz.
 - Yeni kurtarma sırası: Ghost 7, Boza 20, Tarçın 30, Ada 40, Moka 50, Pamuk 60, Kömür 70. Erken açılma ve çift kurtarma engellenir. Yeni kimlikler kayda yazılır, eski kayıttaki Pamuk korunur.

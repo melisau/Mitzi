@@ -48,6 +48,7 @@ namespace PawPath.Levels
             frameInterval = Mathf.Max(secondsPerFrame, 1f / 12f);
             gaps = courseGaps;
             levelNumber = courseLevelNumber;
+            var start=transform.position;start.x=CrouchPassage.SafeDogSpawnX(start.x,visualWidth*.5f+.12f);transform.position=start;
             AlignFeetToGround();
             ShowIdle();
         }
@@ -108,13 +109,10 @@ namespace PawPath.Levels
                 AlignFeetToGround();
             }
 
-            if(!jumpingGap && CrouchPassage.BlocksDog(transform.position.x,direction*speed*Time.deltaTime,visualWidth*.45f,out float stopX))
-            {
-                var position=transform.position;position.x=stopX;transform.position=position;
-                gapRetreatPending=true;gapRetreatRemaining=GapRetreatDelaySeconds;ShowIdle();return;
-            }
+            if(StopAtCrouchPassage(Time.deltaTime))return;
             if (!jumpingGap)
                 TryStartGapAction(Time.deltaTime);
+            if(StopAtCrouchPassage(Time.deltaTime))return;
             if (gapRetreatPending)
             {
                 ShowIdle();
@@ -146,6 +144,14 @@ namespace PawPath.Levels
                 { renderer.sprite = frames[0]; AlignFeetToGround(); }
             }
             else AdvanceRunAnimation(Mathf.Abs(transform.position.x - previousX));
+        }
+
+        bool StopAtCrouchPassage(float deltaTime)
+        {
+            float step=jumpingGap?Mathf.Lerp(jumpStartX,jumpEndX,Mathf.Clamp01((jumpElapsed+deltaTime)/Mathf.Max(.01f,jumpDuration)))-transform.position.x:direction*speed*deltaTime;
+            if(!CrouchPassage.BlocksDog(transform.position.x,step,visualWidth*.5f+.12f,out float stop))return false;
+            jumpingGap=false;var position=transform.position;position.x=stop;transform.position=position;
+            gapRetreatPending=true;gapRetreatRemaining=GapRetreatDelaySeconds;ShowIdle();return true;
         }
 
         int AdvanceRunAnimation(float travelledDistance)
