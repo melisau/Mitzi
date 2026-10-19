@@ -44,6 +44,14 @@ public static class HomeManualControlValidation
             Check(resident.CurrentActivity == ResidentActivity.Standing, "Released home joystick keeps walking");
             resident.SetManualInput(Vector2.up); Call(resident, "AdvanceManualMovement", 20f);
             Check(resident.transform.position.y <= HomeRooms.FloorMaxY, "Manual resident can climb wall");
+            resident.SetManualInput(Vector2.down); Call(resident, "AdvanceManualMovement", 20f);
+            Check(Mathf.Abs(resident.transform.position.y-HomeRooms.FloorMinY)<.001f, "Manual resident cannot reach front floor boundary");
+            resident.WalkTo(new Vector2(resident.transform.position.x, 10f));
+            var floorTarget=(Vector2)typeof(CatHomeBehaviour).GetField("finalPosition",Hidden).GetValue(resident);
+            Check(Mathf.Approximately(floorTarget.y,HomeRooms.FloorMaxY), "Tapped destination can climb wall");
+            resident.WalkTo(new Vector2(resident.transform.position.x, -10f));
+            floorTarget=(Vector2)typeof(CatHomeBehaviour).GetField("finalPosition",Hidden).GetValue(resident);
+            Check(Mathf.Approximately(floorTarget.y,HomeRooms.FloorMinY), "Tapped destination cannot use front floor boundary");
             resident.SetManualInput(Vector2.zero);
             foreach (var slot in new[] { FurnitureSlotType.Bowl, FurnitureSlotType.Water, FurnitureSlotType.Bed })
             {

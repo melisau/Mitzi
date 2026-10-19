@@ -16,8 +16,8 @@ namespace PawPath.Hub
         public float RoomWidth { get; private set; } = 16f;
         // Furniture bases use actual sprite bounds; cat roots include paw-canvas padding.
         public const float FurnitureBackY = -1.95f;
-        public const float FloorMinY = -3.40f;
-        public const float FloorMaxY = -2.15f;
+        public const float FloorMinY = -3.95f;
+        public const float FloorMaxY = -2.75f;
         SpriteRenderer[] backgrounds;
         Camera camera;
         GameObject controls;
