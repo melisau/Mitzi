@@ -12,7 +12,7 @@ public static class AppIconBuilder
     [MenuItem("Mitzi/Apply Paw App Icon")]
     public static void Apply()
     {
-        const string path="Assets/_Game/Art/AppIcon/paw_icon.png";
+        const string path="Assets/_Game/Art/AppIcon/paw_icon_adaptive.png";
         var importer=AssetImporter.GetAtPath(path) as TextureImporter;if(importer==null)return;
         if(importer.textureType!=TextureImporterType.Default || importer.maxTextureSize<2048 || importer.mipmapEnabled)
         { importer.textureType=TextureImporterType.Default;importer.maxTextureSize=2048;importer.mipmapEnabled=false;importer.textureCompression=TextureImporterCompression.Uncompressed;importer.SaveAndReimport(); }

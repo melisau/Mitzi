@@ -36,3 +36,5 @@ Uyanma kontrolü: HomeWakeValidation.Run altı kedinin oda hedefi ve doğrudan e
 DrawingPassageRecoveryValidation.Run: sürtünmeli eğilme engeline 1, 2 ve 3 birim yükseklikten çarpan kedi aşağı inmeli ve geçidi tamamlamalı. JoystickValidation.Run da aynı doğrulamada çalışır.
 
 HomeManualControlValidation.Run: seçili kediye joystick girişi, oyun kontrollerine giriş sızmaması, bırakınca durma, zemin üst sınırı, yakındaki mama/su/yatak eylemi, uzaktaki eşyanın reddi ve düzenlemede joystick gizlenmesi kontrol edilir. Telefonda bakım animasyonu sırasında kontrol kilidi, yataktan çıkış, kedi seçimi ve odalar arası takip ayrıca gözlenmelidir.
+
+Çıkıntı tekrarı: DrawingPassageRecoveryValidation.Run artık 4 mekân × 2 boyut × 6/7. bölüm × 3 başlangıç yüksekliğinde, oyundaki gerçek engel çarpışmalarını kullanır (48 deneme). Ev üst sınırı -2,15 olacak şekilde HomeManualControlValidation.Run tekrar geçti. Telefonda kutu çıkıntısından geri çekilip düşüş ve simgenin telefon maskesi altında görünümü kontrol edilmelidir.

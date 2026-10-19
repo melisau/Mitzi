@@ -75,3 +75,5 @@ Evde uyuyan kediye yürüme hedefi verildiğinde uyanış kareleri yerinde tamam
 Çizim koşusunda eğilme engelinin yanına zıplayarak çarpınca otomatik ileri baskı kesilir; kedi yerçekimiyle girişe iner ve eğilerek devam eder. Dikey çarpışma yüzeyleri zemin sayılmaz.
 
 Evde seçili kedi dört yönlü pati joystickiyle zeminin sınırları içinde yürütülebilir; kediye kısa dokunmak seçimi değiştirir ve joystick üstünde adını gösterir. Yakındaki mama/su kabı veya yatak için ayrı bir kullan düğmesi çıkar. İşlem elle başlatılır; bakım sürerken joystick gizlenir, başka odaya yürürken kamera odayı takip eder. Uyuyan kedi önce yerinde uyanır; eşyaların içinden yürüyemez, yatağın içinden dışarı çıkabilir.
+
+19 Ekim ek düzeltmeler: Evdeki kedi zemin bandı -3,40 ile -2,15 arasına genişletildi; duvar tarafındaki sınır korunur. Android simgesi için pati küçültülüp turkuaz kenar boşlukları artırıldı. Çizim koşusunda eğilme engelinin çıkıntısına oturan kedi kısa bir geri adımla çıkıntıdan ayrılır, aşağı iner ve geçide devam eder; görünmez çarpışma kapatma veya ışınlama kullanılmaz. Gerçek engellerle dört mekânda, iki kedi boyutunda, 6–7. bölümlerde 48 fizik denemesi geçti.

@@ -41,9 +41,52 @@ public static class DrawingPassageRecoveryValidation
                 }
                 if (!passed) throw new Exception("Drawing cat stuck at passage from height " + height + " position=" + body.position);
             }
+            UnityEngine.Object.DestroyImmediate(passageRoot);
+            var course = flow.GetComponentInChildren<LevelCourseBuilder>(true);
+            int realTrials = 0;
+            foreach (bool large in new[] { false, true })
+            {
+                DisplaySizeSettings.SetLarge(large);
+                for (int theme = 0; theme < 4; theme++)
+                {
+                    course.BindCrouchObstacle(flow.Catalog.CrouchObstacleForTheme(theme), flow.Catalog.CrouchUpperForTheme(theme));
+                    foreach (int number in new[] { 6, 7 })
+                    {
+                        course.Build(number); Physics2D.SyncTransforms();
+                        var template = course.GetComponentInChildren<CrouchPassage>();
+                        if (template == null) throw new Exception("Missing actual passage fixture");
+                        passageRoot = UnityEngine.Object.Instantiate(template.gameObject);
+                        passageRoot.transform.position = new Vector3(1002, 0);
+                        var real = passageRoot.GetComponent<CrouchPassage>(); real.Configure(template.Width, 0, template.Clearance);
+                        foreach (float height in new[] { 1f, 1.6f, 2.4f })
+                        {
+                            cat.PlaceAtSpawn(new Vector2(real.Left - .1f, height));
+                            body.velocity = Vector2.right * 2.55f;
+                            MobileControlState.Reset(); Physics2D.SyncTransforms();
+                            bool passed = false;
+                            for (int frame = 0; frame < 650; frame++)
+                            {
+                                Tick(cat); Physics2D.Simulate(.02f);
+                                if (body.position.x > real.Right + .6f) { passed = true; break; }
+                            }
+                            if (!passed) throw new Exception("Actual passage stuck theme=" + theme + " level=" + number + " large=" + large + " height=" + height + " position=" + body.position);
+                            realTrials++;
+                        }
+                        UnityEngine.Object.DestroyImmediate(passageRoot);
+                    }
+                }
+            }
+            var voidRoot = new GameObject("RecoveryVoidExit");
+            var voidPassage = voidRoot.AddComponent<CrouchPassage>(); voidPassage.Configure(2, 0, .62f);
+            cat.PlaceAtSpawn(new Vector2(1000, -2)); Physics2D.SyncTransforms();
+            typeof(CatController).GetField("recoveringPassage", Hidden).SetValue(cat, voidPassage);
+            bool recoveringInVoid = (bool)typeof(CatController).GetMethod("RecoverFromPassageLedge", Hidden).Invoke(cat, new object[] { false });
+            if (recoveringInVoid) throw new Exception("Passage recovery suppresses normal falling below the floor");
+            UnityEngine.Object.DestroyImmediate(voidRoot);
             Physics2D.simulationMode = previousMode;
-            UnityEngine.Object.DestroyImmediate(passageRoot); UnityEngine.Object.DestroyImmediate(floor);
-            Debug.Log("DRAWING_PASSAGE_RECOVERY_VALIDATION_PASS");
+            DisplaySizeSettings.SetLarge(false);
+            UnityEngine.Object.DestroyImmediate(floor);
+            Debug.Log("DRAWING_PASSAGE_RECOVERY_VALIDATION_PASS realTrials=" + realTrials);
         }
         catch (Exception error) { Debug.LogException(error); UnityEditor.EditorApplication.Exit(1); }
     }

@@ -44,6 +44,8 @@ namespace PawPath.Cat
         BoxCollider2D standingProfile;
         readonly RaycastHit2D[] groundVisualHits = new RaycastHit2D[8];
         readonly ContactPoint2D[] movementContacts = new ContactPoint2D[16];
+        CrouchPassage recoveringPassage;
+        float passageRetreatX;
         SpriteRenderer sprite;
         Animator animator;
         // Kontrolcüsü olmayan Animator'a Play/speed göndermek konsolu uyarıyla doldurur.
@@ -390,6 +392,7 @@ namespace PawPath.Cat
 
         public void PlaceAtSpawn(Vector2 world)
         {
+            recoveringPassage = null;
             intentionalJump = false; jumpLeftGround = false; jumpAnimationPlaying = false;
             climbing = false;
             perched = false;
@@ -448,6 +451,7 @@ namespace PawPath.Cat
                 UpdateDirectControl(grounded, surface);
                 return;
             }
+            if (RecoverFromPassageLedge(grounded)) return;
             if (grounded && body.velocity.y <= 0.15f)
             {
                 jumpsRemaining = 2;
@@ -505,6 +509,42 @@ namespace PawPath.Cat
                     return true;
             }
             return false;
+        }
+
+        bool RecoverFromPassageLedge(bool grounded)
+        {
+            if (recoveringPassage == null)
+            {
+                int count = body.GetContacts(movementContacts);
+                for (int i = 0; i < count; i++)
+                {
+                    var contact = movementContacts[i];
+                    var passage = contact.collider.GetComponentInParent<CrouchPassage>();
+                    if (passage == null) passage = contact.otherCollider.GetComponentInParent<CrouchPassage>();
+                    if (passage == null || bodyCollider.bounds.min.y < passage.FloorY + .15f) continue;
+                    bool side = contact.normal.x * facing < -.5f;
+                    bool ledge = contact.normal.y > .35f;
+                    if (!side && !ledge) continue;
+                    recoveringPassage = passage;
+                    float edge = facing > 0 ? passage.Left : passage.Right;
+                    foreach (var obstacle in passage.GetComponentsInChildren<Collider2D>())
+                        if (!obstacle.isTrigger)
+                            edge = facing > 0 ? Mathf.Min(edge, obstacle.bounds.min.x) : Mathf.Max(edge, obstacle.bounds.max.x);
+                    passageRetreatX = edge - facing * (bodyCollider.radius + .22f * DisplaySizeSettings.CatScale);
+                    break;
+                }
+            }
+            if (recoveringPassage == null) return false;
+            MobileControlState.ConsumeJump(); keyboardJumpQueued = false;
+            if ((grounded && bodyCollider.bounds.min.y <= recoveringPassage.FloorY + .12f) ||
+                bodyCollider.bounds.min.y < recoveringPassage.FloorY - 1f)
+            {
+                recoveringPassage = null;
+                return false;
+            }
+            bool outside = facing > 0 ? body.position.x <= passageRetreatX : body.position.x >= passageRetreatX;
+            body.velocity = new Vector2(outside ? 0f : -facing * moveSpeed * .7f, Mathf.Min(body.velocity.y, 0f));
+            return true;
         }
 
         void SetCrouching(bool value, bool grounded)
