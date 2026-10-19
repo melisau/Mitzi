@@ -17,3 +17,5 @@ Log: `AnimalArtSources-20261018/unity-new-cats-areas-verified.log`. Önizlemeler
 Üretim istemleri ve varlık konumları: [NEW_CATS_ART_PROMPTS.md](NEW_CATS_ART_PROMPTS.md). Fotoğraf referansları GitHub'a eklenmedi.
 
 Bu doğrulama fiziksel telefonda yeni sürümle elle oynama testinin yerine geçmez. Canlı reklamlar kapalı kalır.
+
+İmzalı APK: `Builds/Android/Ghost-Boza-Areas-Verified-20261019/Mitzi-1.0.0-1-device-test.apk` (144.614.333 bayt). İzole Android derlemesi çıkış kodu 0; yükleme sertifikasıyla imza eşleşmesi, ZIP 16 KB hizalaması ve dört ARM64 native kütüphanenin ELF/RELRO kontrolleri geçti. Ayrıntılar paketin yanındaki `apk-verification.json` dosyasındadır. Kaynak uygulama commit'i `9b71dc6`; paket GitHub'a eklenmedi.
