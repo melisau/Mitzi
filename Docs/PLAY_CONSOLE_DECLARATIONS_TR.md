@@ -1,6 +1,6 @@
 # Mitzi — Play Console beyan hazırlığı
 
-19 Ekim 2026. Kullanıcının seçtiği hedef kitle: **5 yaş ve altı + 6–8 yaş**. Bu belge hazırlanmıştır; Console'a kaydedilmiş bir başvuru değildir.
+20 Ekim 2026 güncellemesi: IARC anketi kullanıcı onayıyla gönderildi; PEGI 7 / IARC 7+, USK 6, ESRB Everyone sonucu oluştu. Kullanıcı mevcut oynanışı korumayı, önceki **5 yaş ve altı** hedefini kaldırmayı ve yalnız **6–8 yaş** grubuyla ilerlemeyi seçti. Güncel Console durumu ve kayıtlı alanlar [PLAY_RELEASE_20261020.md](PLAY_RELEASE_20261020.md) içindedir. Aşağıdaki 19 Ekim hazırlık notları tarihsel bağlamdır; eski yaş seçimi ve hesap engeli artık güncel değildir.
 
 ## Console'daki durum
 

@@ -1,6 +1,18 @@
 # Mitzi — yayın ve veri güvenliği çalışma notları
 
-19 Ekim güncellemesi: Console'da uygulama oluşturma hesap doğrulaması bitene kadar engelli. Kullanıcının seçtiği hedef yaşlar ve hazırlanmış alanlar [PLAY_CONSOLE_DECLARATIONS_TR.md](PLAY_CONSOLE_DECLARATIONS_TR.md) içinde. Oyun içi gizlilik ekranına yayımlanan sayfayı açan düğme eklendi. Reklam tercihi ve son SDK davranışı kesinleşmeden veri güvenliği başvurusu yapılmadı.
+20 Ekim güncellemesi: Hesap doğrulandı; reklamlı 1.0.0 (1) dahili testte etkin. Veri Güvenliği formu Console'da kaydedildi; bu, Google inceleme onayı değildir. Kullanıcı mevcut oyunu koruyarak yalnız 6–8 hedef grubunu seçti; IARC/PEGI sonucu 7+. Aşağıdaki eski hazırlık notları tarihsel bağlamdır.
+
+## 20 Ekim Console beyanı
+
+- Google Mobile Ads Android 25.5.0 için yayımlanmış SDK veri açıklaması ve projedeki başlatma akışı esas alındı; fiziksel cihaz ağ yakalaması yapılmadı.
+- Dört veri türü hem toplanan hem paylaşılan olarak seçildi: yaklaşık konum (IP üzerinden), uygulama işlemleri, teşhisler, cihaz veya diğer kimlikler.
+- Her tür için analiz, reklam veya pazarlama, sahtekarlığı önleme/güvenlik/kanunlara uygunluk amaçları seçildi. Kişiselleştirme veya geliştirici iletişimleri seçilmedi.
+- Kısa süreli işleme Hayır; kullanıcı tarafından kapatılamayan toplama. Reklam izlemek isteğe bağlı olsa da SDK açılışta başlatılıp reklam önceden yüklendiğinden veri toplama isteğe bağlı olarak beyan edilmedi.
+- Aktarımda şifreleme Evet (SDK TLS belgesi). Uygulamada hesap oluşturma/giriş yok. Geliştiricinin sunduğu uzaktan veri silme talep yöntemi yok; 90 günde silme sözü verilmedi. Yerel kayıt Android depolama ayarlarıyla silinebilir.
+- Play Aile Politikası taahhüdü Evet; bağımsız güvenlik denetimi iddia edilmedi. AD_ID izninin kaldırılması SDK'nın tüm tanımlayıcıları işlemediği anlamına gelmez.
+- Kullanıcının yerel ilerlemesi, birlikte paketlenen Mitzi fotoğrafları ve ses dosyaları kullanıcı yüklemesi değildir; bunlar için ek veri toplama seçilmedi.
+
+Kaynak: [Google Mobile Ads Unity veri açıklaması](https://developers.google.com/admob/unity/privacy/play-data-disclosure), [Play Veri Güvenliği tanımları](https://support.google.com/googleplay/android-developer/answer/10787469?hl=tr).
 
 18 Ekim 2026. Bu bir Play Console başvurusu veya uygunluk sertifikası değildir. Beyanları geliştirici, son paketin davranışını inceleyerek tamamlar.
 
