@@ -56,6 +56,8 @@ Eski kullanılmayan piksel hayvanlar ve referanssız varlıklar temizlenmiştir.
 
 ## Doğrulama ve yayın durumu
 
+20 Ekim 2026: Güncel reklamlı sürüm, imzalı AAB `1.0.0 (1)` ile Google Play **dahili test** kanalında etkin. İsteğe bağlı ödüllü reklamlar açıktır; bu henüz herkese açık mağaza yayını değildir. Play kimlik ve telefon doğrulaması tamamlandı. Üretime erişim için en az 12 kullanıcının kesintisiz 14 gün kapalı teste kayıtlı kalması gerekiyor; test kullanıcıları henüz hazır değil. Paket yapı/imza, API 36, ARM64 ve dört yerel kütüphanenin 16 KB statik kontrolleri geçti. [Güncel yayın durumu ve kalanlar](Docs/PLAY_RELEASE_20261020.md).
+
 18 Ekim 2026 güncellemesinde izole `MitziValidation` projesinde Unity derleme ve doğrulama çalışmaları geçti: hayvan animasyonları, tümsek/köpek hareketi, zıplama, eğilme fiziği, öğreticiler, envanter/fiyat artışı, oda bazlı duvar kağıdı, sabit kedi sıralaması, dükkan kaydırma konumu, şehir servis kanalı ve ilk oynayış sıfırlama.
 
 Editor doğrulamalarını gerçek oyuncu kaydında çalıştırmayın; bazıları test verisi oluşturur veya siler. Ayrı proje kopyası ve `MitziValidation` ürün adı kullanın. Bunlar fiziksel cihaz testinin yerine geçmez. [QA_CHECKLIST.md](QA_CHECKLIST.md) cihaz ve oynanış kontrollerini içerir.
