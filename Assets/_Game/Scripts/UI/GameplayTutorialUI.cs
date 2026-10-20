@@ -10,11 +10,11 @@ namespace PawPath.UI
     /// <summary>Separate first-play lessons; only the user's close action marks them seen.</summary>
     public sealed class GameplayTutorialUI : MonoBehaviour
     {
-        public const string DrawingSeenKey = "PawPath.AnimatedTutorial.Drawing.v3.Joystick";
-        public const string DirectSeenKey = "PawPath.AnimatedTutorial.Direct.v3.Joystick";
+        public const string DrawingSeenKey = "PawPath.AnimatedTutorial.Drawing.v4.Trees";
+        public const string DirectSeenKey = "PawPath.AnimatedTutorial.Direct.v4.Trees";
         public GameplayTutorialDemo Demo { get; private set; }
         public int PageIndex { get; private set; }
-        public int PageCount => mode==GameplayPlayMode.Drawing ? 6:7;
+        public int PageCount => mode==GameplayPlayMode.Drawing ? 8:7;
         Text title, caption;
         Button previous, next, finish;
         Image[] dots;
@@ -36,11 +36,11 @@ namespace PawPath.UI
             var shadow=card.AddComponent<Shadow>(); shadow.effectColor=new Color(0,0,0,.3f); shadow.effectDistance=new Vector2(0,-10);
             title=Label(card.transform,"Title",new Vector2(0,315),new Vector2(850,65),42);
             title.fontStyle=FontStyle.Bold;
-            caption=Label(card.transform,"Caption",new Vector2(0,-210),new Vector2(1000,65),30);
+            caption=Label(card.transform,"Caption",new Vector2(0,-205),new Vector2(1000,90),28);
             var stage=new GameObject("AnimatedExample",typeof(RectTransform)); stage.transform.SetParent(card.transform,false);
             stage.GetComponent<RectTransform>().anchoredPosition=new Vector2(0,45);
             Demo=stage.AddComponent<GameplayTutorialDemo>();
-            dots=new Image[7];
+            dots=new Image[8];
             for(int i=0;i<dots.Length;i++) dots[i]=Icon(card.transform,"PageDot_"+i,CozyIconFactory.Dot(),new Vector2(0,-265),18,Green);
             previous=Button(card.transform,"PreviousLesson",CozyIconFactory.ArrowLeft(),new Vector2(-420,-315),92,Brown);
             next=Button(card.transform,"NextLesson",CozyIconFactory.ArrowRight(),new Vector2(420,-315),92,Blue);
@@ -61,8 +61,21 @@ namespace PawPath.UI
         {
             PageIndex=Mathf.Clamp(index,0,PageCount-1);
             TutorialDemoKind kind;
-            int sharedPage=PageIndex-(mode==GameplayPlayMode.Drawing ? 3:4);
-            if(sharedPage>=0)
+            int sharedPage=PageIndex-(mode==GameplayPlayMode.Drawing ? 5:4);
+            if(mode==GameplayPlayMode.Drawing && (PageIndex==3 || PageIndex==4))
+            {
+                bool climb=PageIndex==4;
+                kind=climb ? TutorialDemoKind.Climb:TutorialDemoKind.Crouch;
+                title.text=climb ? GameText.L("Ağaç: tırman","Tree: climb","Baum: klettern"):
+                    GameText.L("Ağaç: altından geç","Tree: go under","Baum: darunter durch");
+                caption.text=climb ? GameText.L("Yeşil ↑ gövdede zıplama tuşuna bas. Tepede köpekten korun ve +5 puan al.",
+                    "At the green ↑ trunk, press jump. Stay safe from dogs at the top and earn +5 points.",
+                    "Am grünen ↑ Stamm springen drücken. Oben vor Hunden sicher sein und +5 Punkte erhalten."):
+                    GameText.L("Mavi ↓ alçak dal: kedi otomatik eğilip altından geçer. Bu ağaca tırmanılmaz.",
+                    "Blue ↓ low branch: your cat automatically crouches and goes under. This tree cannot be climbed.",
+                    "Blauer ↓ Ast: Die Katze duckt sich automatisch und läuft darunter durch. Nicht zum Klettern.");
+            }
+            else if(sharedPage>=0)
             {
                 kind=sharedPage==0 ? TutorialDemoKind.DogStomp:sharedPage==1 ? TutorialDemoKind.DogContact:TutorialDemoKind.BirdReward;
                 title.text=sharedPage==0 ? GameText.L("Üstüne zıpla","Jump on top","Spring darauf"):
@@ -78,19 +91,20 @@ namespace PawPath.UI
                     PageIndex==1 ? GameText.L("Araçları dene","Try the tools","Probiere die Werkzeuge"):GameText.L("Sonra başlat","Then press play","Dann starte");
                 caption.text=PageIndex==0 ? GameText.L("Parmağınla boşluğu birleştir.","Connect the gap with your finger.","Verbinde die Lücke mit deinem Finger."):
                     PageIndex==1 ? GameText.L("Mavi zıplatır. Buz kaydırır. Silgi siler.","Blue bounces. Ice slides. The eraser removes.","Blau federt. Eis rutscht. Der Radierer löscht."):
-                    GameText.L("Yeşil okla başlat. Sağ pati: yukarı zıpla, aşağı eğil.","Tap green play. Right paw: up to jump, down to crouch.","Tippe auf Grün. Rechte Pfote: hoch springen, runter ducken.");
+                    GameText.L("Yeşil okla başlat. Sağ pati yukarı: zıpla. Yeşil işaretli gövdede aynı tuşla tırman.","Tap green play. Right paw up: jump. At a green-marked trunk, use the same control to climb.","Tippe auf Grün zum Starten. Rechte Pfote hoch: springen. Am grün markierten Stamm damit klettern.");
             }
             else
             {
                 kind=PageIndex==0 ? TutorialDemoKind.Move:PageIndex==1 ? TutorialDemoKind.Jump:PageIndex==2 ? TutorialDemoKind.Crouch:TutorialDemoKind.Climb;
                 title.text=PageIndex==0 ? GameText.L("Yürü","Walk","Laufen"):PageIndex==1 ? GameText.L("Zıpla","Jump","Springen"):
-                    PageIndex==2 ? GameText.L("Eğil","Crouch","Ducken"):GameText.L("Tırman","Climb","Klettern");
+                    PageIndex==2 ? GameText.L("Ağaç: altından geç","Tree: go under","Baum: darunter durch"):GameText.L("Ağaç: tırman","Tree: climb","Baum: klettern");
                 caption.text=PageIndex==0 ? GameText.L("Soldaki patiyi sağa veya sola it.","Push the left paw right or left.","Schiebe die linke Pfote nach rechts oder links."):
                     PageIndex==1 ? GameText.L("Sağ patiyi yukarı it. Bırakıp yine it: çift zıpla!","Push the right paw up. Release and push again: double jump!","Rechte Pfote nach oben. Loslassen und erneut: Doppelsprung!"):
-                    PageIndex==2 ? GameText.L("Sağ patiyi aşağıda tut.","Hold the right paw down.","Halte die rechte Pfote unten."):
-                    GameText.L("Ağacın yanında sağ patiyi yukarı it.","Push the right paw up beside a tree.","Schiebe die rechte Pfote neben einem Baum nach oben.");
+                    PageIndex==2 ? GameText.L("Mavi ↓ engel: sağ patiyi aşağıda tut, altından geç. Bu engele tırmanılmaz.","Blue ↓ obstacle: hold the right paw down and go under. This obstacle cannot be climbed.","Blaues ↓ Hindernis: rechte Pfote unten halten und darunter durch. Dieses Hindernis ist nicht zum Klettern."):
+                    GameText.L("Yeşil işaretli gövdede zıplama tuşuna basarak tırman. Tepede +5 puan. Çukur yanında aynı tuş zıplatır.","At the green-marked trunk, press jump to climb. At the top: +5 points. By a gap, the same control jumps.","Am grün markierten Stamm mit der Sprungtaste klettern. Oben: +5 Punkte. An Lücken springst du damit.");
             }
-            Demo.Configure(kind,null,true);
+            Demo.Configure(kind,null,true,useForestPassage:kind==TutorialDemoKind.Crouch,
+                autoCrouch:mode==GameplayPlayMode.Drawing && kind==TutorialDemoKind.Crouch);
             for(int i=0;i<dots.Length;i++)
             {
                 dots[i].gameObject.SetActive(i<PageCount);

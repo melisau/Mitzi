@@ -52,7 +52,9 @@ Başarı ekranı bölüm ilerlemesini ve ödülü gösterir. `complete_screen.jp
 
 Kedi çizim hazırlığı sırasında hareket etmez. Oyuncu normal yol, zıplatan yol ve buz yüzeyi araçlarını kullanarak fiziksel yollar oluşturur; silgiyle çizgileri kaldırabilir. Eski kırmızı tehlike çizgisi oyuncunun mevcut çizim akışından çıkarılmıştır.
 
-Bölümün tamamını önceden görebilmek için önceki ve sonraki çizim görünümüne geçiş bulunur. Fırça bütçesinin ilk yarısı ilk hazırlık alanı için ayrılır; sonraki alanda kalan bütçe kullanılabilir. Bu sistemin farklı ekran oranlarında ve kameranın gösterdiği bölüm sınırlarında ayrıca doğrulanması gerekir.
+Oyun başladıktan sonra kedi alçak kutulu geçitlere yaklaşınca otomatik eğilip altından geçer; çizerek oynama modunda eğilme girdisi zorunlu değildir. Doğrudan kontrol modunda aynı geçide oyuncu eğilme girdisiyle girer; girdiyi tavan altında bırakmak kediyi aniden dikleştirmez, güvenli çıkışa kadar eğik profil korunur. Bu mod ayrımı ve diğer bölümlerdeki doğrulama `CROUCH_CONTROL_RULES_QA.md` içinde belgelenmiştir.
+
+Bölümün tamamını önceden görebilmek için önceki ve sonraki çizim görünümüne geçiş bulunur. Bunlar aynı bölümün kamera pencereleridir; yeni sahne veya yeni bütçe değildir. İlk `floor(görünüm sayısı / 2)` pencere birlikte bölüm bütçesinin en fazla yarısını harcayabilir; sonraki pencerelerde toplam kalan kullanılabilir. Bu nedenle dört/beş pencereli akışta ilk pencerede bu yarı tüketilirse ikinci pencerede çizilemez, üçüncüde ayrılmış kalan yarı açılır. Numaralı yeni bölümde ve yeniden denemede yollar temizlenip tam bütçe atanır. Ayrıntılı kural ve 1 → 2 → 3 doğrulaması: `DRAWING_BUDGET_RULES_QA.md`.
 
 Fırça tamamen tükenince oyun başlar. Oyuncu bütçeyi tüketmek istemezse Oyunu Başlat düğmesiyle erken başlayabilir. Başlangıçta çizim kapatılır, palet ve mürekkep göstergesi gizlenir, ZIPLA kontrolü görünür. Kedi otomatik ileri hareketini sürdürürken oyuncu zıplayarak köpekten kaçınabilir. Çift zıplama mantığı ortak hareket kodunu kullanır.
 
@@ -113,7 +115,7 @@ Normal köpekte 14 koşu karesi, robotik köpekte 9 yürüme karesi için içeri
 
 ### Bölüm ağacı
 
-Ağacın etkileşim alanına girmek yalnızca tırmanma menziline girmektir. Sağ ve sol hareket ağacın yanından geçmeyi sağlamalıdır. Tırmanma, menzildeyken yukarı komutuyla veya mobil ZIPLA ile başlar. Kedi önce yatay hizalanır, ardından X sabit tutularak Y ekseninde yükselir. Tepede normal duruşa geçer ve hareket komutu gelene kadar bekleyebilir.
+Ağacın etkileşim alanına girmek yalnızca tırmanma menziline girmektir. Sağ ve sol hareket ağacın yanından geçmeyi sağlamalıdır. Tırmanma, menzilde yerde dururken ZIPLA/sağ pati yukarı/W/yukarı ok/Space ile başlar; yeşil Tırman işaretine dokunmak yardımcı bir seçenektir. Tüm tırmanma menzili ile çukur kenarı arasında en az 3,5 dünya birimi boş yaklaşma alanı ayrılır; geniş zemin yoksa ağaç o yerleşimde atlanır. Böylece çukurda zıplama girdisi tırmanma menziliyle çakışmaz. Kedi önce yatay hizalanır, ardından X sabit tutularak Y ekseninde yükselir. Tepede normal duruşa geçer, ağaç başına bir kez +5 alışveriş puanı alır ve hareket komutu gelene kadar bekleyebilir.
 
 Mevcut kod, ağaç içeriği olan temalarda her dört bölümden birinde ağacı atlar; diğer bölümlerde geçerli bir konum seçer. Dolayısıyla önceki yaklaşık yüzde 60 önerisi mevcut uygulamanın kesin oranı değildir. Konum bölüm numarasından üretildiği için tekrar denemede değişmemelidir.
 
@@ -238,7 +240,7 @@ Sevgi ihtiyacının düşük, günlük okşama limitinin dolu olduğu durumda oy
 
 ### P1 İlk kullanım ve erişilebilirlik
 
-İlk bölüm oyuncuya çizgi çizme, sonraki alanı görme, erken başlatma ve ZIPLA kullanımını adım adım öğretmelidir. Köpeğe üstten basma ve ağaca yaklaşınca yukarı komutu kullanma görsel olarak anlatılmalıdır. Evde önce kedi sonra eşya seçme akışı da açıklanmalıdır.
+İlk bölüm oyuncuya çizgi çizme, sonraki alanı görme, erken başlatma ve ZIPLA kullanımını adım adım öğretmelidir. Köpeğe üstten basma ve güvenli konumdaki yeşil işaretli gövdede zıplama tuşuyla tırmanma görsel olarak anlatılmalıdır. Evde önce kedi sonra eşya seçme akışı da açıklanmalıdır.
 
 Yazı ve tuşlar büyük görüntü ayarında taşmamalı, çentik altında kalmamalı ve yeterli kontrasta sahip olmalıdır. Engel anlatımı yalnız renge dayanmamalıdır. Türkçe metinler birden fazla dosyada sabit yazılmıştır; uluslararası yayın hedeflenirse bütün arayüz için gerçek dil seçimi ve İngilizce içerik gerekir.
 

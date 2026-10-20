@@ -6,15 +6,20 @@ using PawPath.Localization;
 
 namespace PawPath.Levels
 {
+    [RequireComponent(typeof(MobSimulationGate))]
     public class DogObstacle : MonoBehaviour
     {
         const float TurnDelaySeconds = 2f;
         const float GapRetreatDelaySeconds = 0.65f;
         const float ActivationDistance = 7f;
+        public const float MaxJumpGapWidth = 2.60f;
         SpriteRenderer renderer;
         Sprite[] frames;
         Sprite idleSprite;
         Vector2[] gaps;
+        bool[] gapJumpAllowed;
+        bool robotic;
+        readonly System.Collections.Generic.HashSet<int> crossedGaps = new System.Collections.Generic.HashSet<int>();
         float speed, leftBound, rightBound, groundY, frameTimer, visualWidth, groundInset, frameInterval;
         float turnDelayRemaining;
         float gapRetreatRemaining, jumpElapsed, jumpDuration, jumpStartX, jumpEndX, jumpHeight;
@@ -34,7 +39,8 @@ namespace PawPath.Levels
 
         public void Configure(SpriteRenderer target, Sprite[] animationFrames, float runSpeed,
             float minX, float maxX, float roadSurfaceY, float targetVisualWidth, float feetInset,
-            float secondsPerFrame, Vector2[] courseGaps, int courseLevelNumber, Sprite idlePose = null)
+            float secondsPerFrame, Vector2[] courseGaps, int courseLevelNumber, Sprite idlePose = null,
+            bool[] jumpAllowed = null, bool isRobotic = false)
         {
             renderer = target;
             frames = animationFrames;
@@ -47,6 +53,9 @@ namespace PawPath.Levels
             groundInset = feetInset;
             frameInterval = Mathf.Max(secondsPerFrame, 1f / 12f);
             gaps = courseGaps;
+            crossedGaps.Clear();
+            gapJumpAllowed = jumpAllowed;
+            robotic = isRobotic;
             levelNumber = courseLevelNumber;
             var start=transform.position;start.x=CrouchPassage.SafeDogSpawnX(start.x,visualWidth*.5f+.12f);transform.position=start;
             AlignFeetToGround();
@@ -62,11 +71,16 @@ namespace PawPath.Levels
 
         void Update()
         {
-            if (failed || GameFlow.Instance == null || GameFlow.Instance.State != GameFlowState.Gameplay)
-            {
-                ShowIdle();
+            Tick(Time.deltaTime);
+        }
+
+        void Tick(float deltaTime)
+        {
+            // ShowIdle also samples terrain and moves the root. During preparation,
+            // newly drawn paths must not move the dog or reactivate its interactions.
+            if (failed || !MobSimulationGate.GameplayActive)
                 return;
-            }
+            CozyAudioManager.Instance?.TryPlayDogBark(renderer, robotic);
 
             if (!activated)
             {
@@ -83,7 +97,7 @@ namespace PawPath.Levels
             TryTurnTowardPassingCat();
             if (turnPending)
             {
-                turnDelayRemaining -= Time.deltaTime;
+                turnDelayRemaining -= deltaTime;
                 if (turnDelayRemaining > 0f)
                 {
                     ShowIdle();
@@ -97,7 +111,7 @@ namespace PawPath.Levels
             }
             if (gapRetreatPending)
             {
-                gapRetreatRemaining -= Time.deltaTime;
+                gapRetreatRemaining -= deltaTime;
                 if (gapRetreatRemaining > 0f)
                 {
                     ShowIdle();
@@ -109,10 +123,10 @@ namespace PawPath.Levels
                 AlignFeetToGround();
             }
 
-            if(StopAtCrouchPassage(Time.deltaTime))return;
+            if(StopAtCrouchPassage(deltaTime))return;
             if (!jumpingGap)
-                TryStartGapAction(Time.deltaTime);
-            if(StopAtCrouchPassage(Time.deltaTime))return;
+                TryStartGapAction(deltaTime);
+            if(StopAtCrouchPassage(deltaTime))return;
             if (gapRetreatPending)
             {
                 ShowIdle();
@@ -127,9 +141,9 @@ namespace PawPath.Levels
             float previousX = transform.position.x;
             bool airborne = jumpingGap;
             if (jumpingGap)
-                AdvanceGapJump(Time.deltaTime);
+                AdvanceGapJump(deltaTime);
             else
-                transform.position += Vector3.right * (direction * speed * Time.deltaTime);
+                transform.position += Vector3.right * (direction * speed * deltaTime);
             FollowTerrain();
             AlignFeetToGround();
             if (transform.position.x < leftBound || transform.position.x > rightBound)
@@ -182,9 +196,11 @@ namespace PawPath.Levels
             {
                 float nearEdge = direction < 0 ? gaps[i].y : gaps[i].x;
                 float launchX = nearEdge - direction * clearance;
+                // A previous narrow leap can land within the next edge's clearance.
+                // Still stop there; requiring a fresh crossing of launchX misses it.
                 bool reachingEdge = direction < 0
-                    ? transform.position.x >= launchX && nextX <= launchX
-                    : transform.position.x <= launchX && nextX >= launchX;
+                    ? transform.position.x >= gaps[i].x && nextX <= launchX
+                    : transform.position.x <= gaps[i].y && nextX >= launchX;
                 if (!reachingEdge)
                     continue;
 
@@ -193,9 +209,17 @@ namespace PawPath.Levels
                 transform.position = position;
                 // Aynı bölümdeki karar tekrar denemede değişmez; bazı köpekler
                 // atlar, diğerleri uçurum kenarında durup geri döner.
-                bool jump = ((levelNumber * 17 + i * 13) & 1) == 0;
+                bool narrow = gaps[i].y - gaps[i].x <= MaxJumpGapWidth + .001f;
+                bool ordinary = gapJumpAllowed == null || (i < gapJumpAllowed.Length && gapJumpAllowed[i]);
+                float landingX = (direction < 0 ? gaps[i].x : gaps[i].y) + direction * clearance;
+                bool safeLanding = Mathf.Abs(CrouchPassage.SafeDogSpawnX(landingX, clearance) - landingX) < .01f;
+                for (int other = 0; other < gaps.Length; other++)
+                    if (other != i && landingX + clearance > gaps[other].x && landingX - clearance < gaps[other].y)
+                        safeLanding = false;
+                bool jump = narrow && ordinary && safeLanding && !crossedGaps.Contains(i) && ((levelNumber * 17 + i * 13) & 1) == 0;
                 if (jump)
                 {
+                    crossedGaps.Add(i);
                     jumpStartX = launchX;
                     jumpStartY = transform.position.y;
                     jumpEndX = (direction < 0 ? gaps[i].x : gaps[i].y) + direction * clearance;
@@ -260,8 +284,9 @@ namespace PawPath.Levels
             // patiler her karede yolun aynı Y çizgisine basar.
             renderer.transform.localScale = new Vector3(direction * scale, scale, 1f);
             renderer.transform.localRotation = Quaternion.Euler(0f, 0f, jumpingGap ? 0f : surfaceAngle);
+            float feetInset = robotic ? visualWidth * (renderer.sprite == idleSprite ? .140625f : .10f) : groundInset;
             renderer.transform.localPosition = renderer.transform.localRotation *
-                (Vector3.up * (-renderer.sprite.bounds.min.y * scale - groundInset));
+                (Vector3.up * (-renderer.sprite.bounds.min.y * scale - feetInset));
         }
 
         // Sample the same solid collider surface that supports the cat, rather than
@@ -294,6 +319,7 @@ namespace PawPath.Levels
 
         void OnTriggerEnter2D(Collider2D other)
         {
+            if (!MobSimulationGate.GameplayActive) return;
             var cat = other.GetComponentInParent<CatController>();
             if (failed || cat == null || cat.IsClimbing) return;
             if (IsStompFromAbove(other))
@@ -310,7 +336,18 @@ namespace PawPath.Levels
             }
             failed = true;
             CozyAudioManager.Instance?.PlayHurt();
-            GameFlow.Instance?.ShowLevelFailure(GameText.L("Koşan köpeğe yakalandın. Üzerinden zıpla veya ağaca tırman!", "A running dog caught you. Jump over it or climb a tree!", "Ein rennender Hund hat dich erwischt. Spring über ihn oder kletter auf einen Baum!"));
+            GameFlow.Instance?.ShowLevelFailure(EscapeAdvice());
+        }
+
+        static string EscapeAdvice()
+        {
+            return FindObjectOfType<ClimbableTree>() != null
+                ? GameText.L("Köpeğe yakalandın. Üstüne zıpla veya yeşil yukarı oklu ağaca tırman!",
+                    "Caught by the dog. Jump on it or climb a tree marked with a green up arrow!",
+                    "Vom Hund erwischt. Spring auf ihn oder kletter auf einen Baum mit grünem Aufwärtspfeil!")
+                : GameText.L("Köpeğe yakalandın. Üstüne zıplayarak onu geç!",
+                    "Caught by the dog. Jump on top of it to get past!",
+                    "Vom Hund erwischt. Spring auf ihn, um vorbeizukommen!");
         }
 
         bool IsStompFromAbove(Collider2D catCollider)

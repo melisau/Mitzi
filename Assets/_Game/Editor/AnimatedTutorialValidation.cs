@@ -39,7 +39,7 @@ public static class AnimatedTutorialValidation
             PlayerPrefs.DeleteKey(GameplayTutorialUI.DrawingSeenKey); PlayerPrefs.DeleteKey(GameplayTutorialUI.DirectSeenKey);
             GameplayMode.Select(GameplayPlayMode.Drawing); flow.StartNextLevel(); Call(hud,"OnLevelStarted");
             Check(flow.State==GameFlowState.InfoOverlay && Time.timeScale==0f && tutorial.gameObject.activeSelf,"Drawing intro did not pause gameplay");
-            Check(!GameplayTutorialUI.HasSeen(GameplayPlayMode.Drawing) && tutorial.PageCount==6,"Drawing marked seen before close");
+            Check(!GameplayTutorialUI.HasSeen(GameplayPlayMode.Drawing) && tutorial.PageCount==8,"Drawing marked seen before close");
             tutorial.Demo.RenderAt(.9f); int before=tutorial.Demo.VisiblePathSegments;
             tutorial.Demo.RenderAt(2f); Check(tutorial.Demo.VisiblePathSegments>before,"Finger does not draw a path");
             tutorial.Demo.RenderAt(1.6f); Render(camera,"tutorial-draw.png");
@@ -48,6 +48,10 @@ public static class AnimatedTutorialValidation
             Button(tutorial,"NextLesson").onClick.Invoke();
             Check(tutorial.PageIndex==2 && Button(tutorial,"NextLesson").gameObject.activeSelf,"Drawing page navigation failed");
             tutorial.Demo.RenderAt(6.8f); Render(camera,"tutorial-views.png");
+            Button(tutorial,"NextLesson").onClick.Invoke();
+            Check(tutorial.Demo.Kind==TutorialDemoKind.Crouch,"Drawing forest passage lesson missing");
+            Button(tutorial,"NextLesson").onClick.Invoke();
+            Check(tutorial.Demo.Kind==TutorialDemoKind.Climb,"Drawing climb lesson missing");
             CheckSharedLessons(tutorial,camera);
             Button(tutorial,"TryIt").onClick.Invoke();
             Check(GameplayTutorialUI.HasSeen(GameplayPlayMode.Drawing) && !GameplayTutorialUI.HasSeen(GameplayPlayMode.DirectControl),"Modes share a seen flag");

@@ -340,6 +340,37 @@ namespace PawPath.Core
             love.color = new Color(1f, 0.95f, 0.82f);
             AddTextShadow(love);
 
+            var nextCatCard = new GameObject("NextCatGoal", typeof(RectTransform), typeof(Image));
+            nextCatCard.transform.SetParent(content, false);
+            var nextCatRect = nextCatCard.GetComponent<RectTransform>();
+            nextCatRect.anchorMin = nextCatRect.anchorMax = new Vector2(0, 1);
+            // Share the balance row instead of covering the care card below it.
+            nextCatRect.anchoredPosition = new Vector2(EdgeMargin + 359, -(EdgeMargin + 44));
+            nextCatRect.sizeDelta = new Vector2(166, 76);
+            var nextCatBackground = nextCatCard.GetComponent<Image>();
+            nextCatBackground.sprite = CozyIconFactory.Pill();
+            nextCatBackground.type = Image.Type.Sliced;
+            nextCatBackground.color = new Color(.20f, .13f, .09f, .72f);
+            nextCatBackground.raycastTarget = false;
+            var mysteryCat = IconImage(nextCatCard.transform, "MysteryCat", CozyIconFactory.MysteryCat(),
+                new Color(1f, .95f, .82f), new Vector2(0, .5f), new Vector2(34, 0), 54);
+            mysteryCat.raycastTarget = false;
+            var nextCatSymbol = Label(nextCatCard.transform, "Mystery", "?", new Vector2(0, .5f), new Vector2(34, -2));
+            nextCatSymbol.rectTransform.sizeDelta = new Vector2(36, 42);
+            nextCatSymbol.fontSize = 30; nextCatSymbol.fontStyle = FontStyle.Bold;
+            nextCatSymbol.raycastTarget = false;
+            nextCatSymbol.color = new Color(.27f, .17f, .11f);
+            var targetFlag = IconImage(nextCatCard.transform, "TargetLevel", CozyIconFactory.FinishFlag(),
+                new Color(.98f, .76f, .30f), new Vector2(0, .5f), new Vector2(82, 0), 30);
+            targetFlag.raycastTarget = false;
+            var nextCatText = Label(nextCatCard.transform, "Goal", "", new Vector2(0, .5f), new Vector2(128, 0));
+            nextCatText.rectTransform.sizeDelta = new Vector2(66, 60);
+            nextCatText.fontSize = 34; nextCatText.fontStyle = FontStyle.Bold;
+            nextCatText.alignment = TextAnchor.MiddleCenter;
+            nextCatText.color = new Color(1f, .95f, .82f);
+            nextCatText.raycastTarget = false;
+            hud.AddComponent<NextCatGoalView>().Bind(nextCatCard, nextCatText, nextCatSymbol);
+
             // Orta: bölüm rozeti (havada asılı yazı yerine küçük bir hap).
             var levelBadge = new GameObject("LevelBadge", typeof(RectTransform), typeof(Image));
             levelBadge.transform.SetParent(content, false);
@@ -434,6 +465,8 @@ namespace PawPath.Core
                 foreach (var control in hud.GetComponentsInChildren<MobileControlButton>(true))
                     ApplyControlLayout(control.GetComponent<RectTransform>(), control.name, large);
                 foreach (var stick in hud.GetComponentsInChildren<MobileJoystick>(true)) stick.Resize(large);
+                var drawingStart = FindButton(hud.transform, "StartDrawingGame");
+                ApplyDrawingStartLayout(drawingStart != null ? drawingStart.GetComponent<RectTransform>() : null, large);
                 if (CatHouseManager.Instance != null)
                     CatHouseManager.Instance.RefreshResidents();
             }
@@ -624,7 +657,8 @@ namespace PawPath.Core
             var previousDrawView = RoundIconButton(content, "PreviousDrawView", CozyIconFactory.ArrowLeft(),
                 WaterColor, new Vector2(0.5f, 1f), new Vector2(-145f, -165f), 96f, 0.52f);
             var startDrawingGame = RoundIconButton(content, "StartDrawingGame", CozyIconFactory.Play(),
-                PlayColor, new Vector2(0.5f, 1f), new Vector2(0f, -165f), 112f, 0.57f);
+                PlayColor, new Vector2(1f, 0f), Vector2.zero, 160f, 0.57f);
+            ApplyDrawingStartLayout(startDrawingGame.GetComponent<RectTransform>(), DisplaySizeSettings.Large);
             var nextDrawView = RoundIconButton(content, "NextDrawView", CozyIconFactory.ArrowRight(),
                 WaterColor, new Vector2(0.5f, 1f), new Vector2(145f, -165f), 96f, 0.52f);
             previousDrawView.gameObject.AddComponent<DrawingToolButton>();
@@ -642,7 +676,78 @@ namespace PawPath.Core
                 editHome, flipFurniture, settingsButton, settingsPanel,
                 previousDrawView, nextDrawView, startDrawingGame, null);
             hud.GetComponent<HudView>().BindBalanceRoot(balanceRoot);
+            BuildMitziPhone(hud, content, canvas);
             return hud;
+        }
+
+        static void BuildMitziPhone(GameObject hud, Transform content, Transform canvas)
+        {
+            var launcher = RoundIconButton(content, "MitziPhone", CozyIconFactory.MitziPhone(), new Color(.96f,.85f,.68f),
+                new Vector2(0,1), new Vector2(EdgeMargin + 498, -(EdgeMargin + 44)), 88, 1.05f);
+            launcher.transform.Find("Icon").localRotation=Quaternion.Euler(0,0,-9);
+            var launcherName=Label(launcher.transform,"PhoneOwner","Mitzi",new Vector2(.5f,.5f),new Vector2(0,-54));
+            launcherName.rectTransform.sizeDelta=new Vector2(94,26);launcherName.fontSize=FontSmall;launcherName.fontStyle=FontStyle.Bold;
+            launcherName.color=new Color(1,.97f,.87f);launcherName.raycastTarget=false;AddTextShadow(launcherName);
+            var overlay = Panel("MitziPhoneOverlay", canvas, Vector2.zero, Vector2.one, new Color(.10f,.07f,.05f,.70f));
+            var safe = SafeContent(overlay.transform);
+            var device = new GameObject("PhoneDevice", typeof(RectTransform), typeof(Image)); device.transform.SetParent(safe,false);
+            device.GetComponent<RectTransform>().sizeDelta = new Vector2(500,860);
+            var frame = device.GetComponent<Image>(); frame.sprite = CozyIconFactory.Pill(); frame.type = Image.Type.Sliced; frame.color = new Color(.30f,.20f,.15f);
+            var screen = new GameObject("PhoneScreen", typeof(RectTransform), typeof(Image)); screen.transform.SetParent(device.transform,false);
+            screen.GetComponent<RectTransform>().sizeDelta = new Vector2(464,816);
+            var screenImage = screen.GetComponent<Image>(); screenImage.sprite = CozyIconFactory.Pill(); screenImage.type = Image.Type.Sliced; screenImage.color = new Color(1f,.97f,.90f);
+            var notch = IconImage(screen.transform,"Speaker",CozyIconFactory.Pill(),new Color(.30f,.20f,.15f),new Vector2(.5f,.5f),new Vector2(0,382),10);
+            notch.rectTransform.sizeDelta = new Vector2(64,9); notch.raycastTarget = false;
+            var heading = Label(screen.transform,"PhoneTitle",GameText.L("Mitzi’nin telefonu","Mitzi’s phone","Mitzis Handy"),new Vector2(.5f,.5f),new Vector2(0,335));
+            heading.rectTransform.sizeDelta = new Vector2(380,52); heading.fontSize = FontButton; heading.fontStyle = FontStyle.Bold;
+            var avatarBack = IconImage(screen.transform,"AvatarCircle",CozyIconFactory.Dot(),new Color(.91f,.48f,.58f),new Vector2(.5f,.5f),new Vector2(-145,245),100);
+            avatarBack.raycastTarget = false;
+            avatarBack.gameObject.AddComponent<Mask>().showMaskGraphic=true;
+            var mitzi = GameFlow.Instance != null ? GameFlow.Instance.Catalog?.GetCat("mitzi") : null;
+            var avatar = IconImage(avatarBack.transform,"MitziAvatar",mitzi != null && mitzi.portrait != null ? mitzi.portrait : CozyIconFactory.HappyCatFace(),Color.white,new Vector2(.5f,.5f),Vector2.zero,92);
+            avatar.preserveAspect = true; avatar.raycastTarget = false;
+            var name = Label(screen.transform,"AccountName",MitziPhoneUI.AccountName,new Vector2(.5f,.5f),new Vector2(45,265));
+            name.rectTransform.sizeDelta = new Vector2(280,44); name.fontSize = FontBody; name.fontStyle = FontStyle.Bold;
+            var handle = Label(screen.transform,"AccountHandle",MitziPhoneUI.AccountHandle,new Vector2(.5f,.5f),new Vector2(45,220));
+            handle.rectTransform.sizeDelta = new Vector2(280,44); handle.fontSize = FontBody;
+            var description = Label(screen.transform,"AccountDescription",GameText.L("Mitzi’nin albümü","Mitzi’s album","Mitzis Album"),new Vector2(.5f,.5f),new Vector2(0,165));
+            description.rectTransform.sizeDelta = new Vector2(360,42); description.fontSize = FontBody;
+            var photos=new Image[4];
+            for(int i=0;i<4;i++)
+            {
+                photos[i]=IconImage(screen.transform,"Photo_"+i,null,new Color(.93f,.88f,.80f),new Vector2(.5f,.5f),
+                    new Vector2((i%2==0?-1:1)*95,50-(i/2)*190),180);
+                photos[i].raycastTarget=false;photos[i].preserveAspect=true;
+            }
+            var open = Button(screen.transform,"OpenMitziInstagram",GameText.L("Instagram’da aç","Open in Instagram","In Instagram öffnen"),new Vector2(.5f,.5f),new Vector2(0,-295),LoveColor);
+            StylePillButton(open,new Vector2(390,84),LoveColor,CozyIconFactory.Camera(),FontBody,false);
+            var close = RoundIconButton(device.transform,"ClosePhone",CozyIconFactory.Close(),UtilityColor,new Vector2(.5f,.5f),new Vector2(220,400),64,.5f);
+            var homeBar = IconImage(screen.transform,"HomeBar",CozyIconFactory.Pill(),new Color(.30f,.20f,.15f,.45f),new Vector2(.5f,.5f),new Vector2(0,-382),8);
+            homeBar.rectTransform.sizeDelta = new Vector2(90,8); homeBar.raycastTarget = false;
+            var phone=hud.AddComponent<MitziPhoneUI>();phone.BindAlbum(avatar,photos);phone.Bind(overlay,launcher,close,open);
+            BuildPhoneParentGate(phone,screen.transform);
+        }
+
+        static void BuildPhoneParentGate(MitziPhoneUI phone, Transform screen)
+        {
+            var gate=Panel("PhoneParentGate",screen,Vector2.zero,Vector2.one,new Color(1,.97f,.90f));
+            var title=Label(gate.transform,"ParentTitle",GameText.L("Yetişkinler için","For grown-ups","Für Erwachsene"),new Vector2(.5f,.5f),new Vector2(0,270));
+            title.rectTransform.sizeDelta=new Vector2(390,70);title.fontSize=FontButton;title.fontStyle=FontStyle.Bold;
+            var instruction=Label(gate.transform,"ParentInstruction",GameText.L("Instagram’a geçmeden önce\nsonucu yazın.","Enter the answer before\nopening Instagram.","Vor dem Öffnen von Instagram\ndas Ergebnis eingeben."),new Vector2(.5f,.5f),new Vector2(0,175));
+            instruction.rectTransform.sizeDelta=new Vector2(380,105);instruction.fontSize=FontBody;
+            var question=Label(gate.transform,"ParentChallenge","",new Vector2(.5f,.5f),new Vector2(0,60));
+            question.rectTransform.sizeDelta=new Vector2(370,75);question.fontSize=FontTitle;question.fontStyle=FontStyle.Bold;
+            var inputRoot=new GameObject("ParentAnswer",typeof(RectTransform),typeof(Image),typeof(InputField));inputRoot.transform.SetParent(gate.transform,false);
+            var inputRect=inputRoot.GetComponent<RectTransform>();inputRect.sizeDelta=new Vector2(280,75);inputRect.anchoredPosition=new Vector2(0,-40);
+            var background=inputRoot.GetComponent<Image>();background.sprite=CozyIconFactory.Pill();background.type=Image.Type.Sliced;background.color=new Color(.95f,.88f,.76f);
+            var inputText=Label(inputRoot.transform,"AnswerText","",new Vector2(.5f,.5f),Vector2.zero);inputText.rectTransform.sizeDelta=new Vector2(240,65);inputText.fontSize=FontButton;inputText.supportRichText=false;
+            var input=inputRoot.GetComponent<InputField>();input.textComponent=inputText;input.contentType=InputField.ContentType.IntegerNumber;input.characterLimit=4;input.lineType=InputField.LineType.SingleLine;
+            var status=Label(gate.transform,"ParentStatus","",new Vector2(.5f,.5f),new Vector2(0,-135));status.rectTransform.sizeDelta=new Vector2(380,95);status.fontSize=FontBody;
+            var verify=Button(gate.transform,"VerifyParent",GameText.L("Doğrula","Verify","Bestätigen"),new Vector2(.5f,.5f),new Vector2(0,-240),PlayColor);
+            StylePillButton(verify,new Vector2(370,84),PlayColor,null,FontBody,false);
+            var cancel=Button(gate.transform,"CancelParent",GameText.L("Albümüne dön","Back to album","Zurück zum Album"),new Vector2(.5f,.5f),new Vector2(0,-335),UtilityColor);
+            StylePillButton(cancel,new Vector2(370,70),UtilityColor,null,FontBody,false);
+            phone.BindParentGate(gate,question,input,status,verify,cancel,verify.GetComponentInChildren<Text>());
         }
 
         /// <summary>
@@ -794,6 +899,24 @@ namespace PawPath.Core
             }
             rt.anchoredPosition = position;
             rt.sizeDelta = new Vector2(size, size);
+        }
+
+        static void ApplyDrawingStartLayout(RectTransform rect, bool large)
+        {
+            if (rect == null) return;
+            // Same safe-area parent and edge clearance as the right gameplay stick.
+            // Keep this action in the bottom control strip, outside the central road.
+            float diameter = large ? 176f : 160f;
+            rect.anchorMin = rect.anchorMax = new Vector2(1f, 0f);
+            rect.sizeDelta = Vector2.one * diameter;
+            rect.anchoredPosition = new Vector2(-(52f + diameter * .5f), 44f + diameter * .5f);
+            var icon = rect.Find("Icon") as RectTransform;
+            if (icon != null)
+            {
+                icon.anchorMin = Vector2.one * .215f;
+                icon.anchorMax = Vector2.one * .785f;
+                icon.offsetMin = icon.offsetMax = Vector2.zero;
+            }
         }
 
         static readonly Color ControlColor = new Color(0.24f, 0.18f, 0.14f, 0.50f);

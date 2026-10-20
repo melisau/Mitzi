@@ -14,6 +14,7 @@ namespace PawPath.Levels
     public class LevelCourseBuilder : MonoBehaviour
     {
         public const float GameplayScale = 1.20f;
+        public float DogVisualWidth => cyberTheme ? 3.6f * DisplaySizeSettings.CatScale : 2.75f;
         const float RoadCenterY = -1.85f;
         const float RoadHeight = 0.96f * GameplayScale;
         const float SectionOffset = 13.0f;
@@ -29,6 +30,7 @@ namespace PawPath.Levels
         const float AbyssBottom = -8f;
         static readonly Color AbyssColor = new Color(0.10f, 0.067f, 0.047f, 1f);
         Sprite slabSprite;
+        Sprite soilColumnSprite;
 
         Transform generatedRoot;
         Sprite gapSprite;
@@ -87,13 +89,15 @@ namespace PawPath.Levels
         {
             public readonly float Left;
             public readonly float Right;
+            public readonly bool IsSteppingPit;
             public float Width => Right - Left;
             public float CenterX => (Left + Right) * 0.5f;
 
-            public GapSpan(float left, float right)
+            public GapSpan(float left, float right, bool isSteppingPit = false)
             {
                 Left = left;
                 Right = right;
+                IsSteppingPit = isSteppingPit;
             }
         }
 
@@ -165,6 +169,7 @@ namespace PawPath.Levels
             generatedRoot = new GameObject("GeneratedCourse").transform;
             generatedRoot.SetParent(transform, false);
             slabSprite = null;
+            soilColumnSprite = null;
             if (UsesThinSlabs)
                 CreateAbyss();
 
@@ -228,6 +233,38 @@ namespace PawPath.Levels
                 gaps.Add(new Vector2(center, width));
             }
 
+            // Introduce one optional stepping-stone challenge after the opening levels.
+            // Reserve the entire pit before building roads, trees or other obstacles.
+            bool giantPit = levelNumber >= 6 && levelNumber % 3 == 0;
+            float giantCenter = levelNumber % 2 == 0 ? 19.4f : 29.4f;
+            // A separate seed keeps retry layouts stable without coupling shelf
+            // choices to how many random draws the ordinary obstacles consume.
+            var shelfRandom = new System.Random(unchecked(levelNumber * 61717 + (int)CurrentDifficulty * 433 + 1709));
+            int[] shelfCounts = { 1, 3, 4 };
+            int shelfCount = shelfCounts[shelfRandom.Next(shelfCounts.Length)];
+            float shelfSpacing = NextRange(shelfRandom, 1.60f, 1.82f);
+            float giantWidth = shelfSpacing * (shelfCount + 1);
+            var shelfHeights = new float[shelfCount];
+            float previousHeight = 0;
+            for (int i = 0; i < shelfCount; i++)
+            {
+                // Adjacent rises remain comfortably below a normal single jump.
+                // Keep both entrances lower so either approach can reach the first
+                // shelf with one ordinary jump, even on the widest spacing.
+                float maxHeight = i == 0 || i == shelfCount - 1 ? .60f : .95f;
+                float height = NextRange(shelfRandom, .30f, maxHeight);
+                if (i > 0 && Mathf.Abs(height - previousHeight) < .18f)
+                    height = Mathf.Abs(previousHeight - .30f) > Mathf.Abs(previousHeight - maxHeight) ? .30f : maxHeight;
+                shelfHeights[i] = height;
+                previousHeight = height;
+            }
+            if (giantPit)
+            {
+                gaps.RemoveAll(g => Mathf.Abs(g.x - giantCenter) < giantWidth * .5f + g.y * .5f + 2.4f);
+                gaps.Add(new Vector2(giantCenter, giantWidth));
+                gaps.Sort((a, b) => a.x.CompareTo(b.x));
+            }
+
             float roadStart = CourseLeft;
             foreach (Vector2 gap in gaps)
             {
@@ -238,7 +275,9 @@ namespace PawPath.Levels
             Road((roadStart + CourseRight) * 0.5f, CourseRight - roadStart);
 
             foreach (Vector2 gap in gaps)
-                Gap(gap.x, gap.y);
+                if (giantPit && Mathf.Abs(gap.x - giantCenter) < .001f)
+                    BuildGiantPit(gap.x, gap.y, shelfHeights);
+                else Gap(gap.x, gap.y);
 
             // Tümsek yalnız geniş platformlarda oluşur; giriş, bitiş ve çukur
             // kenarları boş kalır. İki tümsek arasında da yürüme payı bulunur.
@@ -268,6 +307,54 @@ namespace PawPath.Levels
                     moundPositions.Add(x);
                     placed = true;
                 }
+            }
+        }
+
+        void BuildGiantPit(float center, float width, float[] heights)
+        {
+            var gap = new GapSpan(center - width * .5f, center + width * .5f, true);
+            gaps.Add(gap);
+            // Short slabs deliberately stay separate from the road list: no deep soil
+            // columns, dogs or climb trees should be placed on these airborne shelves.
+            float roadTop = RoadCenterY + RoadHeight * .5f;
+            float spacing = width / (heights.Length + 1);
+            float shelfWidth = Mathf.Min(1.55f, spacing - .45f);
+            const float depth = .55f;
+            Sprite surface = roadSprite;
+            if (surface != null)
+            {
+                Rect r = surface.rect;
+                if (cyberTheme && surface.texture.width == 669 && surface.texture.height == 373)
+                    r = new Rect(0, 119, 669, 137);
+                float padding = surface.name.Contains("forest_ground_underfill") ? r.height * .036f : 0;
+                float pixels = cyberTheme ? r.height : surface.name.Contains("city_service_road")
+                    ? r.height * .20f : Mathf.Min(r.height - padding, depth * surface.pixelsPerUnit);
+                surface = Sprite.Create(surface.texture,
+                    new Rect(r.x, r.yMax - padding - pixels, r.width, pixels),
+                    Vector2.one * .5f, pixels / depth, 0, SpriteMeshType.FullRect);
+                surface.name = "GiantPitThemeSurface";
+                generatedRuntimeAssets.Add(surface);
+            }
+            for (int i = 0; i < heights.Length; i++)
+            {
+                float x = gap.Left + spacing * (i + 1);
+                float top = roadTop + heights[i];
+                var shelf = new GameObject("GiantPitShelf");
+                shelf.transform.SetParent(generatedRoot, false);
+                shelf.transform.position = new Vector2(x, top - depth * .5f);
+                var collision = shelf.AddComponent<BoxCollider2D>();
+                collision.size = new Vector2(shelfWidth, depth);
+                // Land on top; upward jumps can pass the underside without a head bump.
+                var effector = shelf.AddComponent<PlatformEffector2D>();
+                effector.useOneWay = true; effector.useOneWayGrouping = true;
+                effector.surfaceArc = 160f;
+                effector.useSideFriction = false; effector.useSideBounce = false;
+                collision.usedByEffector = true;
+                var visual = shelf.AddComponent<SpriteRenderer>();
+                visual.sprite = surface != null ? surface : FallbackSprite.WhiteSquare();
+                visual.drawMode = SpriteDrawMode.Tiled;
+                visual.size = new Vector2(shelfWidth, depth);
+                visual.sortingOrder = 1;
             }
         }
 
@@ -414,9 +501,8 @@ namespace PawPath.Levels
         }
 
         /// <summary>
-        /// Platform görselinin yalnızca üst kısmını (taş sırası + biraz toprak) çizer.
-        /// Fizik collider'ı değişmez; yalnızca görünüm incelir. Alt kenar dalgalı
-        /// ve köşeleri yuvarlak kesilir, altına yumuşak bir gölge düşer.
+        /// Keep the registered walking surface, backed by soil down past the camera.
+        /// Only the visual depth changes; the original road collider and gaps remain.
         /// </summary>
         void CreateThinSlab(RoadSpan span)
         {
@@ -424,9 +510,13 @@ namespace PawPath.Levels
             {
                 Rect source = roadSprite.rect;
                 float ppu = roadSprite.pixelsPerUnit;
-                float cropPixels = Mathf.Min(source.height, SlabDepth * ppu);
+                // The forest texture has 18px of transparent/sparse grass above its
+                // continuous surface. Exclude that padding so visible grass, paws and
+                // tree roots meet the same collider height rather than floating above it.
+                float topPadding = roadSprite.name.Contains("forest_ground_underfill") ? source.height * .036f : 0f;
+                float cropPixels = Mathf.Min(source.height - topPadding, SlabDepth * ppu);
                 slabSprite = Sprite.Create(roadSprite.texture,
-                    new Rect(source.x, source.y + source.height - cropPixels, source.width, cropPixels),
+                    new Rect(source.x, source.y + source.height - topPadding - cropPixels, source.width, cropPixels),
                     new Vector2(0.5f, 0.5f), ppu, 0, SpriteMeshType.FullRect);
                 slabSprite.name = "ThinRoadSlab";
                 generatedRuntimeAssets.Add(slabSprite);
@@ -444,15 +534,36 @@ namespace PawPath.Levels
             renderer.tileMode = SpriteTileMode.Continuous;
             renderer.size = new Vector2(span.Width, height);
             ApplyRoundedTopCornerMask(go.transform, renderer, span.CenterX, span.Width, height, true);
+            CreateSoilColumn(span, height);
+        }
 
-            var shadowGo = new GameObject("RoadSlabShadow");
-            shadowGo.transform.SetParent(generatedRoot, false);
-            shadowGo.transform.position = new Vector2(span.CenterX, span.Top - height - 0.02f);
-            shadowGo.transform.localScale = new Vector3(span.Width * 1.05f, 0.65f, 1f);
-            var shadow = shadowGo.AddComponent<SpriteRenderer>();
-            shadow.sprite = CozyIconFactory.SoftEllipse();
-            shadow.color = new Color(0f, 0f, 0f, 0.55f);
-            shadow.sortingOrder = 0;
+        void CreateSoilColumn(RoadSpan span, float surfaceHeight)
+        {
+            if (soilColumnSprite == null)
+            {
+                // Begin at the exact source row under the cap overlap. This keeps
+                // stones/roots continuous across the two renderers instead of a seam.
+                Rect source = roadSprite.rect;
+                float topPadding = roadSprite.name.Contains("forest_ground_underfill") ? source.height * .036f : 0f;
+                float cropHeight = Mathf.Max(1f, source.height - topPadding - surfaceHeight * .70f * roadSprite.pixelsPerUnit);
+                soilColumnSprite = Sprite.Create(roadSprite.texture,
+                    new Rect(source.x, source.y, source.width, cropHeight),
+                    Vector2.one * .5f, roadSprite.pixelsPerUnit, 0, SpriteMeshType.FullRect);
+                soilColumnSprite.name = "RoadSoilTexture";
+                generatedRuntimeAssets.Add(soilColumnSprite);
+            }
+            // Overlap the cap so its softened lower edge cannot expose a floating seam.
+            float top = span.Top - surfaceHeight * .70f;
+            // Whole vertical tiles register the top source row with the cap above.
+            // The final lower edge may extend below -8, always outside the camera.
+            float tileHeight = soilColumnSprite.bounds.size.y;
+            float height = Mathf.Ceil((top - AbyssBottom) / tileHeight) * tileHeight;
+            var go = new GameObject("RoadSoilColumn"); go.transform.SetParent(generatedRoot, false);
+            go.transform.position = new Vector3(span.CenterX, top - height * .5f, 0f);
+            var renderer = go.AddComponent<SpriteRenderer>(); renderer.sprite = soilColumnSprite;
+            renderer.sortingOrder = 0; renderer.drawMode = SpriteDrawMode.Tiled;
+            renderer.tileMode = SpriteTileMode.Continuous;
+            renderer.size = new Vector2(span.Width, height);
         }
 
         /// <summary>Yol çizgisinin altını üstten alta koyulaşan sıcak bir karanlıkla örter.</summary>
@@ -470,7 +581,7 @@ namespace PawPath.Levels
             {
                 float depth = 1f - y / (float)(texHeight - 1); // 0 üstte, 1 altta
                 var color = AbyssColor;
-                color.a = Mathf.Lerp(0.62f, 0.98f, Mathf.Pow(depth, 0.7f));
+                color.a = .98f * Mathf.SmoothStep(0f, 1f, Mathf.Pow(depth, .7f));
                 pixels[y * 2] = color;
                 pixels[y * 2 + 1] = color;
             }
@@ -483,7 +594,7 @@ namespace PawPath.Levels
             generatedRuntimeAssets.Add(sprite);
 
             float roadTop = RoadCenterY + RoadHeight * 0.5f;
-            float top = roadTop - 0.02f;
+            float top = roadTop - 0.28f;
             float height = top - AbyssBottom;
             float width = CourseRight - CourseLeft + 40f;
             var go = new GameObject("Abyss");
@@ -1041,11 +1152,25 @@ namespace PawPath.Levels
             if(crouchObstacleSprite==null)return;
             const float width=4.2f;
             float floor=RoadCenterY+RoadHeight*.5f;
+            // Intro sections contain overlapping road colliders. Reserve runway on
+            // their continuous surface, rather than losing the first passage lesson.
+            var orderedRoads = new List<RoadSpan>(roads);
+            orderedRoads.Sort((a,b) => a.Left.CompareTo(b.Left));
+            var stretches = new List<RoadSpan>();
+            foreach (var road in orderedRoads)
+            {
+                if (stretches.Count > 0 && road.Left <= stretches[stretches.Count - 1].Right + .001f)
+                {
+                    var previous = stretches[stretches.Count - 1];
+                    stretches[stretches.Count - 1] = new RoadSpan(previous.Left, Mathf.Max(previous.Right, road.Right), previous.Top, previous.Bottom);
+                }
+                else stretches.Add(road);
+            }
             var candidates=new List<float>();
             for(float x=-4f;x<GoalX-4f;x+=.5f)
             {
                 bool contained=false;
-                foreach(var road in roads)if(road.MaxCenteredWidth(x,.7f)>=width){contained=true;break;}
+                foreach(var road in stretches)if(road.MaxCenteredWidth(x,CrouchPassage.JumpExitRunway)>=width){contained=true;break;}
                 if(!contained)continue;
                 bool blocked=false;
                 foreach(var range in moundVisualRanges)if(x+width*.5f+.7f>range.x && x-width*.5f-.7f<range.y){blocked=true;break;}
@@ -1222,7 +1347,7 @@ namespace PawPath.Levels
 
         bool TryChooseDogSpawnX(System.Random random, float minX, float maxX, out float spawnX)
         {
-            float edgeMargin = cyberTheme ? 1.20f : 1.55f;
+            float edgeMargin = DogVisualWidth * .5f + .175f;
             var validRanges = new List<Vector2>();
             foreach (RoadSpan road in roads)
             {
@@ -1230,6 +1355,20 @@ namespace PawPath.Levels
                 float right = Mathf.Min(maxX, road.Right - edgeMargin);
                 if (right > left)
                     validRanges.Add(new Vector2(left, right));
+            }
+            foreach (var passage in generatedRoot.GetComponentsInChildren<CrouchPassage>())
+            {
+                float reach = DogVisualWidth * .5f + .14f + CrouchPassage.DogExitRunway;
+                float blockedLeft = passage.Left - reach, blockedRight = passage.Right + reach;
+                var safe = new List<Vector2>();
+                foreach (var range in validRanges)
+                {
+                    if (range.x < blockedLeft && Mathf.Min(range.y, blockedLeft) > range.x)
+                        safe.Add(new Vector2(range.x, Mathf.Min(range.y, blockedLeft)));
+                    if (range.y > blockedRight && range.y > Mathf.Max(range.x, blockedRight))
+                        safe.Add(new Vector2(Mathf.Max(range.x, blockedRight), range.y));
+                }
+                validRanges = safe;
             }
             if (validRanges.Count == 0)
             {
@@ -1247,7 +1386,11 @@ namespace PawPath.Levels
             // pay bırakmak tırmanma trigger'ının boşluğa taşmasını engeller.
             const float minX = 4.5f;
             float maxX = GoalX - 4.5f;
-            const float edgeMargin = 1.05f;
+            // Reserve a full jump-approach strip beyond the complete climb activation
+            // reach (trunk trigger + the largest grounded cat), on both sides of gaps.
+            float treeScale = 6.10f / Mathf.Max(.01f, climbTreeSprite.bounds.size.y);
+            float triggerHalfWidth = climbTreeSprite.bounds.size.x * .08f * treeScale;
+            float edgeMargin = ClimbableTree.GapApproachClearance + triggerHalfWidth + .75f * DisplaySizeSettings.CatScale;
             var validRanges = new List<Vector2>();
             foreach (RoadSpan range in roads)
             {
@@ -1298,47 +1441,68 @@ namespace PawPath.Levels
             renderer.sortingOrder = 9;
             var collider = go.AddComponent<BoxCollider2D>();
             collider.isTrigger = true;
-            collider.size = cyberTheme ? new Vector2(1.30f, 0.82f) : new Vector2(1.98f, 1.05f);
+            collider.size = cyberTheme ? new Vector2(DogVisualWidth * .667f, DogVisualWidth * .42f) : new Vector2(1.98f, 1.05f);
             collider.offset = new Vector2(0f, collider.size.y * 0.5f);
             var body = go.AddComponent<Rigidbody2D>();
             body.bodyType = RigidbodyType2D.Kinematic;
             body.interpolation = RigidbodyInterpolation2D.Interpolate;
             var dogGaps = new Vector2[gaps.Count];
+            var dogJumpAllowed = new bool[gaps.Count];
             for (int i = 0; i < gaps.Count; i++)
+            {
                 dogGaps[i] = new Vector2(gaps[i].Left, gaps[i].Right);
+                dogJumpAllowed[i] = !gaps[i].IsSteppingPit;
+            }
             go.AddComponent<DogObstacle>().Configure(renderer, dogRunFrames, speed, leftBound,
                 CourseRight + 2f,
-                roadTop, cyberTheme ? 1.95f : 2.75f,
-                (cyberTheme ? 1.95f : 2.75f) * 0.08f, 1f / 16f,
-                dogGaps, currentLevelNumber + dogIndex, dogIdleSprite);
+                roadTop, DogVisualWidth,
+                DogVisualWidth * (cyberTheme ? .14f : .08f), 1f / 16f,
+                dogGaps, currentLevelNumber + dogIndex, dogIdleSprite, dogJumpAllowed, cyberTheme);
         }
 
         void CreateClimbableTree(float x, float roadTop)
         {
+            // Only the generated road/hills may support a tree. Previous player paths,
+            // moving actors and triggers must not affect placement when restarting a level.
+            Physics2D.SyncTransforms();
+            float groundY = roadTop;
+            foreach (var hit in Physics2D.RaycastAll(new Vector2(x, roadTop + 12f), Vector2.down, 24f))
+            {
+                if (hit.collider == null || hit.collider.isTrigger ||
+                    !hit.collider.transform.IsChildOf(generatedRoot) ||
+                    (hit.collider.name != "Road" && hit.collider.name != "Hump"))
+                    continue;
+                groundY = hit.point.y;
+                break; // RaycastAll is sorted nearest-first: use the local top surface.
+            }
+
             var go = new GameObject("ClimbableTree");
             go.transform.SetParent(generatedRoot, false);
             var renderer = go.AddComponent<SpriteRenderer>();
             renderer.sprite = climbTreeSprite;
-            renderer.sortingOrder = 7;
+            // Terrain covers buried roots, while the trunk remains in front of the backdrop.
+            renderer.sortingOrder = 0;
             // Ağacı kök temas noktasını değiştirmeden genel olarak büyüt.
             // Aşağıdaki bottom-alignment hesabı görünen kökü aynı yol hizasında tutar.
             float targetHeight = 6.10f;
             float scale = climbTreeSprite.bounds.size.y > 0f ? targetHeight / climbTreeSprite.bounds.size.y : 1f;
             go.transform.localScale = new Vector3(scale, scale, 1f);
-            // PNG'nin kök altında şeffaf payı var. Görünen kök ucunu kaldırıma
-            // gömerek ağacın havada durmasını önleriz.
-            float visibleRootInset = 0.98f * (targetHeight / 5.25f);
-            go.transform.position = new Vector3(x,
-                roadTop - climbTreeSprite.bounds.min.y * scale - visibleRootInset, 0f);
+            // The root crown is 20% up this artwork's canvas; the thin roots below it
+            // are not the standing baseline. Convert through the sprite pivot/PPU so
+            // transparent canvas padding is not confused with the visible trunk base.
+            float rootY = (climbTreeSprite.rect.height * .20f - climbTreeSprite.pivot.y) /
+                climbTreeSprite.pixelsPerUnit;
+            const float rootOverlap = .03f;
+            go.transform.position = new Vector3(x, groundY - rootY * scale - rootOverlap, 0f);
 
             var trigger = go.AddComponent<BoxCollider2D>();
             trigger.isTrigger = true;
             // Bu collider fiziksel engel değildir; yalnız gövde merkezinde dar
             // bir tırmanma menzili tanımlar. Kedi sağ-sol ile serbestçe geçer.
-            trigger.size = new Vector2(climbTreeSprite.bounds.size.x * 0.16f,
-                climbTreeSprite.bounds.size.y * 0.82f);
-            trigger.offset = new Vector2(0f,
-                climbTreeSprite.bounds.min.y + climbTreeSprite.bounds.size.y * 0.46f);
+            float triggerBottom = rootY - .05f / scale;
+            float triggerTop = climbTreeSprite.bounds.min.y + climbTreeSprite.bounds.size.y * .87f;
+            trigger.size = new Vector2(climbTreeSprite.bounds.size.x * 0.16f, triggerTop - triggerBottom);
+            trigger.offset = new Vector2(0f, (triggerBottom + triggerTop) * .5f);
             var perch = new GameObject("ClimbPerch").transform;
             perch.SetParent(go.transform, false);
             // Tepe noktası ağacın görsel sınırını aşmaz.

@@ -6,6 +6,7 @@ using PawPath.Localization;
 
 namespace PawPath.Levels
 {
+    [RequireComponent(typeof(MobSimulationGate))]
     public class FlyingBirdObstacle : MonoBehaviour
     {
         SpriteRenderer renderer;
@@ -33,6 +34,7 @@ namespace PawPath.Levels
 
         void Update()
         {
+            if (!MobSimulationGate.GameplayActive) return;
             transform.position += Vector3.left * (speed * Time.deltaTime);
             if (transform.position.x < leftBound)
                 transform.position = new Vector3(rightBound, baseY, transform.position.z);
@@ -55,6 +57,7 @@ namespace PawPath.Levels
 
         void OnCollisionEnter2D(Collision2D collision)
         {
+            if (!MobSimulationGate.GameplayActive) return;
             if (collision.collider.GetComponentInParent<CatController>() == null)
                 return;
             CozyAudioManager.Instance?.PlayHurt();

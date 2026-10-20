@@ -30,6 +30,7 @@ namespace PawPath.UI
             public string title;
             public string body;
             public Art[] art;
+            public TutorialDemoKind? demo;
         }
 
         static readonly Color Cream = new Color(1f, 0.93f, 0.84f);
@@ -83,7 +84,7 @@ namespace PawPath.UI
             panel.SetActive(false);
         }
 
-        public static int PageCount => 7;
+        public static int PageCount => 12;
 
         void Start()
         {
@@ -116,7 +117,7 @@ namespace PawPath.UI
             var current = pages[page];
             title.text = current.title;
             body.text = current.body;
-            if (page >= 4 && page <= 8)
+            if (current.demo.HasValue)
             {
                 for (int i = artRoot.childCount - 1; i >= 0; i--)
                 {
@@ -127,7 +128,7 @@ namespace PawPath.UI
                 var stage = new GameObject("AnimatedExample", typeof(RectTransform));
                 stage.transform.SetParent(artRoot, false);
                 stage.transform.localScale = Vector3.one * 0.85f;
-                stage.AddComponent<GameplayTutorialDemo>().Configure(page == 4 ? TutorialDemoKind.DrawPath : page == 5 ? TutorialDemoKind.Move : page == 6 ? TutorialDemoKind.DogStomp : page == 7 ? TutorialDemoKind.DogContact : TutorialDemoKind.BirdReward);
+                stage.AddComponent<GameplayTutorialDemo>().Configure(current.demo.Value, useForestPassage: current.demo == TutorialDemoKind.Crouch);
             }
             else BuildArt(current.art);
 
@@ -263,6 +264,7 @@ namespace PawPath.UI
                 new Page
                 {
                     title = GameText.L("Çizerek oyna", "Draw to play", "Zeichnen & spielen"),
+                    demo = TutorialDemoKind.DrawPath,
                     body = GameText.L("Boşluğu çizerek birleştir. Yeşil oka bas.", "Draw across the gap. Tap green play.", "Zeichne über die Lücke. Tippe auf Grün."),
                     art = new[]
                     {
@@ -274,6 +276,7 @@ namespace PawPath.UI
                 new Page
                 {
                     title = GameText.L("Tuşlarla oyna", "Play with buttons", "Mit Tasten spielen"),
+                    demo = TutorialDemoKind.Move,
                     body = GameText.L("Okları basılı tutarak yürü.", "Hold the arrows to walk.", "Halte die Pfeile zum Laufen."),
                     art = new[]
                     {
@@ -285,19 +288,40 @@ namespace PawPath.UI
                 new Page
                 {
                     title = GameText.L("Üstüne zıpla", "Jump on top", "Spring darauf"),
+                    demo = TutorialDemoKind.DogStomp,
                     body = GameText.L("Köpeğin üstüne in. Puf, kaybolur!", "Land on the dog. Poof, it disappears!", "Lande auf dem Hund. Puff, er verschwindet!"),
                     art = new Art[0]
                 },
                 new Page
                 {
                     title = GameText.L("Dokunma!", "Avoid touching!", "Nicht berühren!"),
+                    demo = TutorialDemoKind.DogContact,
                     body = GameText.L("Köpeğe yandan dokunursan kaybedersin.", "Touching the dog's side ends the round.", "Berührst du den Hund seitlich, ist die Runde vorbei."),
                     art = new Art[0]
                 },
                 new Page
                 {
                     title = GameText.L("Kuşu yakala", "Catch the bird", "Fang den Vogel"),
+                    demo = TutorialDemoKind.BirdReward,
                     body = GameText.L("Kuşları topla. +3 puan kazan!", "Collect birds. Earn +3 points!", "Sammle Vögel. Bekomme +3 Punkte!"),
+                    art = new Art[0]
+                },
+                new Page
+                {
+                    title = GameText.L("Ağaç: altından geç", "Tree: go under", "Baum: darunter durch"),
+                    body = GameText.L("Mavi ↓: alçak dalın altından geç. Çizerek: otomatik eğilme. Tuşlu: sağ pati aşağı. Tırmanılmaz.",
+                        "Blue ↓: go under the low branch. Drawing: auto-crouch. Buttons: right paw down. Cannot be climbed.",
+                        "Blau ↓: unter dem Ast durch. Zeichnen: automatisch ducken. Tasten: rechte Pfote runter. Nicht klettern."),
+                    demo = TutorialDemoKind.Crouch,
+                    art = new Art[0]
+                },
+                new Page
+                {
+                    title = GameText.L("Ağaç: tırman", "Tree: climb", "Baum: klettern"),
+                    body = GameText.L("Yeşil ↑: gövdeye yaklaş, zıplama tuşuna bas. Tepede köpekten korun ve +5 puan al.",
+                        "Green ↑: approach the trunk and press jump. Stay safe from dogs at the top and earn +5 points.",
+                        "Grün ↑: am Stamm die Sprungtaste drücken. Oben vor Hunden sicher sein und +5 Punkte erhalten."),
+                    demo = TutorialDemoKind.Climb,
                     art = new Art[0]
                 },
                 new Page

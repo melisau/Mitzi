@@ -33,7 +33,13 @@ namespace PawPath.Drawing
 
         Camera cam;
         Material sharedSpriteMaterial;
-        readonly List<GameObject> strokes = new List<GameObject>();
+        sealed class StrokeInkCost
+        {
+            public float Total;
+            public float FirstHalf;
+        }
+
+        readonly Dictionary<GameObject, StrokeInkCost> strokes = new Dictionary<GameObject, StrokeInkCost>();
         readonly List<Vector2> currentPoints = new List<Vector2>();
         LineRenderer currentLine;
         LineRenderer currentShadow;
@@ -104,13 +110,14 @@ namespace PawPath.Drawing
 
         public void ClearStrokes()
         {
-            foreach (var stroke in strokes)
+            EndStroke(false);
+            foreach (var stroke in strokes.Keys)
             {
                 if (stroke)
-                    Destroy(stroke);
+                    DestroyStroke(stroke);
             }
             strokes.Clear();
-            EndStroke(false);
+            RefreshInkFromStrokes();
         }
 
         public void FinishCurrentStroke() => EndStroke();
@@ -151,7 +158,7 @@ namespace PawPath.Drawing
 
             var go = new GameObject("PathStroke");
             go.layer = LayerMask.NameToLayer("Default");
-            strokes.Add(go);
+            strokes.Add(go, new StrokeInkCost());
             go.AddComponent<PathSurface>().Configure(brushType);
             currentStroke = go;
             currentStrokeType = brushType;
@@ -214,8 +221,13 @@ namespace PawPath.Drawing
             float spend = Mathf.Min(dist, availableInk);
             Vector2 next = last + (world - last).normalized * spend;
             inkLeft -= spend;
+            var cost = strokes[currentStroke];
+            cost.Total += spend;
             if (!IsInSecondPreparationHalf())
+            {
                 firstHalfInkSpent += spend;
+                cost.FirstHalf += spend;
+            }
             currentPoints.Add(next);
             HasDrawnPath = true;
 
@@ -399,9 +411,41 @@ namespace PawPath.Drawing
             {
                 if (hit == null || hit.GetComponent<PathSurface>() == null)
                     continue;
-                strokes.Remove(hit.gameObject);
-                Destroy(hit.gameObject);
+                // Only player-owned strokes can be erased/refunded. Removing ownership
+                // first also prevents duplicate refunds before deferred Destroy completes.
+                if (!strokes.Remove(hit.gameObject))
+                    continue;
+                if (hit.gameObject == currentStroke)
+                    EndStroke(false);
+                DestroyStroke(hit.gameObject);
+                RefreshInkFromStrokes();
             }
+        }
+
+        void RefreshInkFromStrokes()
+        {
+            // Use the original charged lengths, not the smoothed render/collider length.
+            // Recomputing from surviving paths avoids drift across repeated draw/erase cycles
+            // and returns first-half allowance to its original pool, regardless of camera view.
+            double total = 0d, firstHalf = 0d;
+            foreach (var cost in strokes.Values)
+            {
+                total += cost.Total;
+                firstHalf += cost.FirstHalf;
+            }
+            inkLeft = Mathf.Clamp(InkMax - (float)total, 0f, InkMax);
+            firstHalfInkSpent = (float)firstHalf;
+            HasDrawnPath = total > 0d;
+        }
+
+        static void DestroyStroke(GameObject stroke)
+        {
+            // Stop physics/rendering immediately even while the preparation phase is paused.
+            stroke.SetActive(false);
+            if (Application.isPlaying)
+                Destroy(stroke);
+            else
+                DestroyImmediate(stroke);
         }
     }
 }

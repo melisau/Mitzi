@@ -28,7 +28,6 @@ namespace PawPath.Cat
         [SerializeField] float walkAnimationSpeed = 2.05f;
         [SerializeField] float groundedProbe = 0.12f;
         [SerializeField] LayerMask groundMask = ~0;
-        [SerializeField] float airGrace = 0.45f;
         // Pack 64x64 karelerde kedi içeriği ~%50; 4.0 ≈ görünen ~2 birim boy.
         [SerializeField] float visualHeight = 2.0f;
         [SerializeField, Min(0.1f)] float visualSizeMultiplier = 1.25f;
@@ -46,13 +45,13 @@ namespace PawPath.Cat
         readonly ContactPoint2D[] movementContacts = new ContactPoint2D[16];
         CrouchPassage recoveringPassage;
         float passageRetreatX;
+        const float PassageApproachMargin = .45f;
         SpriteRenderer sprite;
         Animator animator;
         // Kontrolcüsü olmayan Animator'a Play/speed göndermek konsolu uyarıyla doldurur.
         bool HasAnimator => animator != null && animator.runtimeAnimatorController != null;
         Vector3 spawnPosition;
         bool busy;
-        float airTimer;
         CatDefinition definition;
         int facing = 1;
         bool crouching;
@@ -89,7 +88,16 @@ namespace PawPath.Cat
         public bool IsBusy => busy;
         public CatDefinition Definition => definition;
         public bool IsClimbing => climbing || perched;
+        public bool IsPerched => perched;
         public bool CanStartClimb => !IsClimbing && !intentionalJump && body != null && IsGrounded(out _);
+        bool BelowFallBoundary
+        {
+            get
+            {
+                var level = LevelManager.Instance != null ? LevelManager.Instance.Current : null;
+                return body != null && body.position.y < (level != null ? level.fallY : -7.5f);
+            }
+        }
 
         public void BounceAfterDogStomp()
         {
@@ -98,7 +106,6 @@ namespace PawPath.Cat
             intentionalJump = true; jumpLeftGround = false;
             body.velocity = new Vector2(body.velocity.x, bounceForce * 0.72f);
             jumpsRemaining = Mathf.Max(jumpsRemaining, 1);
-            airTimer = 0f;
         }
 
         public void StopImmediately()
@@ -181,7 +188,11 @@ namespace PawPath.Cat
             float scale=DisplaySizeSettings.CatScale;
             standingProfile.size=new Vector2(.82f,.62f)*scale;
             standingProfile.offset=new Vector2(0,.55f)*scale;
-            standingProfile.enabled=!crouching;
+            // The upper-body box must not support the cat by its underside while the
+            // paws are below a road edge. Keep head clearance when standing or rising;
+            // the round foot collider handles descending landings and slopes.
+            standingProfile.enabled = !crouching &&
+                (body == null || body.velocity.y > .15f || IsGrounded(out _));
         }
 
         void LateUpdate()
@@ -417,7 +428,6 @@ namespace PawPath.Cat
             body.simulated = true;
             body.velocity = Vector2.zero;
             busy = false;
-            airTimer = 0f;
             if (bubbleRenderer != null)
                 bubbleRenderer.enabled = false;
         }
@@ -442,11 +452,23 @@ namespace PawPath.Cat
                 return;
             }
 
+            // Resolve falling before movement or jump input in either play mode.
+            if (BelowFallBoundary)
+            {
+                MobileControlState.ConsumeJump();
+                keyboardJumpQueued = false;
+                StartCoroutine(RescueRoutine());
+                return;
+            }
+
             bool grounded = IsGrounded(out var surface);
+            UpdateStandingProfile();
             UpdateJumpAnimation(grounded);
             if (GameplayMode.IsDrawing)
-                SetCrouching(grounded && (MobileControlState.CrouchHeld || Input.GetKey(KeyCode.S) ||
-                    Input.GetKey(KeyCode.DownArrow) || CrouchPassage.NeedsCrouch(this,.45f)), grounded);
+                // A missed ground probe must not expand the standing profile into the beam.
+                SetCrouching(CrouchPassage.NeedsCrouch(this, PassageApproachMargin) ||
+                    (grounded && (MobileControlState.CrouchHeld || Input.GetKey(KeyCode.S) ||
+                    Input.GetKey(KeyCode.DownArrow))), grounded);
             if (!GameplayMode.IsDrawing)
             {
                 UpdateDirectControl(grounded, surface);
@@ -464,7 +486,6 @@ namespace PawPath.Cat
             float forward = BlockedByPassageSide() ? 0f : facing;
             if (grounded)
             {
-                airTimer = 0f;
                 float speed = (surface == PathSurfaceType.Ice ? moveSpeed * iceSpeedMultiplier : moveSpeed) * (crouching ? .55f : 1f);
                 body.velocity = new Vector2(forward * speed, body.velocity.y);
                 if (HasAnimator)
@@ -472,7 +493,6 @@ namespace PawPath.Cat
             }
             else
             {
-                airTimer += Time.fixedDeltaTime;
                 // Tümsek tepesindeki kısa collider ayrımlarında grounded bir fizik
                 // karesi boyunca false dönebilir. Yatay hızı korumazsak kedi tam
                 // tepede asılı kalıyordu; havadayken de ileri momentumunu sürdürüyor.
@@ -492,10 +512,6 @@ namespace PawPath.Cat
                 animator.Play(CrouchWalkState,0,Mathf.Repeat(Time.time*2f,1f));
             UpdateFootsteps(grounded, body.velocity.x);
 
-            var level = LevelManager.Instance != null ? LevelManager.Instance.Current : null;
-            float fallY = level != null ? level.fallY : -7.5f;
-            if (transform.position.y < fallY || airTimer > airGrace + 1.8f)
-                StartCoroutine(RescueRoutine());
         }
 
         bool BlockedByPassageSide()
@@ -583,7 +599,13 @@ namespace PawPath.Cat
         {
             bool jumpRequested = MobileControlState.ConsumeJump() | keyboardJumpQueued;
             keyboardJumpQueued = false;
-            if (!jumpRequested || jumpsRemaining <= 0)
+            if (!jumpRequested || jumpsRemaining <= 0 || busy || BelowFallBoundary)
+                return;
+
+            // Consume blocked input without launching or spending a jump. Otherwise the next
+            // airborne tick can enable the standing collider inside the low ceiling, making
+            // the physics solver push the cat to an entrance or trap it at the far edge.
+            if (CrouchPassage.NeedsCrouch(this, PassageApproachMargin))
                 return;
 
             bool secondJump = jumpsRemaining == 1;
@@ -653,10 +675,6 @@ void UpdateDirectControl(bool grounded, PathSurfaceType surface)
                 animator.Play(CrouchWalkState,0,Mathf.Repeat(Time.time*2f,1f));
             UpdateFootsteps(grounded, body.velocity.x);
 
-            var level = LevelManager.Instance != null ? LevelManager.Instance.Current : null;
-            float fallY = level != null ? level.fallY : -7.5f;
-            if (transform.position.y < fallY)
-                StartCoroutine(RescueRoutine());
         }
 
         void UpdateFootsteps(bool grounded, float horizontalSpeed)
@@ -677,8 +695,7 @@ void UpdateDirectControl(bool grounded, PathSurfaceType surface)
         {
             if (!intentionalJump || !jumpAnimationPlaying || climbing || perched || body == null || sprite == null || definition == null)
                 return;
-            bool supported = bodyCollider != null && bodyCollider.IsTouchingLayers(groundMask);
-            supported |= IsGrounded(out _);
+            bool supported = IsGrounded(out _);
             if (supported)
             {
                 if (sprite.sprite == definition.jumpApexSprite)
@@ -697,7 +714,7 @@ void UpdateDirectControl(bool grounded, PathSurfaceType surface)
             if (!HasAnimator)
                 return;
 
-            bool supported = grounded || (bodyCollider != null && bodyCollider.IsTouchingLayers(groundMask));
+            bool supported = grounded;
             if (!supported) jumpLeftGround = true;
             if (supported && (!intentionalJump || jumpLeftGround))
             {
@@ -796,7 +813,6 @@ void UpdateDirectControl(bool grounded, PathSurfaceType surface)
 
             body.simulated = true;
             body.velocity = Vector2.zero;
-            airTimer = 0f;
             busy = false;
             GameFlow.Instance?.ShowLevelFailure(GameText.L("Kedi çukura düştü. Zıplama zamanını veya çizdiğin yolu değiştir!", "Your cat fell into a gap. Change your jump timing or the path you drew!", "Deine Katze ist in eine Lücke gefallen. Spring zu einem anderen Zeitpunkt oder ändere deinen Weg!"));
         }

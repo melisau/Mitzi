@@ -3,6 +3,7 @@ using UnityEngine;
 using PawPath.Cat;
 using PawPath.Core;
 using PawPath.UI;
+using PawPath.Localization;
 namespace PawPath.Levels
 {
     /// <summary>An open-ended low ceiling. Rear artwork never blocks either entrance.</summary>
@@ -18,6 +19,8 @@ namespace PawPath.Levels
         public static float PassageClearance => .62f * DisplaySizeSettings.CatScale;
         public const float UpperHeight = 3.9f;
         public const float TreeSafetyDistance = 12f;
+        public const float JumpExitRunway = 3.2f;
+        public const float DogExitRunway = 2f;
         public static void FitUpperArtwork(SpriteRenderer renderer,float width,float clearance)
         {
             var size=renderer.sprite.bounds.size;
@@ -45,19 +48,15 @@ namespace PawPath.Levels
             Width=width;FloorY=floor;Clearance=clearance;if(!active.Contains(this))active.Add(this);
             if(crouchHint==null)
             {
-                crouchHint=new GameObject("CrouchHint");crouchHint.transform.SetParent(transform,false);
-                var disc=crouchHint.AddComponent<SpriteRenderer>();disc.sprite=CozyIconFactory.CircleButton();disc.color=new Color(.36f,.63f,.90f);disc.sortingOrder=11;
-                crouchHint.transform.localScale=Vector3.one*(.52f/disc.sprite.bounds.size.x);
-                var arrow=new GameObject("DownArrow");arrow.transform.SetParent(crouchHint.transform,false);
-                var icon=arrow.AddComponent<SpriteRenderer>();icon.sprite=CozyIconFactory.ArrowDown();icon.sortingOrder=12;
-                arrow.transform.localScale=Vector3.one*(disc.sprite.bounds.size.x*.55f/icon.sprite.bounds.size.x);
-                crouchHint.SetActive(false);
+                crouchHint=ObstacleActionHint.Create(transform,false,GameText.L("Altından geç","Go under","Darunter durch"));
             }
         }
         void Update()
         {
             var cat=CatController.Instance;
-            bool near=cat!=null && !cat.IsCrouching && Mathf.Abs(cat.transform.position.x-transform.position.x)<Width*.5f+3f;
+            bool near=cat!=null && !cat.IsBusy && !cat.IsClimbing &&
+                (GameFlow.Instance==null || GameFlow.Instance.State==GameFlowState.Gameplay) &&
+                Mathf.Abs(cat.transform.position.x-transform.position.x)<Width*.5f+3f;
             if(crouchHint==null)return;
             crouchHint.SetActive(near);
             if(near)crouchHint.transform.localPosition=new Vector3(cat.transform.position.x<transform.position.x ? -Width*.5f-.6f : Width*.5f+.6f,Clearance+.65f+Mathf.Sin(Time.unscaledTime*4f)*.06f,0);
@@ -79,6 +78,7 @@ namespace PawPath.Levels
         }
         public static bool BlocksDog(float x,float step,float reach,out float stop)
         {
+            reach += DogExitRunway;
             bool blocked=false;float nearest=float.PositiveInfinity;stop=x;
             foreach(var p in active)
             {
@@ -95,6 +95,7 @@ namespace PawPath.Levels
         }
         public static float SafeDogSpawnX(float x,float reach)
         {
+            reach += DogExitRunway;
             foreach(var p in active)
             {
                 if(p==null||!p.isActiveAndEnabled)continue;

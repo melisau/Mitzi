@@ -42,6 +42,13 @@ public static class GhostCatBuilder
         cat.visualHeightMultiplier=catalog.StarterCat.homeVisibleHeightRatio/cat.homeVisibleHeightRatio*(id=="ghost"?.78f:1f);
         cat.walkCycleSeconds=.8f;
         if(id=="ghost"&&File.Exists(root+"/jump.png"))cat.jumpFrames=Import(root,"jump");
+        if(id=="ghost"&&File.Exists(root+"/jump-compact.png"))
+        {
+            cat.jumpFrames=Import(root,"jump-compact");
+            // This sheet already includes a tucked airborne pose. Do not insert the
+            // legacy action-sheet apex, which has a different scale/foot baseline.
+            cat.jumpApexSprite=null;
+        }
         if(id=="ghost"&&File.Exists(root+"/portrait.png"))
         {
             var portrait=(TextureImporter)AssetImporter.GetAtPath(root+"/portrait.png");
@@ -81,7 +88,8 @@ public static class GhostCatBuilder
         string path=root+"/"+sheet+".png";AssetDatabase.ImportAsset(path);
         var importer=(TextureImporter)AssetImporter.GetAtPath(path);
         var image=new Texture2D(2,2);image.LoadImage(File.ReadAllBytes(path));var pixels=image.GetPixels32();
-        int rowCount=sheet=="walk"||sheet=="jump"?2:3;
+        bool jumpSheet=sheet=="jump"||sheet=="jump-compact";
+        int rowCount=sheet=="walk"||jumpSheet?2:3;
         var rows=new int[rowCount+1];rows[rowCount]=image.height;
         for(int i=1;i<rowCount;i++)rows[i]=Gutter(image,pixels,false,image.height*i/rowCount,image.height/12,0,image.width);
         var metadata=new List<SpriteMetaData>();
@@ -89,7 +97,7 @@ public static class GhostCatBuilder
         {
             int bottom=rows[rowCount-1-row],top=rows[rowCount-row];
             // Boza's action rows contain four jumps, five apex/crouch poses and three final poses.
-            int count=sheet=="jump"?2:root.EndsWith("/boza")&&sheet=="action"?(row==1?5:row==2?3:4):4;
+            int count=jumpSheet?2:root.EndsWith("/boza")&&sheet=="action"?(row==1?5:row==2?3:4):4;
             var columns=new int[count+1];columns[count]=image.width;
             for(int i=1;i<count;i++)columns[i]=Gutter(image,pixels,true,image.width*i/count,image.width/20,bottom,top);
             for(int col=0;col<count;col++)
@@ -103,13 +111,13 @@ public static class GhostCatBuilder
             }
         }
         float ppu=100;
-        if(sheet=="walk"||sheet=="jump")
+        if(sheet=="walk"||jumpSheet)
         {
             var idle=AssetDatabase.LoadAllAssetsAtPath(root+"/home.png").OfType<Sprite>().OrderBy(s=>s.name).First();
             var source=new Texture2D(2,2);source.LoadImage(File.ReadAllBytes(root+"/home.png"));
             float idleHeight=BodyHeight(idle.rect,source.GetPixels32(),source.width);
             var heights=metadata.Select(m=>BodyHeight(m.rect,pixels,image.width)).OrderBy(h=>h).ToArray();
-            ppu=sheet=="jump"?100*metadata[0].rect.width/idle.rect.width:100*((heights[(heights.Length-1)/2]+heights[heights.Length/2])*.5f)/idleHeight;
+            ppu=jumpSheet?100*metadata[0].rect.width/idle.rect.width:100*((heights[(heights.Length-1)/2]+heights[heights.Length/2])*.5f)/idleHeight;
             if(sheet=="walk")
             {
                 float referenceHead=HeadCenter(idle.rect,source.GetPixels32(),source.width)-idle.rect.x-idle.pivot.x;

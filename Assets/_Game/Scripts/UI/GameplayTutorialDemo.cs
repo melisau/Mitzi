@@ -23,6 +23,7 @@ namespace PawPath.UI
         Image[] controls;
         Image[] joystickThumbs;
         bool joystickControls;
+        bool automaticCrouch;
         Image[] viewDots;
         float started;
         float catSize;
@@ -33,10 +34,12 @@ namespace PawPath.UI
         static readonly Color Ice = new Color(.40f,.70f,.75f);
         const float Floor = -35f;
 
-        public void Configure(TutorialDemoKind kind, CatDefinition catDefinition = null, bool useJoysticks = true)
+        public void Configure(TutorialDemoKind kind, CatDefinition catDefinition = null, bool useJoysticks = true,
+            bool useForestPassage = false, bool autoCrouch = false)
         {
             Kind=kind;
             joystickControls=useJoysticks;
+            automaticCrouch=autoCrouch;
             definition=catDefinition ?? GameFlow.Instance?.Catalog?.StarterCat;
             for (int i = transform.childCount - 1; i >= 0; i--)
             {
@@ -67,7 +70,7 @@ namespace PawPath.UI
             if(kind==TutorialDemoKind.Crouch)
             {
                 var catalog=GameFlow.Instance?.Catalog;
-                int theme=ThemeSelectionUI.GetSelectedTheme(PawPath.Core.SaveService.Data.highestCompletedLevel+1);
+                int theme=useForestPassage ? 1 : ThemeSelectionUI.GetSelectedTheme(PawPath.Core.SaveService.Data.highestCompletedLevel+1);
                 var obstacle=catalog!=null ? catalog.CrouchObstacleForTheme(theme):null;
                 if(obstacle!=null)
                 {
@@ -93,7 +96,19 @@ namespace PawPath.UI
             {
                 var tree=Art("Tree",GameFlow.Instance?.Catalog?.climbTreeSprite ?? CozyIconFactory.Tree(),new Vector2(15,-80),new Vector2(290,245),Green);
                 tree.rectTransform.pivot=new Vector2(.5f,0); tree.preserveAspect=true;
-                if(GameFlow.Instance?.Catalog?.climbTreeSprite!=null) tree.color=Color.white;
+                if(GameFlow.Instance?.Catalog?.climbTreeSprite!=null)
+                {
+                    tree.color=Color.white;
+                    tree.rectTransform.anchoredPosition=new Vector2(15,-80-245*.20f);
+                    // Use the same root crown as the real obstacle, with roots behind soil.
+                    tree.transform.SetSiblingIndex(2);
+                }
+            }
+            if(kind==TutorialDemoKind.Climb || kind==TutorialDemoKind.Crouch)
+            {
+                bool up=kind==TutorialDemoKind.Climb;
+                var badge=Art("ObstacleActionBadge",CozyIconFactory.CircleButton(),new Vector2(up ? 15f:-180f,78f),Vector2.one*46,up ? Green:Blue);
+                Art(up ? "ClimbUpArrow":"CrouchDownArrow",up ? CozyIconFactory.ArrowUp():CozyIconFactory.ArrowDown(),Vector2.zero,Vector2.one*25,Color.white,badge.transform);
             }
             bool encounter=kind==TutorialDemoKind.DogStomp || kind==TutorialDemoKind.DogContact || kind==TutorialDemoKind.BirdReward;
             catSize=kind==TutorialDemoKind.Climb ? 170f : encounter ? 180f : kind==TutorialDemoKind.Jump || kind==TutorialDemoKind.DrawTools ? 205f : 230f;
@@ -221,10 +236,13 @@ namespace PawPath.UI
         void Crouch(float elapsed)
         {
             float t=elapsed%5.5f; float progress=Mathf.Clamp01((t-.5f)/4f);
-            Control(0,CozyIconFactory.ArrowDown(),Blue,new Vector2(300,-112));
             float x=Mathf.Lerp(-300,300,progress); bool low=x>-245 && x<245;
-            if(joystickControls)Stick(0,new Vector2(300,-112),Vector2.down,low?1:0,low);
-            else if(low) Press(0,t%1f);
+            if(!automaticCrouch)
+            {
+                Control(0,CozyIconFactory.ArrowDown(),Blue,new Vector2(300,-112));
+                if(joystickControls)Stick(0,new Vector2(300,-112),Vector2.down,low?1:0,low);
+                else if(low) Press(0,t%1f);
+            }
             Pose(x,Floor,low ? Frame(definition?.crouchWalkFrames,t,8) ?? Frame(definition?.jumpFrames,0,1) : Frame(definition?.walkFrames,t,24));
         }
 
@@ -236,6 +254,8 @@ namespace PawPath.UI
             if(t<.65f) Gesture(0,Vector2.up,t,.65f);
             float rise=Mathf.Clamp01((t-.65f)/2.4f);
             Pose(-35,Mathf.Lerp(-80,5,rise),t<3.1f ? Frame(definition?.climbFrames,t,24) : definition?.idleSprite);
+            reward.text="+5"; reward.rectTransform.anchoredPosition=new Vector2(95,100);
+            reward.gameObject.SetActive(t>=3.1f);
         }
 
         void Encounter(float elapsed)

@@ -6,6 +6,7 @@ using PawPath.Audio;
 namespace PawPath.Levels
 {
     /// <summary>Uçuş animasyonunu oynatır ve temas edildiğinde Sevgi ödülü verir.</summary>
+    [RequireComponent(typeof(MobSimulationGate))]
     public class FlyingBirdCollectable : MonoBehaviour
     {
         SpriteRenderer renderer;
@@ -34,6 +35,7 @@ namespace PawPath.Levels
 
         void Update()
         {
+            if (collected || !MobSimulationGate.GameplayActive) return;
             transform.position += Vector3.left * (speed * Time.deltaTime);
             if (transform.position.x < leftBound)
             {
@@ -84,6 +86,7 @@ namespace PawPath.Levels
 
         void OnTriggerEnter2D(Collider2D other)
         {
+            if (!MobSimulationGate.GameplayActive) return;
             if (collected || other.GetComponentInParent<CatController>() == null) return;
             collected = true;
             CozyEconomyManager.Instance?.AddLove(3, "Kuş ödülü");

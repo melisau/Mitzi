@@ -41,10 +41,16 @@ namespace PawPath.Hub
             for (float x = minX; x <= maxX; x += .20f) columns.Add(x);
             columns.Sort((a,b) => Mathf.Abs(a - preferredX).CompareTo(Mathf.Abs(b - preferredX)));
             int rows = Mathf.Max(1, Mathf.CeilToInt((maxY - minY) / .25f));
-            for (int row = 0; row <= rows; row++)
+            float bottomOffset = sprite != null ? sprite.bounds.min.y - transform.position.y : -.5f;
+            float preferredY = slotType == FurnitureSlotType.Poster ? maxY :
+                Mathf.Clamp(HomeRooms.FloorMaxY - bottomOffset, minY, maxY);
+            var rowPositions = new System.Collections.Generic.List<float> { preferredY, minY, maxY };
+            for (int row = 0; row <= rows; row++) rowPositions.Add(Mathf.Lerp(minY, maxY, (float)row / rows));
+            rowPositions.Sort((a,b) => Mathf.Abs(a - preferredY).CompareTo(Mathf.Abs(b - preferredY)));
+            foreach (float y in rowPositions)
             foreach (float x in columns)
             {
-                transform.position = new Vector3(x, Mathf.Lerp(maxY, minY, (float)row / rows), transform.position.z);
+                transform.position = new Vector3(x, y, transform.position.z);
                 Bounds candidate = PlacementBounds;
                 bool free = true;
                 foreach (var other in occupied)

@@ -707,11 +707,11 @@ MonoBehaviour:
   rescueHugBodyHeight: 4.675
   rescueHugContactX: 1.4585204
   jumpFrames:
-  - {fileID: 3338424842803830754, guid: 4edae6034975d5d46ba1face961a019f, type: 3}
-  - {fileID: -1407436198179730367, guid: 4edae6034975d5d46ba1face961a019f, type: 3}
-  - {fileID: -5377278370618880809, guid: 4edae6034975d5d46ba1face961a019f, type: 3}
-  - {fileID: 5033527943926993393, guid: 4edae6034975d5d46ba1face961a019f, type: 3}
-  jumpApexSprite: {fileID: -6413386900279588941, guid: 91704fdacc24a2d4aa792c6d95f27499, type: 3}
+  - {fileID: -5329423141585964549, guid: 4485546a194085643903f9a25c5383b6, type: 3}
+  - {fileID: 3404700597921950829, guid: 4485546a194085643903f9a25c5383b6, type: 3}
+  - {fileID: 6699168765577439225, guid: 4485546a194085643903f9a25c5383b6, type: 3}
+  - {fileID: 5434121180382721405, guid: 4485546a194085643903f9a25c5383b6, type: 3}
+  jumpApexSprite: {fileID: 0}
   sleepFrames:
   - {fileID: -694803891993344848, guid: 1b42ef5284d4ae2409d706ca67b9486a, type: 3}
   - {fileID: 5370495935834506543, guid: 1b42ef5284d4ae2409d706ca67b9486a, type: 3}

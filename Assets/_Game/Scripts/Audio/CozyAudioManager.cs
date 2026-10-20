@@ -20,6 +20,12 @@ namespace PawPath.Audio
         [SerializeField] AudioSource ambience;
         [SerializeField] AudioSource purr;
         [SerializeField] AudioSource sfx;
+        [SerializeField] AudioSource meow;
+        AudioSource dogBark;
+        AudioClip naturalDogBark, robotDogBark;
+        SpriteRenderer barkingDog;
+        double nextDogBarkTime;
+        double nextMeowTime;
 
         [SerializeField] AudioClip musicLoop;
         [SerializeField] AudioClip summerAmbience;
@@ -52,6 +58,15 @@ namespace PawPath.Audio
             ambience = Ensure(ambience, "Ambience", 0.35f, true);
             purr = Ensure(purr, "Purr", 0.55f, true);
             sfx = Ensure(sfx, "Sfx", 0.8f, false);
+            // A dedicated, single voice prevents repeated cat/UI events from summing
+            // several meows, without interrupting footsteps or confirmation sounds.
+            meow = Ensure(meow, "Meow", 0.8f, false);
+            meow.spatialBlend = 0f;
+            meow.pitch = 1f;
+            dogBark = Ensure(dogBark, "DogBark", .20f, false);
+            dogBark.spatialBlend = 0f;
+            naturalDogBark = Resources.Load<AudioClip>("Audio/DogBark");
+            robotDogBark = Resources.Load<AudioClip>("Audio/RobotDogBark");
             MusicMuted = PlayerPrefs.GetInt(MusicMutedKey, 0) == 1;
             EffectsMuted = PlayerPrefs.GetInt(EffectsMutedKey, 0) == 1;
             ApplyMuteState();
@@ -120,7 +135,7 @@ namespace PawPath.Audio
         public void PlayMeow()
         {
             if (meowSfx != null && meowSfx.length <= MaxMeowSeconds)
-                PlayOne(meowSfx);
+                PlayMeowClip(meowSfx);
             else
                 PlayRandomMeow();
         }
@@ -140,10 +155,34 @@ namespace PawPath.Audio
             {
                 // Liste boşsa yalnızca kısa tekil miyav çalınır (PlayMeow'a geri dönülmez).
                 if (meowSfx != null && meowSfx.length <= MaxMeowSeconds)
-                    PlayOne(meowSfx);
+                    PlayMeowClip(meowSfx);
                 return;
             }
-            PlayOne(meowVariants[Random.Range(0, meowVariants.Length)]);
+            PlayMeowClip(meowVariants[Random.Range(0, meowVariants.Length)]);
+        }
+
+        void PlayMeowClip(AudioClip clip)
+        {
+            if (clip == null || clip.length > MaxMeowSeconds || meow == null ||
+                !isActiveAndEnabled || EffectsMuted || meow.isPlaying || Time.unscaledTimeAsDouble < nextMeowTime)
+                return;
+            // Unscaled time also protects consecutive events while the UI pauses timeScale.
+            nextMeowTime = Time.unscaledTimeAsDouble + clip.length + .12d;
+            meow.clip = clip;
+            meow.Play();
+        }
+
+        void OnDisable()
+        {
+            if (dogBark != null) dogBark.Stop();
+            barkingDog = null;
+            if (meow != null) meow.Stop();
+            nextMeowTime = 0d;
+        }
+
+        void OnDestroy()
+        {
+            if (Instance == this) Instance = null;
         }
 
         public void ToggleMusic()
@@ -164,13 +203,58 @@ namespace PawPath.Audio
 
         void ApplyMuteState()
         {
+            if (dogBark != null)
+            {
+                dogBark.mute = EffectsMuted;
+                if (EffectsMuted) { dogBark.Stop(); barkingDog = null; }
+            }
             if (music != null) music.mute = MusicMuted;
             if (ambience != null) ambience.mute = MusicMuted;
             if (sfx != null) sfx.mute = EffectsMuted;
             if (purr != null) purr.mute = EffectsMuted;
+            if (meow != null)
+            {
+                meow.mute = EffectsMuted;
+                if (EffectsMuted)
+                {
+                    meow.Stop();
+                    nextMeowTime = 0d;
+                }
+            }
         }
 
         public void PlayHomeMusic() => SwitchMusic(homeMusic);
+
+        public static bool DogVisible(SpriteRenderer dog)
+        {
+            var camera = Camera.main;
+            if (dog == null || !dog.enabled || !dog.gameObject.activeInHierarchy || camera == null) return false;
+            var bounds = dog.bounds;
+            Vector3 min = camera.WorldToViewportPoint(bounds.min), max = camera.WorldToViewportPoint(bounds.max);
+            return max.x > 0 && min.x < 1 && max.y > 0 && min.y < 1 && max.z > 0;
+        }
+
+        public bool TryPlayDogBark(SpriteRenderer dog, bool robotic)
+        {
+            if (!isActiveAndEnabled || dogBark == null || EffectsMuted ||
+                !PawPath.Levels.MobSimulationGate.GameplayActive || !DogVisible(dog) ||
+                dogBark.isPlaying || Time.timeAsDouble < nextDogBarkTime) return false;
+            AudioClip clip = robotic ? robotDogBark : naturalDogBark;
+            if (clip == null) return false;
+            barkingDog = dog; dogBark.clip = clip;
+            dogBark.panStereo = Mathf.Clamp((Camera.main.WorldToViewportPoint(dog.bounds.center).x - .5f) * .5f, -.25f, .25f);
+            dogBark.Play();
+            nextDogBarkTime = Time.timeAsDouble + clip.length + 6d;
+            return true;
+        }
+
+        void Update()
+        {
+            if (dogBark != null && (!PawPath.Levels.MobSimulationGate.GameplayActive || EffectsMuted || !DogVisible(barkingDog)))
+            {
+                dogBark.Stop(); barkingDog = null;
+            }
+        }
 
         public void PlayThemeMusic(int theme)
         {

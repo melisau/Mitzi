@@ -14,11 +14,13 @@ namespace PawPath.UI
         const int IconSize = 128;
 
         static Sprite coin, gear, food, water, moon, heart, paw, circle, pill, candy, pencil;
-        static Sprite playIcon, bag, catFace, pillButton, bubble;
+        static Sprite playIcon, bag, catFace, mysteryCat, pillButton, bubble;
         static Sprite softEllipse, softGlow;
         static Sprite starIcon, cloudIcon, ringIcon, handIcon;
         static Sprite[] handFrames;
         static Sprite treeIcon, buildingIcon, boltIcon, gamepadIcon, flagIcon;
+        static Sprite phoneIcon, cameraIcon;
+        static Sprite mitziPhoneIcon;
         static Sprite arrowUp, arrowDown, arrowLeft, arrowRight, pauseIcon, restartIcon, house;
         static Sprite eraserIcon, snowflakeIcon, unpackIcon, dotIcon, closeIcon, touchFinger;
 
@@ -215,6 +217,28 @@ namespace PawPath.UI
         public static Sprite Buildings() => buildingIcon != null ? buildingIcon : buildingIcon = BuildIcon("IconBuildings", BuildingsSdf);
         public static Sprite Bolt() => boltIcon != null ? boltIcon : boltIcon = BuildIcon("IconBolt", BoltSdf);
         public static Sprite Gamepad() => gamepadIcon != null ? gamepadIcon : gamepadIcon = BuildIcon("IconGamepad", GamepadSdf);
+        public static Sprite Phone() => phoneIcon != null ? phoneIcon : phoneIcon = BuildIcon("IconPhone", p =>
+            Mathf.Min(Mathf.Max(RoundBox(p, new Vector2(64,64), new Vector2(32,53), 10),
+                -RoundBox(p, new Vector2(64,70), new Vector2(23,36), 4)), Circle(p, new Vector2(64,24), 4)));
+        public static Sprite MitziPhone() => mitziPhoneIcon != null ? mitziPhoneIcon : mitziPhoneIcon = BuildMitziPhone();
+        static Sprite BuildMitziPhone()
+        {
+            var pixels = new Color[IconSize * IconSize];
+            Paint(pixels,IconSize,IconSize,p=>RoundBox(p,new Vector2(65,60),new Vector2(34,54),12),new Color(.17f,.10f,.07f,.35f));
+            Paint(pixels,IconSize,IconSize,p=>RoundBox(p,new Vector2(64,65),new Vector2(33,54),11),new Color(.29f,.18f,.13f));
+            Paint(pixels,IconSize,IconSize,p=>RoundBox(p,new Vector2(64,66),new Vector2(29,50),8),new Color(1,.94f,.83f));
+            Paint(pixels,IconSize,IconSize,p=>RoundBox(p,new Vector2(64,68),new Vector2(24,37),4),new Color(.70f,.47f,.73f));
+            Paint(pixels,IconSize,IconSize,p=>RoundBox(p,new Vector2(64,55),new Vector2(24,24),3),new Color(.91f,.54f,.61f));
+            Paint(pixels,IconSize,IconSize,p=>CatFaceSdf((p-new Vector2(64,68))/.36f+new Vector2(64,64))*.36f,new Color(1,.98f,.90f));
+            Paint(pixels,IconSize,IconSize,p=>RoundBox(p,new Vector2(64,111),new Vector2(9,2),2),new Color(.29f,.18f,.13f));
+            Paint(pixels,IconSize,IconSize,p=>Circle(p,new Vector2(64,23),3),new Color(.29f,.18f,.13f));
+            return ToSprite("IconMitziPhone",pixels,IconSize,IconSize,Vector4.zero);
+        }
+        public static Sprite Camera() => cameraIcon != null ? cameraIcon : cameraIcon = BuildIcon("IconCamera", CameraSdf);
+        static float CameraSdf(Vector2 p) =>
+            Mathf.Min(Mathf.Min(Mathf.Max(RoundBox(p, new Vector2(64,64), new Vector2(47,47), 16),
+                -RoundBox(p, new Vector2(64,64), new Vector2(38,38), 11)), Mathf.Abs(Circle(p,new Vector2(64,64),21))-4),
+                Circle(p,new Vector2(91,91),6));
         /// <summary>Damalı bitiş bayrağı (dama kareleri oyuk, zemin rengi görünür).</summary>
         public static Sprite FinishFlag() => flagIcon != null ? flagIcon : flagIcon = BuildIcon("IconFinishFlag", FlagSdf);
 
@@ -229,6 +253,8 @@ namespace PawPath.UI
 
         /// <summary>Gözleri gülen kedi yüzü: duygu balonunda "mutluyum" anlamında.</summary>
         public static Sprite HappyCatFace() => catFace != null ? catFace : catFace = BuildIcon("IconHappyCat", CatFaceSdf);
+        public static Sprite MysteryCat() => mysteryCat != null ? mysteryCat : mysteryCat = BuildIcon("IconMysteryCat", p =>
+            SmoothUnion(SmoothUnion(Ellipse(p, new Vector2(64f, 54f), 50f, 42f), Polygon(p, EarLeft), 6f), Polygon(p, EarRight), 6f));
 
         /// <summary>
         /// Yuvarlak ikon düğmeyle aynı dilde (koyu halka, hafif degrade, üst parlama)

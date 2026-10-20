@@ -1,0 +1,13 @@
+# Ghost — daha toplu zıplama
+
+Ghost'un eski `jump.png` dosyasında ikinci ve üçüncü karelerin ön ve arka bacakları aşırı uzuyordu. `jump-compact.png` dört yeni ve dizleri bükülü poz içerir. Eski dosya korunmuştur. GhostCatBuilder yeni sayfayı otomatik dilimler ve Jump animasyonuna / CatDefinition'a bağlar; diğer kedilerin atamaları değiştirilmez.
+
+Yeni sayfada toplu uçuş pozu zaten bulunduğu için eski action sayfasından gelen farklı ölçekli apex pozu araya sokulmaz. Zıplama kuvveti, yerçekimi, hız ve çarpışma parametreleri değiştirilmez. Ghost yürüyüş yumuşatma katmanı Jump durumunda devreden çıkar.
+
+İzole Unity doğrulaması: `GHOST_COMPACT_JUMP_PASS sprites=4 airborneStages=8 legacyApex=disabled physics=unchanged alpha=preserved`. Yeni karelerin bağlantısı, gövdenin gereksiz uzamaması, gerçek şeffaflık, sekiz dikey hız durumundaki görsel seçimi, yürüyüş katmanının araya girmemesi ve fizik konumu/hızı/collider yarıçapının değişmemesi kontrol edildi. Oyun renderer'ıyla önce/sonra görüntüsü `varied-shelves-ghost/ghost-airborne-before-after.png` olarak üretildi.
+
+Üretim: yerleşik image_gen aracı, şeffaflık korunarak, eski jump.png düzenleme referansı olarak verildi. Çıktı proje içindeki Assets/_Game/Art/AnimalsRealistic/Cats/ghost/jump-compact.png dosyasına kopyalandı.
+
+## Üretim istemi
+
++Use case: precise-object-edit. Asset type: transparent 2D game character jump animation sprite sheet. Input image 1 is the edit target: Ghost, a fluffy pure-white Van cat facing RIGHT, side view. Make a replacement 2x2 sheet with FOUR clearly separated sprites on a true transparent background, same identity, fluffy fur, anatomy, scale and art style. Main request: fix the overextended airborne legs; this cat must jump naturally with compact body and bent joints rather than spreading front and rear legs far apart. Top-left: takeoff with forepaws softly folded and hindlegs bent beneath the pelvis. Top-right: ascending in midair, both forelegs curved close under the chest and both hindlegs folded under the belly; no straight outstretched legs. Bottom-left: descending, compact torso and lightly lowered bent paws under the chest and pelvis, ready to land, NEVER a long horizontal spread or Superman pose. Bottom-right: soft landing on four paws with flexed knees. Keep body/head dimensions identical in all four cells; tail may curve gently upward, never cropped. Subtle phase differences, no exaggerated foreshortening or anatomical stretching. All four are the SAME cat, right-facing strict side view, matching the supplied sprite. Equal-sized 2x2 cells and generous empty transparent gutters and margins. No writing, no grid lines, no floor, no shadow, no props, no other cats, no opaque background. Preserve real alpha.

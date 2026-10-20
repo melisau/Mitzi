@@ -129,7 +129,7 @@ namespace PawPath.Hub
                     {
                         UpdateWorldLoveText();
                         SpawnFloatingText();
-                        Vibrate();
+                        PettingHaptics.Pulse();
                     }
                     else if (worldLoveText != null)
                     {
@@ -263,13 +263,6 @@ namespace PawPath.Hub
                 Vector3 spawnPos = worldLoveText != null ? worldLoveText.transform.position : transform.position + Vector3.up * 2f;
                 Instantiate(floatingTextPrefab, spawnPos, Quaternion.identity);
             }
-        }
-
-        static void Vibrate()
-        {
-#if UNITY_IOS || UNITY_ANDROID
-            Handheld.Vibrate();
-#endif
         }
 
         static Vector3 PointerScreen()
