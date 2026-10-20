@@ -26,7 +26,9 @@ Kullanıcı önce reklamsız sürümün GitHub'a gönderilmesini, ardından iste
 
 ## Yayın metinleri
 
-Ad: **Mitzi**
+Güncel kullanıcı onayıyla Türkçe ad **Mitzi: Kedi Macerası**, İngilizce ad **Mitzi: Cat Adventure**. en-US / en-GB mağaza metinleri ve ABD/Avrupa ülke kapsamı `PLAY_STORE_LOCALIZATION_20261020.md` içinde. Kapalı test kapsamı Türkiye dahil 44 ülke/bölge olarak genişletildi. Bu seçim üretim erişiminin açıldığı anlamına gelmez.
+
+Ad: **Mitzi: Kedi Macerası**
 
 Kısa açıklama:
 
