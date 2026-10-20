@@ -16,7 +16,7 @@ MonoBehaviour:
   contactEmail: melisauyar5225@gmail.com
   privacyPolicyUrl: https://melisau.github.io/Mitzi/privacy.html
   privacyPolicyReviewed: 1
-  advertisingEnabled: 0
+  advertisingEnabled: 1
   androidAppId: ca-app-pub-9304512688200537~1747898104
   androidRewardedAdUnitId: ca-app-pub-9304512688200537/7647836905
   iosRewardedAdUnitId:
